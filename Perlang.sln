@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Interpreter", "Perlang.Interpreter\Perlang.Interpreter.csproj", "{2E39F005-52FF-404D-B570-0AB2E9081272}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Common", "Perlang.Common\Perlang.Common.csproj", "{B338D29B-A85D-4650-9BFF-FBFE55258C58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Parser", "Perlang.Parser\Perlang.Parser.csproj", "{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E39F005-52FF-404D-B570-0AB2E9081272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E39F005-52FF-404D-B570-0AB2E9081272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E39F005-52FF-404D-B570-0AB2E9081272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E39F005-52FF-404D-B570-0AB2E9081272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B338D29B-A85D-4650-9BFF-FBFE55258C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B338D29B-A85D-4650-9BFF-FBFE55258C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B338D29B-A85D-4650-9BFF-FBFE55258C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B338D29B-A85D-4650-9BFF-FBFE55258C58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
