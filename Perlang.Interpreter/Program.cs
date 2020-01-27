@@ -63,59 +63,17 @@ namespace Perlang.Interpreter
         
         private void Run(string source)
         {
-            if (String.IsNullOrWhiteSpace(source))
+            var result = interpreter.Eval(source, ScanError, ParseError, ResolveError);
+
+            if (result != null)
             {
-                return;
-            }
-
-            var scanner = new Scanner(source, ScannerError);
-
-            var tokens = scanner.ScanTokens();
-
-            // For now, just print the tokens.
-            var parser = new PerlangParser(tokens, ParseError);
-            var statements = parser.ParseStatements();
-
-            // Stop if there was a syntax error.
-            if (!hadError)
-            {
-                var resolver = new Resolver(interpreter, ResolveError);
-                resolver.Resolve(statements);
-
-                // Stop if there was a resolution error.
-                if (hadError) return;
-
-                interpreter.Interpret(statements);
-            }
-            else
-            {
-                // This was not a valid set of statements. But is it perhaps a valid expression? The parser is now
-                // at EOF and since we don't currently have any form of "rewind" functionality, the easiest approach
-                // is to just create a new parser at this point.
-                parser = new PerlangParser(tokens, ParseError);
-                Expr expression = parser.ParseExpression();
-
-                if (expression == null)
-                {
-                    // Likely not a valid expression. Errors are presumed to have been handled at this point, so we
-                    // can just return.
-                    return;
-                }
-
-                // TODO: we don't run the resolver in this case, which essentially means that we will be unable to
-                // TODO: refer to local variables.
-                object result = interpreter.Evaluate(expression);
-
-                if (result != null)
-                {
-                    Console.WriteLine(result);
-                }
+                Console.WriteLine(result);
             }
         }
 
-        private static void ScannerError(int line, string message)
+        private static void ScanError(ScanError scanError)
         {
-            Report(line, "", message);
+            Report(scanError.Line, "", scanError.Message);
         }
 
         private static void RuntimeError(RuntimeError error)
@@ -156,7 +114,7 @@ namespace Perlang.Interpreter
             Error(token, message);
         }
 
-        public void ResolveError(Token token, string message)
+        private static void ResolveError(Token token, string message)
         {
             Error(token, message);
         }
