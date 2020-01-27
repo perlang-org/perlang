@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace Perlang.Interpreter
         private FunctionType currentFunction = FunctionType.None;
 
         private readonly IInterpreter interpreter;
-        private readonly IResolveErrorHandler resolveErrorHandler;
+        private readonly Action<Token, string> resolveErrorHandler;
 
-        internal Resolver(IInterpreter interpreter, IResolveErrorHandler resolveErrorHandler)
+        internal Resolver(IInterpreter interpreter, Action<Token, string> resolveErrorHandler)
         {
             this.interpreter = interpreter;
             this.resolveErrorHandler = resolveErrorHandler;
@@ -48,7 +49,7 @@ namespace Perlang.Interpreter
 
             if (scope.ContainsKey(name.Lexeme))
             {
-                resolveErrorHandler.ResolveError(name, "Variable with this name already declared in this scope.");
+                resolveErrorHandler(name, "Variable with this name already declared in this scope.");
             }
 
             scope[name.Lexeme] = false;
@@ -141,8 +142,7 @@ namespace Perlang.Interpreter
             if (!IsEmpty(scopes) &&
                 scopes.Peek()[expr.Name.Lexeme] == false)
             {
-                resolveErrorHandler.ResolveError(expr.Name,
-                    "Cannot read local variable in its own initializer.");
+                resolveErrorHandler(expr.Name, "Cannot read local variable in its own initializer.");
             }
 
             ResolveLocal(expr, expr.Name);
@@ -225,7 +225,7 @@ namespace Perlang.Interpreter
         {
             if (currentFunction == FunctionType.None)
             {
-                resolveErrorHandler.ResolveError(stmt.Keyword, "Cannot return from top-level code.");
+                resolveErrorHandler(stmt.Keyword, "Cannot return from top-level code.");
             }
 
             if (stmt.Value != null)

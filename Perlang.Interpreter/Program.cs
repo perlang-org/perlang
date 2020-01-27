@@ -5,7 +5,7 @@ using Perlang.Parser;
 
 namespace Perlang.Interpreter
 {
-    public class Program : IScannerErrorHandler, IResolveErrorHandler, IParseErrorHandler, IRuntimeErrorHandler
+    public class Program
     {
         private readonly PerlangInterpreter interpreter;
 
@@ -31,7 +31,7 @@ namespace Perlang.Interpreter
 
         private Program()
         {
-            interpreter = new PerlangInterpreter(this);
+            interpreter = new PerlangInterpreter(RuntimeError);
         }
 
         private void RunFile(string path)
@@ -68,18 +68,18 @@ namespace Perlang.Interpreter
                 return;
             }
 
-            var scanner = new Scanner(source, this);
+            var scanner = new Scanner(source, ScannerError);
 
             var tokens = scanner.ScanTokens();
 
             // For now, just print the tokens.
-            var parser = new PerlangParser(tokens, this);
+            var parser = new PerlangParser(tokens, ParseError);
             var statements = parser.ParseStatements();
 
             // Stop if there was a syntax error.
             if (!hadError)
             {
-                var resolver = new Resolver(interpreter, this);
+                var resolver = new Resolver(interpreter, ResolveError);
                 resolver.Resolve(statements);
 
                 // Stop if there was a resolution error.
@@ -92,7 +92,7 @@ namespace Perlang.Interpreter
                 // This was not a valid set of statements. But is it perhaps a valid expression? The parser is now
                 // at EOF and since we don't currently have any form of "rewind" functionality, the easiest approach
                 // is to just create a new parser at this point.
-                parser = new PerlangParser(tokens, this);
+                parser = new PerlangParser(tokens, ParseError);
                 Expr expression = parser.ParseExpression();
 
                 if (expression == null)
@@ -113,12 +113,12 @@ namespace Perlang.Interpreter
             }
         }
 
-        public void ScannerError(int line, string message)
+        private static void ScannerError(int line, string message)
         {
             Report(line, "", message);
         }
 
-        public void RuntimeError(RuntimeError error)
+        private static void RuntimeError(RuntimeError error)
         {
             Console.WriteLine($"{error.Message}\n" +
                               $"[line {error.Token.Line}]");

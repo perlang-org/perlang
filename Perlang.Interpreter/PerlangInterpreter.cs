@@ -7,13 +7,13 @@ namespace Perlang.Interpreter
 {
     internal class PerlangInterpreter : IInterpreter, Expr.IVisitor<object>, Stmt.IVisitor<VoidObject>
     {
-        private readonly IRuntimeErrorHandler runtimeErrorHandler;
+        private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
         private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
         private PerlangEnvironment perlangEnvironment;
 
-        public PerlangInterpreter(IRuntimeErrorHandler runtimeErrorHandler)
+        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             
@@ -33,7 +33,7 @@ namespace Perlang.Interpreter
             }
             catch (RuntimeError error)
             {
-                runtimeErrorHandler.RuntimeError(error);
+                runtimeErrorHandler(error);
             }
         }
 

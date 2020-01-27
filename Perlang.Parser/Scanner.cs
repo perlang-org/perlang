@@ -28,14 +28,14 @@ namespace Perlang.Parser
         };
 
         private readonly string source;
-        private readonly IScannerErrorHandler scannerErrorHandler;
+        private readonly Action<int, string> scannerErrorHandler;
 
         private readonly List<Token> tokens = new List<Token>();
         private int start;
         private int current;
         private int line = 1;
 
-        public Scanner(string source, IScannerErrorHandler scannerErrorHandler)
+        public Scanner(string source, Action<int,string> scannerErrorHandler)
         {
             this.source = source;
             this.scannerErrorHandler = scannerErrorHandler;
@@ -141,7 +141,7 @@ namespace Perlang.Parser
                     }
                     else
                     {
-                        scannerErrorHandler.ScannerError(line, "Unexpected character " + c);
+                        scannerErrorHandler(line, "Unexpected character " + c);
                     }
 
                     break;
@@ -186,7 +186,7 @@ namespace Perlang.Parser
             // Unterminated string.
             if (IsAtEnd())
             {
-                scannerErrorHandler.ScannerError(line, "Unterminated string.");
+                scannerErrorHandler(line, "Unterminated string.");
                 return;
             }
 

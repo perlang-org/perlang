@@ -17,12 +17,12 @@ namespace Perlang.Parser
             }
         }
 
-        private readonly IParseErrorHandler parseErrorHandler;
+        private readonly Action<Token, string, ParseErrorType?> parseErrorHandler;
         private readonly List<Token> tokens;
 
         private int current;
 
-        public PerlangParser(List<Token> tokens, IParseErrorHandler parseErrorHandler)
+        public PerlangParser(List<Token> tokens, Action<Token, string, ParseErrorType?> parseErrorHandler)
         {
             this.parseErrorHandler = parseErrorHandler;
             this.tokens = tokens;
@@ -527,7 +527,7 @@ namespace Perlang.Parser
 
         private ParseError Error(Token token, string message, ParseErrorType? parseErrorType = null)
         {
-            parseErrorHandler.ParseError(token, message, parseErrorType);
+            parseErrorHandler(token, message, parseErrorType);
             return new ParseError(parseErrorType);
         }
 
