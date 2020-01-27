@@ -5,7 +5,7 @@ using static Perlang.TokenType;
 
 namespace Perlang.Interpreter
 {
-    internal class PerlangInterpreter : IInterpreter, Expr.IVisitor<object>, Stmt.IVisitor<VoidObject>
+    public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object>, Stmt.IVisitor<VoidObject>
     {
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
