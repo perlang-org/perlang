@@ -6,39 +6,39 @@ namespace Perlang.Parser
 {
     public class Scanner
     {
-        private static readonly IDictionary<string, TokenType> ReservedKeywords = 
+        private static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
-        {
-            {"and", AND},
-            {"class", CLASS},
-            {"else", ELSE},
-            {"false", FALSE},
-            {"for", FOR},
-            {"fun", FUN},
-            {"if", IF},
-            {"nil", NIL},
-            {"or", OR},
-            {"print", PRINT},
-            {"return", RETURN},
-            {"super", SUPER},
-            {"this", THIS},
-            {"true", TRUE},
-            {"var", VAR},
-            {"while", WHILE}
-        };
+            {
+                {"and", AND},
+                {"class", CLASS},
+                {"else", ELSE},
+                {"false", FALSE},
+                {"for", FOR},
+                {"fun", FUN},
+                {"if", IF},
+                {"nil", NIL},
+                {"or", OR},
+                {"print", PRINT},
+                {"return", RETURN},
+                {"super", SUPER},
+                {"this", THIS},
+                {"true", TRUE},
+                {"var", VAR},
+                {"while", WHILE}
+            };
 
         private readonly string source;
-        private readonly Action<int, string> scannerErrorHandler;
+        private readonly ScanErrorHandler scanErrorHandler;
 
         private readonly List<Token> tokens = new List<Token>();
         private int start;
         private int current;
         private int line = 1;
 
-        public Scanner(string source, Action<int,string> scannerErrorHandler)
+        public Scanner(string source, ScanErrorHandler scanErrorHandler)
         {
             this.source = source;
-            this.scannerErrorHandler = scannerErrorHandler;
+            this.scanErrorHandler = scanErrorHandler;
         }
 
         public List<Token> ScanTokens()
@@ -141,7 +141,7 @@ namespace Perlang.Parser
                     }
                     else
                     {
-                        scannerErrorHandler(line, "Unexpected character " + c);
+                        scanErrorHandler(new ScanError { Line = line, Message = "Unexpected character " + c });
                     }
 
                     break;
@@ -186,7 +186,7 @@ namespace Perlang.Parser
             // Unterminated string.
             if (IsAtEnd())
             {
-                scannerErrorHandler(line, "Unterminated string.");
+                scanErrorHandler(new ScanError { Line = line, Message = "Unterminated string." });
                 return;
             }
 
@@ -241,13 +241,13 @@ namespace Perlang.Parser
                    c == '_';
         }
 
-        private static bool IsAlphaNumeric(char c) => 
+        private static bool IsAlphaNumeric(char c) =>
             IsAlpha(c) || IsDigit(c);
 
-        private static bool IsDigit(char c) => 
+        private static bool IsDigit(char c) =>
             c >= '0' && c <= '9';
 
-        private bool IsAtEnd() => 
+        private bool IsAtEnd() =>
             current >= source.Length;
 
         private char Advance()

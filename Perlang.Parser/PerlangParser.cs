@@ -17,12 +17,12 @@ namespace Perlang.Parser
             }
         }
 
-        private readonly Action<Token, string, ParseErrorType?> parseErrorHandler;
+        private readonly ParseErrorHandler parseErrorHandler;
         private readonly List<Token> tokens;
 
         private int current;
 
-        public PerlangParser(List<Token> tokens, Action<Token, string, ParseErrorType?> parseErrorHandler)
+        public PerlangParser(List<Token> tokens, ParseErrorHandler parseErrorHandler)
         {
             this.parseErrorHandler = parseErrorHandler;
             this.tokens = tokens;
@@ -48,6 +48,7 @@ namespace Perlang.Parser
             }
             catch (ParseError)
             {
+                // Error has already been reported at this point
                 return null;
             }
         }

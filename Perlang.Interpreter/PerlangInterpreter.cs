@@ -16,13 +16,115 @@ namespace Perlang.Interpreter
         public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
-            
+
             perlangEnvironment = globals;
 
             globals.Define("clock", new ClockCallable());
         }
 
-        internal void Interpret(IEnumerable<Stmt> statements)
+        /// <summary>
+        /// Runs the provided source code, in an eval()/REPL fashion. For scenarios where more control over error
+        /// handling, etc., consider manually scanning the source code and use the <see cref="Interpret"/> method
+        /// instead.
+        /// </summary>
+        /// <param name="source">the Perlang source code</param>
+        /// <param name="scanErrorHandler">a handler for scanner errors</param>
+        /// <param name="parseErrorHandler">a handler for parse errors</param>
+        /// <param name="resolveErrorHandler">a handler for resolve errors</param>
+        /// <returns>if the provided source is an expression, the value of the expression. Otherwise, null.</returns>
+        public object Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
+            ResolveErrorHandler resolveErrorHandler)
+        {
+            if (String.IsNullOrWhiteSpace(source))
+            {
+                return null;
+            }
+
+            var scanErrors = new ScanErrors();
+            var scanner = new Scanner(source, scanError => scanErrors.Add(scanError));
+
+            var tokens = scanner.ScanTokens();
+
+            if (!scanErrors.Empty())
+            {
+                // Something went wrong as early as the "scan" stage. Report it to the caller and return cleanly.
+                foreach (ScanError scanError in scanErrors)
+                {
+                    scanErrorHandler(scanError);
+                }
+
+                return null;
+            }
+
+            var statementParseErrors = new ParseErrors();
+            var parser = new PerlangParser(tokens,
+                (token, message, parseErrorType) => statementParseErrors.Add(token, message, parseErrorType));
+            var statements = parser.ParseStatements();
+
+            if (statementParseErrors.Empty())
+            {
+                // The provided code parsed cleanly as a set of statements. Move on to the next phase in the
+                // evaluation.
+
+                var resolveErrors = new ResolveErrors();
+                var resolver = new Resolver(this, (token, message) => resolveErrors.Add(token, message));
+                resolver.Resolve(statements);
+
+                if (!resolveErrors.Empty())
+                {
+                    // Report resolution errors back to the provided error handler. We defer this so that we can use the
+                    // Empty() check to see if we had any errors; if we would just pass the resolveErrorHandler()
+                    // to the Resolver constructor, we would have no idea if any errors has occurred at this stage.
+                    foreach (ResolveError resolveError in resolveErrors)
+                    {
+                        resolveErrorHandler(resolveError.Token, resolveError.Message);
+                    }
+
+                    return null;
+                }
+
+                Interpret(statements);
+
+                return null;
+            }
+            else
+            {
+                // This was not a valid set of statements. But is it perhaps a valid expression? The parser is now
+                // at EOF and since we don't currently have any form of "rewind" functionality, the easiest approach
+                // is to just create a new parser at this point.
+                var expressionParseErrors = new ParseErrors();
+
+                parser = new PerlangParser(tokens,
+                    (token, message, parseErrorType) => expressionParseErrors.Add(token, message, parseErrorType));
+                Expr expression = parser.ParseExpression();
+
+                // TODO: This approach (parsing the provided program as a set of statements first, then an
+                // TODO: expression) has some clear drawbacks. We might return parse errors here which are
+                // TODO: quite irrelevant, since we are parsing the program the "wrong" way... We should consider
+                // TODO: at least reversing this so we try with expression first, then statements.
+                if (!expressionParseErrors.Empty())
+                {
+                    foreach (ParseError parseError in expressionParseErrors)
+                    {
+                        parseErrorHandler(parseError.Token, parseError.Message, parseError.ParseErrorType);
+                    }
+
+                    return null;
+                }
+
+                if (expression == null)
+                {
+                    // TODO: throw some InternalStateException or something instead.
+                    throw new Exception("expression was null even though no parse errors were encountered");
+                }
+
+                // TODO: we don't run the resolver in this case, which essentially means that we will be unable to
+                // TODO: refer to local variables.
+                return Evaluate(expression);
+            }
+        }
+
+        private void Interpret(IEnumerable<Stmt> statements)
         {
             try
             {
@@ -181,7 +283,7 @@ namespace Perlang.Interpreter
             return Evaluate(expr.Expression);
         }
 
-        internal object Evaluate(Expr expr)
+        private object Evaluate(Expr expr)
         {
             return expr.Accept(this);
         }
@@ -266,7 +368,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitVarStmt(Stmt.Var stmt)
         {
             object value = null;
-            
+
             if (stmt.Initializer != null)
             {
                 value = Evaluate(stmt.Initializer);

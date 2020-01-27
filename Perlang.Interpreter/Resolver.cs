@@ -12,9 +12,9 @@ namespace Perlang.Interpreter
         private FunctionType currentFunction = FunctionType.None;
 
         private readonly IInterpreter interpreter;
-        private readonly Action<Token, string> resolveErrorHandler;
+        private readonly ResolveErrorHandler resolveErrorHandler;
 
-        internal Resolver(IInterpreter interpreter, Action<Token, string> resolveErrorHandler)
+        internal Resolver(IInterpreter interpreter, ResolveErrorHandler resolveErrorHandler)
         {
             this.interpreter = interpreter;
             this.resolveErrorHandler = resolveErrorHandler;
