@@ -144,7 +144,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitVariableExpr(Expr.Variable expr)
         {
             if (!IsEmpty(scopes) &&
-                scopes.Peek()[expr.Name.Lexeme] == false)
+                TryGetVariableFromScope(scopes.Peek(), expr.Name.Lexeme, null) == false)
             {
                 resolveErrorHandler(new ResolveError
                 {
@@ -155,6 +155,11 @@ namespace Perlang.Interpreter
 
             ResolveLocal(expr, expr.Name);
             return null;
+        }
+
+        private static bool? TryGetVariableFromScope(IDictionary<string, bool> dictionary, string key, bool? defaultValue = default)
+        {
+            return dictionary.TryGetValue(key, out bool value) ? value : defaultValue;
         }
 
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
