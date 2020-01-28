@@ -10,75 +10,76 @@ namespace Perlang.Tests
         [Fact]
         public void multiply_has_higher_precedence_than_plus()
         {
-            Assert.Equal(14.0, Evaluate("2 + 3 * 4"));
+            Assert.Equal(14.0, Eval("2 + 3 * 4"));
         }
 
         [Fact]
         public void multiply_has_higher_precedence_than_minus()
         {
-            Assert.Equal(8.0, Evaluate("20 - 3 * 4"));
+            Assert.Equal(8.0, Eval("20 - 3 * 4"));
         }
 
         [Fact]
         public void divide_has_higher_precedence_than_plus()
         {
-            Assert.Equal(4.0, Evaluate("2 + 6 / 3"));
+            Assert.Equal(4.0, Eval("2 + 6 / 3"));
         }
 
         [Fact]
         public void divide_has_higher_precedence_than_minus()
         {
-            Assert.Equal(0.0, Evaluate("2 - 6 / 3"));
+            Assert.Equal(0.0, Eval("2 - 6 / 3"));
         }
 
         [Fact]
         public void less_than_has_higher_precedence_than_equals_equals()
         {
-            Assert.Equal(true, Evaluate("false == 2 < 1"));
+            Assert.Equal(true, Eval("false == 2 < 1"));
         }
 
         [Fact]
         public void greater_than_has_higher_precedence_than_equals_equals()
         {
-            Assert.Equal(true, Evaluate("false == 1 > 2"));
+            Assert.Equal(true, Eval("false == 1 > 2"));
         }
 
         [Fact]
         public void less_than_or_equals_has_higher_precedence_than_equals_equals()
         {
-            EvaluateEquals(true, "false == 2 <= 1");
+            Assert.Equal(true, Eval("false == 2 <= 1"));
         }
 
         [Fact]
         public void greater_than_or_equals_has_higher_precedence_than_equals_equals()
         {
-            EvaluateEquals(true, "false == 1 >= 2");
+            Assert.Equal(true, Eval("false == 1 >= 2"));
         }
 
         [Fact]
         public void one_minus_one_is_not_space_sensitive()
         {
-            EvaluateEquals(0.0, "1 - 1");
-            EvaluateEquals(0.0, "1 -1");
-            EvaluateEquals(0.0, "1- 1");
-            EvaluateEquals(0.0, "1-1");
+            Assert.Equal(0.0, Eval("1 - 1"));
+            Assert.Equal(0.0, Eval("1 -1"));
+            Assert.Equal(0.0, Eval("1- 1"));
+            Assert.Equal(0.0, Eval("1-1"));
         }
 
         [Fact]
         public void parentheses_can_be_used_for_grouping()
         {
-            EvaluateEquals(4.0, "(2 * (6 - (2 + 2)))");
+            Assert.Equal(4.0, Eval("(2 * (6 - (2 + 2)))"));
         }
 
-        private void EvaluateEquals(object expected, string expression)
-        {
-            Assert.Equal(expected, Evaluate(expression));
-        }
-
-        private object Evaluate(string code)
+        /// <summary>
+        /// Evaluates the provided expression or list of statements. If provided an expression, returns the result;
+        /// otherwise, returns null.
+        /// </summary>
+        /// <param name="source">a valid Perlang programs</param>
+        /// <returns>the result of the provided expression, or null if not provided an expression.</returns>
+        private static object Eval(string source)
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
-            return interpreter.Eval(code, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
+            return interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler);
         }
 
