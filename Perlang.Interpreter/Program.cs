@@ -58,8 +58,14 @@ namespace Perlang.Interpreter
             for (;;)
             {
                 Console.Write("> ");
-                Run(Console.ReadLine());
-                hadError = false;
+                string command = Console.ReadLine();
+
+                if (command == "quit")
+                {
+                    break;
+                }
+
+                Run(command);
             }
         }
 
