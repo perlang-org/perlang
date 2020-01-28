@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Perlang.Parser;
 
 namespace Perlang.Interpreter
 {
@@ -7,16 +6,26 @@ namespace Perlang.Interpreter
     {
         public Token Token { get; set; }
         public string Message { get; set; }
+
+        public override string ToString()
+        {
+            string where;
+
+            if (Token.Type == TokenType.EOF)
+            {
+                where = " at end";
+            }
+            else
+            {
+                where = " at '" + Token.Lexeme + "'";
+            }
+
+            return $"[line {Token.Line}] Error{where}: {Message}";
+        }
     }
 
     public class ResolveErrors : List<ResolveError>
     {
         public bool Empty() => Count == 0;
-
-        // Convenience method to free consumers from having to construct ScanErrors manually.
-        public void Add(Token token, string message)
-        {
-            Add(new ResolveError { Token = token, Message = message });
-        }
     }
 }

@@ -59,8 +59,7 @@ namespace Perlang.Interpreter
             }
 
             var statementParseErrors = new ParseErrors();
-            var parser = new PerlangParser(tokens,
-                (token, message, parseErrorType) => statementParseErrors.Add(token, message, parseErrorType));
+            var parser = new PerlangParser(tokens, parseError => statementParseErrors.Add(parseError));
             var statements = parser.ParseStatements();
 
             if (statementParseErrors.Empty())
@@ -69,7 +68,7 @@ namespace Perlang.Interpreter
                 // evaluation.
 
                 var resolveErrors = new ResolveErrors();
-                var resolver = new Resolver(this, (token, message) => resolveErrors.Add(token, message));
+                var resolver = new Resolver(this, resolveError => resolveErrors.Add(resolveError));
                 resolver.Resolve(statements);
 
                 if (!resolveErrors.Empty())
@@ -79,7 +78,7 @@ namespace Perlang.Interpreter
                     // to the Resolver constructor, we would have no idea if any errors has occurred at this stage.
                     foreach (ResolveError resolveError in resolveErrors)
                     {
-                        resolveErrorHandler(resolveError.Token, resolveError.Message);
+                        resolveErrorHandler(resolveError);
                     }
 
                     return null;
@@ -96,8 +95,7 @@ namespace Perlang.Interpreter
                 // is to just create a new parser at this point.
                 var expressionParseErrors = new ParseErrors();
 
-                parser = new PerlangParser(tokens,
-                    (token, message, parseErrorType) => expressionParseErrors.Add(token, message, parseErrorType));
+                parser = new PerlangParser(tokens, parseError => expressionParseErrors.Add(parseError));
                 Expr expression = parser.ParseExpression();
 
                 // TODO: This approach (parsing the provided program as a set of statements first, then an
@@ -108,7 +106,7 @@ namespace Perlang.Interpreter
                 {
                     foreach (ParseError parseError in expressionParseErrors)
                     {
-                        parseErrorHandler(parseError.Token, parseError.Message, parseError.ParseErrorType);
+                        parseErrorHandler(parseError);
                     }
 
                     return null;

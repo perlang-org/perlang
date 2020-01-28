@@ -6,7 +6,7 @@ using Perlang.Parser;
 
 namespace Perlang.Interpreter
 {
-    class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
+    internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
         private readonly Stack<IDictionary<string, bool>> scopes = new Stack<IDictionary<string, bool>>();
         private FunctionType currentFunction = FunctionType.None;
@@ -49,7 +49,11 @@ namespace Perlang.Interpreter
 
             if (scope.ContainsKey(name.Lexeme))
             {
-                resolveErrorHandler(name, "Variable with this name already declared in this scope.");
+                resolveErrorHandler(new ResolveError
+                {
+                    Token = name,
+                    Message = "Variable with this name already declared in this scope."
+                });
             }
 
             scope[name.Lexeme] = false;
@@ -82,7 +86,7 @@ namespace Perlang.Interpreter
                 }
             }
 
-            // Not found. Assume it is global.                   
+            // Not found. Assume it is global.
         }
 
         public VoidObject VisitAssignExpr(Expr.Assign expr)
@@ -126,14 +130,14 @@ namespace Perlang.Interpreter
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
-            
+
             return null;
         }
 
         public VoidObject VisitUnaryExpr(Expr.Unary expr)
         {
             Resolve(expr.Right);
-            
+
             return null;
         }
 
@@ -142,7 +146,11 @@ namespace Perlang.Interpreter
             if (!IsEmpty(scopes) &&
                 scopes.Peek()[expr.Name.Lexeme] == false)
             {
-                resolveErrorHandler(expr.Name, "Cannot read local variable in its own initializer.");
+                resolveErrorHandler(new ResolveError
+                {
+                    Token = expr.Name,
+                    Message = "Cannot read local variable in its own initializer."
+                });
             }
 
             ResolveLocal(expr, expr.Name);
@@ -205,7 +213,7 @@ namespace Perlang.Interpreter
         {
             Resolve(stmt.Condition);
             Resolve(stmt.ThenBranch);
-            
+
             if (stmt.ElseBranch != null)
             {
                 Resolve(stmt.ElseBranch);
@@ -217,7 +225,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             Resolve(stmt.Expression);
-            
+
             return null;
         }
 
@@ -225,7 +233,11 @@ namespace Perlang.Interpreter
         {
             if (currentFunction == FunctionType.None)
             {
-                resolveErrorHandler(stmt.Keyword, "Cannot return from top-level code.");
+                resolveErrorHandler(new ResolveError
+                {
+                    Token = stmt.Keyword,
+                    Message = "Cannot return from top-level code."
+                });
             }
 
             if (stmt.Value != null)
@@ -239,14 +251,14 @@ namespace Perlang.Interpreter
         public VoidObject VisitVarStmt(Stmt.Var stmt)
         {
             Declare(stmt.Name);
-            
+
             if (stmt.Initializer != null)
             {
                 Resolve(stmt.Initializer);
             }
 
             Define(stmt.Name);
-            
+
             return null;
         }
 
@@ -254,7 +266,7 @@ namespace Perlang.Interpreter
         {
             Resolve(stmt.Condition);
             Resolve(stmt.Body);
-            
+
             return null;
         }
 

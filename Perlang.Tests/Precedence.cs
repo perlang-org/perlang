@@ -1,7 +1,5 @@
-using System;
-using Perlang.Interpreter;
-using Perlang.Parser;
 using Xunit;
+using static Perlang.Tests.EvalHelper;
 
 namespace Perlang.Tests
 {
@@ -68,39 +66,6 @@ namespace Perlang.Tests
         public void parentheses_can_be_used_for_grouping()
         {
             Assert.Equal(4.0, Eval("(2 * (6 - (2 + 2)))"));
-        }
-
-        /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, returns the result;
-        /// otherwise, returns null.
-        /// </summary>
-        /// <param name="source">a valid Perlang programs</param>
-        /// <returns>the result of the provided expression, or null if not provided an expression.</returns>
-        private static object Eval(string source)
-        {
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
-            return interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler);
-        }
-
-        private static void AssertFailScanErrorHandler(ScanError scanError)
-        {
-            MoreAssert.Fail(scanError.ToString());
-        }
-
-        private static void AssertFailParseErrorHandler(Token token, string message, ParseErrorType? parseerrortype)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void AssertFailResolveErrorHandler(Token token, string message)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
-        {
-            MoreAssert.Fail(runtimeError.ToString());
         }
     }
 }
