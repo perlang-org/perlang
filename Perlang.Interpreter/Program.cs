@@ -50,9 +50,11 @@ namespace Perlang.Interpreter
                 Environment.Exit(70);
             }
         }
-        
+
         private void RunPrompt()
         {
+            PrintBanner();
+
             for (;;)
             {
                 Console.Write("> ");
@@ -60,7 +62,7 @@ namespace Perlang.Interpreter
                 hadError = false;
             }
         }
-        
+
         private void Run(string source)
         {
             var result = interpreter.Eval(source, ScanError, ParseError, ResolveError);
@@ -69,6 +71,11 @@ namespace Perlang.Interpreter
             {
                 Console.WriteLine(result);
             }
+        }
+
+        private static void PrintBanner()
+        {
+            Console.WriteLine($"Perlang Interactive REPL Console ({CommonConstants.Version})");
         }
 
         private static void ScanError(ScanError scanError)
