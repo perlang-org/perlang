@@ -114,9 +114,9 @@ namespace Perlang.Interpreter
             }
         }
 
-        public void ParseError(Token token, string message, ParseErrorType? parseErrorType)
+        private void ParseError(ParseError parseError)
         {
-            if (parseErrorType == ParseErrorType.MISSING_TRAILING_SEMICOLON)
+            if (parseError.ParseErrorType == ParseErrorType.MISSING_TRAILING_SEMICOLON)
             {
                 // These errors are ignored; we will get them all them when we try to parse expressions as
                 // statements.
@@ -124,12 +124,12 @@ namespace Perlang.Interpreter
                 return;
             }
 
-            Error(token, message);
+            Error(parseError.Token, parseError.Message);
         }
 
-        private static void ResolveError(Token token, string message)
+        private static void ResolveError(ResolveError resolveError)
         {
-            Error(token, message);
+            Error(resolveError.Token, resolveError.Message);
         }
     }
 }
