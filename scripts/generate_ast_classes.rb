@@ -105,6 +105,11 @@ def define_ast(output_dir, base_name, types)
 
   path = File.join(output_dir, base_name + ".cs");
   File.write(path, <<~EOF)
+//
+// AUTO-GENERATED FILE, DO NOT MODIFY!
+//
+// Instead, change the #{$0} script that generated this code.
+//
 using System.Collections.Generic;
 
 namespace Perlang
@@ -129,6 +134,7 @@ OUTPUT_DIR = 'Perlang.Common'
 
 # Expressions
 define_ast(OUTPUT_DIR, "Expr", [
+  Type.new('Empty'),
   Type.new('Assign', Field.new('Token', 'name'), Field.new('Expr', 'value')),
   Type.new('Binary', [
     Field.new('Expr', 'left'),

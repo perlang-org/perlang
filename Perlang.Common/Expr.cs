@@ -1,3 +1,8 @@
+//
+// AUTO-GENERATED FILE, DO NOT MODIFY!
+//
+// Instead, change the ./scripts/generate_ast_classes.rb script that generated this code.
+//
 using System.Collections.Generic;
 
 namespace Perlang
@@ -6,6 +11,7 @@ namespace Perlang
     {
         public interface IVisitor<TR>
         {
+            TR VisitEmptyExpr(Empty expr);
             TR VisitAssignExpr(Assign expr);
             TR VisitBinaryExpr(Binary expr);
             TR VisitCallExpr(Call expr);
@@ -14,6 +20,18 @@ namespace Perlang
             TR VisitLogicalExpr(Logical expr);
             TR VisitUnaryExpr(Unary expr);
             TR VisitVariableExpr(Variable expr);
+        }
+
+        public class Empty : Expr
+        {
+
+            public Empty() {
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitEmptyExpr(this);
+            }
         }
 
         public class Assign : Expr

@@ -434,13 +434,20 @@ namespace Perlang.Parser
                 return new Expr.Grouping(expr);
             }
 
+            if (Check(SEMICOLON))
+            {
+                // Bare semicolon, no expression inside. To avoid having to handle pesky null exceptions all over
+                // the code base, we have a dedicated expression for this.
+                return new Expr.Empty();
+            }
+
             throw Error(Peek(), "Expect expression.");
         }
 
         /// <summary>
         /// Matches the given token type(s), at the current position. If a matching token is found, it gets consumed.
         ///
-        /// For a non-consuming version of this, see <see cref="Peek"/>.
+        /// For a non-consuming version of this, see <see cref="Check"/>.
         /// </summary>
         /// <param name="types">One or more token types to match</param>
         /// <returns>true if a matching token was found and consumed, false otherwise</returns>
