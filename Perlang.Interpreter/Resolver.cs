@@ -89,6 +89,11 @@ namespace Perlang.Interpreter
             // Not found. Assume it is global.
         }
 
+        public VoidObject VisitEmptyExpr(Expr.Empty expr)
+        {
+            return null;
+        }
+
         public VoidObject VisitAssignExpr(Expr.Assign expr)
         {
             Resolve(expr.Value);

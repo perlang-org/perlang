@@ -388,6 +388,11 @@ namespace Perlang.Interpreter
             return null;
         }
 
+        public object VisitEmptyExpr(Expr.Empty expr)
+        {
+            return null;
+        }
+
         public object VisitAssignExpr(Expr.Assign expr)
         {
             object value = Evaluate(expr.Value);
