@@ -26,6 +26,8 @@ namespace Perlang.Interpreter
         /// Runs the provided source code, in an eval()/REPL fashion. For scenarios where more control over error
         /// handling, etc., consider manually scanning the source code and use the <see cref="Interpret"/> method
         /// instead.
+        ///
+        /// If provided an expression, returns the result; otherwise, null.
         /// </summary>
         /// <param name="source">the Perlang source code</param>
         /// <param name="scanErrorHandler">a handler for scanner errors</param>
