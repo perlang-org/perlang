@@ -91,8 +91,7 @@ namespace Perlang.Interpreter
 
         private static void RuntimeError(RuntimeError error)
         {
-            Console.WriteLine($"{error.Message}\n" +
-                              $"[line {error.Token.Line}]");
+            Console.WriteLine($"[line {error.Token.Line}] {error.Message}");
             hadRuntimeError = true;
         }
 
