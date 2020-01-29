@@ -118,9 +118,15 @@ namespace Perlang.Interpreter
                     throw new Exception("expression was null even though no parse errors were encountered");
                 }
 
-                // TODO: we don't run the resolver in this case, which essentially means that we will be unable to
-                // TODO: refer to local variables.
-                return Evaluate(expression);
+                try
+                {
+                    return Evaluate(expression);
+                }
+                catch (RuntimeError e)
+                {
+                    runtimeErrorHandler(e);
+                    return null;
+                }
             }
         }
 
