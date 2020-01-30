@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Parser", "Perlang.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests", "Perlang.Tests\Perlang.Tests.csproj", "{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.ConsoleApp", "Perlang.ConsoleApp\Perlang.ConsoleApp.csproj", "{EC950B39-0187-41BD-A9AA-FE18F73BD30F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC950B39-0187-41BD-A9AA-FE18F73BD30F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC950B39-0187-41BD-A9AA-FE18F73BD30F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC950B39-0187-41BD-A9AA-FE18F73BD30F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC950B39-0187-41BD-A9AA-FE18F73BD30F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
