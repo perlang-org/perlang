@@ -6,7 +6,7 @@ namespace Perlang.Parser
 {
     public class Scanner
     {
-        private static readonly IDictionary<string, TokenType> ReservedKeywords =
+        public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
                 {"and", AND},

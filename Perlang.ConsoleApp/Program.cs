@@ -1,5 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Perlang.Interpreter;
 using Perlang.Parser;
@@ -9,6 +11,11 @@ namespace Perlang.ConsoleApp
     public class Program
     {
         private readonly PerlangInterpreter interpreter;
+
+        private static readonly HashSet<string> ReplCommands = new HashSet<string>
+        {
+            "quit"
+        };
 
         private static bool hadError;
         private static bool hadRuntimeError;
@@ -55,11 +62,12 @@ namespace Perlang.ConsoleApp
         private void RunPrompt()
         {
             PrintBanner();
+            ReadLine.HistoryEnabled = true;
+            ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
 
             for (;;)
             {
-                Console.Write("> ");
-                string command = Console.ReadLine();
+                string command = ReadLine.Read("> ");
 
                 if (command == "quit")
                 {
@@ -130,6 +138,26 @@ namespace Perlang.ConsoleApp
         private static void ResolveError(ResolveError resolveError)
         {
             Error(resolveError.Token, resolveError.Message);
+        }
+
+        private class AutoCompletionHandler : IAutoCompleteHandler
+        {
+            public string[] GetSuggestions(string text, int index)
+            {
+                var matchingKeywords = Scanner.ReservedKeywords
+                    .Where(keyword => keyword.Key.StartsWith(text))
+                    .Select(keyword => keyword.Key)
+                    .ToList();
+
+                matchingKeywords.AddRange(
+                    ReplCommands.Where(command => command.StartsWith(text))
+                );
+
+                return matchingKeywords.ToArray();
+            }
+
+            // characters to start completion from
+            public char[] Separators { get; set; } = { ' ', '.', '/' };
         }
     }
 }

@@ -9,4 +9,8 @@
       <ProjectReference Include="..\Perlang.Interpreter\Perlang.Interpreter.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ReadLine" Version="2.0.1" />
+    </ItemGroup>
+
 </Project>
