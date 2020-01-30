@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Perlang.Interpreter;
 using Perlang.Parser;
 
-namespace Perlang.Interpreter
+namespace Perlang.ConsoleApp
 {
     public class Program
     {
