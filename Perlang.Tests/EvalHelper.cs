@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Perlang.Interpreter;
 using Perlang.Parser;
 
@@ -40,6 +41,23 @@ namespace Perlang.Tests
                 AssertFailResolveErrorHandler);
 
             return result;
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements. If the expression or statements prints to the
+        /// standard output, the content will be returned.
+        /// </summary>
+        /// <param name="source">a valid Perlang programs</param>
+        /// <returns>the output from the provided expression/statements.</returns>
+        internal static IEnumerable<string> EvalReturningOutput(string source)
+        {
+            var output = new List<string>();
+
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => output.Add(s));
+            interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
+                AssertFailResolveErrorHandler);
+
+            return output;
         }
 
         private static void AssertFailScanErrorHandler(ScanError scanError)

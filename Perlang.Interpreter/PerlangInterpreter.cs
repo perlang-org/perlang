@@ -12,10 +12,19 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
         private PerlangEnvironment perlangEnvironment;
+        private Action<string> standardOutputHandler;
 
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler)
+        /// <summary>
+        /// Creates a new Perlang interpreter instance.
+        /// </summary>
+        /// <param name="runtimeErrorHandler"></param>
+        /// <param name="standardOutputHandler">an optional parameter that will receive output printed to
+        /// standard output. If not provided or null, output will be printed to the standard output of the
+        /// running process</param>
+        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string> standardOutputHandler = null)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
+            this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
 
             perlangEnvironment = globals;
 
@@ -359,7 +368,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             object value = Evaluate(stmt.Expression);
-            Console.WriteLine(Stringify(value));
+            standardOutputHandler(Stringify(value));
             return null;
         }
 

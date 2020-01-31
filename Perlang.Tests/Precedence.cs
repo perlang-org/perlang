@@ -3,6 +3,7 @@ using static Perlang.Tests.EvalHelper;
 
 namespace Perlang.Tests
 {
+    // Based on https://github.com/munificent/craftinginterpreters/blob/master/test/precedence.lox
     public class Precedence
     {
         [Fact]
