@@ -1,15 +1,15 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Perlang.Interpreter.Extensions;
 using Perlang.Parser;
 
 namespace Perlang.Interpreter
 {
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly Stack<IDictionary<string, bool>> scopes = new Stack<IDictionary<string, bool>>();
-        private FunctionType currentFunction = FunctionType.None;
+        private readonly List<IDictionary<string, bool>> scopes = new List<IDictionary<string, bool>>();
+        private FunctionType currentFunction = FunctionType.NONE;
 
         private readonly IInterpreter interpreter;
         private readonly ResolveErrorHandler resolveErrorHandler;
@@ -30,12 +30,12 @@ namespace Perlang.Interpreter
 
         private void BeginScope()
         {
-            scopes.Push(new Dictionary<string, bool>());
+            scopes.Add(new Dictionary<string, bool>());
         }
 
         private void EndScope()
         {
-            scopes.Pop();
+            scopes.RemoveAt(scopes.Count - 1);
         }
 
         private void Declare(Token name)
@@ -45,7 +45,7 @@ namespace Perlang.Interpreter
             // This adds the variable to the innermost scope so that it shadows any outer one and so that we know the
             // variable exists. We mark it as “not ready yet” by binding its name to false in the scope map. Each value
             // in the scope map means “is finished being initialized”.
-            var scope = scopes.Peek();
+            var scope = scopes.Last();
 
             if (scope.ContainsKey(name.Lexeme))
             {
@@ -70,16 +70,14 @@ namespace Perlang.Interpreter
 
             // We set the variable’s value in the scope map to true to mark it as fully initialized and available for
             // use. It’s alive!
-            scopes.Peek()[name.Lexeme] = true;
+            scopes.Last()[name.Lexeme] = true;
         }
 
         private void ResolveLocal(Expr expr, Token name)
         {
             for (int i = scopes.Count - 1; i >= 0; i--)
             {
-                // TODO: rewrite this for performance, since scopes.ElementAt() is much more inefficient on .NET
-                // TODO: than the Java counterpart.
-                if (scopes.ElementAt(i).ContainsKey(name.Lexeme))
+                if (scopes[i].ContainsKey(name.Lexeme))
                 {
                     interpreter.Resolve(expr, scopes.Count - 1 - i);
                     return;
@@ -149,7 +147,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitVariableExpr(Expr.Variable expr)
         {
             if (!IsEmpty(scopes) &&
-                TryGetVariableFromScope(scopes.Peek(), expr.Name.Lexeme, null) == false)
+                scopes.Last().TryGetStructValue(expr.Name.Lexeme) == false)
             {
                 resolveErrorHandler(new ResolveError
                 {
@@ -160,11 +158,6 @@ namespace Perlang.Interpreter
 
             ResolveLocal(expr, expr.Name);
             return null;
-        }
-
-        private static bool? TryGetVariableFromScope(IDictionary<string, bool> dictionary, string key, bool? defaultValue = default)
-        {
-            return dictionary.TryGetValue(key, out bool value) ? value : defaultValue;
         }
 
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
@@ -196,7 +189,7 @@ namespace Perlang.Interpreter
             Declare(stmt.Name);
             Define(stmt.Name);
 
-            ResolveFunction(stmt, FunctionType.Function);
+            ResolveFunction(stmt, FunctionType.FUNCTION);
             return null;
         }
 
@@ -241,7 +234,7 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
-            if (currentFunction == FunctionType.None)
+            if (currentFunction == FunctionType.NONE)
             {
                 resolveErrorHandler(new ResolveError
                 {
@@ -282,8 +275,8 @@ namespace Perlang.Interpreter
 
         private enum FunctionType
         {
-            None,
-            Function
+            NONE,
+            FUNCTION
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Perlang.Interpreter.Extensions;
 
 namespace Perlang.Interpreter
 {
@@ -23,7 +24,7 @@ namespace Perlang.Interpreter
 
         internal object GetAt(int distance, string name)
         {
-            return Ancestor(distance).values[name];
+            return Ancestor(distance).values.TryGetObjectValue(name);
         }
 
         internal void AssignAt(int distance, Token name, object value)

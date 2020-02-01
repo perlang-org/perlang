@@ -19,7 +19,7 @@ namespace Perlang.Tests.For
             }, output);
         }
 
-        [Fact(Skip = "Broken because of https://github.com/perlun/perlang/issues/12")]
+        [Fact]
         public void block_body()
         {
             string source = @"
@@ -70,7 +70,7 @@ namespace Perlang.Tests.For
             }, output);
         }
 
-        [Fact(Skip = "Broken because of https://github.com/perlun/perlang/issues/12")]
+        [Fact]
         public void no_condition()
         {
             string source = @"
@@ -93,8 +93,8 @@ namespace Perlang.Tests.For
             }, output);
         }
 
-        [Fact(Skip = "Broken because of https://github.com/perlun/perlang/issues/12")]
-        void no_increment()
+        [Fact]
+        public void no_increment()
         {
             string source = @"
                 for (var i = 0; i < 2;) {
@@ -113,7 +113,7 @@ namespace Perlang.Tests.For
         }
 
         [Fact]
-        void statement_bodies()
+        public void statement_bodies()
         {
             string source = @"
                 for (; false;) if (true) 1; else 2;
