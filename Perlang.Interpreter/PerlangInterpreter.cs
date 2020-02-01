@@ -12,7 +12,7 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
         private PerlangEnvironment perlangEnvironment;
-        private Action<string> standardOutputHandler;
+        private readonly Action<string> standardOutputHandler;
 
         /// <summary>
         /// Creates a new Perlang interpreter instance.
