@@ -18,7 +18,8 @@ namespace Perlang
             TR VisitGroupingExpr(Grouping expr);
             TR VisitLiteralExpr(Literal expr);
             TR VisitLogicalExpr(Logical expr);
-            TR VisitUnaryExpr(Unary expr);
+            TR VisitUnaryPrefixExpr(UnaryPrefix expr);
+            TR VisitUnaryPostfixExpr(UnaryPostfix expr);
             TR VisitVariableExpr(Variable expr);
         }
 
@@ -132,19 +133,37 @@ namespace Perlang
             }
         }
 
-        public class Unary : Expr
+        public class UnaryPrefix : Expr
         {
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public Unary(Token _operator, Expr right) {
+            public UnaryPrefix(Token _operator, Expr right) {
                 Operator = _operator;
                 Right = right;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
-                return visitor.VisitUnaryExpr(this);
+                return visitor.VisitUnaryPrefixExpr(this);
+            }
+        }
+
+        public class UnaryPostfix : Expr
+        {
+            public Expr Left { get; }
+            public Token Name { get; }
+            public Token Operator { get; }
+
+            public UnaryPostfix(Expr left, Token name, Token _operator) {
+                Left = left;
+                Name = name;
+                Operator = _operator;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitUnaryPostfixExpr(this);
             }
         }
 

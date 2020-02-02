@@ -9,7 +9,12 @@ namespace Perlang.Tests.For
         [Fact]
         public void single_expression_body()
         {
-            var output = EvalReturningOutput("for (var c = 0; c < 3;) print c = c + 1;");
+            string source = @"
+                for (var c = 0; c < 3;)
+                    print c = c + 1;
+            ";
+
+            var output = EvalReturningOutput(source);
 
             Assert.Equal(new[]
             {
@@ -123,7 +128,7 @@ namespace Perlang.Tests.For
 
             var output = EvalReturningOutput(source);
 
-            Assert.Equal(new string[] {}, output);
+            Assert.Equal(new string[] { }, output);
         }
     }
 }

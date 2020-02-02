@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Perlang.TokenType;
+using static Perlang.Utils;
 
 namespace Perlang.Parser
 {
@@ -255,7 +256,7 @@ namespace Perlang.Parser
 
         private Expr Assignment()
         {
-            Expr expr = Or();
+            Expr expr = UnaryPostfix();
 
             if (Match(EQUAL))
             {
@@ -269,6 +270,36 @@ namespace Perlang.Parser
                 }
 
                 Error(equals, "Invalid assignment target.");
+            }
+
+            return expr;
+        }
+
+        private Expr UnaryPostfix()
+        {
+            Expr expr = Or();
+
+            if (Match(PLUS_PLUS))
+            {
+                Token increment = Previous();
+
+                if (expr is Expr.Variable variable)
+                {
+                    return new Expr.UnaryPostfix(variable, variable.Name, increment);
+                }
+
+                Error(increment, $"Can only increment variables, not {StringifyType(expr)}.");
+            }
+            else if (Match(MINUS_MINUS))
+            {
+                Token decrement = Previous();
+
+                if (expr is Expr.Variable variable)
+                {
+                    return new Expr.UnaryPostfix(variable, variable.Name, decrement);
+                }
+
+                Error(decrement, $"Can only decrement variables, not {StringifyType(expr)}.");
             }
 
             return expr;
@@ -346,25 +377,25 @@ namespace Perlang.Parser
 
         private Expr Multiplication()
         {
-            Expr expr = Unary();
+            Expr expr = UnaryPrefix();
 
             while (Match(SLASH, STAR))
             {
                 Token _operator = Previous();
-                Expr right = Unary();
+                Expr right = UnaryPrefix();
                 expr = new Expr.Binary(expr, _operator, right);
             }
 
             return expr;
         }
 
-        private Expr Unary()
+        private Expr UnaryPrefix()
         {
             if (Match(BANG, MINUS))
             {
                 Token _operator = Previous();
-                Expr right = Unary();
-                return new Expr.Unary(_operator, right);
+                Expr right = UnaryPrefix();
+                return new Expr.UnaryPrefix(_operator, right);
             }
 
             return Call();

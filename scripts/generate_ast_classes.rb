@@ -153,9 +153,14 @@ define_ast(OUTPUT_DIR, "Expr", [
     Field.new('Token', '_operator'),
     Field.new('Expr', 'right')
   ]),
-  Type.new('Unary', [
+  Type.new('UnaryPrefix', [
     Field.new('Token', '_operator'),
     Field.new('Expr', 'right')
+  ]),
+  Type.new('UnaryPostfix', [
+    Field.new('Expr', 'left'),
+    Field.new('Token', 'name'),
+    Field.new('Token', '_operator')
   ]),
   Type.new('Variable', Field.new('Token', 'name'))
 ])

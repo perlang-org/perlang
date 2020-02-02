@@ -137,11 +137,20 @@ namespace Perlang.Interpreter
             return null;
         }
 
-        public VoidObject VisitUnaryExpr(Expr.Unary expr)
+        public VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             Resolve(expr.Right);
 
             return null;
+        }
+
+        public VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
+        {
+            Resolve(expr.Left);
+            ResolveLocal(expr, expr.Name);
+
+            return null;
+
         }
 
         public VoidObject VisitVariableExpr(Expr.Variable expr)

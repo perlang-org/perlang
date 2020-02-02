@@ -79,10 +79,10 @@ namespace Perlang.Parser
                     AddToken(DOT);
                     break;
                 case '-':
-                    AddToken(MINUS);
+                    AddToken(Match('-') ? MINUS_MINUS : MINUS);
                     break;
                 case '+':
-                    AddToken(PLUS);
+                    AddToken(Match('+') ? PLUS_PLUS : PLUS);
                     break;
                 case ';':
                     AddToken(SEMICOLON);
