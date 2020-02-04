@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Perlang.Parser;
 using static Perlang.TokenType;
+using static Perlang.Utils;
 
 namespace Perlang.Interpreter
 {
@@ -197,7 +198,7 @@ namespace Perlang.Interpreter
             return Evaluate(expr.Right);
         }
 
-        public object VisitUnaryExpr(Expr.Unary expr)
+        public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             object right = Evaluate(expr.Right);
 
@@ -213,6 +214,58 @@ namespace Perlang.Interpreter
 
             // Unreachable.
             return null;
+        }
+
+        public object VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
+        {
+            object left = Evaluate(expr.Left);
+
+            // We do have a check at the parser side also, but this one covers "null" cases.
+            if (!(left is double previousValue))
+            {
+                switch (expr.Operator.Type)
+                {
+                    case PLUS_PLUS:
+                        throw new RuntimeError(expr.Operator,
+                            $"++ can only be used to increment numbers, not {StringifyType(left)}");
+
+                    case MINUS_MINUS:
+                        throw new RuntimeError(expr.Operator,
+                            $"-- can only be used to decrement numbers, not {StringifyType(left)}");
+
+                    default:
+                        throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
+
+                }
+            }
+
+            var variable = (Expr.Variable) expr.Left;
+            double value;
+
+            switch (expr.Operator.Type)
+            {
+                case PLUS_PLUS:
+                    value = previousValue + 1;
+                    break;
+
+                case MINUS_MINUS:
+                    value = previousValue - 1;
+                    break;
+
+                default:
+                    throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
+            }
+
+            if (locals.TryGetValue(expr, out int distance))
+            {
+                perlangEnvironment.AssignAt(distance, expr.Name, value);
+            }
+            else
+            {
+                globals.Assign(variable.Name, value);
+            }
+
+            return value;
         }
 
         public object VisitVariableExpr(Expr.Variable expr)
@@ -281,16 +334,6 @@ namespace Perlang.Interpreter
             }
 
             return a.Equals(b);
-        }
-
-        private static string Stringify(object _object)
-        {
-            if (_object == null)
-            {
-                return "nil";
-            }
-
-            return _object.ToString();
         }
 
         public object VisitGroupingExpr(Expr.Grouping expr)
