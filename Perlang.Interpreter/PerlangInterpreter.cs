@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Perlang.Parser;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -14,7 +15,8 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
         private IEnvironment currentEnvironment;
-        private readonly Action<string> standardOutputHandler;
+
+        public Action<string> StandardOutputHandler { get; }
 
         /// <summary>
         /// Creates a new Perlang interpreter instance.
@@ -26,7 +28,7 @@ namespace Perlang.Interpreter
         public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string> standardOutputHandler = null)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
-            this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
+            this.StandardOutputHandler = standardOutputHandler ?? Console.WriteLine;
 
             currentEnvironment = globals;
 
@@ -35,6 +37,8 @@ namespace Perlang.Interpreter
 
         private void RegisterCallables()
         {
+            Assembly.Load("Perlang.StdLib");
+
             var globalCallables = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
                 .Select(t => new
@@ -414,7 +418,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             object value = Evaluate(stmt.Expression);
-            standardOutputHandler(Stringify(value));
+            StandardOutputHandler(Stringify(value));
             return null;
         }
 
@@ -538,7 +542,7 @@ namespace Perlang.Interpreter
 
             var function = (ICallable) callee;
 
-            if (arguments.Count != function.Arity())
+            if (!function.VariadicArguments() && arguments.Count != function.Arity())
             {
                 throw new RuntimeError(expr.Paren, "Expected " + function.Arity() + " arguments but got " +
                                                    arguments.Count + ".");

@@ -41,6 +41,11 @@ namespace Perlang.Interpreter
             return declaration.Params.Count;
         }
 
+        public bool VariadicArguments()
+        {
+            return Arity() == -1;
+        }
+
         public override string ToString()
         {
             return "<fn " + declaration.Name.Lexeme + ">";

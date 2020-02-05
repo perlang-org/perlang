@@ -58,6 +58,8 @@ namespace Perlang.Interpreter
                 return enclosing.Get(name);
             }
 
+            // TODO: Properly distinguish between variables and functions attempting to be called. Right now, the
+            // TODO: error message below is used for both of these use cases.
             throw new RuntimeError(name, "Undefined variable '" + name.Lexeme + "'.");
         }
 

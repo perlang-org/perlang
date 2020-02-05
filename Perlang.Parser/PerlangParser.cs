@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using static Perlang.TokenType;
 using static Perlang.Utils;
