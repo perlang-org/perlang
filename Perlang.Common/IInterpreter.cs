@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
-namespace Perlang.Interpreter
+namespace Perlang
 {
     public interface IInterpreter
     {
-        void ExecuteBlock(IEnumerable<Stmt> statements, PerlangEnvironment blockEnvironment);
+        void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment);
         void Resolve(Expr expr, int depth);
     }
 }
