@@ -2,12 +2,15 @@ using System.Collections.Generic;
 
 namespace Perlang.Interpreter
 {
-    class PerlangFunction : ICallable
+    /// <summary>
+    /// Callable implementation for user-defined functions.
+    /// </summary>
+    internal class PerlangFunction : ICallable
     {
         private readonly Stmt.Function declaration;
-        private readonly PerlangEnvironment closure;
+        private readonly IEnvironment closure;
 
-        internal PerlangFunction(Stmt.Function declaration, PerlangEnvironment closure)
+        internal PerlangFunction(Stmt.Function declaration, IEnvironment closure)
         {
             this.declaration = declaration;
             this.closure = closure;

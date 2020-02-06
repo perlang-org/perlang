@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Perlang.Parser;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -12,7 +13,7 @@ namespace Perlang.Interpreter
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
         private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
-        private PerlangEnvironment perlangEnvironment;
+        private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
 
         /// <summary>
@@ -27,9 +28,29 @@ namespace Perlang.Interpreter
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
 
-            perlangEnvironment = globals;
+            currentEnvironment = globals;
 
-            globals.Define("clock", new ClockCallable());
+            RegisterCallables();
+        }
+
+        private void RegisterCallables()
+        {
+            var globalCallables = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Select(t => new
+                {
+                    Type = t,
+                    CallableAttribute = t.GetCustomAttributes(typeof(GlobalCallableAttribute), inherit: false)
+                        .Cast<GlobalCallableAttribute>()
+                        .FirstOrDefault()
+                })
+                .Where(t => t.CallableAttribute != null);
+
+            foreach (var globalCallable in globalCallables)
+            {
+                object callableInstance = Activator.CreateInstance(globalCallable.Type);
+                globals.Define(globalCallable.CallableAttribute.Name, callableInstance);
+            }
         }
 
         /// <summary>
@@ -160,24 +181,6 @@ namespace Perlang.Interpreter
             return expr.Value;
         }
 
-        private class ClockCallable : ICallable
-        {
-            public int Arity()
-            {
-                return 0;
-            }
-
-            public object Call(IInterpreter interpreter, List<object> arguments)
-            {
-                return new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds() / 1000.0;
-            }
-
-            public override string ToString()
-            {
-                return "<native fn>";
-            }
-        }
-
         public object VisitLogicalExpr(Expr.Logical expr)
         {
             object left = Evaluate(expr.Left);
@@ -258,7 +261,7 @@ namespace Perlang.Interpreter
 
             if (locals.TryGetValue(expr, out int distance))
             {
-                perlangEnvironment.AssignAt(distance, expr.Name, value);
+                currentEnvironment.AssignAt(distance, expr.Name, value);
             }
             else
             {
@@ -277,7 +280,7 @@ namespace Perlang.Interpreter
         {
             if (locals.TryGetValue(expr, out int distance))
             {
-                return perlangEnvironment.GetAt(distance, name.Lexeme);
+                return currentEnvironment.GetAt(distance, name.Lexeme);
             }
             else
             {
@@ -356,13 +359,13 @@ namespace Perlang.Interpreter
             locals[expr] = depth;
         }
 
-        public void ExecuteBlock(IEnumerable<Stmt> statements, PerlangEnvironment blockEnvironment)
+        public void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment)
         {
-            PerlangEnvironment previous = perlangEnvironment;
+            IEnvironment previousEnvironment = currentEnvironment;
 
             try
             {
-                perlangEnvironment = blockEnvironment;
+                currentEnvironment = blockEnvironment;
 
                 foreach (Stmt statement in statements)
                 {
@@ -371,13 +374,13 @@ namespace Perlang.Interpreter
             }
             finally
             {
-                perlangEnvironment = previous;
+                currentEnvironment = previousEnvironment;
             }
         }
 
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
         {
-            ExecuteBlock(stmt.Statements, new PerlangEnvironment(perlangEnvironment));
+            ExecuteBlock(stmt.Statements, new PerlangEnvironment(currentEnvironment));
             return null;
         }
 
@@ -389,8 +392,8 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
-            var function = new PerlangFunction(stmt, perlangEnvironment);
-            perlangEnvironment.Define(stmt.Name.Lexeme, function);
+            var function = new PerlangFunction(stmt, currentEnvironment);
+            currentEnvironment.Define(stmt.Name.Lexeme, function);
             return null;
         }
 
@@ -432,7 +435,7 @@ namespace Perlang.Interpreter
                 value = Evaluate(stmt.Initializer);
             }
 
-            perlangEnvironment.Define(stmt.Name.Lexeme, value);
+            currentEnvironment.Define(stmt.Name.Lexeme, value);
             return null;
         }
 
@@ -457,7 +460,7 @@ namespace Perlang.Interpreter
 
             if (locals.TryGetValue(expr, out int distance))
             {
-                perlangEnvironment.AssignAt(distance, expr.Name, value);
+                currentEnvironment.AssignAt(distance, expr.Name, value);
             }
             else
             {

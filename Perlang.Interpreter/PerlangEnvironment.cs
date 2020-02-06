@@ -6,28 +6,29 @@ namespace Perlang.Interpreter
     /// <summary>
     /// Holds information about the context for a static scope (functions and variable name bindings).
     /// </summary>
-    public class PerlangEnvironment
+    internal class PerlangEnvironment : IEnvironment
     {
         private readonly PerlangEnvironment enclosing;
 
         private readonly Dictionary<string, object> values = new Dictionary<string, object>();
 
-        public PerlangEnvironment(PerlangEnvironment enclosing = null)
+        public PerlangEnvironment(IEnvironment enclosing = null)
         {
-            this.enclosing = enclosing;
+            // Cast is safe as long as we are the sole implementation of the IEnvironment interface.
+            this.enclosing = (PerlangEnvironment)enclosing;
         }
 
-        internal void Define(string name, object value)
+        public void Define(string name, object value)
         {
             values[name] = value;
         }
 
-        internal object GetAt(int distance, string name)
+        public object GetAt(int distance, string name)
         {
             return Ancestor(distance).values.TryGetObjectValue(name);
         }
 
-        internal void AssignAt(int distance, Token name, object value)
+        public void AssignAt(int distance, Token name, object value)
         {
             Ancestor(distance).values[name.Lexeme] = value;
         }

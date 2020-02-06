@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace Perlang.Interpreter
+namespace Perlang
 {
-    internal interface ICallable
+    public interface ICallable
     {
         object Call(IInterpreter interpreter, List<object> arguments);
         int Arity();
