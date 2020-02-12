@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Perlang.Parser;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -35,6 +36,10 @@ namespace Perlang.Interpreter
 
         private void RegisterCallables()
         {
+            // Because of implicit dependencies, this is not loaded automatically; we must manually load this
+            // assembly to ensure all Callables within it are registered in the global namespace.
+            Assembly.Load("Perlang.StdLib");
+
             var globalCallables = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
                 .Select(t => new
