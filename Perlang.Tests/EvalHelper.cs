@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Perlang.Interpreter;
@@ -35,8 +36,8 @@ namespace Perlang.Tests
         internal static EvalResult EvalWithRuntimeCatch(string source)
         {
             var result = new EvalResult();
-
             var interpreter = new PerlangInterpreter(runtimeError => result.RuntimeErrors.Add(runtimeError));
+
             result.Value = interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler);
 
@@ -52,12 +53,40 @@ namespace Perlang.Tests
         internal static IEnumerable<string> EvalReturningOutput(string source)
         {
             var output = new List<string>();
-
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => output.Add(s));
+
             interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler);
 
             return output;
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements, with the provided arguments
+        /// </summary>
+        /// <param name="source">a valid Perlang programs</param>
+        /// <param name="arguments">zero or more arguments to be passed to the program</param>
+        /// <returns>the result of the provided expression, or null if not provided an expression.</returns>
+        internal static object EvalWithArguments(string source, params string[] arguments)
+        {
+            return EvalWithArguments(source, standardOutputHandler: null, arguments);
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements, with the provided arguments
+        /// </summary>
+        /// <param name="source">a valid Perlang programs</param>
+        /// <param name="standardOutputHandler">an optional parameter that will receive output printed to
+        ///     standard output. If not provided or null, output will be printed to the standard output of the
+        ///     running process</param>
+        /// <param name="arguments">zero or more arguments to be passed to the program</param>
+        /// <returns>the result of the provided expression, or null if not provided an expression.</returns>
+        internal static object EvalWithArguments(string source, Action<string> standardOutputHandler, params string[] arguments)
+        {
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, standardOutputHandler, arguments);
+
+            return interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
+                AssertFailResolveErrorHandler);
         }
 
         private static void AssertFailScanErrorHandler(ScanError scanError)

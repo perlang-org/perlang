@@ -2,10 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>Perlang</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Perlang.Common\Perlang.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Stdlib" />
     </ItemGroup>
 
 </Project>
