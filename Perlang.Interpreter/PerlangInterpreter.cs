@@ -17,17 +17,23 @@ namespace Perlang.Interpreter
         private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
 
+        public List<string> Arguments { get; }
+
         /// <summary>
         /// Creates a new Perlang interpreter instance.
         /// </summary>
-        /// <param name="runtimeErrorHandler"></param>
+        /// <param name="runtimeErrorHandler">a callback that will be called on runtime errors</param>
         /// <param name="standardOutputHandler">an optional parameter that will receive output printed to
-        /// standard output. If not provided or null, output will be printed to the standard output of the
-        /// running process</param>
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string> standardOutputHandler = null)
+        ///     standard output. If not provided or null, output will be printed to the standard output of the
+        ///     running process</param>
+        /// <param name="arguments">an optional list of runtime arguments</param>
+        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler,
+            Action<string> standardOutputHandler = null, IEnumerable<string> arguments = null)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
+
+            Arguments = new List<string>(arguments ?? new string[0]);
 
             currentEnvironment = globals;
 
