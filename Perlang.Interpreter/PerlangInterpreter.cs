@@ -551,11 +551,25 @@ namespace Perlang.Interpreter
 
             if (arguments.Count != function.Arity())
             {
-                throw new RuntimeError(expr.Paren, "Expected " + function.Arity() + " arguments but got " +
+                throw new RuntimeError(expr.Paren, "Expected " + function.Arity() + " argument(s) but got " +
                                                    arguments.Count + ".");
             }
 
-            return function.Call(this, arguments);
+            try
+            {
+                return function.Call(this, arguments);
+            }
+            catch (Exception e)
+            {
+                if (expr.Callee is Expr.Variable v)
+                {
+                    throw new RuntimeError(v.Name, $"{v.Name.Lexeme}: {e.Message}");
+                }
+                else
+                {
+                    throw new RuntimeError(expr.Paren, e.Message);
+                }
+            }
         }
     }
 }
