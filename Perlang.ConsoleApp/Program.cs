@@ -22,24 +22,31 @@ namespace Perlang.ConsoleApp
 
         public static void Main(string[] args)
         {
-            if (args.Length > 1)
+//            if (args.Length > 1)
+//            {
+//                Console.WriteLine("Usage: perlang [script] [arg]...");
+//                Console.WriteLine("If extra arguments are provided, they will be passed on to the script you are executing");
+//
+//                Environment.Exit(64);
+//            }
+            if (args.Length == 0)
             {
-                Console.WriteLine("Usage: perlang [script]");
-                Environment.Exit(64);
+                new Program().RunPrompt();
             }
             else if (args.Length == 1)
             {
                 new Program().RunFile(args[0]);
             }
-            else
+            else // More than 1 argument
             {
-                new Program().RunPrompt();
+                new Program(args[1..]).RunFile(args[0]);
+
             }
         }
 
-        private Program()
+        private Program(params string[] arguments)
         {
-            interpreter = new PerlangInterpreter(RuntimeError);
+            interpreter = new PerlangInterpreter(RuntimeError, arguments: arguments);
         }
 
         private void RunFile(string path)
