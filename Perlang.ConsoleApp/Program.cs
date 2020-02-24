@@ -90,7 +90,7 @@ namespace Perlang.ConsoleApp
 
         private static void PrintBanner()
         {
-            Console.WriteLine($"Perlang Interactive REPL Console ({CommonConstants.Version})");
+            Console.WriteLine($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()})");
         }
 
         private static void ScanError(ScanError scanError)

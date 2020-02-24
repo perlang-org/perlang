@@ -20,6 +20,9 @@ jobs:
       with:
         dotnet-version: 3.1.101
 
+    - name: Re-generate auto-generated files
+      run: make auto_generated
+
     #
     # Build releases
     #
