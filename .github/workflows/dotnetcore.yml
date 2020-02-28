@@ -12,6 +12,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
+    - name: Re-generate auto-generated files
+      run: make auto_generated
     - name: Build with dotnet
       run: dotnet build --configuration Release
 
@@ -24,5 +26,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
+    - name: Re-generate auto-generated files
+      run: make auto_generated
     - name: Run test suite
       run: dotnet test --configuration Release --verbosity normal
