@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Perlang.TokenType;
 using static Perlang.Utils;
 
@@ -8,6 +9,9 @@ namespace Perlang.Parser
     // Convoluted name to avoid conflict with namespace
     public class PerlangParser
     {
+        private bool allowExpression;
+        private bool foundExpression = false;
+
         private class ParseError : Exception
         {
             public ParseErrorType? ParseErrorType { get; }
@@ -52,6 +56,37 @@ namespace Perlang.Parser
                 // Error has already been reported at this point
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Parses the current set of tokens as either a single expression (if the tokens contain exactly one
+        /// expression + EOF) or a list of statements.
+        ///
+        /// If you know from beforehand that the provided code is either an expression or a list of statements, the
+        /// <see cref="ParseExpression"/> and <see cref="ParseStatements"/> methods are typically more convenient
+        /// to use.
+        /// </summary>
+        /// <returns>an <see cref="Expr"/> or a list of <see cref="Stmt"/> objects.</returns>
+        public object ParseExpressionOrStatements()
+        {
+            allowExpression = true;
+
+            var statements = new List<Stmt>();
+
+            while (!IsAtEnd())
+            {
+                statements.Add(Declaration());
+
+                if (foundExpression)
+                {
+                    Stmt last = statements.Last();
+                    return ((Stmt.ExpressionStmt) last).Expression;
+                }
+
+                allowExpression = false;
+            }
+
+            return statements;
         }
 
         private Expr Expression()
@@ -211,7 +246,16 @@ namespace Perlang.Parser
         private Stmt ExpressionStatement()
         {
             Expr expr = Expression();
-            Consume(SEMICOLON, "Expect ';' after expression.", ParseErrorType.MISSING_TRAILING_SEMICOLON);
+
+            if (allowExpression && IsAtEnd())
+            {
+                foundExpression = true;
+            }
+            else
+            {
+                Consume(SEMICOLON, "Expect ';' after expression.", ParseErrorType.MISSING_TRAILING_SEMICOLON);
+            }
+
             return new Stmt.ExpressionStmt(expr);
         }
 

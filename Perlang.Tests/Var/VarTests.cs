@@ -366,10 +366,7 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            // TODO: This should work, but currently fails. Likely since we parse the provided program
-            // TODO: both as an expression and as a (set of) statement(s).
-            //Assert.Matches("Error at 'false': Expect variable name", exception.Message);
-            Assert.Matches("Expect expression", exception.Message);
+            Assert.Matches("Error at 'false': Expect variable name", exception.ToString());
         }
 
         [Fact]
@@ -419,10 +416,7 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            // TODO: Make the assertion below work.
-            //Assert.Matches("Error at 'nil': Expect variable name.", exception.Message);
-
-            Assert.Matches("Expect expression", exception.Message);
+            Assert.Matches("Error at 'nil': Expect variable name.", exception.ToString());
         }
 
         [Fact]
@@ -437,10 +431,7 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            // TODO: Make the assertion below work.
-            //Assert.Matches("Error at 'this': Expect variable name", exception.Message);
-
-            Assert.Matches("Expect expression", exception.Message);
+            Assert.Matches("Error at 'this': Expect variable name", exception.ToString());
         }
     }
 }
