@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Perlang.Exceptions;
 using Perlang.Parser;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -100,14 +101,24 @@ namespace Perlang.Interpreter
                 return null;
             }
 
-            var statementParseErrors = new ParseErrors();
-            var parser = new PerlangParser(tokens, parseError => statementParseErrors.Add(parseError));
-            var statements = parser.ParseStatements();
+            var parseErrors = new ParseErrors();
+            var parser = new PerlangParser(tokens, parseError => parseErrors.Add(parseError));
+            object syntax = parser.ParseExpressionOrStatements();
 
-            if (statementParseErrors.Empty())
+            if (!parseErrors.Empty())
+            {
+                foreach (ParseError parseError in parseErrors)
+                {
+                    parseErrorHandler(parseError);
+                }
+
+                return null;
+            }
+
+            if (syntax is List<Stmt> statements)
             {
                 // The provided code parsed cleanly as a set of statements. Move on to the next phase in the
-                // evaluation.
+                // evaluation - resolving variable and function names.
 
                 var resolveErrors = new ResolveErrors();
                 var resolver = new Resolver(this, resolveError => resolveErrors.Add(resolveError));
@@ -130,36 +141,8 @@ namespace Perlang.Interpreter
 
                 return null;
             }
-            else
+            else if (syntax is Expr expression)
             {
-                // This was not a valid set of statements. But is it perhaps a valid expression? The parser is now
-                // at EOF and since we don't currently have any form of "rewind" functionality, the easiest approach
-                // is to just create a new parser at this point.
-                var expressionParseErrors = new ParseErrors();
-
-                parser = new PerlangParser(tokens, parseError => expressionParseErrors.Add(parseError));
-                Expr expression = parser.ParseExpression();
-
-                // TODO: This approach (parsing the provided program as a set of statements first, then an
-                // TODO: expression) has some clear drawbacks. We might return parse errors here which are
-                // TODO: quite irrelevant, since we are parsing the program the "wrong" way... We should consider
-                // TODO: at least reversing this so we try with expression first, then statements.
-                if (!expressionParseErrors.Empty())
-                {
-                    foreach (ParseError parseError in expressionParseErrors)
-                    {
-                        parseErrorHandler(parseError);
-                    }
-
-                    return null;
-                }
-
-                if (expression == null)
-                {
-                    // TODO: throw some InternalStateException or something instead.
-                    throw new Exception("expression was null even though no parse errors were encountered");
-                }
-
                 try
                 {
                     return Evaluate(expression);
@@ -169,6 +152,10 @@ namespace Perlang.Interpreter
                     runtimeErrorHandler(e);
                     return null;
                 }
+            }
+            else
+            {
+                throw new IllegalStateException("syntax was neither Expr nor list of Stmt");
             }
         }
 
@@ -184,6 +171,20 @@ namespace Perlang.Interpreter
             catch (RuntimeError error)
             {
                 runtimeErrorHandler(error);
+            }
+        }
+
+        private string Interpret(Expr expression)
+        {
+            try
+            {
+                Object value = Evaluate(expression);
+                return Stringify(value);
+            }
+            catch (RuntimeError error)
+            {
+                runtimeErrorHandler(error);
+                return null;
             }
         }
 
@@ -248,8 +249,8 @@ namespace Perlang.Interpreter
                             $"-- can only be used to decrement numbers, not {StringifyType(left)}");
 
                     default:
-                        throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
-
+                        throw new RuntimeError(expr.Operator,
+                            $"Unsupported operator encountered: {expr.Operator.Type}");
                 }
             }
 
