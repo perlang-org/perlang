@@ -12,11 +12,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Assemblies implicitly referenced via reflection must be listed here, to be included in the
+             trimmed result -->
+        <TrimmerRootAssembly Include="System.Runtime.Extensions" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Perlang.Interpreter\Perlang.Interpreter.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="ReadLine" Version="2.0.1" />
+        <PackageReference Include="ReadLine" Version="2.0.1" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20158.1" />
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Perlang.Interpreter;
 using Perlang.Parser;
+using ParseError = Perlang.Parser.ParseError;
 
 namespace Perlang.ConsoleApp
 {
@@ -12,7 +16,7 @@ namespace Perlang.ConsoleApp
     {
         private readonly PerlangInterpreter interpreter;
 
-        private static readonly HashSet<string> ReplCommands = new HashSet<string>
+        private static readonly ISet<string> ReplCommands = new HashSet<string>
         {
             "quit"
         };
@@ -20,31 +24,62 @@ namespace Perlang.ConsoleApp
         private static bool hadError;
         private static bool hadRuntimeError;
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            if (args.Length == 0)
+            var rootCommand = new RootCommand
             {
-                new Program().RunPrompt();
-            }
-            else if (args.Length == 1)
-            {
-                new Program().RunFile(args[0]);
-            }
-            else // More than 1 argument
-            {
-                new Program(args[1..]).RunFile(args[0]);
+                Description = "The Perlang Interpreter",
 
-            }
+                Handler = CommandHandler.Create((ParseResult parseResult, IConsole console) =>
+                {
+                    if (parseResult.Tokens.Count == 0)
+                    {
+                        new Program().RunPrompt();
+                    }
+                    else
+                    {
+                        string scriptName = parseResult.Tokens[0].Value;
+
+                        if (parseResult.Tokens.Count == 1)
+                        {
+                            new Program().RunFile(scriptName);
+                        }
+                        else // More than 1 argument
+                        {
+                            var remainingArguments = parseResult.Tokens.Skip(1)
+                                .Take(parseResult.Tokens.Count - 1)
+                                .Select(r => r.Value);
+
+                            new Program(remainingArguments).RunFile(scriptName);
+                        }
+                    }
+                })
+            };
+
+            rootCommand.AddArgument(new Argument
+            {
+                Arity = ArgumentArity.ZeroOrMore
+            });
+
+            // Parse the incoming args and invoke the handler
+            return rootCommand.Invoke(args);
         }
 
-        private Program(params string[] arguments)
+        private Program(IEnumerable<string> arguments = null)
         {
-            interpreter = new PerlangInterpreter(RuntimeError, arguments: arguments);
+            interpreter = new PerlangInterpreter(RuntimeError, arguments: arguments ?? new List<string>());
         }
 
         private void RunFile(string path)
         {
+            if (!File.Exists(path))
+            {
+                Console.Error.WriteLine($"Error: File {path} not found");
+                Environment.Exit(65);
+            }
+
             var bytes = File.ReadAllBytes(path);
+
             Run(Encoding.UTF8.GetString(bytes));
 
             // Indicate an error in the exit code.
@@ -157,7 +192,7 @@ namespace Perlang.ConsoleApp
             }
 
             // characters to start completion from
-            public char[] Separators { get; set; } = { ' ', '.', '/' };
+            public char[] Separators { get; set; } = {' ', '.', '/'};
         }
     }
 }
