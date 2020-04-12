@@ -66,7 +66,7 @@ namespace Perlang.Tests.Var
             string source = @"
                 var a = ""outer"";
                 {
-                    fun foo() {
+                    fun foo(): void {
                         print a;
                     }
 
@@ -163,7 +163,7 @@ namespace Perlang.Tests.Var
         {
             string source = @"
                 var a = 1;
-                var a;
+                var a = 2;
                 print a;
             ";
 
@@ -171,7 +171,7 @@ namespace Perlang.Tests.Var
 
             Assert.Equal(new[]
             {
-                "nil"
+                "2"
             }, output);
         }
 
@@ -296,10 +296,10 @@ namespace Perlang.Tests.Var
                 print not_defined;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.TypeValidationErrors);
             Assert.Matches("Undefined variable 'not_defined'", exception.Message);
         }
 
@@ -312,32 +312,34 @@ namespace Perlang.Tests.Var
                 }
             ";
 
-            var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.TypeValidationErrors);
             Assert.Matches("Undefined variable 'not_defined'", exception.Message);
         }
 
         [Fact]
-        public void uninitialized_global()
+        public void uninitialized_global_without_type_throws_expected_error()
         {
             string source = @"
                 var a;
-                print a;
             ";
 
-            var output = EvalReturningOutput(source);
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
 
-            Assert.Equal(new[]
-            {
-                "nil"
-            }, output);
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Type inference for variable 'a' cannot be performed when initializer is not specified", exception.Message);
         }
 
         [Fact]
         public void unreached_undefined()
         {
+            // Early versions of Perlang inherited the semantics from Lox and other dynamic languages, like Ruby;
+            // variable references were not analyzed unless the interpreter would actually reach the code in question.
+            // Now that we have static type analysis in place, we also go for a much stricter model like most all
+            // other compiled languages, detecting invalid variable references already at "compile-time".
             string source = @"
                 if (false) {
                     print not_defined;
@@ -346,12 +348,11 @@ namespace Perlang.Tests.Var
                 print ""ok"";
             ";
 
-            var output = EvalReturningOutput(source);
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
 
-            Assert.Equal(new[]
-            {
-                "ok"
-            }, output);
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Undefined variable 'not_defined'", exception.Message);
         }
 
         [Fact]
@@ -366,16 +367,39 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            Assert.Matches("Error at 'false': Expect variable name", exception.ToString());
+            Assert.Matches("Error at 'false': Expecting variable name", exception.ToString());
         }
 
         [Fact]
-        public void use_global_in_initializer()
+        public void redefining_global_variable_works()
+        {
+            // TODO: I'm not at all convinced this is such a great thing to support. Investigate how Java/C#/Rust
+            // TODO: handles this. I _think_ that it actually works in Rust, but not in the others.
+            // TODO:
+            // TODO: C#: fails
+            // TODO: Java: ??
+            // TODO: Rust: works?
+            string source = @"
+                var a = 1;
+                var a = 2;
+                print a;
+            ";
+
+            var output = EvalReturningOutput(source);
+
+            Assert.Equal(new[]
+            {
+                "2"
+            }, output);
+        }
+
+        [Fact]
+        public void use_global_in_initializer_for_global_variable_works()
         {
             string source = @"
                 var a = ""value"";
-                var a = a;
-                print a;
+                var b = a;
+                print b;
             ";
 
             var output = EvalReturningOutput(source);
@@ -387,7 +411,7 @@ namespace Perlang.Tests.Var
         }
 
         [Fact]
-        public void use_local_in_initializer()
+        public void use_global_in_initializer_for_local_variable_fails()
         {
             string source = @"
                 var a = ""outer"";
@@ -416,7 +440,7 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            Assert.Matches("Error at 'nil': Expect variable name.", exception.ToString());
+            Assert.Matches("Error at 'nil': Expecting variable name.", exception.ToString());
         }
 
         [Fact]
@@ -431,7 +455,7 @@ namespace Perlang.Tests.Var
 
             Assert.Single(result.ParseErrors);
 
-            Assert.Matches("Error at 'this': Expect variable name", exception.ToString());
+            Assert.Matches("Error at 'this': Expecting variable name", exception.ToString());
         }
     }
 }

@@ -15,7 +15,8 @@ namespace Perlang.Tests.Operator
         public void less_than_greater_is_true()
         {
             string source = @"
-                print 1 < 2;
+                var b = 1 < 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -27,7 +28,8 @@ namespace Perlang.Tests.Operator
         public void less_than_same_is_false()
         {
             string source = @"
-                print 2 < 2;
+                var b = 2 < 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -39,7 +41,8 @@ namespace Perlang.Tests.Operator
         public void less_than_smaller_is_false()
         {
             string source = @"
-                print 2 < 1;
+                var b = 2 < 1;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -55,7 +58,8 @@ namespace Perlang.Tests.Operator
         public void less_than_or_equals_greater_is_true()
         {
             string source = @"
-                print 1 <= 2;
+                var b = 1 <= 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -67,7 +71,8 @@ namespace Perlang.Tests.Operator
         public void less_than_or_equals_same_is_true()
         {
             string source = @"
-                print 2 <= 2;
+                var b = 2 <= 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -79,7 +84,8 @@ namespace Perlang.Tests.Operator
         public void less_than_or_equals_smaller_is_false()
         {
             string source = @"
-                print 2 <= 1;
+                var b = 2 <= 1;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -95,7 +101,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_smaller_is_false()
         {
             string source = @"
-                print 1 > 2;
+                var b = 1 > 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -107,7 +114,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_same_is_false()
         {
             string source = @"
-                print 2 > 2;
+                var b = 2 > 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -119,7 +127,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_smaller_is_true()
         {
             string source = @"
-                print 2 > 1;
+                var b = 2 > 1;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -134,7 +143,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_or_equals_smaller_is_false()
         {
             string source = @"
-                print 1 >= 2;
+                var b = 1 >= 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -146,7 +156,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_or_equals_same_is_true()
         {
             string source = @"
-                print 2 >= 2;
+                var b = 2 >= 2;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -158,7 +169,8 @@ namespace Perlang.Tests.Operator
         public void greater_than_or_equals_smaller_is_true()
         {
             string source = @"
-                print 2 >= 1;
+                var b = 2 >= 1;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -173,7 +185,8 @@ namespace Perlang.Tests.Operator
         public void zero_less_than_negative_zero_is_false()
         {
             string source = @"
-                print 0 < -0;
+                var b = 0 < -0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -185,7 +198,8 @@ namespace Perlang.Tests.Operator
         public void negative_zero_less_than_zero_is_false()
         {
             string source = @"
-                print -0 < 0;
+                var b = -0 < 0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -197,7 +211,8 @@ namespace Perlang.Tests.Operator
         public void zero_greater_than_negative_zero_is_false()
         {
             string source = @"
-                print 0 > -0;
+                var b = 0 > -0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -209,7 +224,8 @@ namespace Perlang.Tests.Operator
         public void negative_zero_greater_than_zero_is_false()
         {
             string source = @"
-                print -0 > 0;
+                var b = -0 > 0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -221,7 +237,8 @@ namespace Perlang.Tests.Operator
         public void zero_less_than_or_equals_negative_zero_is_false()
         {
             string source = @"
-                print 0 <= -0;
+                var b = 0 <= -0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -233,7 +250,8 @@ namespace Perlang.Tests.Operator
         public void negative_zero_less_than_or_equals_zero_is_false()
         {
             string source = @"
-                print -0 <= 0;
+                var b = -0 <= 0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -245,7 +263,8 @@ namespace Perlang.Tests.Operator
         public void zero_greater_than_or_equals_negative_zero_is_false()
         {
             string source = @"
-                print 0 >= -0;
+                var b = 0 >= -0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -257,7 +276,8 @@ namespace Perlang.Tests.Operator
         public void negative_zero_greater_than_or_equals_zero_is_false()
         {
             string source = @"
-                print -0 >= 0;
+                var b = -0 >= 0;
+                print b;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();

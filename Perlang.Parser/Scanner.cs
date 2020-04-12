@@ -84,6 +84,9 @@ namespace Perlang.Parser
                 case '+':
                     AddToken(Match('+') ? PLUS_PLUS : PLUS);
                     break;
+                case ':':
+                    AddToken(COLON);
+                    break;
                 case ';':
                     AddToken(SEMICOLON);
                     break;

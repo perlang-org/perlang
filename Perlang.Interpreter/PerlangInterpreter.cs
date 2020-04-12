@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Perlang.Exceptions;
+using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -13,7 +16,12 @@ namespace Perlang.Interpreter
     {
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
-        private readonly IDictionary<Expr, int> locals = new Dictionary<Expr, int>();
+
+        private readonly IDictionary<string, TypeReferenceNativeFunction> globalCallables =
+            new Dictionary<string, TypeReferenceNativeFunction>();
+
+        private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
+        private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
         private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
@@ -38,16 +46,16 @@ namespace Perlang.Interpreter
 
             currentEnvironment = globals;
 
-            RegisterCallables();
+            RegisterGlobalCallables();
         }
 
-        private void RegisterCallables()
+        private void RegisterGlobalCallables()
         {
             // Because of implicit dependencies, this is not loaded automatically; we must manually load this
             // assembly to ensure all Callables within it are registered in the global namespace.
             Assembly.Load("Perlang.StdLib");
 
-            var globalCallables = AppDomain.CurrentDomain.GetAssemblies()
+            var globalCallablesQueryable = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
                 .Select(t => new
                 {
@@ -58,17 +66,46 @@ namespace Perlang.Interpreter
                 })
                 .Where(t => t.CallableAttribute != null);
 
-            foreach (var globalCallable in globalCallables)
+            foreach (var globalCallable in globalCallablesQueryable)
             {
+                MethodInfo method = globalCallable.Type.GetMethod("Call");
+
+                if (method == null)
+                {
+                    throw new PerlangInterpreterException("Invalid callable encountered: Call method missing");
+                }
+
+                var parameters = method.GetParameters();
+
+                if (parameters.Length == 0)
+                {
+                    throw new PerlangInterpreterException(
+                        "Invalid callable encountered: Call method must take an IInterpreter parameter as its first parameter");
+                }
+
+                if (parameters[0].ParameterType != typeof(IInterpreter))
+                {
+                    throw new PerlangInterpreterException(
+                        $"Invalid callable encountered: First parameter of Call method must be IInterpreter, not {parameters[0].ParameterType.Name}");
+                }
+
                 object callableInstance = Activator.CreateInstance(globalCallable.Type);
-                globals.Define(globalCallable.CallableAttribute.Name, callableInstance);
+                var callableReturnTypeReference = new TypeReference(method.ReturnType);
+
+                // The first parameter is the IInterpreter instance; it's not interesting in this context. We tuck away the
+                // information about the parameters here so that it can be used by the static type analysis later on.
+                var callableParameters = parameters[1..]
+                    .Select(pi => pi.ParameterType)
+                    .ToArray();
+
+                globalCallables[globalCallable.CallableAttribute.Name] = new TypeReferenceNativeFunction(
+                    callableReturnTypeReference, callableInstance, method, callableParameters
+                );
             }
         }
 
         /// <summary>
-        /// Runs the provided source code, in an eval()/REPL fashion. For scenarios where more control over error
-        /// handling, etc., consider manually scanning the source code and use the <see cref="Interpret"/> method
-        /// instead.
+        /// Runs the provided source code, in an eval()/REPL fashion.
         ///
         /// If provided an expression, returns the result; otherwise, null.
         /// </summary>
@@ -76,9 +113,10 @@ namespace Perlang.Interpreter
         /// <param name="scanErrorHandler">a handler for scanner errors</param>
         /// <param name="parseErrorHandler">a handler for parse errors</param>
         /// <param name="resolveErrorHandler">a handler for resolve errors</param>
+        /// <param name="typeValidationErrorHandler">a handler for type validation errors</param>
         /// <returns>if the provided source is an expression, the value of the expression. Otherwise, null.</returns>
         public object Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
-            ResolveErrorHandler resolveErrorHandler)
+            ResolveErrorHandler resolveErrorHandler, TypeValidationErrorHandler typeValidationErrorHandler)
         {
             if (String.IsNullOrWhiteSpace(source))
             {
@@ -101,7 +139,8 @@ namespace Perlang.Interpreter
             }
 
             bool hasParseErrors = false;
-            var parser = new PerlangParser(tokens, parseError => {
+            var parser = new PerlangParser(tokens, parseError =>
+            {
                 hasParseErrors = true;
                 parseErrorHandler(parseError);
             });
@@ -121,10 +160,12 @@ namespace Perlang.Interpreter
                 // evaluation - resolving variable and function names.
 
                 bool hasResolveErrors = false;
-                var resolver = new Resolver(AddLocal, resolveError => {
-                    hasResolveErrors = true;
-                    resolveErrorHandler(resolveError);
-                });
+                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                    resolveError =>
+                    {
+                        hasResolveErrors = true;
+                        resolveErrorHandler(resolveError);
+                    });
 
                 resolver.Resolve(statements);
 
@@ -135,15 +176,70 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                bool typeValidationFailed = false;
+
+                TypeValidator.Validate(
+                    statements,
+                    typeValidationError =>
+                    {
+                        typeValidationFailed = true;
+                        typeValidationErrorHandler(typeValidationError);
+                    },
+                    GetVariableOrFunctionBinding
+                );
+
+                if (typeValidationFailed)
+                {
+                    return null;
+                }
+
                 Interpret(statements);
 
                 return null;
             }
-            else if (syntax is Expr expression)
+            else if (syntax is Expr expr)
             {
+                // The provided is a single expression. Move on to the next phase in the evaluation - resolving
+                // variable and function names. This is important since even a single expression might refer to
+                // a method call or reading a variable.
+
+                bool hasResolveErrors = false;
+                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                    resolveError =>
+                    {
+                        hasResolveErrors = true;
+                        resolveErrorHandler(resolveError);
+                    });
+
+                resolver.Resolve(expr);
+
+                if (hasResolveErrors)
+                {
+                    // Resolution errors has been reported back to the provided error handler. Nothing more remains
+                    // to be done than aborting the evaluation.
+                    return null;
+                }
+
+                bool typeValidationFailed = false;
+
+                TypeValidator.Validate(
+                    expr,
+                    typeValidationError =>
+                    {
+                        typeValidationFailed = true;
+                        typeValidationErrorHandler(typeValidationError);
+                    },
+                    GetVariableOrFunctionBinding
+                );
+
+                if (typeValidationFailed)
+                {
+                    return null;
+                }
+
                 try
                 {
-                    return Evaluate(expression);
+                    return Evaluate(expr);
                 }
                 catch (RuntimeError e)
                 {
@@ -270,9 +366,17 @@ namespace Perlang.Interpreter
                     throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
             }
 
-            if (locals.TryGetValue(expr, out int distance))
+            if (localBindings.TryGetValue(expr, out Binding binding))
             {
-                currentEnvironment.AssignAt(distance, expr.Name, value);
+                if (binding is IDistanceAwareBinding distanceAwareBinding)
+                {
+                    currentEnvironment.AssignAt(distanceAwareBinding.Distance, expr.Name, value);
+                }
+                else
+                {
+                    throw new RuntimeError(expr.Operator,
+                        $"Unsupported operator '{expr.Operator.Type}' encountered for non-distance-aware binding '{binding}'");
+                }
             }
             else
             {
@@ -287,11 +391,39 @@ namespace Perlang.Interpreter
             return LookUpVariable(expr.Name, expr);
         }
 
+        private Binding GetVariableOrFunctionBinding(Expr expr)
+        {
+            if (localBindings.ContainsKey(expr))
+            {
+                return localBindings[expr];
+            }
+
+            if (globalBindings.ContainsKey(expr))
+            {
+                return globalBindings[expr];
+            }
+
+            // The variable does not exist, neither in the list of local nor global bindings.
+            return null;
+        }
+
         private object LookUpVariable(Token name, Expr expr)
         {
-            if (locals.TryGetValue(expr, out int distance))
+            if (localBindings.TryGetValue(expr, out Binding localBinding))
             {
-                return currentEnvironment.GetAt(distance, name.Lexeme);
+                if (localBinding is IDistanceAwareBinding distanceAwareBinding)
+                {
+                    return currentEnvironment.GetAt(distanceAwareBinding.Distance, name.Lexeme);
+                }
+                else
+                {
+                    throw new RuntimeError(name,
+                        $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
+                }
+            }
+            else if (globalCallables.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction globalCallable))
+            {
+                return globalCallable;
             }
             else
             {
@@ -390,9 +522,14 @@ namespace Perlang.Interpreter
             stmt.Accept(this);
         }
 
-        private void AddLocal(Expr expr, int depth)
+        private void AddGlobal(Binding binding)
         {
-            locals[expr] = depth;
+            globalBindings[binding.ReferringExpr] = binding;
+        }
+
+        private void AddLocal(Binding binding)
+        {
+            localBindings[binding.ReferringExpr] = binding;
         }
 
         public void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment)
@@ -494,9 +631,17 @@ namespace Perlang.Interpreter
         {
             object value = Evaluate(expr.Value);
 
-            if (locals.TryGetValue(expr, out int distance))
+            if (localBindings.TryGetValue(expr, out Binding binding))
             {
-                currentEnvironment.AssignAt(distance, expr.Name, value);
+                if (binding is IDistanceAwareBinding distanceAwareBinding)
+                {
+                    currentEnvironment.AssignAt(distanceAwareBinding.Distance, expr.Name, value);
+                }
+                else
+                {
+                    throw new RuntimeError(expr.Name,
+                        $"Unsupported variable assignment encountered for non-distance-aware binding '{binding}'");
+                }
             }
             else
             {
@@ -571,33 +716,63 @@ namespace Perlang.Interpreter
                 arguments.Add(Evaluate(argument));
             }
 
-            if (!(callee is ICallable))
+            switch (callee)
             {
-                throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
-            }
+                case TypeReferenceNativeFunction nativeFunction:
+                    // A long as we are an interpreted language, calling native functions will provide the IInterpreter
+                    // instance as the first parameter. Once we are compiled, we should aim for a more efficient
+                    // implementation in general, and
+                    var argumentsWithInterpreter = new object[arguments.Count + 1];
 
-            var function = (ICallable) callee;
+                    argumentsWithInterpreter[0] = this;
 
-            if (arguments.Count != function.Arity())
-            {
-                throw new RuntimeError(expr.Paren, "Expected " + function.Arity() + " argument(s) but got " +
-                                                   arguments.Count + ".");
-            }
+                    for (var i = 0; i < arguments.Count; i++)
+                    {
+                        object argument = arguments[i];
+                        argumentsWithInterpreter[i + 1] = argument;
+                    }
 
-            try
-            {
-                return function.Call(this, arguments);
-            }
-            catch (Exception e)
-            {
-                if (expr.Callee is Expr.Variable v)
-                {
-                    throw new RuntimeError(v.Name, $"{v.Name.Lexeme}: {e.Message}");
-                }
-                else
-                {
-                    throw new RuntimeError(expr.Paren, e.Message);
-                }
+                    try
+                    {
+                        return nativeFunction.Method.Invoke(nativeFunction.Callable, argumentsWithInterpreter);
+                    }
+                    catch (TargetInvocationException e)
+                    {
+                        if (e.InnerException != null)
+                        {
+                            throw e.InnerException;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                case ICallable callable:
+                    if (arguments.Count != callable.Arity())
+                    {
+                        throw new RuntimeError(expr.Paren, "Expected " + callable.Arity() + " argument(s) but got " +
+                                                           arguments.Count + ".");
+                    }
+
+                    try
+                    {
+                        return callable.Call(this, arguments);
+                    }
+                    catch (Exception e)
+                    {
+                        if (expr.Callee is Expr.Variable v)
+                        {
+                            throw new RuntimeError(v.Name, $"{v.Name.Lexeme}: {e.Message}");
+                        }
+                        else
+                        {
+                            throw new RuntimeError(expr.Paren, e.Message);
+                        }
+                    }
+
+                default:
+                    throw new RuntimeError(expr.Paren, $"Can only call functions and classes, not {callee}.");
             }
         }
     }

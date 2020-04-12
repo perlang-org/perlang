@@ -4,7 +4,14 @@ namespace Perlang
 {
     public abstract class Expr
     {
-        public interface IVisitor<TR>
+        public TypeReference TypeReference { get; }
+
+        private Expr()
+        {
+            TypeReference = new TypeReference(typeSpecifier: null);
+        }
+
+        public interface IVisitor<out TR>
         {
             TR VisitEmptyExpr(Empty expr);
             TR VisitAssignExpr(Assign expr);
@@ -17,6 +24,10 @@ namespace Perlang
             TR VisitUnaryPostfixExpr(UnaryPostfix expr);
             TR VisitVariableExpr(Variable expr);
         }
+
+        //
+        // Expression types follows.
+        //
 
         public class Empty : Expr
         {
@@ -31,7 +42,8 @@ namespace Perlang
             public Token Name { get; }
             public Expr Value { get; }
 
-            public Assign(Token name, Expr value) {
+            public Assign(Token name, Expr value)
+            {
                 Name = name;
                 Value = value;
             }
@@ -48,7 +60,8 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public Binary(Expr left, Token _operator, Expr right) {
+            public Binary(Expr left, Token _operator, Expr right)
+            {
                 Left = left;
                 Operator = _operator;
                 Right = right;
@@ -58,6 +71,11 @@ namespace Perlang
             {
                 return visitor.VisitBinaryExpr(this);
             }
+
+            public override string ToString()
+            {
+                return $"{Left} {Operator} {Right}";
+            }
         }
 
         public class Call : Expr
@@ -66,7 +84,23 @@ namespace Perlang
             public Token Paren { get; }
             public List<Expr> Arguments { get; }
 
-            public Call(Expr callee, Token paren, List<Expr> arguments) {
+            public string CalleeToString
+            {
+                get
+                {
+                    if (Callee is Variable variable)
+                    {
+                        return variable.Name.Lexeme;
+                    }
+                    else
+                    {
+                        return ToString();
+                    }
+                }
+            }
+
+            public Call(Expr callee, Token paren, List<Expr> arguments)
+            {
                 Callee = callee;
                 Paren = paren;
                 Arguments = arguments;
@@ -76,13 +110,26 @@ namespace Perlang
             {
                 return visitor.VisitCallExpr(this);
             }
+
+            public override string ToString()
+            {
+                if (Callee is Variable variable)
+                {
+                    return $"'call function {variable.Name.Lexeme}'";
+                }
+                else
+                {
+                    return base.ToString();
+                }
+            }
         }
 
         public class Grouping : Expr
         {
             public Expr Expression { get; }
 
-            public Grouping(Expr expression) {
+            public Grouping(Expr expression)
+            {
                 Expression = expression;
             }
 
@@ -96,13 +143,19 @@ namespace Perlang
         {
             public object Value { get; }
 
-            public Literal(object value) {
+            public Literal(object value)
+            {
                 Value = value;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitLiteralExpr(this);
+            }
+
+            public override string ToString()
+            {
+                return Value?.ToString() ?? "null";
             }
         }
 
@@ -112,7 +165,8 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public Logical(Expr left, Token _operator, Expr right) {
+            public Logical(Expr left, Token _operator, Expr right)
+            {
                 Left = left;
                 Operator = _operator;
                 Right = right;
@@ -129,7 +183,8 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public UnaryPrefix(Token _operator, Expr right) {
+            public UnaryPrefix(Token _operator, Expr right)
+            {
                 Operator = _operator;
                 Right = right;
             }
@@ -146,7 +201,8 @@ namespace Perlang
             public Token Name { get; }
             public Token Operator { get; }
 
-            public UnaryPostfix(Expr left, Token name, Token _operator) {
+            public UnaryPostfix(Expr left, Token name, Token _operator)
+            {
                 Left = left;
                 Name = name;
                 Operator = _operator;
@@ -162,7 +218,8 @@ namespace Perlang
         {
             public Token Name { get; }
 
-            public Variable(Token name) {
+            public Variable(Token name)
+            {
                 Name = name;
             }
 
@@ -170,6 +227,9 @@ namespace Perlang
             {
                 return visitor.VisitVariableExpr(this);
             }
+
+            public override string ToString() =>
+                Name.Lexeme;
         }
 
         public abstract TR Accept<TR>(IVisitor<TR> visitor);

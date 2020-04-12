@@ -58,7 +58,7 @@ namespace Perlang.Interpreter
                 return enclosing.Get(name);
             }
 
-            throw new RuntimeError(name, "Undefined variable '" + name.Lexeme + "'.");
+            return null;
         }
 
         internal void Assign(Token name, object value)

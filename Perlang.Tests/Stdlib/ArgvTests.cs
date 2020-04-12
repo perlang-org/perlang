@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Perlang.Exceptions;
-using Perlang.Interpreter;
 using Xunit;
 using static Perlang.Tests.EvalHelper;
 
@@ -9,23 +7,34 @@ namespace Perlang.Tests.Stdlib
 {
     public class ArgvTests
     {
-        [Fact]
-        public void argv_pop_is_a_callable()
-        {
-            Assert.IsAssignableFrom<ICallable>(Eval("argv_pop"));
-        }
+        // [Fact]
+        // public void argv_pop_is_a_callable()
+        // {
+        //     Assert.IsAssignableFrom<ICallable>(Eval("argv_pop"));
+        // }
 
         [Fact]
         public void argv_pop_with_no_arguments_throws_the_expected_exception()
         {
-            // TODO: Should verify exception message also ("argv_pop: No arguments left")
-            Assert.Throws<RuntimeError>(() => Eval("argv_pop()"));
+            var result = EvalWithRuntimeCatch("argv_pop()");
+            var exception = result.RuntimeErrors.FirstOrDefault();
+
+            Assert.Single(result.RuntimeErrors);
+            Assert.Matches("No arguments left", exception.Message);
         }
 
         [Fact]
-        public void argv_pop_with_one_argument_returns_the_expected_result()
+        public void argv_pop_with_one_argument_expr_returns_the_expected_result()
         {
             Assert.Equal("arg1", EvalWithArguments("argv_pop()", "arg1"));
+        }
+
+        [Fact]
+        public void argv_pop_with_one_argument_stmt_returns_the_expected_result()
+        {
+            var result = EvalReturningOutput("print argv_pop();", "arg1").SingleOrDefault();
+
+            Assert.Equal("arg1", result);
         }
 
         [Fact]
@@ -41,8 +50,11 @@ namespace Perlang.Tests.Stdlib
         [Fact]
         public void argv_pop_too_many_times_throws_the_expected_exception()
         {
-            // TODO: Should verify exception message also ("argv_pop: No arguments left")
-            Assert.Throws<RuntimeError>(() => EvalWithArguments("argv_pop(); argv_pop();", "arg1"));
+            var result = EvalWithRuntimeCatch("argv_pop(); argv_pop();", "arg1");
+            var exception = result.RuntimeErrors.FirstOrDefault();
+
+            Assert.Single(result.RuntimeErrors);
+            Assert.Matches("No arguments left", exception.Message);
         }
     }
 }

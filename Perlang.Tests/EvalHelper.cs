@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using Perlang.Interpreter;
+using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 
 namespace Perlang.Tests
@@ -21,7 +25,7 @@ namespace Perlang.Tests
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
             return interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler);
+                AssertFailResolveErrorHandler, AssertFailTypeValidationErrorHandler);
         }
 
         /// <summary>
@@ -32,14 +36,15 @@ namespace Perlang.Tests
         /// available in the returned <see cref="EvalResult"/>.
         /// </summary>
         /// <param name="source">a valid Perlang programs</param>
+        /// <param name="arguments">zero or more arguments to be passed to the program</param>
         /// <returns>an EvalResult with the result of the provided expression, or null if not provided an expression.</returns>
-        internal static EvalResult EvalWithRuntimeCatch(string source)
+        internal static EvalResult EvalWithRuntimeCatch(string source, params string[] arguments)
         {
             var result = new EvalResult();
-            var interpreter = new PerlangInterpreter(runtimeError => result.RuntimeErrors.Add(runtimeError));
+            var interpreter = new PerlangInterpreter(runtimeError => result.RuntimeErrors.Add(runtimeError), null, arguments);
 
             result.Value = interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler);
+                AssertFailResolveErrorHandler, AssertFailTypeValidationErrorHandler);
 
             return result;
         }
@@ -59,7 +64,7 @@ namespace Perlang.Tests
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
 
             result.Value = interpreter.Eval(source, AssertFailScanErrorHandler, parseError => result.ParseErrors.Add(parseError),
-                AssertFailResolveErrorHandler);
+                AssertFailResolveErrorHandler, AssertFailTypeValidationErrorHandler);
 
             return result;
         }
@@ -79,7 +84,18 @@ namespace Perlang.Tests
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
 
             result.Value = interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                resolveError => result.ResolveErrors.Add(resolveError));
+                resolveError => result.ResolveErrors.Add(resolveError), AssertFailTypeValidationErrorHandler);
+
+            return result;
+        }
+
+        internal static EvalResult EvalWithTypeValidationErrorCatch(string source)
+        {
+            var result = new EvalResult();
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
+
+            result.Value = interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
+                AssertFailResolveErrorHandler, typeValidationError => result.TypeValidationErrors.Add(typeValidationError));
 
             return result;
         }
@@ -89,14 +105,15 @@ namespace Perlang.Tests
         /// standard output, the content will be returned.
         /// </summary>
         /// <param name="source">a valid Perlang programs</param>
+        /// <param name="arguments">zero or more arguments to be passed to the program</param>
         /// <returns>the output from the provided expression/statements.</returns>
-        internal static IEnumerable<string> EvalReturningOutput(string source)
+        internal static IEnumerable<string> EvalReturningOutput(string source, params string[] arguments)
         {
             var output = new List<string>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => output.Add(s));
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => output.Add(s), arguments);
 
             interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler);
+                AssertFailResolveErrorHandler, AssertFailTypeValidationErrorHandler);
 
             return output;
         }
@@ -126,7 +143,7 @@ namespace Perlang.Tests
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, standardOutputHandler, arguments);
 
             return interpreter.Eval(source, AssertFailScanErrorHandler, AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler);
+                AssertFailResolveErrorHandler, AssertFailTypeValidationErrorHandler);
         }
 
         private static void AssertFailScanErrorHandler(ScanError scanError)
@@ -148,6 +165,11 @@ namespace Perlang.Tests
         {
             throw runtimeError;
         }
+
+        private static void AssertFailTypeValidationErrorHandler(TypeValidationError typeValidationError)
+        {
+            throw typeValidationError;
+        }
     }
 
     internal class EvalResult
@@ -156,5 +178,6 @@ namespace Perlang.Tests
         public List<ParseError> ParseErrors { get; } = new List<ParseError>();
         public List<RuntimeError> RuntimeErrors { get ; } = new List<RuntimeError>();
         public List<ResolveError> ResolveErrors { get; } = new List<ResolveError>();
+        public TypeValidationErrors TypeValidationErrors { get; } = new TypeValidationErrors();
     }
 }

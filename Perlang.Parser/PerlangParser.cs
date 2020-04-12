@@ -89,6 +89,10 @@ namespace Perlang.Parser
             return statements;
         }
 
+        /// <summary>
+        /// Returns the expression at the current position in the stream.
+        /// </summary>
+        /// <returns>An expression.</returns>
         private Expr Expression()
         {
             return Assignment();
@@ -215,13 +219,21 @@ namespace Perlang.Parser
                 value = Expression();
             }
 
-            Consume(SEMICOLON, "Expect ';' after return value.");
+            Consume(SEMICOLON, "Expecting ';' after return value.");
             return new Stmt.Return(keyword, value);
         }
 
         private Stmt VarDeclaration()
         {
-            Token name = Consume(IDENTIFIER, "Expect variable name.");
+            Token name = Consume(IDENTIFIER, "Expecting variable name.");
+
+            // Support optional typing on this form:
+            // var s: String;
+            Token typeSpecifier = null;
+            if (Match(COLON))
+            {
+                typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+            }
 
             Expr initializer = null;
             if (Match(EQUAL))
@@ -230,7 +242,7 @@ namespace Perlang.Parser
             }
 
             Consume(SEMICOLON, "Expect ';' after variable declaration.");
-            return new Stmt.Var(name, initializer, TypeReference.None);
+            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier));
         }
 
         private Stmt WhileStatement()
@@ -263,7 +275,7 @@ namespace Perlang.Parser
         {
             Token name = Consume(IDENTIFIER, "Expect " + kind + " name.");
             Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
-            var parameters = new List<Token>();
+            var parameters = new List<Parameter>();
 
             if (!Check(RIGHT_PAREN))
             {
@@ -274,15 +286,32 @@ namespace Perlang.Parser
                         Error(Peek(), "Cannot have more than 255 parameters.");
                     }
 
-                    parameters.Add(Consume(IDENTIFIER, "Expect parameter name."));
+                    var parameterName = Consume(IDENTIFIER, "Expect parameter name.");
+                    Token parameterTypeSpecifier = null;
+
+                    // Parameters can optionally use a specific type. If the type is not provided, the compiler will
+                    // try to infer the type based on the usage.
+                    if (Match(COLON))
+                    {
+                        parameterTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+                    }
+
+                    parameters.Add(new Parameter(parameterName, new TypeReference(parameterTypeSpecifier)));
                 } while (Match(COMMA));
             }
 
             Consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
+            Token returnTypeSpecifier = null;
+
+            if (Match(COLON))
+            {
+                returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+            }
+
             Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
             List<Stmt> body = Block();
-            return new Stmt.Function(name, parameters, body, TypeReference.None);
+            return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier));
         }
 
         private List<Stmt> Block()

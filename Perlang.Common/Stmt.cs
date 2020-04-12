@@ -1,9 +1,5 @@
-//
-// AUTO-GENERATED FILE, DO NOT MODIFY!
-//
-// Instead, change the ./scripts/generate_ast_classes.rb script that generated this code.
-//
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Perlang
 {
@@ -52,20 +48,26 @@ namespace Perlang
         public class Function : Stmt
         {
             public Token Name { get; }
-            public List<Token> Params { get; }
-            public List<Stmt> Body { get; }
+            public ImmutableList<Parameter> Parameters { get; }
+            public ImmutableList<Stmt> Body { get; }
             public TypeReference ReturnTypeReference { get; }
 
-            public Function(Token name, List<Token> _params, List<Stmt> body, TypeReference returnTypeReference) {
+            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference) {
                 Name = name;
-                Params = _params;
-                Body = body;
+                Parameters = parameters.ToImmutableList();
+                Body = body.ToImmutableList();
                 ReturnTypeReference = returnTypeReference;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitFunctionStmt(this);
+            }
+
+            public override string ToString()
+            {
+                // TODO: Include parameters here as well.
+                return $"fun {Name.Lexeme}(): {ReturnTypeReference.ClrType}";
             }
         }
 
@@ -123,6 +125,8 @@ namespace Perlang
             public Expr Initializer { get; }
             public TypeReference TypeReference { get; }
 
+            public bool HasInitializer => Initializer != null;
+
             public Var(Token name, Expr initializer, TypeReference typeReference) {
                 Name = name;
                 Initializer = initializer;
@@ -132,6 +136,18 @@ namespace Perlang
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitVarStmt(this);
+            }
+
+            public override string ToString()
+            {
+                if (Initializer != null)
+                {
+                    return $"var {Name.Lexeme} = {Initializer};";
+                }
+                else
+                {
+                    return $"var {Name.Lexeme};";
+                }
             }
         }
 

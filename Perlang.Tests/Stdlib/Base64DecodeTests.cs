@@ -8,21 +8,20 @@ namespace Perlang.Tests.Stdlib
 {
     public class Base64DecodeTests
     {
-        [Fact]
-        public void base64_decode_is_a_callable()
-        {
-            Assert.IsAssignableFrom<ICallable>(Eval("base64_decode"));
-        }
+        // [Fact]
+        // public void base64_decode_is_a_callable()
+        // {
+        //     Assert.IsAssignableFrom<ICallable>(Eval("base64_decode"));
+        // }
 
         [Fact]
         public void base64_decode_with_no_arguments_throws_the_expected_exception()
         {
-            var result = EvalWithRuntimeCatch("base64_decode()");
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch("base64_decode()");
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
-            Assert.IsType<RuntimeError>(exception);
-            Assert.Contains("Expected 1 argument(s)", exception.Message);
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Contains("Function 'base64_decode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
         [Fact]
@@ -34,12 +33,12 @@ namespace Perlang.Tests.Stdlib
         [Fact]
         public void base64_decode_with_a_numeric_argument_throws_the_expected_exception()
         {
-            var result = EvalWithRuntimeCatch("base64_decode(123.45)");
-            var runtimeError = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch("base64_decode(123.45)");
+            var runtimeError = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.TypeValidationErrors);
 
-            Assert.Equal("base64_decode: Unable to cast object of type 'System.Double' to type 'System.String'.",
+            Assert.Equal("Cannot pass System.Double argument as System.String parameter to base64_decode()",
                 runtimeError.Message);
         }
     }

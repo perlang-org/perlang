@@ -4,14 +4,9 @@ using System.Collections.Generic;
 namespace Perlang.Stdlib.Callables
 {
     [GlobalCallable("clock")]
-    public class Clock : ICallable
+    public class Clock
     {
-        public int Arity()
-        {
-            return 0;
-        }
-
-        public object Call(IInterpreter interpreter, List<object> arguments)
+        public object Call(IInterpreter interpreter)
         {
             return new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds() / 1000.0;
         }

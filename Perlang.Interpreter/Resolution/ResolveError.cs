@@ -1,6 +1,6 @@
 using System;
 
-namespace Perlang.Interpreter
+namespace Perlang.Interpreter.Resolution
 {
     public class ResolveError : Exception
     {

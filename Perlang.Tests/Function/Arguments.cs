@@ -2,9 +2,9 @@ using System.Linq;
 using Xunit;
 using static Perlang.Tests.EvalHelper;
 
-namespace Perlang.Tests
+namespace Perlang.Tests.Function
 {
-    public class Function
+    public class Arguments
     {
         // Tests based on Lox test suite: https://github.com/munificent/craftinginterpreters/tree/master/test/function
 
@@ -16,7 +16,7 @@ namespace Perlang.Tests
         void function_can_receive_0_arguments()
         {
             string source = @"
-                fun f0() { return 0; }
+                fun f0(): int { return 0; }
                 print f0();
             ";
 
@@ -29,7 +29,7 @@ namespace Perlang.Tests
         void function_can_receive_1_argument()
         {
             string source = @"
-                fun f1(a) { return a; }
+                fun f1(a: int): int { return a; }
                 print f1(1);
             ";
 
@@ -42,7 +42,7 @@ namespace Perlang.Tests
         void function_can_receive_2_arguments()
         {
             string source = @"
-                fun f2(a, b) { return a + b; }
+                fun f2(a: int, b: int): int { return a + b; }
                 print f2(1, 2);
             ";
 
@@ -55,7 +55,7 @@ namespace Perlang.Tests
         void function_can_receive_3_arguments()
         {
             string source = @"
-                fun f3(a, b, c) { return a + b + c; }
+                fun f3(a: int, b: int, c: int): int { return a + b + c; }
                 print f3(1, 2, 3);
             ";
 
@@ -68,7 +68,7 @@ namespace Perlang.Tests
         void function_can_receive_4_arguments()
         {
             string source = @"
-                fun f4(a, b, c, d) { return a + b + c + d; }
+                fun f4(a: int, b: int, c: int, d: int): int { return a + b + c + d; }
                 print f4(1, 2, 3, 4);
             ";
 
@@ -81,7 +81,7 @@ namespace Perlang.Tests
         void function_can_receive_5_arguments()
         {
             string source = @"
-                fun f5(a, b, c, d, e) { return a + b + c + d + e; }
+                fun f5(a: int, b: int, c: int, d: int, e: int): int { return a + b + c + d + e; }
                 print f5(1, 2, 3, 4, 5);
             ";
 
@@ -94,7 +94,7 @@ namespace Perlang.Tests
         void function_can_receive_6_arguments()
         {
             string source = @"
-                fun f6(a, b, c, d, e, f) { return a + b + c + d + e + f; }
+                fun f6(a: int, b: int, c: int, d: int, e: int, f: int): int { return a + b + c + d + e + f; }
                 print f6(1, 2, 3, 4, 5, 6);
             ";
 
@@ -107,7 +107,7 @@ namespace Perlang.Tests
         void function_can_receive_7_arguments()
         {
             string source = @"
-                fun f7(a, b, c, d, e, f, g) { return a + b + c + d + e + f + g; }
+                fun f7(a: int, b: int, c: int, d: int, e: int, f: int, g: int): int { return a + b + c + d + e + f + g; }
                 print f7(1, 2, 3, 4, 5, 6, 7);
             ";
 
@@ -120,7 +120,7 @@ namespace Perlang.Tests
         void function_can_receive_8_arguments()
         {
             string source = @"
-                fun f8(a, b, c, d, e, f, g, h) { return a + b + c + d + e + f + g + h; }
+                fun f8(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int): int { return a + b + c + d + e + f + g + h; }
                 print f8(1, 2, 3, 4, 5, 6, 7, 8);
             ";
 
@@ -130,35 +130,33 @@ namespace Perlang.Tests
         }
 
         [Fact]
-        void recursive_function_returns_expected_result()
-        {
-            string source = @"
-                fun fib(n) {
-                  if (n < 2) return n;
-                  return fib(n - 1) + fib(n - 2);
-                }
-
-                print fib(8);
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("21", output);
-        }
-
-        [Fact]
         void function_can_receive_binary_expression_as_argument()
         {
             string source = @"
                 var a = 1;
 
-                fun f(i) { return (i / 1024); }
+                fun f(i: int): int { return (i / 1024); }
                 print f(a * 1024);
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
             Assert.Equal("1", output);
+        }
+
+        [Fact]
+        void function_can_receive_function_call_result_as_argument()
+        {
+            string source = @"
+                fun f(i: int): int { return i * 42; }
+                fun g(): int { return 42; }
+
+                print f(g());
+            ";
+
+            string output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("1764", output);
         }
 
         // "Negative" tests, asserting that errors are handled in a deterministic way.
@@ -168,7 +166,7 @@ namespace Perlang.Tests
         void extra_arguments_expects_runtime_error()
         {
             string source = @"
-                fun f(a, b) {
+                fun f(a: int, b: int): void {
                     print a;
                     print b;
                 }
@@ -176,27 +174,29 @@ namespace Perlang.Tests
                 f(1, 2, 3, 4);
             ";
 
-            var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
-            Assert.Matches("Expected 2 argument\\(s\\) but got 4", exception.Message);
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Function 'f' has 2 parameter\\(s\\) but was called with 4 argument\\(s\\)",
+                exception.Message);
         }
 
         [Fact]
         void missing_arguments_expects_runtime_error()
         {
             string source = @"
-                fun f(a, b) {}
+                fun f(a: int, b: int): void {}
 
                 f(1);
             ";
 
-            var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
-            Assert.Matches("Expected 2 argument\\(s\\) but got 1", exception.Message);
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Function 'f' has 2 parameter\\(s\\) but was called with 1 argument\\(s\\)",
+                exception.Message);
         }
 
         [Fact]
