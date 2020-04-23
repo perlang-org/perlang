@@ -7,6 +7,5 @@ namespace Perlang
         List<string> Arguments { get; }
 
         void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment);
-        void Resolve(Expr expr, int depth);
     }
 }

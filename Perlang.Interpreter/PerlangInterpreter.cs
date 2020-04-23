@@ -121,7 +121,7 @@ namespace Perlang.Interpreter
                 // evaluation - resolving variable and function names.
 
                 var resolveErrors = new ResolveErrors();
-                var resolver = new Resolver(this, resolveError => resolveErrors.Add(resolveError));
+                var resolver = new Resolver(AddLocal, resolveError => resolveErrors.Add(resolveError));
                 resolver.Resolve(statements);
 
                 if (!resolveErrors.Empty())
@@ -366,7 +366,7 @@ namespace Perlang.Interpreter
             stmt.Accept(this);
         }
 
-        public void Resolve(Expr expr, int depth)
+        private void AddLocal(Expr expr, int depth)
         {
             locals[expr] = depth;
         }
