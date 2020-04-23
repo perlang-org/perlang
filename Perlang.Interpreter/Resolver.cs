@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,17 +7,27 @@ using Perlang.Parser;
 
 namespace Perlang.Interpreter
 {
+    /// <summary>
+    /// The Resolver is responsible for resolving names of local and global variable/function names.
+    /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
         private readonly List<IDictionary<string, bool>> scopes = new List<IDictionary<string, bool>>();
         private FunctionType currentFunction = FunctionType.NONE;
 
-        private readonly IInterpreter interpreter;
+        private readonly Action<Expr, int> addLocalExprCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
 
-        internal Resolver(IInterpreter interpreter, ResolveErrorHandler resolveErrorHandler)
+        /// <summary>
+        /// Creates a new Resolver instance.
+        /// </summary>
+        /// <param name="addLocalExprCallback">A callback used to add a local expression at a
+        /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
+        /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
+        /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
+        internal Resolver(Action<Expr, int> addLocalExprCallback, ResolveErrorHandler resolveErrorHandler)
         {
-            this.interpreter = interpreter;
+            this.addLocalExprCallback = addLocalExprCallback;
             this.resolveErrorHandler = resolveErrorHandler;
         }
 
@@ -79,7 +90,7 @@ namespace Perlang.Interpreter
             {
                 if (scopes[i].ContainsKey(name.Lexeme))
                 {
-                    interpreter.Resolve(expr, scopes.Count - 1 - i);
+                    addLocalExprCallback(expr, scopes.Count - 1 - i);
                     return;
                 }
             }
