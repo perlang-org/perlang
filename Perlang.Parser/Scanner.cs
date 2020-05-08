@@ -161,18 +161,50 @@ namespace Perlang.Parser
 
         private void Number()
         {
+            bool isFractional = false;
+
             while (IsDigit(Peek())) Advance();
 
             // Look for a fractional part.
             if (Peek() == '.' && IsDigit(PeekNext()))
             {
+                isFractional = true;
+
                 // Consume the "."
                 Advance();
 
                 while (IsDigit(Peek())) Advance();
             }
 
-            AddToken(NUMBER, Double.Parse(source[start..current]));
+            if (isFractional)
+            {
+                AddToken(NUMBER, Double.Parse(source[start..current]));
+            }
+            else
+            {
+                // Any potential preceding '-' character has already been taken care of at this stage => we can treat
+                // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
+                // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
+                // follows the same semantics as how C# does it, for simplicity.
+                ulong value = UInt64.Parse(source[start..current]);
+
+                if (value < Int32.MaxValue)
+                {
+                    AddToken(NUMBER, (int)value);
+                }
+                else if (value < UInt32.MaxValue)
+                {
+                    AddToken(NUMBER, (uint)value);
+                }
+                else if (value < Int64.MaxValue)
+                {
+                    AddToken(NUMBER, (long)value);
+                }
+                else // ulong
+                {
+                    AddToken(NUMBER, value);
+                }
+            }
         }
 
         private void String()
