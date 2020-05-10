@@ -236,7 +236,7 @@ namespace Perlang.Interpreter
             object left = Evaluate(expr.Left);
 
             // We do have a check at the parser side also, but this one covers "null" cases.
-            if (!(left is double previousValue))
+            if (!IsValidNumberType(left))
             {
                 switch (expr.Operator.Type)
                 {
@@ -254,8 +254,9 @@ namespace Perlang.Interpreter
                 }
             }
 
+            dynamic previousValue = left;
             var variable = (Expr.Variable) expr.Left;
-            double value;
+            object value;
 
             switch (expr.Operator.Type)
             {
@@ -312,12 +313,37 @@ namespace Perlang.Interpreter
 
         private static void CheckNumberOperands(Token _operator, object left, object right)
         {
-            if (left is double && right is double)
+            if (IsValidNumberType(left) && IsValidNumberType(right))
             {
                 return;
             }
 
             throw new RuntimeError(_operator, "Operands must be numbers.");
+        }
+
+        private static bool IsValidNumberType(object value)
+        {
+            if (value == null)
+            {
+                return false;
+            }
+
+            switch (value)
+            {
+                case SByte _:
+                case Int16 _:
+                case Int32 _:
+                case Int64 _:
+                case Byte _:
+                case UInt16 _:
+                case UInt32 _:
+                case UInt64 _:
+                case Single _: // i.e. float
+                case Double _:
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool IsTruthy(object _object)
@@ -487,41 +513,45 @@ namespace Perlang.Interpreter
             object left = Evaluate(expr.Left);
             object right = Evaluate(expr.Right);
 
+            // Using 'dynamic' here to avoid excessive complexity, having to support all permutations of
+            // comparisons (int16 to int32, int32 to int64, etc etc). Since we validate the numerability of the
+            // values first, these should be "safe" in that sense. Performance might not be great but let's live
+            // with that until we rewrite the whole Perlang interpreter as an on-demand, statically typed but
+            // dynamically compiled language.
+            dynamic leftNumber = left;
+            dynamic rightNumber = right;
+
             switch (expr.Operator.Type)
             {
                 case GREATER:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left > (double) right;
+                    return leftNumber > rightNumber;
                 case GREATER_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left >= (double) right;
+                    return leftNumber >= rightNumber;
                 case LESS:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left < (double) right;
+                    return leftNumber < rightNumber;
                 case LESS_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left <= (double) right;
+                    return leftNumber <= rightNumber;
                 case MINUS:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left - (double) right;
+                    return leftNumber - rightNumber;
                 case PLUS:
-                    if (left is double d1 && right is double d2)
-                    {
-                        return d1 + d2;
-                    }
-
                     if (left is string s1 && right is string s2)
                     {
                         return s1 + s2;
                     }
 
-                    throw new RuntimeError(expr.Operator, "Operands must be two numbers or two strings.");
+                    CheckNumberOperands(expr.Operator, left, right);
+                    return leftNumber + rightNumber;
                 case SLASH:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left / (double) right;
+                    return leftNumber / rightNumber;
                 case STAR:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return (double) left * (double) right;
+                    return leftNumber * rightNumber;
                 case BANG_EQUAL:
                     return !IsEqual(left, right);
                 case EQUAL_EQUAL:
