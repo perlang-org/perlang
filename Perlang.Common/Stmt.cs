@@ -54,11 +54,13 @@ namespace Perlang
             public Token Name { get; }
             public List<Token> Params { get; }
             public List<Stmt> Body { get; }
+            public TypeReference ReturnTypeReference { get; }
 
-            public Function(Token name, List<Token> _params, List<Stmt> body) {
+            public Function(Token name, List<Token> _params, List<Stmt> body, TypeReference returnTypeReference) {
                 Name = name;
                 Params = _params;
                 Body = body;
+                ReturnTypeReference = returnTypeReference;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
@@ -119,10 +121,12 @@ namespace Perlang
         {
             public Token Name { get; }
             public Expr Initializer { get; }
+            public TypeReference TypeReference { get; }
 
-            public Var(Token name, Expr initializer) {
+            public Var(Token name, Expr initializer, TypeReference typeReference) {
                 Name = name;
                 Initializer = initializer;
+                TypeReference = typeReference;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)

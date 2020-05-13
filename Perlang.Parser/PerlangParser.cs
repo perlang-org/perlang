@@ -230,7 +230,7 @@ namespace Perlang.Parser
             }
 
             Consume(SEMICOLON, "Expect ';' after variable declaration.");
-            return new Stmt.Var(name, initializer);
+            return new Stmt.Var(name, initializer, TypeReference.None);
         }
 
         private Stmt WhileStatement()
@@ -282,7 +282,7 @@ namespace Perlang.Parser
 
             Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
             List<Stmt> body = Block();
-            return new Stmt.Function(name, parameters, body);
+            return new Stmt.Function(name, parameters, body, TypeReference.None);
         }
 
         private List<Stmt> Block()
