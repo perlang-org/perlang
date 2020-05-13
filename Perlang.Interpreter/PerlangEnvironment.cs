@@ -10,7 +10,7 @@ namespace Perlang.Interpreter
     {
         private readonly PerlangEnvironment enclosing;
 
-        private readonly Dictionary<string, object> values = new Dictionary<string, object>();
+        private readonly Dictionary<string, Binding> values = new Dictionary<string, Binding>();
 
         public PerlangEnvironment(IEnvironment enclosing = null)
         {
@@ -18,19 +18,25 @@ namespace Perlang.Interpreter
             this.enclosing = (PerlangEnvironment)enclosing;
         }
 
-        public void Define(string name, object value)
+        /// <summary>
+        /// Define a binding from a name to a value. This is used both for functions and local/global variables.
+        /// </summary>
+        /// <param name="name">The name of the binding to create.</param>
+        /// <param name="expr">The expression to which this binding belongs. Should be null for statements.</param>
+        /// <param name="value">The value. Can be null.</param>
+        public void Define(string name, Expr expr, object value)
         {
-            values[name] = value;
+            values[name] = new Binding(expr, value);
         }
 
-        public object GetAt(int distance, string name)
+        public IBinding GetAt(int distance, string name)
         {
             return Ancestor(distance).values.TryGetObjectValue(name);
         }
 
-        public void AssignAt(int distance, Token name, object value)
+        public void AssignAt(int distance, Token name, Expr expr, object value)
         {
-            Ancestor(distance).values[name.Lexeme] = value;
+            Ancestor(distance).values[name.Lexeme] = new Binding(expr, value);
         }
 
         private PerlangEnvironment Ancestor(int distance)
@@ -61,17 +67,17 @@ namespace Perlang.Interpreter
             throw new RuntimeError(name, "Undefined variable '" + name.Lexeme + "'.");
         }
 
-        internal void Assign(Token name, object value)
+        internal void Assign(Token name, Expr expr, object value)
         {
             if (values.ContainsKey(name.Lexeme))
             {
-                values[name.Lexeme] = value;
+                values[name.Lexeme] = new Binding(expr, value);
                 return;
             }
 
             if (enclosing != null)
             {
-                enclosing.Assign(name, value);
+                enclosing.Assign(name, expr, value);
                 return;
             }
 

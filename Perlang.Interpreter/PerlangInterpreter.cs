@@ -61,7 +61,7 @@ namespace Perlang.Interpreter
             foreach (var globalCallable in globalCallables)
             {
                 object callableInstance = Activator.CreateInstance(globalCallable.Type);
-                globals.Define(globalCallable.CallableAttribute.Name, callableInstance);
+                globals.Define(globalCallable.CallableAttribute.Name, null, callableInstance);
             }
         }
 
@@ -274,11 +274,11 @@ namespace Perlang.Interpreter
 
             if (locals.TryGetValue(expr, out int distance))
             {
-                currentEnvironment.AssignAt(distance, expr.Name, value);
+                currentEnvironment.AssignAt(distance, expr.Name, expr: null, value);
             }
             else
             {
-                globals.Assign(variable.Name, value);
+                globals.Assign(variable.Name, expr: null, value);
             }
 
             return value;
@@ -431,7 +431,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             var function = new PerlangFunction(stmt, currentEnvironment);
-            currentEnvironment.Define(stmt.Name.Lexeme, function);
+            currentEnvironment.Define(stmt.Name.Lexeme, null, function);
             return null;
         }
 
@@ -473,7 +473,13 @@ namespace Perlang.Interpreter
                 value = Evaluate(stmt.Initializer);
             }
 
-            currentEnvironment.Define(stmt.Name.Lexeme, value);
+            // TODO: Was thinking about storing the reference to the expr/stmt here (in the Define() call, to help
+            // TODO: facilitate the optional typing MR I am working on. But: it won't work. This gets called much too
+            // TODO: late, at the actual interpretation/evaluation phase. We would need it to be registered in
+            // TODO: the environment at a much earlier state for it to be valuable for us. Perhaps we need to
+            // TODO: rethink/refactor greatly how the whole Define() thing works, and when variables come into
+            // TODO: existence in the environment.
+            currentEnvironment.Define(stmt.Name.Lexeme, expr: null, value);
             return null;
         }
 
@@ -498,11 +504,11 @@ namespace Perlang.Interpreter
 
             if (locals.TryGetValue(expr, out int distance))
             {
-                currentEnvironment.AssignAt(distance, expr.Name, value);
+                currentEnvironment.AssignAt(distance, expr.Name, expr: null, value);
             }
             else
             {
-                globals.Assign(expr.Name, value);
+                globals.Assign(expr.Name, expr: null, value);
             }
 
             return value;

@@ -22,7 +22,7 @@ namespace Perlang.Interpreter
 
             for (int i = 0; i < declaration.Params.Count; i++)
             {
-                environment.Define(declaration.Params[i].Lexeme, arguments[i]);
+                environment.Define(declaration.Params[i].Lexeme, expr: null, arguments[i]);
             }
 
             try

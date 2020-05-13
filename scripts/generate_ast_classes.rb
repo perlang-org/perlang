@@ -132,41 +132,12 @@ OUTPUT_DIR = 'Perlang.Common'
 # clash with C# reserved words.
 #
 
-# Expressions
-define_ast(OUTPUT_DIR, "Expr", [
-  Type.new('Empty'),
-  Type.new('Assign', Field.new('Token', 'name'), Field.new('Expr', 'value')),
-  Type.new('Binary', [
-    Field.new('Expr', 'left'),
-    Field.new('Token', '_operator'),
-    Field.new('Expr', 'right')
-  ]),
-  Type.new('Call', [
-    Field.new('Expr', 'callee'),
-    Field.new('Token', 'paren'),
-    Field.new('List<Expr>', 'arguments')
-  ]),
-  Type.new('Grouping', Field.new('Expr', 'expression')),
-  Type.new('Literal', Field.new('object', 'value')),
-  Type.new('Logical', [
-    Field.new('Expr', 'left'),
-    Field.new('Token', '_operator'),
-    Field.new('Expr', 'right')
-  ]),
-  Type.new('UnaryPrefix', [
-    Field.new('Token', '_operator'),
-    Field.new('Expr', 'right')
-  ]),
-  Type.new('UnaryPostfix', [
-    Field.new('Expr', 'left'),
-    Field.new('Token', 'name'),
-    Field.new('Token', '_operator')
-  ]),
-  Type.new('Variable', Field.new('Token', 'name'))
-])
+# Expressions used to be generated from this file, but as complexity
+# grew we outgrew a format that could easily be created by this script.
+# We maintain the Expr.cs file manually instead for now.
 
 # Statements
-define_ast(OUTPUT_DIR, "Stmt", [
+define_ast(OUTPUT_DIR, 'Stmt', [
   Type.new('Block', Field.new('List<Stmt>', 'statements')),
 
   # Silly name to avoid clash with the 'Expression' property that
