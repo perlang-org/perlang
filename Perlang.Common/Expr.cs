@@ -1,8 +1,3 @@
-//
-// AUTO-GENERATED FILE, DO NOT MODIFY!
-//
-// Instead, change the ./scripts/generate_ast_classes.rb script that generated this code.
-//
 using System.Collections.Generic;
 
 namespace Perlang
@@ -25,10 +20,6 @@ namespace Perlang
 
         public class Empty : Expr
         {
-
-            public Empty() {
-            }
-
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitEmptyExpr(this);

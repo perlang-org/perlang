@@ -12,7 +12,7 @@ namespace Perlang.Interpreter
     /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly List<IDictionary<string, bool>> scopes = new List<IDictionary<string, bool>>();
+        private readonly List<IDictionary<string, TypeReference>> scopes = new List<IDictionary<string, TypeReference>>();
         private FunctionType currentFunction = FunctionType.NONE;
 
         private readonly Action<Expr, int> addLocalExprCallback;
@@ -41,7 +41,7 @@ namespace Perlang.Interpreter
 
         private void BeginScope()
         {
-            scopes.Add(new Dictionary<string, bool>());
+            scopes.Add(new Dictionary<string, TypeReference>());
         }
 
         private void EndScope()
@@ -54,8 +54,7 @@ namespace Perlang.Interpreter
             if (IsEmpty(scopes)) return;
 
             // This adds the variable to the innermost scope so that it shadows any outer one and so that we know the
-            // variable exists. We mark it as “not ready yet” by binding its name to false in the scope map. Each value
-            // in the scope map means “is finished being initialized”.
+            // variable exists.
             var scope = scopes.Last();
 
             if (scope.ContainsKey(name.Lexeme))
@@ -67,7 +66,11 @@ namespace Perlang.Interpreter
                 });
             }
 
-            scope[name.Lexeme] = false;
+            // We mark it as “not ready yet” by binding its name to "null" in the scope map. Each value in the scope
+            // map means “is finished being initialized”, at this stage of traversing the tree. Being able to
+            // distinguish between uninitialized and initialized values is critical to be able to detect erroneous code
+            // like "var a = a".
+            scope[name.Lexeme] = null;
         }
 
         private static bool IsEmpty(ICollection stack)
@@ -75,17 +78,25 @@ namespace Perlang.Interpreter
             return stack.Count == 0;
         }
 
-        private void Define(Token name)
+        private void Define(Token name, TypeReference typeReference)
         {
+            if (typeReference == null)
+            {
+                throw new ArgumentException("typeReference cannot be null");
+            }
+
             if (IsEmpty(scopes)) return;
 
-            // We set the variable’s value in the scope map to true to mark it as fully initialized and available for
-            // use. It’s alive!
-            scopes.Last()[name.Lexeme] = true;
+            // We set the variable’s value in the scope map to mark it as fully initialized and available for
+            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present).
+            // This is useful later on, in the static type analysis, where we must be able to map a given variable
+            // not to its value, but to the _type_ of the value produced by the initializer.
+            scopes.Last()[name.Lexeme] = typeReference;
         }
 
         private void ResolveLocal(Expr expr, Token name)
         {
+            // Loop over all the scopes, from the innermost and outwards, trying to find a binding for this name.
             for (int i = scopes.Count - 1; i >= 0; i--)
             {
                 if (scopes[i].ContainsKey(name.Lexeme))
@@ -161,13 +172,14 @@ namespace Perlang.Interpreter
             ResolveLocal(expr, expr.Name);
 
             return null;
-
         }
 
         public VoidObject VisitVariableExpr(Expr.Variable expr)
         {
+            // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must
+            // be able to distinguish between "set to null" and "not set at all".
             if (!IsEmpty(scopes) &&
-                scopes.Last().TryGetStructValue(expr.Name.Lexeme) == false)
+                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, TypeReference.None) == null)
             {
                 resolveErrorHandler(new ResolveError
                 {
@@ -207,7 +219,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             Declare(stmt.Name);
-            Define(stmt.Name);
+            Define(stmt.Name, stmt.ReturnTypeReference);
 
             ResolveFunction(stmt, FunctionType.FUNCTION);
             return null;
@@ -223,7 +235,7 @@ namespace Perlang.Interpreter
             foreach (Token param in function.Params)
             {
                 Declare(param);
-                Define(param);
+                Define(param, TypeReference.None);
             }
 
             Resolve(function.Body);
@@ -280,7 +292,8 @@ namespace Perlang.Interpreter
                 Resolve(stmt.Initializer);
             }
 
-            Define(stmt.Name);
+            // TODO: Get the type reference from the initializer instead.
+            Define(stmt.Name, TypeReference.None);
 
             return null;
         }
