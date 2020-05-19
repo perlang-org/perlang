@@ -4,7 +4,7 @@ using static Perlang.Tests.EvalHelper;
 
 namespace Perlang.Tests.Var
 {
-    // Shamelessly inspired by https://github.com/munificent/craftinginterpreters/tree/master/test/variable
+    // Tests based on Lox test suite: https://github.com/munificent/craftinginterpreters/tree/master/test/variable
     public class VarTests
     {
         [Fact]

@@ -4,7 +4,7 @@ using static Perlang.Tests.EvalHelper;
 
 namespace Perlang.Tests.LogicalOperator
 {
-    // Tests based on https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/or.lox
+    // Tests based on Lox test suite:lo https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/or.lox
     public class Or
     {
         [Fact]
