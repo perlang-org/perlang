@@ -29,4 +29,6 @@ jobs:
     - name: Re-generate auto-generated files
       run: make auto_generated
     - name: Run test suite
+      env:
+        TERM: xterm-256color
       run: dotnet test --configuration Release --verbosity normal
