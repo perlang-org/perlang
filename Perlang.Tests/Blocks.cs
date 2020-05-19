@@ -7,7 +7,7 @@ namespace Perlang.Tests
     public class Blocks
     {
         [Fact]
-        public void calling_an_undefined_function_inside_a_block_throws_expected_exception()
+        void calling_an_undefined_function_inside_a_block_throws_expected_exception()
         {
             var result = EvalWithRuntimeCatch("if (true) { die_hard(); }");
             var exception = result.RuntimeErrors.First();
@@ -17,7 +17,7 @@ namespace Perlang.Tests
         }
 
         [Fact]
-        public void referring_to_an_undefined_variable_inside_a_block_throws_expected_exception()
+        void referring_to_an_undefined_variable_inside_a_block_throws_expected_exception()
         {
             var result = EvalWithRuntimeCatch("if (true) { var a = die_hard; }");
             var exception = result.RuntimeErrors.First();
