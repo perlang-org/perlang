@@ -59,11 +59,7 @@ namespace Perlang.Interpreter
 
             if (scope.ContainsKey(name.Lexeme))
             {
-                resolveErrorHandler(new ResolveError
-                {
-                    Token = name,
-                    Message = "Variable with this name already declared in this scope."
-                });
+                resolveErrorHandler(new ResolveError("Variable with this name already declared in this scope.", name));
             }
 
             // We mark it as “not ready yet” by binding its name to "null" in the scope map. Each value in the scope
@@ -181,11 +177,7 @@ namespace Perlang.Interpreter
             if (!IsEmpty(scopes) &&
                 scopes.Last().TryGetObjectValue(expr.Name.Lexeme, TypeReference.None) == null)
             {
-                resolveErrorHandler(new ResolveError
-                {
-                    Token = expr.Name,
-                    Message = "Cannot read local variable in its own initializer."
-                });
+                resolveErrorHandler(new ResolveError("Cannot read local variable in its own initializer.", expr.Name));
             }
 
             ResolveLocal(expr, expr.Name);
@@ -268,11 +260,7 @@ namespace Perlang.Interpreter
         {
             if (currentFunction == FunctionType.NONE)
             {
-                resolveErrorHandler(new ResolveError
-                {
-                    Token = stmt.Keyword,
-                    Message = "Cannot return from top-level code."
-                });
+                resolveErrorHandler(new ResolveError("Cannot return from top-level code.", stmt.Keyword));
             }
 
             if (stmt.Value != null)

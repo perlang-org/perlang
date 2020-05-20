@@ -141,7 +141,7 @@ namespace Perlang.Parser
                     }
                     else
                     {
-                        scanErrorHandler(new ScanError { Line = line, Message = "Unexpected character " + c });
+                        scanErrorHandler(new ScanError("Unexpected character " + c, line));
                     }
 
                     break;
@@ -218,7 +218,7 @@ namespace Perlang.Parser
             // Unterminated string.
             if (IsAtEnd())
             {
-                scanErrorHandler(new ScanError { Line = line, Message = "Unterminated string." });
+                scanErrorHandler(new ScanError("Unterminated string.", line));
                 return;
             }
 

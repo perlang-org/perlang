@@ -85,33 +85,33 @@ namespace Perlang.Interpreter
                 return null;
             }
 
-            var scanErrors = new ScanErrors();
-            var scanner = new Scanner(source, scanError => scanErrors.Add(scanError));
+            bool hasScanErrors = false;
+            var scanner = new Scanner(source, scanError =>
+            {
+                hasScanErrors = true;
+                scanErrorHandler(scanError);
+            });
 
             var tokens = scanner.ScanTokens();
 
-            if (!scanErrors.Empty())
+            if (hasScanErrors)
             {
-                // Something went wrong as early as the "scan" stage. Report it to the caller and return cleanly.
-                foreach (ScanError scanError in scanErrors)
-                {
-                    scanErrorHandler(scanError);
-                }
-
+                // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
                 return null;
             }
 
-            var parseErrors = new ParseErrors();
-            var parser = new PerlangParser(tokens, parseError => parseErrors.Add(parseError));
+            bool hasParseErrors = false;
+            var parser = new PerlangParser(tokens, parseError => {
+                hasParseErrors = true;
+                parseErrorHandler(parseError);
+            });
+
             object syntax = parser.ParseExpressionOrStatements();
 
-            if (!parseErrors.Empty())
+            if (hasParseErrors)
             {
-                foreach (ParseError parseError in parseErrors)
-                {
-                    parseErrorHandler(parseError);
-                }
-
+                // One or more parse errors were encountered. They have been reported upstream, so we just abort
+                // the evaluation at this stage.
                 return null;
             }
 
@@ -120,20 +120,18 @@ namespace Perlang.Interpreter
                 // The provided code parsed cleanly as a set of statements. Move on to the next phase in the
                 // evaluation - resolving variable and function names.
 
-                var resolveErrors = new ResolveErrors();
-                var resolver = new Resolver(AddLocal, resolveError => resolveErrors.Add(resolveError));
+                bool hasResolveErrors = false;
+                var resolver = new Resolver(AddLocal, resolveError => {
+                    hasResolveErrors = true;
+                    resolveErrorHandler(resolveError);
+                });
+
                 resolver.Resolve(statements);
 
-                if (!resolveErrors.Empty())
+                if (hasResolveErrors)
                 {
-                    // Report resolution errors back to the provided error handler. We defer this so that we can use the
-                    // Empty() check to see if we had any errors; if we would just pass the resolveErrorHandler()
-                    // to the Resolver constructor, we would have no idea if any errors has occurred at this stage.
-                    foreach (ResolveError resolveError in resolveErrors)
-                    {
-                        resolveErrorHandler(resolveError);
-                    }
-
+                    // Resolution errors has been reported back to the provided error handler. Nothing more remains
+                    // to be done than aborting the evaluation.
                     return null;
                 }
 
