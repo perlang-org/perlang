@@ -1,11 +1,16 @@
-using System.Collections.Generic;
+using System;
 
 namespace Perlang.Interpreter
 {
-    public class ResolveError
+    public class ResolveError : Exception
     {
-        public Token Token { get; set; }
-        public string Message { get; set; }
+        public Token Token { get; }
+
+        public ResolveError(string message, Token token) :
+            base(message)
+        {
+            Token = token;
+        }
 
         public override string ToString()
         {
@@ -22,10 +27,5 @@ namespace Perlang.Interpreter
 
             return $"[line {Token.Line}] Error{where}: {Message}";
         }
-    }
-
-    public class ResolveErrors : List<ResolveError>
-    {
-        public bool Empty() => Count == 0;
     }
 }

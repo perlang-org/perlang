@@ -131,17 +131,17 @@ namespace Perlang.Tests
 
         private static void AssertFailScanErrorHandler(ScanError scanError)
         {
-            throw new ScanErrorXunitException(scanError.ToString());
+            throw scanError;
         }
 
         private static void AssertFailParseErrorHandler(ParseError parseError)
         {
-            throw new ParseErrorXunitException(parseError.ToString());
+            throw parseError;
         }
 
         private static void AssertFailResolveErrorHandler(ResolveError resolveError)
         {
-            throw new ResolveErrorXunitException(resolveError.ToString());
+            throw resolveError;
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)

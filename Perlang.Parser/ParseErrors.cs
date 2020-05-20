@@ -1,12 +1,18 @@
-using System.Collections.Generic;
+using System;
 
 namespace Perlang.Parser
 {
-    public class ParseError
+    public class ParseError : Exception
     {
-        public Token Token { get; set; }
-        public string Message { get; set; }
-        public ParseErrorType? ParseErrorType { get; set; }
+        public Token Token { get; }
+        public ParseErrorType? ParseErrorType { get; }
+
+        public ParseError(string message, Token token, ParseErrorType? errorType) :
+            base(message)
+        {
+            Token = token;
+            ParseErrorType = errorType;
+        }
 
         public override string ToString()
         {
@@ -23,10 +29,5 @@ namespace Perlang.Parser
 
             return $"[line {Token.Line}] Error{where}: {Message}";
         }
-    }
-
-    public class ParseErrors : List<ParseError>
-    {
-        public bool Empty() => Count == 0;
     }
 }

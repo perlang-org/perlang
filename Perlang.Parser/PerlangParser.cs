@@ -610,12 +610,8 @@ namespace Perlang.Parser
 
         private ParseError Error(Token token, string message, ParseErrorType? parseErrorType = null)
         {
-            parseErrorHandler(new Parser.ParseError
-            {
-                Token = token,
-                Message = message,
-                ParseErrorType = parseErrorType
-            });
+            parseErrorHandler(new Parser.ParseError(message, token, parseErrorType));
+
             return new ParseError(parseErrorType);
         }
 

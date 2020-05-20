@@ -6,8 +6,8 @@ namespace Perlang.Interpreter
     {
         public Token Token { get; }
 
-        internal RuntimeError(Token token, string message)
-            : base(message)
+        internal RuntimeError(Token token, string message) :
+            base(message)
         {
             Token = token;
         }

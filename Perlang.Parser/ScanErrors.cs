@@ -1,15 +1,15 @@
-using System.Collections.Generic;
+using System;
 
 namespace Perlang.Parser
 {
-    public class ScanError
+    public class ScanError : Exception
     {
-        public int Line { get; set; }
-        public string Message { get; set; }
-    }
+        public int Line { get; }
 
-    public class ScanErrors : List<ScanError>
-    {
-        public bool Empty() => Count == 0;
+        public ScanError(string message, int line) :
+            base(message)
+        {
+            Line = line;
+        }
     }
 }
