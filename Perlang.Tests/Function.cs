@@ -144,7 +144,21 @@ namespace Perlang.Tests
             string output = EvalReturningOutput(source).SingleOrDefault();
 
             Assert.Equal("21", output);
+        }
 
+        [Fact]
+        void function_can_receive_binary_expression_as_argument()
+        {
+            string source = @"
+                var a = 1;
+
+                fun f(i) { return (i / 1024); }
+                print f(a * 1024);
+            ";
+
+            string output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("1", output);
         }
 
         // "Negative" tests, asserting that errors are handled in a deterministic way.
