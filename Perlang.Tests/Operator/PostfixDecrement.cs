@@ -81,5 +81,19 @@ namespace Perlang.Tests.Operator
                 "1"
             }, output);
         }
+
+        [Fact]
+        public void decrement_can_be_used_in_assignment()
+        {
+            string source = @"
+                var i = 100;
+                var j = i--;
+                print j;
+            ";
+
+            var output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("99", output);
+        }
     }
 }
