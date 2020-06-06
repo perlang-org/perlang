@@ -5,18 +5,13 @@ using System.Text;
 namespace Perlang.Stdlib.Callables
 {
     [GlobalCallable("base64_encode")]
-    public class Base64EncodeCallable : ICallable
+    public class Base64EncodeCallable
     {
-        public object Call(IInterpreter interpreter, List<object> arguments)
+        public object Call(IInterpreter interpreter, string plainText)
         {
-            var plainTextBytes = Encoding.UTF8.GetBytes((string)arguments[0]);
+            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
 
             return Convert.ToBase64String(plainTextBytes, Base64FormattingOptions.InsertLineBreaks);
-        }
-
-        public int Arity()
-        {
-            return 1;
         }
     }
 }

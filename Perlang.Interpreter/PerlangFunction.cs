@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Perlang.Interpreter
 {
@@ -20,9 +21,9 @@ namespace Perlang.Interpreter
         {
             var environment = new PerlangEnvironment(closure);
 
-            for (int i = 0; i < declaration.Params.Count; i++)
+            for (int i = 0; i < declaration.Parameters.Count; i++)
             {
-                environment.Define(declaration.Params[i].Lexeme, arguments[i]);
+                environment.Define(declaration.Parameters[i].Name.Lexeme, arguments[i]);
             }
 
             try
@@ -38,7 +39,7 @@ namespace Perlang.Interpreter
 
         public int Arity()
         {
-            return declaration.Params.Count;
+            return declaration.Parameters.Count;
         }
 
         public override string ToString()

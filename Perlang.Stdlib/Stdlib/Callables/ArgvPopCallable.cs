@@ -4,9 +4,9 @@ using Perlang.Exceptions;
 namespace Perlang.Stdlib.Callables
 {
     [GlobalCallable("argv_pop")]
-    public class ArgvPopCallable :  ICallable
+    public class ArgvPopCallable
     {
-        public object Call(IInterpreter interpreter, List<object> arguments)
+        public string Call(IInterpreter interpreter)
         {
             if (interpreter.Arguments.Count < 1)
             {
@@ -17,11 +17,6 @@ namespace Perlang.Stdlib.Callables
             interpreter.Arguments.RemoveAt(0);
 
             return argument;
-        }
-
-        public int Arity()
-        {
-            return 0;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace Perlang.Tests.For
         public void no_clauses()
         {
             string source = @"
-                fun foo() {
+                fun foo(): string {
                   for (;;) return ""done"";
                 }
                 print foo();
@@ -79,7 +79,7 @@ namespace Perlang.Tests.For
         public void no_condition()
         {
             string source = @"
-                fun bar() {
+                fun bar(): void {
                   for (var i = 0;; i = i + 1) {
                     print i;
                     if (i >= 2) return;

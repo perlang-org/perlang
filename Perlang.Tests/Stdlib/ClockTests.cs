@@ -5,11 +5,11 @@ namespace Perlang.Tests.Stdlib
 {
     public class ClockTests
     {
-        [Fact]
-        public void clock_is_a_callable()
-        {
-            Assert.IsAssignableFrom<ICallable>(Eval("clock"));
-        }
+        // [Fact]
+        // public void clock_is_a_callable()
+        // {
+        //     Assert.IsAssignableFrom<ICallable>(Eval("clock"));
+        // }
 
         [Fact]
         public void clock_returns_a_double_value()

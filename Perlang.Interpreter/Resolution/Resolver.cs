@@ -1,33 +1,47 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Interpreter.Extensions;
-using Perlang.Parser;
 
-namespace Perlang.Interpreter
+namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
     /// The Resolver is responsible for resolving names of local and global variable/function names.
     /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly List<IDictionary<string, TypeReference>> scopes = new List<IDictionary<string, TypeReference>>();
+        private readonly ImmutableDictionary<string, TypeReferenceNativeFunction> globalCallables;
+
+        private readonly List<IDictionary<string, TypeReferenceAndFunction>> scopes =
+            new List<IDictionary<string, TypeReferenceAndFunction>>();
+
+        private readonly IDictionary<string, TypeReferenceAndFunction> globals =
+            new Dictionary<string, TypeReferenceAndFunction>();
+
         private FunctionType currentFunction = FunctionType.NONE;
 
-        private readonly Action<Expr, int> addLocalExprCallback;
+        private readonly Action<Binding> addLocalExprCallback;
+        private readonly Action<Binding> addGlobalExprCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
 
         /// <summary>
         /// Creates a new Resolver instance.
         /// </summary>
-        /// <param name="addLocalExprCallback">A callback used to add a local expression at a
+        /// <param name="globalCallables">a dictionary of global callables</param>
+        /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
         /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
+        /// <param name="addGlobalExprCallback">A callback used to add an expression to the global scope.</param>
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
-        internal Resolver(Action<Expr, int> addLocalExprCallback, ResolveErrorHandler resolveErrorHandler)
+        internal Resolver(ImmutableDictionary<string, TypeReferenceNativeFunction> globalCallables,
+            Action<Binding> addLocalExprCallback,
+            Action<Binding> addGlobalExprCallback, ResolveErrorHandler resolveErrorHandler)
         {
+            this.globalCallables = globalCallables;
             this.addLocalExprCallback = addLocalExprCallback;
+            this.addGlobalExprCallback = addGlobalExprCallback;
             this.resolveErrorHandler = resolveErrorHandler;
         }
 
@@ -39,9 +53,14 @@ namespace Perlang.Interpreter
             }
         }
 
+        internal void Resolve(Expr expr)
+        {
+            expr.Accept(this);
+        }
+
         private void BeginScope()
         {
-            scopes.Add(new Dictionary<string, TypeReference>());
+            scopes.Add(new Dictionary<string, TypeReferenceAndFunction>());
         }
 
         private void EndScope()
@@ -49,6 +68,11 @@ namespace Perlang.Interpreter
             scopes.RemoveAt(scopes.Count - 1);
         }
 
+        /// <summary>
+        /// Declares a variable or function as existing (but not yet initialized) in the innermost scope. This allows
+        /// the variable to shadow variables in outer scopes with the same name.
+        /// </summary>
+        /// <param name="name">The name of the variable or function.</param>
         private void Declare(Token name)
         {
             if (IsEmpty(scopes)) return;
@@ -62,11 +86,11 @@ namespace Perlang.Interpreter
                 resolveErrorHandler(new ResolveError("Variable with this name already declared in this scope.", name));
             }
 
-            // We mark it as “not ready yet” by binding its name to "null" in the scope map. Each value in the scope
+            // We mark it as “not ready yet” by binding a known None-value in the scope map. Each value in the scope
             // map means “is finished being initialized”, at this stage of traversing the tree. Being able to
             // distinguish between uninitialized and initialized values is critical to be able to detect erroneous code
             // like "var a = a".
-            scope[name.Lexeme] = null;
+            scope[name.Lexeme] = TypeReferenceAndFunction.None;
         }
 
         private static bool IsEmpty(ICollection stack)
@@ -74,35 +98,92 @@ namespace Perlang.Interpreter
             return stack.Count == 0;
         }
 
-        private void Define(Token name, TypeReference typeReference)
+        /// <summary>
+        /// Defines a previously declared variable or function as initialized, available for use.
+        /// </summary>
+        /// <param name="name">The variable or function name.</param>
+        /// <param name="typeReference">A TypeReference describing the variable or function.</param>
+        /// <param name="function">In case the definition is for a function, the function statement should be
+        /// provided here.</param>
+        /// <exception cref="ArgumentException">If typeReference is null.</exception>
+        private void Define(Token name, TypeReference typeReference, Stmt.Function function = null)
         {
             if (typeReference == null)
             {
                 throw new ArgumentException("typeReference cannot be null");
             }
 
-            if (IsEmpty(scopes)) return;
+            if (IsEmpty(scopes))
+            {
+                globals[name.Lexeme] = new TypeReferenceAndFunction(typeReference, function);
+                return;
+            }
 
             // We set the variable’s value in the scope map to mark it as fully initialized and available for
-            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present).
-            // This is useful later on, in the static type analysis, where we must be able to map a given variable
-            // not to its value, but to the _type_ of the value produced by the initializer.
-            scopes.Last()[name.Lexeme] = typeReference;
+            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
+            // function return type and function statement (in case of a function being defined). These details are
+            // useful later on, in the static type analysis.
+            scopes.Last()[name.Lexeme] = new TypeReferenceAndFunction(typeReference, function);
         }
 
-        private void ResolveLocal(Expr expr, Token name)
+        private void ResolveLocal(Expr referringExpr, Token name)
         {
             // Loop over all the scopes, from the innermost and outwards, trying to find a binding for this name.
             for (int i = scopes.Count - 1; i >= 0; i--)
             {
                 if (scopes[i].ContainsKey(name.Lexeme))
                 {
-                    addLocalExprCallback(expr, scopes.Count - 1 - i);
+                    TypeReferenceAndFunction typeReferenceAndFunction = scopes[i][name.Lexeme];
+
+                    if (typeReferenceAndFunction == TypeReferenceAndFunction.None)
+                    {
+                        resolveErrorHandler(
+                            new ResolveError("Cannot read local variable in its own initializer.", name));
+                        return;
+                    }
+
+                    if (typeReferenceAndFunction.Function != null)
+                    {
+                        addLocalExprCallback(new FunctionBinding(typeReferenceAndFunction.Function,
+                            typeReferenceAndFunction.TypeReference, scopes.Count - 1 - i, referringExpr));
+                    }
+                    else
+                    {
+                        addLocalExprCallback(new VariableBinding(typeReferenceAndFunction.TypeReference,
+                            scopes.Count - 1 - i, referringExpr));
+                    }
+
                     return;
                 }
             }
 
-            // Not found. Assume it is global.
+            // Not found in the local scopes. Could we perhaps be dealing with a native (.NET) callable?
+            if (globalCallables.ContainsKey(name.Lexeme))
+            {
+                var globalTypeReferenceAndCallable = globalCallables[name.Lexeme];
+
+                addGlobalExprCallback(new NativeBinding(globalTypeReferenceAndCallable.Method, name.Lexeme,
+                    globalTypeReferenceAndCallable.ParameterTypes, globalTypeReferenceAndCallable.ReturnTypeReference, referringExpr));
+            }
+
+            // Not found in any of the local scopes. Assume it is global, or non-existent.
+            if (!globals.ContainsKey(name.Lexeme))
+            {
+                return;
+            }
+
+            TypeReferenceAndFunction globalTypeReferenceAndFunction = globals[name.Lexeme];
+
+            if (globalTypeReferenceAndFunction.Function != null)
+            {
+                addGlobalExprCallback(new FunctionBinding(globalTypeReferenceAndFunction.Function, globalTypeReferenceAndFunction.TypeReference, -1, referringExpr));
+            }
+            else
+            {
+                addGlobalExprCallback(new VariableBinding(
+                    globalTypeReferenceAndFunction.TypeReference, -1, referringExpr
+                ));
+            }
         }
 
         public VoidObject VisitEmptyExpr(Expr.Empty expr)
@@ -131,6 +212,11 @@ namespace Perlang.Interpreter
             foreach (Expr argument in expr.Arguments)
             {
                 Resolve(argument);
+            }
+
+            if (expr.Callee is Expr.Variable variableExpr)
+            {
+                ResolveLocal(expr, variableExpr.Name);
             }
 
             return null;
@@ -175,7 +261,7 @@ namespace Perlang.Interpreter
             // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must
             // be able to distinguish between "set to null" and "not set at all".
             if (!IsEmpty(scopes) &&
-                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, TypeReference.None) == null)
+                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, TypeReferenceAndFunction.None) == null)
             {
                 resolveErrorHandler(new ResolveError("Cannot read local variable in its own initializer.", expr.Name));
             }
@@ -197,11 +283,6 @@ namespace Perlang.Interpreter
             stmt.Accept(this);
         }
 
-        private void Resolve(Expr expr)
-        {
-            expr.Accept(this);
-        }
-
         public VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Resolve(stmt.Expression);
@@ -211,7 +292,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             Declare(stmt.Name);
-            Define(stmt.Name, stmt.ReturnTypeReference);
+            Define(stmt.Name, stmt.ReturnTypeReference, stmt);
 
             ResolveFunction(stmt, FunctionType.FUNCTION);
             return null;
@@ -224,10 +305,10 @@ namespace Perlang.Interpreter
 
             BeginScope();
 
-            foreach (Token param in function.Params)
+            foreach (Parameter param in function.Parameters)
             {
-                Declare(param);
-                Define(param, TypeReference.None);
+                Declare(param.Name);
+                Define(param.Name, new TypeReference(param.TypeSpecifier));
             }
 
             Resolve(function.Body);
@@ -280,8 +361,7 @@ namespace Perlang.Interpreter
                 Resolve(stmt.Initializer);
             }
 
-            // TODO: Get the type reference from the initializer instead.
-            Define(stmt.Name, TypeReference.None);
+            Define(stmt.Name, stmt.Initializer?.TypeReference ?? new TypeReference(stmt.Name));
 
             return null;
         }

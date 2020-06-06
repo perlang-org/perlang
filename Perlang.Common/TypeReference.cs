@@ -4,15 +4,12 @@ namespace Perlang
 {
     /// <summary>
     /// A type reference is a (potentially unresolved) reference to a Perlang type.
+    ///
+    /// The object is mutable.
     /// </summary>
     public class TypeReference
     {
-        /// <summary>
-        /// A "None" type reference, indicating that no type information is available. Note that this is different
-        /// from an unresolved type reference, which is the state of a TypeReference before type inference has taken
-        /// place.
-        /// </summary>
-        public static TypeReference None { get; } = new TypeReference(null);
+        public static TypeReference Bool { get; } = new TypeReference(typeof(bool));
 
         private Type clrType;
         public Token TypeSpecifier { get; }
@@ -22,7 +19,7 @@ namespace Perlang
             get => clrType;
             set
             {
-                if (clrType != null)
+                if (clrType != null && clrType != value)
                 {
                     // Poor-man's fake immutability. The problem is that the CLR type isn't really known at
                     // construction time of the TypeReference; it is therefore always null. It gets populated
@@ -39,7 +36,9 @@ namespace Perlang
                     // So: the best we can do is to ensure that once the property is mutated, it is at least only
                     // ever mutated _once_. I wonder if that will work all the way or if there any other nice
                     // gotchas to be discovered further along the road... :-)
-                    throw new ArgumentException("ClrType already set; property is read-only");
+                    throw new ArgumentException(
+                        $"ClrType already set to {clrType}; property is read-only. Attempted to " +
+                        $"set it to {value}");
                 }
 
                 clrType = value;
@@ -50,21 +49,35 @@ namespace Perlang
         /// The type reference contains an explicit type specifier. If this is false, the user is perhaps intending for
         /// the type to be inferred from the program context.
         /// </summary>
-        public bool IsTypeSpecified => TypeSpecifier != null;
+        public bool ExplicitTypeSpecified => TypeSpecifier != null;
 
         /// <summary>
         /// The type reference has been successfully resolved to a (loaded) CLR type.
         /// </summary>
         public bool IsResolved => ClrType != null;
 
+        /// <summary>
+        /// Creates a TypeReference for a given type specifier. The type specifier can be null, in which case
+        /// type inference will be attempted.
+        /// </summary>
+        /// <param name="typeSpecifier">The token providing the type specifier. (e.g. 'int' or 'string')</param>
         public TypeReference(Token typeSpecifier)
         {
             TypeSpecifier = typeSpecifier;
         }
 
+        /// <summary>
+        /// Creates a TypeReference for a given CLR type.
+        /// </summary>
+        /// <param name="clrType">The CLR type. Cannot be null.</param>
+        public TypeReference(Type clrType)
+        {
+            this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
+        }
+
         public override string ToString()
         {
-            if (IsTypeSpecified)
+            if (ExplicitTypeSpecified)
             {
                 return IsResolved ? $"Explicit: {ClrType}" : $"Explicit: {TypeSpecifier}";
             }

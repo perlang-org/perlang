@@ -12,7 +12,7 @@ namespace Perlang.Tests
         void after_else()
         {
             string source = @"
-                fun f() {
+                fun f(): string {
                   if (false) ""no""; else return ""ok"";
                 }
 
@@ -28,7 +28,7 @@ namespace Perlang.Tests
         void after_if()
         {
             string source = @"
-                fun f() {
+                fun f(): string {
                   if (true) return ""ok"";
                 }
 
@@ -44,7 +44,7 @@ namespace Perlang.Tests
         void after_while()
         {
             string source = @"
-                fun f() {
+                fun f(): string {
                   while (true) return ""ok"";
                 }
 
@@ -74,7 +74,7 @@ namespace Perlang.Tests
         void in_function()
         {
             string source = @"
-                fun f() {
+                fun f(): string {
                   return ""ok"";
                   print ""bad"";
                 }
@@ -110,7 +110,7 @@ namespace Perlang.Tests
         void return_nil_if_no_value()
         {
             string source = @"
-                fun f() {
+                fun f(): string {
                   return;
                   print ""bad"";
                 }

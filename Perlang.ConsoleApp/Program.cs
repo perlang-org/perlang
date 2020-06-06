@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Perlang.Interpreter;
+using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
 
@@ -115,7 +117,7 @@ namespace Perlang.ConsoleApp
 
         private void Run(string source)
         {
-            var result = interpreter.Eval(source, ScanError, ParseError, ResolveError);
+            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, TypeValidationError);
 
             if (result != null)
             {
@@ -173,6 +175,11 @@ namespace Perlang.ConsoleApp
         private static void ResolveError(ResolveError resolveError)
         {
             Error(resolveError.Token, resolveError.Message);
+        }
+
+        private static void TypeValidationError(TypeValidationError typeValidationError)
+        {
+            Error(typeValidationError.Token, typeValidationError.Message);
         }
 
         private class AutoCompletionHandler : IAutoCompleteHandler

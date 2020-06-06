@@ -27,10 +27,10 @@ namespace Perlang.Tests.Operator
                 x++;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.TypeValidationErrors);
             Assert.Matches("Undefined variable 'x'", exception.Message);
         }
 
