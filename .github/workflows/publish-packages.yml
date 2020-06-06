@@ -56,41 +56,32 @@ jobs:
     #
     # Upload files to bintray
     #
-    - name: Upload linux-x64 .tar.gz file to Bintray
-      uses: gbl08ma/github-action-upload-bintray@master
-      with:
-        file: ./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/linux-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-linux-x64.tar.gz
-        api_user: ${{ secrets.BINTRAY_API_USER }}
-        api_key: ${{ secrets.BINTRAY_API_KEY }}
-        repository_user: perlang
-        repository: builds
-        package: perlang
-        version: build
-        publish: 1
-        calculate_metadata: false
+    - name: Upload linux-x64 .tar.gz file to releases server
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/linux-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-linux-x64.tar.gz"
+          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
 
-    - name: Upload osx-x64 .tar.gz file to Bintray
-      uses: gbl08ma/github-action-upload-bintray@master
-      with:
-        file: ./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/osx-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-osx-x64.tar.gz
-        api_user: ${{ secrets.BINTRAY_API_USER }}
-        api_key: ${{ secrets.BINTRAY_API_KEY }}
-        repository_user: perlang
-        repository: builds
-        package: perlang
-        version: build
-        publish: 1
-        calculate_metadata: false
+    - name: Upload osx-x64 .tar.gz file to releases server
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/osx-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-osx-x64.tar.gz"
+          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
 
-    - name: Upload win-x64 .tar.gz file to Bintray
-      uses: gbl08ma/github-action-upload-bintray@master
-      with:
-        file: ./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/win-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-win-x64.tar.gz
-        api_user: ${{ secrets.BINTRAY_API_USER }}
-        api_key: ${{ secrets.BINTRAY_API_KEY }}
-        repository_user: perlang
-        repository: builds
-        package: perlang
-        version: build
-        publish: 1
-        calculate_metadata: false
+    - name: Upload win-x64 .tar.gz file to releases server
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "./Perlang.ConsoleApp/bin/Release/netcoreapp3.1/win-x64/perlang-${{steps.timestamp.outputs.timestamp}}-${{github.sha}}-win-x64.tar.gz"
+          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
