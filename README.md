@@ -34,3 +34,5 @@ You should now have a `perlang` executable. Run `make run` to run it. If you are
 ## License
 
 [MIT](LICENSE)
+
+[perlang-install](scripts/perlang-install) is originally based on [rustup-init](https://github.com/rust-lang/rustup/blob/master/rustup-init.sh), which is also licensed under the MIT license.
