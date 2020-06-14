@@ -137,7 +137,7 @@ main() {
     if $ansi_escapes_are_valid; then
         # We presume that the likeliness of Unicode emojis working is higher in
         # case ANSI escape sequences are valid.
-        echo "🎉 \33[1mInstallation complete 🎉\33[0m"
+        printf "🎉 \33[1mInstallation complete 🎉\33[0m\n"
     else
         echo "Installation complete"
     fi
