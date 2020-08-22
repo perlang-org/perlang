@@ -9,7 +9,7 @@ The Perlang Programming Language
 
 ### Quick-start guide
 
-Each commit to the `master` branch triggers a build that gets published as a set of `.tar.gz` files at https://builds.perlang.org. Binaries are available for Linux, macOS and Windows.
+Each commit to the `master` branch triggers a build that gets published as a set of `.tar.gz` files at https://builds.perlang.org (CDN sponsored by [Fastly](https://www.fastly.com/)). Binaries are available for Linux, macOS and Windows.
 
 The easiest way to install the latest build is by using the [perlang-install](scripts/perlang-install) script. It works on all supported platforms (Linux, macOS and Windows - the latter requires a POSIX shell like Git Bash to be available). Use it like this:
 
