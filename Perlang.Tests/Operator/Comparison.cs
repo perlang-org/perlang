@@ -8,7 +8,7 @@ namespace Perlang.Tests.Operator
     public class Comparison
     {
         //
-        // Tests for the < operator
+        // Tests for the < (less than) operator
         //
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Perlang.Tests.Operator
         }
 
         //
-        // Tests for the <= operator
+        // Tests for the <= (less than or equals) operator
         //
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Perlang.Tests.Operator
         }
 
         //
-        // Tests for the > operator
+        // Tests for the > (greater than) operator
         //
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Perlang.Tests.Operator
         }
 
         //
-        // Tests for the >= operator
+        // Tests for the >= (greater than or equals) operator
         //
         [Fact]
         public void greater_than_or_equals_smaller_is_false()

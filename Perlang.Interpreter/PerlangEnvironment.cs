@@ -53,12 +53,7 @@ namespace Perlang.Interpreter
             }
 
             // Fall-back to the enclosing scope if the variable isn't found in the current scope.
-            if (enclosing != null)
-            {
-                return enclosing.Get(name);
-            }
-
-            return null;
+            return enclosing?.Get(name);
         }
 
         internal void Assign(Token name, object value)

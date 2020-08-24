@@ -422,7 +422,19 @@ namespace Perlang.Interpreter.Typing
                 }
             }
 
-            private static decimal? GetMaxValue(Type type)
+            /// <summary>
+            /// Returns the approximate max value for the given type.
+            ///
+            /// The "approximate" part is important to understand how to properly use this method. Do not_ use it in
+            /// case you need an exact value. It is only suited for "size comparisons", to determine which one of two
+            /// values that uses the "larger" type. For example, Double is larger than Single; Double is also larger
+            /// than Decimal (even though the latter has a higher level of precision). Because of this, an example
+            /// of types for which this method will return an approximate, inexact return value is Decimal.
+            /// </summary>
+            /// <param name="type">a Type</param>
+            /// <returns>the approximate max value for the given type</returns>
+            /// <exception cref="ArgumentOutOfRangeException">in case the given type is not supported by this method</exception>
+            private static double? GetMaxValue(Type type)
             {
                 switch (Type.GetTypeCode(type))
                 {
@@ -437,7 +449,7 @@ namespace Perlang.Interpreter.Typing
                         // relaxing this and supporting Ruby-like things, like '*' * 10 to produce '**********'. However,
                         // after having used Ruby for a long time, our conclusion is that such constructs are rarely used
                         // and even though they add a bit of elegance/syntactic sugar to the expressiveness of the
-                        // language, the added cost in terms of complexity might not be worth it.
+                        // language, the cost in terms of added complexity might not be worth it.
                         return null;
 
                     case TypeCode.SByte:
@@ -457,11 +469,12 @@ namespace Perlang.Interpreter.Typing
                     case TypeCode.UInt64:
                         return UInt64.MaxValue;
                     case TypeCode.Single:
-                        return Convert.ToDecimal(Single.MaxValue);
+                        return Single.MaxValue;
                     case TypeCode.Double:
-                        return Convert.ToDecimal(Double.MaxValue);
+                        return Double.MaxValue;
                     case TypeCode.Decimal:
-                        return Decimal.MaxValue;
+                        // Note: this will likely loose some precision.
+                        return Convert.ToDouble(Decimal.MaxValue);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
