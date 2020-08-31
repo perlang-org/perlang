@@ -95,6 +95,18 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        {
+            // TODO: visit fields also, once we have implemented support for them.
+
+            foreach (Stmt.Function method in stmt.Methods)
+            {
+                Visit(method);
+            }
+
+            return VoidObject.Void;
+        }
+
         public virtual VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Visit(stmt.Expression);

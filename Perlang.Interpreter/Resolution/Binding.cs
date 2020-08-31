@@ -4,7 +4,7 @@ namespace Perlang.Interpreter.Resolution
     /// Holds information about a binding.
     ///
     /// Different types of bindings (=subclasses) provide slightly different mechanisms to retrieve information about
-    /// the variable or function being bound to.
+    /// the variable, function or class being bound to.
     /// </summary>
     internal abstract class Binding
     {

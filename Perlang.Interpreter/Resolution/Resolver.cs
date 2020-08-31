@@ -24,6 +24,7 @@ namespace Perlang.Interpreter.Resolution
 
         private readonly Action<Binding> addLocalExprCallback;
         private readonly Action<Binding> addGlobalExprCallback;
+        private readonly Action<string, PerlangClass> addGlobalClassCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
 
         /// <summary>
@@ -33,15 +34,19 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
         /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
         /// <param name="addGlobalExprCallback">A callback used to add an expression to the global scope.</param>
+        /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
         internal Resolver(ImmutableDictionary<string, TypeReferenceNativeFunction> globalCallables,
             Action<Binding> addLocalExprCallback,
-            Action<Binding> addGlobalExprCallback, ResolveErrorHandler resolveErrorHandler)
+            Action<Binding> addGlobalExprCallback,
+            Action<string, PerlangClass> addGlobalClassCallback,
+            ResolveErrorHandler resolveErrorHandler)
         {
             this.globalCallables = globalCallables;
             this.addLocalExprCallback = addLocalExprCallback;
             this.addGlobalExprCallback = addGlobalExprCallback;
+            this.addGlobalClassCallback = addGlobalClassCallback;
             this.resolveErrorHandler = resolveErrorHandler;
         }
 
@@ -148,6 +153,12 @@ namespace Perlang.Interpreter.Resolution
             // function return type and function statement (in case of a function being defined). These details are
             // useful later on, in the static type analysis.
             scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
+        }
+
+        private void DefineClass(Token name, PerlangClass perlangClass)
+        {
+            globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
+            addGlobalClassCallback(name.Lexeme, perlangClass);
         }
 
         private void ResolveLocal(Expr referringExpr, Token name)
@@ -288,6 +299,21 @@ namespace Perlang.Interpreter.Resolution
             BeginScope();
             Resolve(stmt.Statements);
             EndScope();
+
+            return VoidObject.Void;
+        }
+
+        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        {
+            // TODO: Implement resolution related to classes: handle fields defined in the class, resolve method
+            // TODO: arguments, etc.
+
+            Declare(stmt.Name);
+
+            var perlangClass = new PerlangClass(stmt.Name.Lexeme, stmt.Methods);
+
+            DefineClass(stmt.Name, perlangClass);
+
             return VoidObject.Void;
         }
 

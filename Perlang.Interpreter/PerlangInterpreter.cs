@@ -23,6 +23,9 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
+        private readonly IDictionary<string, PerlangClass> globalClasses =
+            new Dictionary<string, PerlangClass>();
+
         private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
 
@@ -160,7 +163,7 @@ namespace Perlang.Interpreter
                 // evaluation - resolving variable and function names.
 
                 bool hasResolveErrors = false;
-                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal, AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -204,7 +207,7 @@ namespace Perlang.Interpreter
                 // a method call or reading a variable.
 
                 bool hasResolveErrors = false;
-                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal, AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -536,6 +539,11 @@ namespace Perlang.Interpreter
             localBindings[binding.ReferringExpr] = binding;
         }
 
+        private void AddGlobalClass(string name, PerlangClass perlangClass)
+        {
+            globalClasses[name] = perlangClass;
+        }
+
         public void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment)
         {
             IEnvironment previousEnvironment = currentEnvironment;
@@ -558,6 +566,12 @@ namespace Perlang.Interpreter
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
         {
             ExecuteBlock(stmt.Statements, new PerlangEnvironment(currentEnvironment));
+            return VoidObject.Void;
+        }
+
+        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        {
+            currentEnvironment.Define(stmt.Name.Lexeme, globalClasses[stmt.Name.Lexeme]);
             return VoidObject.Void;
         }
 

@@ -124,13 +124,18 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         private class TypeResolver : VisitorBase
         {
-            private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
+            private readonly Func<Expr, Binding> getIdentifierCallback;
             private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
-            public TypeResolver(Func<Expr, Binding> getVariableOrFunctionCallback,
+            /// <summary>
+            /// Creates a new TypeResolver instance.
+            /// </summary>
+            /// <param name="getIdentifierCallback">a callback used to retrieve a binding for a given expression.</param>
+            /// <param name="typeValidationErrorCallback">a callback which will receive type-validation errors, if they occur.</param>
+            public TypeResolver(Func<Expr, Binding> getIdentifierCallback,
                 Action<TypeValidationError> typeValidationErrorCallback)
             {
-                this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
+                this.getIdentifierCallback = getIdentifierCallback;
                 this.typeValidationErrorCallback = typeValidationErrorCallback;
             }
 
@@ -255,7 +260,7 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
 
-                TypeReference typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
+                TypeReference typeReference = getIdentifierCallback(expr)?.TypeReference;
 
                 if (typeReference == null)
                 {
@@ -317,19 +322,28 @@ namespace Perlang.Interpreter.Typing
 
             public override VoidObject VisitVariableExpr(Expr.Variable expr)
             {
-                TypeReference typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
+                Binding binding = getIdentifierCallback(expr);
 
-                if (typeReference == null)
+                if (binding is ClassBinding)
                 {
-                    throw new NameResolutionError(expr.Name, $"Undefined variable '{expr.Name.Lexeme}'");
+                    expr.TypeReference.ClrType = typeof(PerlangClass);
                 }
-
-                if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
+                else
                 {
-                    ResolveExplicitTypes(typeReference);
-                }
+                    TypeReference typeReference = binding?.TypeReference;
 
-                expr.TypeReference.ClrType = typeReference.ClrType;
+                    if (typeReference == null)
+                    {
+                        throw new NameResolutionError(expr.Name, $"Undefined variable '{expr.Name.Lexeme}'");
+                    }
+
+                    if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
+                    {
+                        ResolveExplicitTypes(typeReference);
+                    }
+
+                    expr.TypeReference.ClrType = typeReference.ClrType;
+                }
 
                 return VoidObject.Void;
             }
