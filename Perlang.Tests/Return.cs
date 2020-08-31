@@ -87,7 +87,7 @@ namespace Perlang.Tests
             Assert.Equal("ok", output);
         }
 
-        [Fact(Skip = "Disabled until we have implemented support for classes")]
+        [Fact(Skip = "Blocked pending https://github.com/perlun/perlang/issues/66")]
         void in_method()
         {
             string source = @"

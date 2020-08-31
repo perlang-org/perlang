@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
+using Humanizer;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Resolution;
 using static Perlang.TokenType;
@@ -124,13 +126,18 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         private class TypeResolver : VisitorBase
         {
-            private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
+            private readonly Func<Expr, Binding> getIdentifierCallback;
             private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
-            public TypeResolver(Func<Expr, Binding> getVariableOrFunctionCallback,
+            /// <summary>
+            /// Creates a new TypeResolver instance.
+            /// </summary>
+            /// <param name="getIdentifierCallback">a callback used to retrieve a binding for a given expression.</param>
+            /// <param name="typeValidationErrorCallback">a callback which will receive type-validation errors, if they occur.</param>
+            public TypeResolver(Func<Expr, Binding> getIdentifierCallback,
                 Action<TypeValidationError> typeValidationErrorCallback)
             {
-                this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
+                this.getIdentifierCallback = getIdentifierCallback;
                 this.typeValidationErrorCallback = typeValidationErrorCallback;
             }
 
@@ -255,7 +262,38 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
 
-                TypeReference typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
+                if (expr.Callee is Expr.Get get)
+                {
+                    if (get.Method != null && get.TypeReference?.ClrType != null)
+                    {
+                        // All is fine, we have a type.
+                        expr.TypeReference.ClrType = get.TypeReference.ClrType;
+                        return VoidObject.Void;
+                    }
+                    else if (get.Method == null)
+                    {
+                        throw new TypeValidationError(
+                            expr.Paren,
+                            $"Internal compiler error: Method was null in {get} expression"
+                        );
+                    }
+                    else if (get.TypeReference == null)
+                    {
+                        throw new TypeValidationError(
+                            expr.Paren,
+                            $"Internal compiler error: TypeReference in {get} expression"
+                        );
+                    }
+                    else if (get.TypeReference.ClrType == null)
+                    {
+                        throw new TypeValidationError(
+                            expr.Paren,
+                            $"Internal compiler error: ClrType was null in {get} expression"
+                        );
+                    }
+                }
+
+                TypeReference typeReference = getIdentifierCallback(expr)?.TypeReference;
 
                 if (typeReference == null)
                 {
@@ -317,19 +355,71 @@ namespace Perlang.Interpreter.Typing
 
             public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
             {
-                TypeReference typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
+                Binding binding = getIdentifierCallback(expr);
 
-                if (typeReference == null)
+                if (binding is ClassBinding)
                 {
-                    throw new NameResolutionError(expr.Name, $"Undefined variable '{expr.Name.Lexeme}'");
+                    expr.TypeReference.ClrType = typeof(PerlangClass);
+                }
+                else
+                {
+                    TypeReference typeReference = binding?.TypeReference;
+
+                    if (typeReference == null)
+                    {
+                        throw new NameResolutionError(expr.Name, $"Undefined variable '{expr.Name.Lexeme}'");
+                    }
+
+                    if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
+                    {
+                        ResolveExplicitTypes(typeReference);
+                    }
+
+                    expr.TypeReference.ClrType = typeReference.ClrType;
                 }
 
-                if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
-                {
-                    ResolveExplicitTypes(typeReference);
-                }
+                return VoidObject.Void;
+            }
 
-                expr.TypeReference.ClrType = typeReference.ClrType;
+            public override VoidObject VisitGetExpr(Expr.Get expr)
+            {
+                base.VisitGetExpr(expr);
+
+                Binding binding = getIdentifierCallback(expr.Object);
+
+                // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
+                // It still feels somewhat better than allowing any kind of wild binding to pass through at this
+                // point.
+                if (binding is ClassBinding || binding == null)
+                {
+                    Type type = expr.Object.TypeReference.ClrType;
+
+                    // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
+                    // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but
+                    // I see no way around this if we want to retain snake_case (which we do).
+                    string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
+
+                    // TODO: Support parameterized methods here. All it takes (...) is for us to provide an array of the
+                    // TODO: argument types to the GetMethod() call here.
+                    MethodInfo method = type.GetMethod(pascalizedMethodName, new Type[] {});
+
+                    if (method == null)
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.Name,
+                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{type.Name}")
+                        );
+
+                        return VoidObject.Void;
+                    }
+
+                    expr.Method = method;
+                    expr.TypeReference.ClrType = method.ReturnType;
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported binding type encountered: {binding}");
+                }
 
                 return VoidObject.Void;
             }
@@ -559,7 +649,18 @@ namespace Perlang.Interpreter.Typing
 
             public override VoidObject VisitCallExpr(Expr.Call expr)
             {
-                Binding binding = getVariableOrFunctionCallback(expr);
+                Binding binding;
+
+                if (expr.Callee is Expr.Get get)
+                {
+                    // TODO: Creating this every time a given method is called is a bit inefficient, but I don't really
+                    // TODO: see any easy way around it.
+                    binding = new MethodBinding(get.Method, expr);
+                }
+                else
+                {
+                    binding = getVariableOrFunctionCallback(expr);
+                }
 
                 if (binding == null)
                 {
@@ -589,7 +690,7 @@ namespace Perlang.Interpreter.Typing
                         functionName = function.Name.Lexeme;
                         break;
 
-                    case NativeBinding nativeBinding:
+                    case INamedParameterizedBinding nativeBinding:
                         parameters = nativeBinding.Parameters;
                         functionName = nativeBinding.FunctionName;
                         break;
