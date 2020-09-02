@@ -554,20 +554,20 @@ namespace Perlang.Interpreter
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
         {
             ExecuteBlock(stmt.Statements, new PerlangEnvironment(currentEnvironment));
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Evaluate(stmt.Expression);
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             var function = new PerlangFunction(stmt, currentEnvironment);
             currentEnvironment.Define(stmt.Name.Lexeme, function);
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitIfStmt(Stmt.If stmt)
@@ -581,14 +581,14 @@ namespace Perlang.Interpreter
                 Execute(stmt.ElseBranch);
             }
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             object value = Evaluate(stmt.Expression);
             standardOutputHandler(Stringify(value));
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitReturnStmt(Stmt.Return stmt)
@@ -609,7 +609,7 @@ namespace Perlang.Interpreter
             }
 
             currentEnvironment.Define(stmt.Name.Lexeme, value);
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitWhileStmt(Stmt.While stmt)
@@ -619,7 +619,7 @@ namespace Perlang.Interpreter
                 Execute(stmt.Body);
             }
 
-            return null;
+            return VoidObject.Void;
         }
 
         public object VisitEmptyExpr(Expr.Empty expr)
