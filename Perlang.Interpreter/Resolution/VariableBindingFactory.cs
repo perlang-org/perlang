@@ -1,9 +1,9 @@
 namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
-    /// Container class for a TypeReference and optionally a function.
+    /// Container class which supports creating <see cref="VariableBinding"/> instances.
     /// </summary>
-    internal class TypeReferenceAndFunction
+    internal class VariableBindingFactory : IBindingFactory
     {
         /// <summary>
         /// A "None" instance, indicating that no type information is available. Note that this is different
@@ -13,15 +13,16 @@ namespace Perlang.Interpreter.Resolution
         /// It is also different from a null value, since null values are sometimes used to indicate that no variable
         /// with a given name could be find in the current scope, or any of its ancestors.
         /// </summary>
-        public static TypeReferenceAndFunction None { get; } = new TypeReferenceAndFunction(null, null);
+        public static VariableBindingFactory None { get; } = new VariableBindingFactory(null);
 
         public TypeReference TypeReference { get; }
-        public Stmt.Function Function { get; }
 
-        public TypeReferenceAndFunction(TypeReference typeReference, Stmt.Function function)
+        public VariableBindingFactory(TypeReference typeReference)
         {
             TypeReference = typeReference;
-            Function = function;
         }
+
+        public Binding CreateBinding(int distance, Expr referringExpr) =>
+            new VariableBinding(TypeReference, distance, referringExpr);
     }
 }
