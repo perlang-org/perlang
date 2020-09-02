@@ -14,11 +14,11 @@ namespace Perlang.Interpreter.Resolution
     {
         private readonly ImmutableDictionary<string, TypeReferenceNativeFunction> globalCallables;
 
-        private readonly List<IDictionary<string, TypeReferenceAndFunction>> scopes =
-            new List<IDictionary<string, TypeReferenceAndFunction>>();
+        private readonly List<IDictionary<string, IBindingFactory>> scopes =
+            new List<IDictionary<string, IBindingFactory>>();
 
-        private readonly IDictionary<string, TypeReferenceAndFunction> globals =
-            new Dictionary<string, TypeReferenceAndFunction>();
+        private readonly IDictionary<string, IBindingFactory> globals =
+            new Dictionary<string, IBindingFactory>();
 
         private FunctionType currentFunction = FunctionType.NONE;
 
@@ -60,7 +60,7 @@ namespace Perlang.Interpreter.Resolution
 
         private void BeginScope()
         {
-            scopes.Add(new Dictionary<string, TypeReferenceAndFunction>());
+            scopes.Add(new Dictionary<string, IBindingFactory>());
         }
 
         private void EndScope()
@@ -90,7 +90,7 @@ namespace Perlang.Interpreter.Resolution
             // map means “is finished being initialized”, at this stage of traversing the tree. Being able to
             // distinguish between uninitialized and initialized values is critical to be able to detect erroneous code
             // like "var a = a".
-            scope[name.Lexeme] = TypeReferenceAndFunction.None;
+            scope[name.Lexeme] = VariableBindingFactory.None;
         }
 
         private static bool IsEmpty(ICollection stack)
@@ -99,14 +99,12 @@ namespace Perlang.Interpreter.Resolution
         }
 
         /// <summary>
-        /// Defines a previously declared variable or function as initialized, available for use.
+        /// Defines a previously declared variable as initialized, available for use.
         /// </summary>
         /// <param name="name">The variable or function name.</param>
         /// <param name="typeReference">A TypeReference describing the variable or function.</param>
-        /// <param name="function">In case the definition is for a function, the function statement should be
-        /// provided here.</param>
         /// <exception cref="ArgumentException">If typeReference is null.</exception>
-        private void Define(Token name, TypeReference typeReference, Stmt.Function function = null)
+        private void Define(Token name, TypeReference typeReference)
         {
             if (typeReference == null)
             {
@@ -115,7 +113,7 @@ namespace Perlang.Interpreter.Resolution
 
             if (IsEmpty(scopes))
             {
-                globals[name.Lexeme] = new TypeReferenceAndFunction(typeReference, function);
+                globals[name.Lexeme] = new VariableBindingFactory(typeReference);
                 return;
             }
 
@@ -123,7 +121,33 @@ namespace Perlang.Interpreter.Resolution
             // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
             // function return type and function statement (in case of a function being defined). These details are
             // useful later on, in the static type analysis.
-            scopes.Last()[name.Lexeme] = new TypeReferenceAndFunction(typeReference, function);
+            scopes.Last()[name.Lexeme] = new VariableBindingFactory(typeReference);
+        }
+
+        /// <summary>
+        /// Defines a previously declared function as defined, available for use.
+        /// </summary>
+        /// <param name="name">The variable or function name.</param>
+        /// <param name="typeReference">A TypeReference describing the variable or function.</param>
+        /// <param name="function">The function statement should be provided here.</param>
+        private void DefineFunction(Token name, TypeReference typeReference, Stmt.Function function)
+        {
+            if (typeReference == null)
+            {
+                throw new ArgumentException("typeReference cannot be null");
+            }
+
+            if (IsEmpty(scopes))
+            {
+                globals[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
+                return;
+            }
+
+            // We set the variable’s value in the scope map to mark it as fully initialized and available for
+            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
+            // function return type and function statement (in case of a function being defined). These details are
+            // useful later on, in the static type analysis.
+            scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
         }
 
         private void ResolveLocal(Expr referringExpr, Token name)
@@ -133,25 +157,16 @@ namespace Perlang.Interpreter.Resolution
             {
                 if (scopes[i].ContainsKey(name.Lexeme))
                 {
-                    TypeReferenceAndFunction typeReferenceAndFunction = scopes[i][name.Lexeme];
+                    IBindingFactory bindingFactory = scopes[i][name.Lexeme];
 
-                    if (typeReferenceAndFunction == TypeReferenceAndFunction.None)
+                    if (bindingFactory == VariableBindingFactory.None)
                     {
                         resolveErrorHandler(
                             new ResolveError("Cannot read local variable in its own initializer.", name));
                         return;
                     }
 
-                    if (typeReferenceAndFunction.Function != null)
-                    {
-                        addLocalExprCallback(new FunctionBinding(typeReferenceAndFunction.Function,
-                            typeReferenceAndFunction.TypeReference, scopes.Count - 1 - i, referringExpr));
-                    }
-                    else
-                    {
-                        addLocalExprCallback(new VariableBinding(typeReferenceAndFunction.TypeReference,
-                            scopes.Count - 1 - i, referringExpr));
-                    }
+                    addLocalExprCallback(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
 
                     return;
                 }
@@ -163,7 +178,8 @@ namespace Perlang.Interpreter.Resolution
                 var globalTypeReferenceAndCallable = globalCallables[name.Lexeme];
 
                 addGlobalExprCallback(new NativeBinding(globalTypeReferenceAndCallable.Method, name.Lexeme,
-                    globalTypeReferenceAndCallable.ParameterTypes, globalTypeReferenceAndCallable.ReturnTypeReference, referringExpr));
+                    globalTypeReferenceAndCallable.ParameterTypes, globalTypeReferenceAndCallable.ReturnTypeReference,
+                    referringExpr));
             }
 
             // Not found in any of the local scopes. Assume it is global, or non-existent.
@@ -172,17 +188,11 @@ namespace Perlang.Interpreter.Resolution
                 return;
             }
 
-            TypeReferenceAndFunction globalTypeReferenceAndFunction = globals[name.Lexeme];
-
-            if (globalTypeReferenceAndFunction.Function != null)
+            // Note: the extra block here is actually not just "for fun". We get a conflict with the bindingFactory
+            // in the for-loop above if we skip it.
             {
-                addGlobalExprCallback(new FunctionBinding(globalTypeReferenceAndFunction.Function, globalTypeReferenceAndFunction.TypeReference, -1, referringExpr));
-            }
-            else
-            {
-                addGlobalExprCallback(new VariableBinding(
-                    globalTypeReferenceAndFunction.TypeReference, -1, referringExpr
-                ));
+                IBindingFactory bindingFactory = globals[name.Lexeme];
+                addGlobalExprCallback(bindingFactory.CreateBinding(-1, referringExpr));
             }
         }
 
@@ -263,7 +273,7 @@ namespace Perlang.Interpreter.Resolution
             // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must
             // be able to distinguish between "set to null" and "not set at all".
             if (!IsEmpty(scopes) &&
-                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, TypeReferenceAndFunction.None) == null)
+                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, VariableBindingFactory.None) == null)
             {
                 resolveErrorHandler(new ResolveError("Cannot read local variable in its own initializer.", expr.Name));
             }
@@ -295,7 +305,7 @@ namespace Perlang.Interpreter.Resolution
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             Declare(stmt.Name);
-            Define(stmt.Name, stmt.ReturnTypeReference, stmt);
+            DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
 
             ResolveFunction(stmt, FunctionType.FUNCTION);
 
