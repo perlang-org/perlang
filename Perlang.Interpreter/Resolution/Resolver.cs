@@ -188,21 +188,23 @@ namespace Perlang.Interpreter.Resolution
 
         public VoidObject VisitEmptyExpr(Expr.Empty expr)
         {
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitAssignExpr(Expr.Assign expr)
         {
             Resolve(expr.Value);
             ResolveLocal(expr, expr.Name);
-            return null;
+
+            return VoidObject.Void;
         }
 
         public VoidObject VisitBinaryExpr(Expr.Binary expr)
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
-            return null;
+
+            return VoidObject.Void;
         }
 
         public VoidObject VisitCallExpr(Expr.Call expr)
@@ -219,18 +221,18 @@ namespace Perlang.Interpreter.Resolution
                 ResolveLocal(expr, variableExpr.Name);
             }
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitGroupingExpr(Expr.Grouping expr)
         {
             Resolve(expr.Expression);
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitLiteralExpr(Expr.Literal expr)
         {
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitLogicalExpr(Expr.Logical expr)
@@ -238,14 +240,14 @@ namespace Perlang.Interpreter.Resolution
             Resolve(expr.Left);
             Resolve(expr.Right);
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             Resolve(expr.Right);
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
@@ -253,7 +255,7 @@ namespace Perlang.Interpreter.Resolution
             Resolve(expr.Left);
             ResolveLocal(expr, expr.Name);
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitVariableExpr(Expr.Variable expr)
@@ -267,7 +269,8 @@ namespace Perlang.Interpreter.Resolution
             }
 
             ResolveLocal(expr, expr.Name);
-            return null;
+
+            return VoidObject.Void;
         }
 
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
@@ -275,7 +278,7 @@ namespace Perlang.Interpreter.Resolution
             BeginScope();
             Resolve(stmt.Statements);
             EndScope();
-            return null;
+            return VoidObject.Void;
         }
 
         private void Resolve(Stmt stmt)
@@ -286,7 +289,7 @@ namespace Perlang.Interpreter.Resolution
         public VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Resolve(stmt.Expression);
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
@@ -295,7 +298,8 @@ namespace Perlang.Interpreter.Resolution
             Define(stmt.Name, stmt.ReturnTypeReference, stmt);
 
             ResolveFunction(stmt, FunctionType.FUNCTION);
-            return null;
+
+            return VoidObject.Void;
         }
 
         private void ResolveFunction(Stmt.Function function, FunctionType type)
@@ -327,14 +331,13 @@ namespace Perlang.Interpreter.Resolution
                 Resolve(stmt.ElseBranch);
             }
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             Resolve(stmt.Expression);
-
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitReturnStmt(Stmt.Return stmt)
@@ -349,7 +352,7 @@ namespace Perlang.Interpreter.Resolution
                 Resolve(stmt.Value);
             }
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitVarStmt(Stmt.Var stmt)
@@ -363,7 +366,7 @@ namespace Perlang.Interpreter.Resolution
 
             Define(stmt.Name, stmt.Initializer?.TypeReference ?? new TypeReference(stmt.Name));
 
-            return null;
+            return VoidObject.Void;
         }
 
         public VoidObject VisitWhileStmt(Stmt.While stmt)
@@ -371,7 +374,7 @@ namespace Perlang.Interpreter.Resolution
             Resolve(stmt.Condition);
             Resolve(stmt.Body);
 
-            return null;
+            return VoidObject.Void;
         }
 
         private enum FunctionType
