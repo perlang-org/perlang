@@ -317,8 +317,12 @@ namespace Perlang.Interpreter
                     return !IsTruthy(right);
 
                 case MINUS:
+                    // Using 'dynamic' here is arguably a bit weird, but like in VisitBinaryExpr(), it simplifies things
+                    // significantly. The other option would be to handle all kind of numeric types here individually,
+                    // which is clearly doable but a bit more work. For now, the CheckNumberOperand() method is the
+                    // guarantee that the dynamic operation will succeed.
                     CheckNumberOperand(expr.Operator, right);
-                    return -(double) right;
+                    return -(dynamic) right;
             }
 
             // Unreachable.
@@ -433,7 +437,7 @@ namespace Perlang.Interpreter
 
         private static void CheckNumberOperand(Token _operator, object operand)
         {
-            if (operand is double)
+            if (IsValidNumberType(operand))
             {
                 return;
             }
