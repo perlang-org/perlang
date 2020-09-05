@@ -179,110 +179,128 @@ namespace Perlang.Tests.Operator
         }
 
         //
-        // Special tests for 0 and -0, ensuring that positive and negative zero compares as the same value.
+        // Special tests for 0.0 and -0.0, ensuring that positive and negative zero compares as the same value.
         //
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        // Note that this is specifically only relevant for floats; its (IEEE 754) binary representation supports the
+        // distinction between these numbers. For integers, this is not true; the binary representation of two's
+        // complement (used to store negative integers on the majority of today's computer architectures) does not allow
+        // the concept of negative zero.
+        //
+        // More on the subject:
+        //
+        // - Signed zero: https://en.wikipedia.org/wiki/Signed_zero
+        // - Two's complement: https://en.wikipedia.org/wiki/Two%27s_complement
+        //
+        // Given the above, the actual semantics are pretty much the same for both integer and floats in this aspect. We
+        // add a trivial integer test as well first, just for the sake of it.
+        [Fact]
+        public void zero_and_negative_zero_integers_are_identical()
+        {
+            // We deliberately do not check for equality, since even negative and positive zero floats are equal.
+            // Instead, we check if one is smaller than the other.
+            string source = @"
+                0 < -0
+            ";
+
+            object output = Eval(source);
+
+            Assert.Equal(false, output);
+        }
+
+        [Fact]
         public void zero_less_than_negative_zero_is_false()
         {
             string source = @"
-                var b = 0 < -0;
-                print b;
+                0.0 < -0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(false, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void negative_zero_less_than_zero_is_false()
         {
             string source = @"
-                var b = -0 < 0;
-                print b;
+                -0.0 < 0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(false, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void zero_greater_than_negative_zero_is_false()
         {
             string source = @"
-                var b = 0 > -0;
-                print b;
+                0.0 > -0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(false, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void negative_zero_greater_than_zero_is_false()
         {
             string source = @"
-                var b = -0 > 0;
-                print b;
+                -0.0 > 0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(false, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void zero_less_than_or_equals_negative_zero_is_false()
         {
             string source = @"
-                var b = 0 <= -0;
-                print b;
+                0.0 <= -0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("True", output);
+            Assert.Equal(true, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void negative_zero_less_than_or_equals_zero_is_false()
         {
             string source = @"
-                var b = -0 <= 0;
-                print b;
+                -0.0 <= 0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(true, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void zero_greater_than_or_equals_negative_zero_is_false()
         {
             string source = @"
-                var b = 0 >= -0;
-                print b;
+                0.0 >= -0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(true, output);
         }
 
-        [Fact(Skip = "Fails with 'Operand must be a number' error")]
+        [Fact]
         public void negative_zero_greater_than_or_equals_zero_is_false()
         {
             string source = @"
-                var b = -0 >= 0;
-                print b;
+                -0.0 >= 0.0
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            object output = Eval(source);
 
-            Assert.Equal("False", output);
+            Assert.Equal(true, output);
         }
     }
 }

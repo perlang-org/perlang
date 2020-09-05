@@ -59,7 +59,7 @@ namespace Perlang.Tests.Number
             Assert.Equal(0, result);
         }
 
-        [Fact(Skip = "Pending https://github.com/perlun/perlang/issues/45")]
+        [Fact]
         public void literal_negative_zero()
         {
             string source = @"
@@ -68,7 +68,19 @@ namespace Perlang.Tests.Number
 
             object result = Eval(source);
 
-            Assert.Equal(123, result);
+            Assert.Equal(-0, result);
+        }
+
+        [Fact]
+        public void literal_negative_integer()
+        {
+            string source = @"
+                -123
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(-123, result);
         }
 
         [Fact]
