@@ -489,7 +489,7 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 // Initial phase: Resolve a limited set of built-in types. Only short type names are supported;
-                // fully qualified type names
+                // fully qualified type names will have to come at a later stage.
                 string lexeme = typeReference.TypeSpecifier.Lexeme;
 
                 switch (lexeme)
