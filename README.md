@@ -20,7 +20,7 @@ $ curl -sSL https://perlang.org/install | sh
 If you have a previous build installed and want to overwrite it, use the following:
 
 ```shell
-$ curl -vsSL https://perlang.org/install | sh -s -- --force
+$ curl -sSL https://perlang.org/install | sh -s -- --force
 ```
 
 (By all means, feel free to read [the script]((scripts/perlang-install)) before executing it if you so prefer.)
