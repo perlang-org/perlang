@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.ConsoleApp", "Perla
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Stdlib", "Perlang.Stdlib\Perlang.Stdlib.csproj", "{20267530-E991-4936-BFDC-0C5A1EDE90E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{85A7BA47-5471-45FA-A1E7-A932CEC0A633}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{20267530-E991-4936-BFDC-0C5A1EDE90E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20267530-E991-4936-BFDC-0C5A1EDE90E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20267530-E991-4936-BFDC-0C5A1EDE90E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85A7BA47-5471-45FA-A1E7-A932CEC0A633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85A7BA47-5471-45FA-A1E7-A932CEC0A633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85A7BA47-5471-45FA-A1E7-A932CEC0A633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85A7BA47-5471-45FA-A1E7-A932CEC0A633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

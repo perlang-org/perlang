@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Perlang.Exceptions;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
@@ -121,6 +123,21 @@ namespace Perlang.Interpreter
         public object Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
             ResolveErrorHandler resolveErrorHandler, TypeValidationErrorHandler typeValidationErrorHandler)
         {
+            // temp code
+
+            WeakReference testAlcWeakRef;
+            int result = ExecuteAndUnload(@"/home/per/git/perlang/test/bin/Debug/netcoreapp3.1/test.dll", out testAlcWeakRef);
+
+            for (int i = 0; testAlcWeakRef.IsAlive && (i < 10); i++)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+
+            Debugger.Break();
+
+            // end temp code
+
             if (String.IsNullOrWhiteSpace(source))
             {
                 return null;
@@ -256,6 +273,24 @@ namespace Perlang.Interpreter
             }
         }
 
+        // Disabling inlining is important to ensure that the AssemblyLoadContext, Assembly, and MethodInfo (the
+        // Assembly.EntryPoint) can't be kept alive by stack slot references (real- or JIT-introduced locals). This
+        // could keep the AssemblyLoadContext alive and prevent the unload.
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static int ExecuteAndUnload(string assemblyPath, out WeakReference alcWeakRef)
+        {
+            var alc = new PerlangAssemblyLoadContext();
+            Assembly a = alc.LoadFromAssemblyPath(assemblyPath);
+
+            alcWeakRef = new WeakReference(alc, trackResurrection: true);
+
+            var args = new object[1] { new string[] {"Hello"}};
+            int result = (int)a.EntryPoint.Invoke(null, args);
+
+            alc.Unload();
+
+            return result;
+        }
         private void Interpret(IEnumerable<Stmt> statements)
         {
             try
