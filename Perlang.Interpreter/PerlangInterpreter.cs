@@ -353,7 +353,7 @@ namespace Perlang.Interpreter
             }
 
             dynamic previousValue = left;
-            var variable = (Expr.Variable) expr.Left;
+            var variable = (Expr.Identifier) expr.Left;
             object value;
 
             switch (expr.Operator.Type)
@@ -390,7 +390,7 @@ namespace Perlang.Interpreter
             return value;
         }
 
-        public object VisitVariableExpr(Expr.Variable expr)
+        public object VisitIdentifierExpr(Expr.Identifier expr)
         {
             return LookUpVariable(expr.Name, expr);
         }
@@ -765,9 +765,9 @@ namespace Perlang.Interpreter
                     }
                     catch (Exception e)
                     {
-                        if (expr.Callee is Expr.Variable v)
+                        if (expr.Callee is Expr.Identifier identifier)
                         {
-                            throw new RuntimeError(v.Name, $"{v.Name.Lexeme}: {e.Message}");
+                            throw new RuntimeError(identifier.Name, $"{identifier.Name.Lexeme}: {e.Message}");
                         }
                         else
                         {

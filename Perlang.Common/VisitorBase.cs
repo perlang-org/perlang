@@ -81,9 +81,9 @@ namespace Perlang
         }
 
         /// <summary>
-        /// Need not be called in child classes.
+        /// Does not need to be called in child classes.
         /// </summary>
-        public virtual VoidObject VisitVariableExpr(Expr.Variable expr)
+        public virtual VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
             return VoidObject.Void;
         }
