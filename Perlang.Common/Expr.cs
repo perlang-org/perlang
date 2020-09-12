@@ -22,7 +22,7 @@ namespace Perlang
             TR VisitLogicalExpr(Logical expr);
             TR VisitUnaryPrefixExpr(UnaryPrefix expr);
             TR VisitUnaryPostfixExpr(UnaryPostfix expr);
-            TR VisitVariableExpr(Variable expr);
+            TR VisitIdentifierExpr(Identifier expr);
         }
 
         //
@@ -60,10 +60,10 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public Binary(Expr left, Token _operator, Expr right)
+            public Binary(Expr left, Token @operator, Expr right)
             {
                 Left = left;
-                Operator = _operator;
+                Operator = @operator;
                 Right = right;
             }
 
@@ -88,7 +88,7 @@ namespace Perlang
             {
                 get
                 {
-                    if (Callee is Variable variable)
+                    if (Callee is Identifier variable)
                     {
                         return variable.Name.Lexeme;
                     }
@@ -113,7 +113,7 @@ namespace Perlang
 
             public override string ToString()
             {
-                if (Callee is Variable variable)
+                if (Callee is Identifier variable)
                 {
                     return $"'call function {variable.Name.Lexeme}'";
                 }
@@ -165,10 +165,10 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public Logical(Expr left, Token _operator, Expr right)
+            public Logical(Expr left, Token @operator, Expr right)
             {
                 Left = left;
-                Operator = _operator;
+                Operator = @operator;
                 Right = right;
             }
 
@@ -183,9 +183,9 @@ namespace Perlang
             public Token Operator { get; }
             public Expr Right { get; }
 
-            public UnaryPrefix(Token _operator, Expr right)
+            public UnaryPrefix(Token @operator, Expr right)
             {
-                Operator = _operator;
+                Operator = @operator;
                 Right = right;
             }
 
@@ -201,11 +201,11 @@ namespace Perlang
             public Token Name { get; }
             public Token Operator { get; }
 
-            public UnaryPostfix(Expr left, Token name, Token _operator)
+            public UnaryPostfix(Expr left, Token name, Token @operator)
             {
                 Left = left;
                 Name = name;
-                Operator = _operator;
+                Operator = @operator;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
@@ -214,18 +214,21 @@ namespace Perlang
             }
         }
 
-        public class Variable : Expr
+        /// <summary>
+        /// Represents an identifier, such as a variable name, a function name or a class.
+        /// </summary>
+        public class Identifier : Expr
         {
             public Token Name { get; }
 
-            public Variable(Token name)
+            public Identifier(Token name)
             {
                 Name = name;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
-                return visitor.VisitVariableExpr(this);
+                return visitor.VisitIdentifierExpr(this);
             }
 
             public override string ToString() =>

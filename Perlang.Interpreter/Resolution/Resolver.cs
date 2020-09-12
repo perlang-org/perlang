@@ -226,9 +226,9 @@ namespace Perlang.Interpreter.Resolution
                 Resolve(argument);
             }
 
-            if (expr.Callee is Expr.Variable variableExpr)
+            if (expr.Callee is Expr.Identifier identifierExpr)
             {
-                ResolveLocal(expr, variableExpr.Name);
+                ResolveLocal(expr, identifierExpr.Name);
             }
 
             return VoidObject.Void;
@@ -268,7 +268,7 @@ namespace Perlang.Interpreter.Resolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitVariableExpr(Expr.Variable expr)
+        public VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
             // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must
             // be able to distinguish between "set to null" and "not set at all".

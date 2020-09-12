@@ -244,10 +244,10 @@ namespace Perlang.Interpreter.Typing
                 }
                 catch (NameResolutionError)
                 {
-                    if (expr.Callee is Expr.Variable variable)
+                    if (expr.Callee is Expr.Identifier identifier)
                     {
-                        throw new NameResolutionError(variable.Name,
-                            $"Attempting to call undefined function '{variable.Name.Lexeme}'");
+                        throw new NameResolutionError(identifier.Name,
+                            $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
                     }
                     else
                     {
@@ -315,7 +315,7 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            public override VoidObject VisitVariableExpr(Expr.Variable expr)
+            public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
             {
                 TypeReference typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
 

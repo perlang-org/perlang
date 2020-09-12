@@ -336,9 +336,9 @@ namespace Perlang.Parser
                 Token equals = Previous();
                 Expr value = Assignment();
 
-                if (expr is Expr.Variable variable)
+                if (expr is Expr.Identifier identifier)
                 {
-                    Token name = variable.Name;
+                    Token name = identifier.Name;
                     return new Expr.Assign(name, value);
                 }
 
@@ -356,9 +356,9 @@ namespace Perlang.Parser
             {
                 Token increment = Previous();
 
-                if (expr is Expr.Variable variable)
+                if (expr is Expr.Identifier identifier)
                 {
-                    return new Expr.UnaryPostfix(variable, variable.Name, increment);
+                    return new Expr.UnaryPostfix(identifier, identifier.Name, increment);
                 }
 
                 Error(increment, $"Can only increment variables, not {StringifyType(expr)}.");
@@ -367,9 +367,9 @@ namespace Perlang.Parser
             {
                 Token decrement = Previous();
 
-                if (expr is Expr.Variable variable)
+                if (expr is Expr.Identifier identifier)
                 {
-                    return new Expr.UnaryPostfix(variable, variable.Name, decrement);
+                    return new Expr.UnaryPostfix(identifier, identifier.Name, decrement);
                 }
 
                 Error(decrement, $"Can only decrement variables, not {StringifyType(expr)}.");
@@ -528,7 +528,7 @@ namespace Perlang.Parser
 
             if (Match(IDENTIFIER))
             {
-                return new Expr.Variable(Previous());
+                return new Expr.Identifier(Previous());
             }
 
             if (Match(LEFT_PAREN))
