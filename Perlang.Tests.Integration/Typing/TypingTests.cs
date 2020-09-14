@@ -1,0 +1,212 @@
+using System;
+using System.Linq;
+using Xunit;
+using static Perlang.Tests.Integration.EvalHelper;
+
+namespace Perlang.Tests.Integration.Typing
+{
+    public class TypingTests
+    {
+        [Fact]
+        public void var_declaration_can_provide_a_type()
+        {
+            string source = @"
+                var s: String = ""Hello World"";
+            ";
+
+            var result = EvalReturningOutput(source);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void var_declaration_generates_expected_error_if_non_type_expression_specified()
+        {
+            string source = @"
+                var s: 42 = ""Hello World"";
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.ParseErrors.FirstOrDefault();
+
+            Assert.Single(result.ParseErrors);
+            Assert.Matches("Expecting type name", exception.Message);
+        }
+
+        [Fact]
+        public void var_declaration_generates_expected_error_if_assigned_to_incoercible_type()
+        {
+            string source = @"
+                var s: int = ""Hello World"";
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Cannot assign String value to Int32", exception.Message);
+        }
+
+        [Fact]
+        public void var_declaration_detects_type_not_found()
+        {
+            string source = @"
+                var s: SomeUnknownType = ""Hello World"";
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+        }
+
+        [Fact]
+        public void var_declaration_in_block_detects_type_not_found()
+        {
+            string source = @"
+                var foo: int = 123;
+
+                {
+                    var s: SomeUnknownType = ""Hello World"";
+                }
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+        }
+
+        [Fact]
+        public void var_declaration_in_function_detects_type_not_found()
+        {
+            string source = @"
+                var foo: int = 123;
+
+                fun bar(): void {
+                    var s: SomeUnknownType = ""Hello World"";
+                }
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+        }
+
+        [Fact]
+        public void function_parameter_can_provide_a_type()
+        {
+            string source = @"
+                fun foo(s: String): void {
+                    print(s);
+                }
+
+                foo(""Hello World"");
+            ";
+
+            var output = EvalReturningOutput(source);
+
+            Assert.Equal(new[]
+            {
+                "Hello World"
+            }, output);
+        }
+
+        [Fact]
+        public void function_parameter_detects_when_method_is_called_with_wrong_type()
+        {
+            string source = @"
+                fun foo(s: String): void {
+                    print(s);
+                }
+
+                foo(42);
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Cannot pass System.Int32 argument as parameter 's: System.String'", exception.Message);
+        }
+
+        [Fact]
+        public void function_return_value_can_provide_a_type()
+        {
+            string source = @"
+                fun foo(): String {
+                    return ""typed return value"";
+                }
+
+                print foo();
+            ";
+
+            var output = EvalReturningOutput(source);
+
+            Assert.Equal(new[]
+            {
+                "typed return value"
+            }, output);
+        }
+
+        [Fact]
+        public void function_return_value_can_be_assigned_to_variable_of_same_type()
+        {
+            string source = @"
+                fun foo(): string {
+                    return ""typed return value"";
+                }
+
+                var s: String = foo();
+                print s;
+            ";
+
+            var output = EvalReturningOutput(source);
+
+            Assert.Equal(new[]
+            {
+                "typed return value"
+            }, output);
+        }
+
+        [Fact]
+        public void function_return_value_detects_type_not_found()
+        {
+            string source = @"
+                fun foo(): SomeUnknownType {
+                    return ""typed return value"";
+                }
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+        }
+
+        [Fact]
+        public void function_return_value_detects_invalid_assignment_to_variable_of_another_type()
+        {
+            string source = @"
+                fun foo(): string {
+                    return ""typed return value"";
+                }
+
+                // The line below should fail, because types are mixed up.
+                var s: int = foo();
+                print s;
+            ";
+
+            var result = EvalWithTypeValidationErrorCatch(source);
+            var exception = result.TypeValidationErrors.FirstOrDefault();
+
+            Assert.Single(result.TypeValidationErrors);
+            Assert.Matches("Cannot assign String value to Int32", exception.Message);
+        }
+    }
+}

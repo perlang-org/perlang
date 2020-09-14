@@ -1,16 +1,20 @@
+#nullable enable
+using System;
+
 namespace Perlang
 {
     public class Token
     {
         public TokenType Type { get; }
         public string Lexeme { get; }
-        public object Literal { get; }
+        public object? Literal { get; }
         public int Line { get; }
 
-        public Token(TokenType type, string lexeme, object literal, int line)
+        public Token(TokenType type, string lexeme, object? literal, int line)
         {
+            // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
             Type = type;
-            Lexeme = lexeme;
+            Lexeme = lexeme ?? throw new ArgumentException("lexeme cannot be null");
             Literal = literal;
             Line = line;
         }

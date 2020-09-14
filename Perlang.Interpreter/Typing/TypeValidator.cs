@@ -76,6 +76,11 @@ namespace Perlang.Interpreter.Typing
             Action<TypeValidationError> typeValidationErrorCallback,
             Func<Expr, Binding> getVariableOrFunctionCallback)
         {
+            // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
+            if (expr == null) throw new ArgumentException("expr cannot be null");
+            if (typeValidationErrorCallback == null) throw new ArgumentException("typeValidationErrorCallback cannot be null");
+            if (getVariableOrFunctionCallback == null) throw new ArgumentException("getVariableOrFunctionCallback cannot be null");
+
             bool typeResolvingFailed = false;
 
             var typeResolver = new TypeResolver(getVariableOrFunctionCallback,

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 namespace Perlang
@@ -11,10 +12,10 @@ namespace Perlang
     {
         public static TypeReference Bool { get; } = new TypeReference(typeof(bool));
 
-        private Type clrType;
-        public Token TypeSpecifier { get; }
+        private Type? clrType;
+        public Token? TypeSpecifier { get; }
 
-        public Type ClrType
+        public Type? ClrType
         {
             get => clrType;
             set
@@ -69,9 +70,10 @@ namespace Perlang
         /// <summary>
         /// Creates a TypeReference for a given CLR type.
         /// </summary>
-        /// <param name="clrType">The CLR type. Cannot be null.</param>
+        /// <param name="clrType">The CLR type..</param>
         public TypeReference(Type clrType)
         {
+            // TODO: Remove once we are done with https://github.com/perlun/perlang/issues/39
             this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
         }
 

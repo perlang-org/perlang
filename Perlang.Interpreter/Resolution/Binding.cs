@@ -1,5 +1,4 @@
-using System.Collections.Immutable;
-
+#nullable enable
 namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
@@ -13,7 +12,7 @@ namespace Perlang.Interpreter.Resolution
         /// <summary>
         /// The type reference of the declaring statement. (typically a 'var' initializer or a function return type)
         /// </summary>
-        public TypeReference TypeReference { get; }
+        public TypeReference? TypeReference { get; }
 
         /// <summary>
         /// An expression referring to the declaring statement's type reference. Note that multiple expressions can
@@ -25,10 +24,10 @@ namespace Perlang.Interpreter.Resolution
         /// </summary>
         public Expr ReferringExpr { get; }
 
-        protected Binding(TypeReference typeReference, Expr referringExpr)
+        protected Binding(TypeReference? typeReference, Expr referringExpr)
         {
             // We allow null references on this one to sneak through, since it allows this test to succeed:
-            // Perlang.Tests.Var.VarTests.use_local_in_initializer
+            // Perlang.Tests.Integration.Classes.ClassesTests.can_call_static_method
             // Future improvements in this area would be to use something else than 'null' to indicate this, e.g.
             // TypeReference.None
             TypeReference = typeReference;

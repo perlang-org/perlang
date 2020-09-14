@@ -1,3 +1,4 @@
+#nullable enable
 namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
