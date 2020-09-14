@@ -23,7 +23,7 @@ If you have a previous build installed and want to overwrite it, use the followi
 $ curl -sSL https://perlang.org/install | sh -s -- --force
 ```
 
-(By all means, feel free to read [the script]((scripts/perlang-install)) before executing it if you so prefer.)
+(By all means, feel free to read [the script](scripts/perlang-install) before executing it if you so prefer.)
 
 The installer will download the latest Perlang build and unpack it in a folder under `~/.perlang`. It will also print some instructions about how to add the Perlang toolchain to your `$PATH`.
 
