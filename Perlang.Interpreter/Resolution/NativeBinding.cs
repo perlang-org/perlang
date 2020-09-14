@@ -6,7 +6,13 @@ using System.Reflection;
 
 namespace Perlang.Interpreter.Resolution
 {
-    internal class NativeBinding : Binding
+    /// <summary>
+    /// A binding to a native (.NET) method.
+    ///
+    /// "Native" in this sense means that the method is native to the runtime in which it is being executed. It should
+    /// not be confused with machine-native, unmanaged code (i.e. code written in languages like C, C++, Rust or Go.)
+    /// </summary>
+    internal class NativeBinding : Binding, INamedParameterizedBinding
     {
         public MethodInfo Method { get; }
         public string FunctionName { get; }

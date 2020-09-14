@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -8,6 +9,7 @@ namespace Perlang
         public interface IVisitor<TR>
         {
             TR VisitBlockStmt(Block stmt);
+            TR VisitClassStmt(Class stmt);
             TR VisitExpressionStmt(ExpressionStmt stmt);
             TR VisitFunctionStmt(Function stmt);
             TR VisitIfStmt(If stmt);
@@ -21,7 +23,8 @@ namespace Perlang
         {
             public List<Stmt> Statements { get; }
 
-            public Block(List<Stmt> statements) {
+            public Block(List<Stmt> statements)
+            {
                 Statements = statements;
             }
 
@@ -31,11 +34,29 @@ namespace Perlang
             }
         }
 
+        public class Class : Stmt
+        {
+            public Token Name { get; }
+            public List<Function> Methods { get; }
+
+            public Class(Token name, List<Function> methods)
+            {
+                Name = name;
+                Methods = methods;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitClassStmt(this);
+            }
+        }
+
         public class ExpressionStmt : Stmt
         {
             public Expr Expression { get; }
 
-            public ExpressionStmt(Expr expression) {
+            public ExpressionStmt(Expr expression)
+            {
                 Expression = expression;
             }
 
@@ -52,7 +73,9 @@ namespace Perlang
             public ImmutableList<Stmt> Body { get; }
             public TypeReference ReturnTypeReference { get; }
 
-            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference) {
+            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body,
+                TypeReference returnTypeReference)
+            {
                 Name = name;
                 Parameters = parameters.ToImmutableList();
                 Body = body.ToImmutableList();
@@ -77,7 +100,8 @@ namespace Perlang
             public Stmt ThenBranch { get; }
             public Stmt ElseBranch { get; }
 
-            public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+            public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
+            {
                 Condition = condition;
                 ThenBranch = thenBranch;
                 ElseBranch = elseBranch;
@@ -93,7 +117,8 @@ namespace Perlang
         {
             public Expr Expression { get; }
 
-            public Print(Expr expression) {
+            public Print(Expr expression)
+            {
                 Expression = expression;
             }
 
@@ -108,7 +133,8 @@ namespace Perlang
             public Token Keyword { get; }
             public Expr Value { get; }
 
-            public Return(Token keyword, Expr value) {
+            public Return(Token keyword, Expr value)
+            {
                 Keyword = keyword;
                 Value = value;
             }
@@ -127,7 +153,8 @@ namespace Perlang
 
             public bool HasInitializer => Initializer != null;
 
-            public Var(Token name, Expr initializer, TypeReference typeReference) {
+            public Var(Token name, Expr initializer, TypeReference typeReference)
+            {
                 Name = name;
                 Initializer = initializer;
                 TypeReference = typeReference;
@@ -156,7 +183,8 @@ namespace Perlang
             public Expr Condition { get; }
             public Stmt Body { get; }
 
-            public While(Expr condition, Stmt body) {
+            public While(Expr condition, Stmt body)
+            {
                 Condition = condition;
                 Body = body;
             }

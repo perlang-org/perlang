@@ -135,7 +135,7 @@ namespace Perlang.Tests.Var
             }, output);
         }
 
-        [Fact(Skip = "Classes are not supported yet")]
+        [Fact(Skip = "Blocked pending https://github.com/perlun/perlang/issues/66")]
         public void local_from_method()
         {
             string source = @"

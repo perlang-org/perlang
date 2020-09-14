@@ -18,7 +18,7 @@ namespace Perlang.Tests.Number
             var exception = result.ParseErrors.FirstOrDefault();
 
             Assert.Single(result.ParseErrors);
-            Assert.Matches("Expect ';' after expression", exception.Message);
+            Assert.Matches("Expect identifier after '.'", exception.Message);
         }
 
         [Fact]

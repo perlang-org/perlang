@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Perlang
 {
@@ -23,6 +24,7 @@ namespace Perlang
             TR VisitUnaryPrefixExpr(UnaryPrefix expr);
             TR VisitUnaryPostfixExpr(UnaryPostfix expr);
             TR VisitIdentifierExpr(Identifier expr);
+            TR VisitGetExpr(Get expr);
         }
 
         //
@@ -91,6 +93,10 @@ namespace Perlang
                     if (Callee is Identifier variable)
                     {
                         return variable.Name.Lexeme;
+                    }
+                    else if (Callee is Get get)
+                    {
+                        return get.Name.Lexeme;
                     }
                     else
                     {
@@ -233,6 +239,27 @@ namespace Perlang
 
             public override string ToString() =>
                 Name.Lexeme;
+        }
+
+        public class Get : Expr
+        {
+            public Expr Object { get; }
+            public Token Name { get; }
+
+            // TODO: Would be much nicer to have this be immutable, but there is no easy way to accomplish this, since
+            // TODO: the MethodInfo data isn't available at construction time.
+            public MethodInfo Method { get; set; }
+
+            public Get(Expr @object, Token name)
+            {
+                Object = @object;
+                Name = name;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitGetExpr(this);
+            }
         }
 
         public abstract TR Accept<TR>(IVisitor<TR> visitor);

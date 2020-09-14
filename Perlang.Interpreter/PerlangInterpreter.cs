@@ -23,6 +23,9 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
+        private readonly IDictionary<string, PerlangClass> globalClasses =
+            new Dictionary<string, PerlangClass>();
+
         private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
 
@@ -161,6 +164,7 @@ namespace Perlang.Interpreter
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                    AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -205,6 +209,7 @@ namespace Perlang.Interpreter
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
+                    AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -395,6 +400,27 @@ namespace Perlang.Interpreter
             return LookUpVariable(expr.Name, expr);
         }
 
+        public object VisitGetExpr(Expr.Get expr)
+        {
+            object obj = Evaluate(expr.Object);
+
+            if (obj == null)
+            {
+                throw new RuntimeError(expr.Name,
+                    $"Object reference not set to an instance of an object");
+            }
+
+            if (expr.Method != null)
+            {
+                return new TargetAndMethodContainer(obj, expr.Method);
+            }
+            else
+            {
+                throw new RuntimeError(expr.Name,
+                    $"Internal runtime error: Expected expr.Method to be non-null");
+            }
+        }
+
         private Binding GetVariableOrFunctionBinding(Expr expr)
         {
             if (localBindings.ContainsKey(expr))
@@ -536,6 +562,11 @@ namespace Perlang.Interpreter
             localBindings[binding.ReferringExpr] = binding;
         }
 
+        private void AddGlobalClass(string name, PerlangClass perlangClass)
+        {
+            globalClasses[name] = perlangClass;
+        }
+
         public void ExecuteBlock(IEnumerable<Stmt> statements, IEnvironment blockEnvironment)
         {
             IEnvironment previousEnvironment = currentEnvironment;
@@ -558,6 +589,12 @@ namespace Perlang.Interpreter
         public VoidObject VisitBlockStmt(Stmt.Block stmt)
         {
             ExecuteBlock(stmt.Statements, new PerlangEnvironment(currentEnvironment));
+            return VoidObject.Void;
+        }
+
+        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        {
+            currentEnvironment.Define(stmt.Name.Lexeme, globalClasses[stmt.Name.Lexeme]);
             return VoidObject.Void;
         }
 
@@ -775,8 +812,20 @@ namespace Perlang.Interpreter
                         }
                     }
 
+                case TargetAndMethodContainer container:
+                    if (expr.Callee is Expr.Get)
+                    {
+                        return container.Method.Invoke(container.Target, arguments.ToArray());
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Paren,
+                            $"Internal error: Expected Get expression, not {expr.Callee}.");
+                    }
+
                 default:
-                    throw new RuntimeError(expr.Paren, $"Can only call functions and classes, not {callee}.");
+                    throw new RuntimeError(expr.Paren,
+                        $"Can only call functions, classes and native methods, not {callee}.");
             }
         }
     }
