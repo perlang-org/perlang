@@ -23,7 +23,7 @@ namespace Perlang.Tests.Integration
             var exception = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Undefined variable 'die_hard'", exception.Message);
+            Assert.Matches("Undefined identifier 'die_hard'", exception.Message);
         }
     }
 }

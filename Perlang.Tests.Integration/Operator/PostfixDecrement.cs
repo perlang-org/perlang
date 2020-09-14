@@ -31,7 +31,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Undefined variable 'x'", exception.Message);
+            Assert.Matches("Undefined identifier 'x'", exception.Message);
         }
 
         [Fact]

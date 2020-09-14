@@ -15,23 +15,23 @@ namespace Perlang.Tests.Integration.Stdlib
         // }
 
         [Fact]
-        public void base64_encode_with_no_arguments_throws_the_expected_exception()
+        public void Base64_encode_with_no_arguments_throws_the_expected_exception()
         {
-            var result = EvalWithTypeValidationErrorCatch("base64_encode()");
+            var result = EvalWithTypeValidationErrorCatch("Base64.encode()");
             var exception = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Contains("Function 'base64_encode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
+            Assert.Contains("Method 'encode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
         [Fact]
-        public void base64_encode_with_a_string_argument_returns_the_expected_result()
+        public void Base64_encode_with_a_string_argument_returns_the_expected_result()
         {
-            Assert.Equal("aGVqIGhlag==", Eval("base64_encode(\"hej hej\")"));
+            Assert.Equal("aGVqIGhlag==", Eval("Base64.encode(\"hej hej\")"));
         }
 
         [Fact]
-        public void base64_encode_with_a_long_string_argument_returns_the_expected_result()
+        public void Base64_encode_with_a_long_string_argument_returns_the_expected_result()
         {
             var sb = new StringBuilder();
 
@@ -45,19 +45,19 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Equal(
                 "aGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWpoZWogaGVqLCBoZW1za3QgbXlja2V0IGhlamhlaiBo\r\n" +
                 "ZWosIGhlbXNrdCBteWNrZXQgaGVqaGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWou",
-                Eval($"base64_encode(\"{sb}.\")")
+                Eval($"Base64.encode(\"{sb}.\")")
             );
         }
 
         [Fact]
-        public void base64_encode_with_a_numeric_argument_throws_the_expected_exception()
+        public void Base64_encode_with_a_numeric_argument_throws_the_expected_exception()
         {
-            var result = EvalWithTypeValidationErrorCatch("base64_encode(123.45)");
+            var result = EvalWithTypeValidationErrorCatch("Base64.encode(123.45)");
             var runtimeError = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
 
-            Assert.Equal("Cannot pass System.Double argument as System.String parameter to base64_encode()",
+            Assert.Equal("Cannot pass System.Double argument as System.String parameter to encode()",
                 runtimeError.Message);
         }
     }

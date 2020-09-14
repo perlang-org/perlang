@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using Humanizer;
 using Perlang.Interpreter.Extensions;
@@ -269,25 +270,11 @@ namespace Perlang.Interpreter.Typing
 
                 if (expr.Callee is Expr.Get get)
                 {
-                    if (get.Method != null && get.TypeReference?.ClrType != null)
+                    if (get.Methods.Any() && get.TypeReference.ClrType != null)
                     {
                         // All is fine, we have a type.
                         expr.TypeReference.ClrType = get.TypeReference.ClrType;
                         return VoidObject.Void;
-                    }
-                    else if (get.Method == null)
-                    {
-                        throw new TypeValidationError(
-                            expr.Paren,
-                            $"Internal compiler error: Method was null in {get} expression"
-                        );
-                    }
-                    else if (get.TypeReference == null)
-                    {
-                        throw new TypeValidationError(
-                            expr.Paren,
-                            $"Internal compiler error: TypeReference in {get} expression"
-                        );
                     }
                     else if (get.TypeReference.ClrType == null)
                     {
@@ -372,7 +359,7 @@ namespace Perlang.Interpreter.Typing
 
                     if (typeReference == null)
                     {
-                        throw new NameResolutionError(expr.Name, $"Undefined variable '{expr.Name.Lexeme}'");
+                        throw new NameResolutionError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
                     }
 
                     if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
@@ -395,7 +382,7 @@ namespace Perlang.Interpreter.Typing
                 // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
                 // It still feels somewhat better than allowing any kind of wild binding to pass through at this
                 // point.
-                if (binding is ClassBinding || binding == null)
+                if (binding is ClassBinding || binding is NativeClassBinding || binding == null)
                 {
                     Type type = expr.Object.TypeReference.ClrType;
 
@@ -404,11 +391,13 @@ namespace Perlang.Interpreter.Typing
                     // I see no way around this if we want to retain snake_case (which we do).
                     string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
 
-                    // TODO: Support parameterized methods here. All it takes (...) is for us to provide an array of the
-                    // TODO: argument types to the GetMethod() call here.
-                    MethodInfo method = type.GetMethod(pascalizedMethodName, new Type[] {});
+                    // TODO: Move this logic to new ReflectionHelper class
+                    //MethodInfo method = type.GetMethod(pascalizedMethodName, new Type[] { typeof(String) });
+                    var methods = type.GetMethods()
+                        .Where(mi => mi.Name == pascalizedMethodName)
+                        .ToImmutableArray();
 
-                    if (method == null)
+                    if (methods.IsEmpty)
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.Name,
@@ -418,8 +407,10 @@ namespace Perlang.Interpreter.Typing
                         return VoidObject.Void;
                     }
 
-                    expr.Method = method;
-                    expr.TypeReference.ClrType = method.ReturnType;
+                    expr.Methods = methods;
+
+                    // This is actually safe, since return-type-based polymorphism isn't allowed in .NET.
+                    expr.TypeReference.ClrType = methods.First().ReturnType;
                 }
                 else
                 {
@@ -654,18 +645,108 @@ namespace Perlang.Interpreter.Typing
 
             public override VoidObject VisitCallExpr(Expr.Call expr)
             {
-                Binding binding;
-
                 if (expr.Callee is Expr.Get get)
                 {
-                    // TODO: Creating this every time a given method is called is a bit inefficient, but I don't really
-                    // TODO: see any easy way around it.
-                    binding = new MethodBinding(get.Method, expr);
+                    VisitCallExprForGetCallee(expr, get);
                 }
                 else
                 {
-                    binding = getVariableOrFunctionCallback(expr);
+                    VisitCallExprForOtherCallee(expr);
                 }
+
+                return VoidObject.Void;
+            }
+
+            private void VisitCallExprForGetCallee(Expr.Call call, Expr.Get get)
+            {
+                string methodName = get.Name.Lexeme;
+
+                if (get.Methods.Length == 1)
+                {
+                    MethodInfo method = get.Methods.Single();
+                    var parameters = method.GetParameters();
+
+                    // There is exactly one potential method to call in this case. We use this fact to provide better
+                    // error messages to the caller than when calling an overloaded method.
+                    if (parameters.Length != call.Arguments.Count)
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(call.Paren,
+                            $"Method '{methodName}' has {parameters.Length} parameter(s) but was called with {call.Arguments.Count} argument(s)"));
+                        return;
+                    }
+
+                    for (int i = 0; i < call.Arguments.Count; i++)
+                    {
+                        ParameterInfo parameter = parameters[i];
+                        Expr argument = call.Arguments[i];
+
+                        if (!argument.TypeReference.IsResolved)
+                        {
+                            throw new PerlangInterpreterException(
+                                $"Internal compiler error: Argument '{argument}' to function {methodName} not resolved");
+                        }
+
+                        if (!CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                        {
+                            // Very likely refers to a native method, where parameter names are not available at this point.
+                            typeValidationErrorCallback(new TypeValidationError(
+                                argument.TypeReference.TypeSpecifier,
+                                $"Cannot pass {argument.TypeReference.ClrType} argument as {parameter.ParameterType} parameter to {methodName}()"));
+                        }
+                    }
+                }
+                else
+                {
+                    // Method is overloaded. Try to resolve the best match we can find.
+                    foreach (MethodInfo method in get.Methods)
+                    {
+                        var parameters = method.GetParameters();
+
+                        if (parameters.Length != call.Arguments.Count)
+                        {
+                            // The number of parameters do not match, so this method will never be a suitable candidate
+                            // for our expression.
+                            continue;
+                        }
+
+                        bool coercionsFailed = false;
+
+                        for (int i = 0; i < call.Arguments.Count; i++)
+                        {
+                            ParameterInfo parameter = parameters[i];
+                            Expr argument = call.Arguments[i];
+
+                            if (!argument.TypeReference.IsResolved)
+                            {
+                                throw new PerlangInterpreterException(
+                                    $"Internal compiler error: Argument '{argument}' to method {methodName} not resolved");
+                            }
+
+                            if (!CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                            {
+                                coercionsFailed = true;
+                                break;
+                            }
+                        }
+
+                        if (!coercionsFailed)
+                        {
+                            // We have found a suitable overload to use. Update the expression
+                            get.Methods = ImmutableArray.Create(method);
+                            return;
+                        }
+                    }
+
+                    typeValidationErrorCallback(
+                        new NameResolutionError(call.Paren,
+                            $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters.")
+                    );
+                }
+            }
+
+            private void VisitCallExprForOtherCallee(Expr.Call expr)
+            {
+                Binding binding = getVariableOrFunctionCallback(expr);
 
                 if (binding == null)
                 {
@@ -674,7 +755,7 @@ namespace Perlang.Interpreter.Typing
                             $"Attempting to call undefined function '{expr.CalleeToString}'")
                     );
 
-                    return VoidObject.Void;
+                    return;
                 }
 
                 IList<Parameter> parameters;
@@ -695,7 +776,7 @@ namespace Perlang.Interpreter.Typing
                         functionName = function.Name.Lexeme;
                         break;
 
-                    case INamedParameterizedBinding nativeBinding:
+                    case NativeBinding nativeBinding:
                         parameters = nativeBinding.Parameters;
                         functionName = nativeBinding.FunctionName;
                         break;
@@ -709,7 +790,7 @@ namespace Perlang.Interpreter.Typing
                 {
                     typeValidationErrorCallback(new TypeValidationError(expr.Paren,
                         $"Function '{functionName}' has {parameters.Count} parameter(s) but was called with {expr.Arguments.Count} argument(s)"));
-                    return VoidObject.Void;
+                    return;
                 }
 
                 for (int i = 0; i < expr.Arguments.Count; i++)
@@ -727,19 +808,19 @@ namespace Perlang.Interpreter.Typing
                     {
                         if (parameter.Name != null)
                         {
-                            typeValidationErrorCallback(new TypeValidationError(argument.TypeReference.TypeSpecifier,
+                            typeValidationErrorCallback(new TypeValidationError(
+                                argument.TypeReference.TypeSpecifier,
                                 $"Cannot pass {argument.TypeReference.ClrType} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType}' to {functionName}()"));
                         }
                         else
                         {
-                            // Very likely refers to a native method, where method names are not available at this point.
-                            typeValidationErrorCallback(new TypeValidationError(argument.TypeReference.TypeSpecifier,
+                            // Very likely refers to a native method, where parameter names are not available at this point.
+                            typeValidationErrorCallback(new TypeValidationError(
+                                argument.TypeReference.TypeSpecifier,
                                 $"Cannot pass {argument.TypeReference.ClrType} argument as {parameter.TypeReference.ClrType} parameter to {functionName}()"));
                         }
                     }
                 }
-
-                return VoidObject.Void;
             }
 
             //
@@ -789,14 +870,7 @@ namespace Perlang.Interpreter.Typing
 
                 if (stmt.Value != null)
                 {
-                    if (stmt.Value.TypeReference == null)
-                    {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.Keyword,
-                            $"Internal compiler error: return Stmt missing a TypeReference"));
-
-                        sanityCheckFailed = true;
-                    }
-                    else if (!stmt.Value.TypeReference.IsResolved)
+                    if (!stmt.Value.TypeReference.IsResolved)
                     {
                         typeValidationErrorCallback(new TypeValidationError(stmt.Keyword,
                             $"Internal compiler error: return {stmt.Value} inference has not been attempted"));
@@ -904,7 +978,26 @@ namespace Perlang.Interpreter.Typing
             private static bool CanBeCoercedInto(TypeReference targetTypeReference,
                 TypeReference sourceTypeReference)
             {
-                if (targetTypeReference.ClrType == sourceTypeReference.ClrType)
+                return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType);
+            }
+
+            /// <summary>
+            /// Determines if a value of <paramref name="sourceType"/> can be coerced into
+            /// <paramref name="targetType"/>.
+            ///
+            /// The <![CDATA[source]]> and <![CDATA[target]]> concepts are important here. Sometimes values can
+            /// be coerced in one direction but not the other. For example, an int can be coerced to a long, but not
+            /// the other way around (without an explicit type cast). The same goes for unsigned integer types; they
+            /// can not be coerced to their signed counterpart (uint -> int), but they can be coerced to a larger
+            /// signed type if available.
+            /// </summary>
+            /// <param name="targetType">the target type</param>
+            /// <param name="sourceType">the source type</param>
+            /// <returns>true if a source value can be coerced into the target type, false otherwise</returns>
+            private static bool CanBeCoercedInto(Type targetType, Type sourceType)
+            {
+                // TODO: Implement some of these coercions being advertised in the XML docs. ;)
+                if (targetType == sourceType)
                 {
                     return true;
                 }

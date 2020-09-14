@@ -62,7 +62,7 @@ namespace Perlang
         /// type inference will be attempted.
         /// </summary>
         /// <param name="typeSpecifier">The token providing the type specifier. (e.g. 'int' or 'string')</param>
-        public TypeReference(Token typeSpecifier)
+        public TypeReference(Token? typeSpecifier)
         {
             TypeSpecifier = typeSpecifier;
         }
