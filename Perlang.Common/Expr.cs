@@ -1,3 +1,5 @@
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -229,7 +231,7 @@ namespace Perlang
 
             public Identifier(Token name)
             {
-                Name = name;
+                Name = name ?? throw new ArgumentException("name cannot be null");
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
@@ -248,11 +250,11 @@ namespace Perlang
 
             // TODO: Would be much nicer to have this be immutable, but there is no easy way to accomplish this, since
             // TODO: the MethodInfo data isn't available at construction time.
-            public MethodInfo Method { get; set; }
+            public MethodInfo? Method { get; set; }
 
             public Get(Expr @object, Token name)
             {
-                Object = @object;
+                Object = @object ?? throw new ArgumentException("object cannot be null");
                 Name = name;
             }
 

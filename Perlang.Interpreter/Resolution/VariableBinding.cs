@@ -1,3 +1,4 @@
+#nullable enable
 namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
@@ -7,7 +8,7 @@ namespace Perlang.Interpreter.Resolution
     {
         public int Distance { get; }
 
-        public VariableBinding(TypeReference typeReference, int distance, Expr referringExpr) :
+        public VariableBinding(TypeReference? typeReference, int distance, Expr referringExpr) :
             base(typeReference, referringExpr)
         {
             Distance = distance;
