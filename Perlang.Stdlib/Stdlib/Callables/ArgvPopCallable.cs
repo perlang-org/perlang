@@ -3,7 +3,7 @@ using Perlang.Exceptions;
 
 namespace Perlang.Stdlib.Callables
 {
-    [GlobalCallable("argv_pop")]
+    [GlobalFunction("argv_pop")]
     public class ArgvPopCallable
     {
         public string Call(IInterpreter interpreter)

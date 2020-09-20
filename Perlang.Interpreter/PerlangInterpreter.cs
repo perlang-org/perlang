@@ -17,14 +17,19 @@ namespace Perlang.Interpreter
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
 
-        private readonly IDictionary<string, TypeReferenceNativeFunction> globalCallables =
+        private readonly IDictionary<string, TypeReferenceNativeFunction> globalFunctions =
             new Dictionary<string, TypeReferenceNativeFunction>();
 
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
-        private readonly IDictionary<string, PerlangClass> globalClasses =
-            new Dictionary<string, PerlangClass>();
+        /// <summary>
+        /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
+        /// </summary>
+        private readonly IDictionary<string, object> globalClasses =
+            new Dictionary<string, object>();
+
+        private readonly ImmutableDictionary<string, Type> nativeClasses;
 
         private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
@@ -49,29 +54,43 @@ namespace Perlang.Interpreter
 
             currentEnvironment = globals;
 
-            RegisterGlobalCallables();
+            nativeClasses = RegisterGlobalFunctionsAndClasses();
         }
 
-        private void RegisterGlobalCallables()
+        private ImmutableDictionary<string, Type> RegisterGlobalFunctionsAndClasses()
         {
             // Because of implicit dependencies, this is not loaded automatically; we must manually load this
             // assembly to ensure all Callables within it are registered in the global namespace.
             Assembly.Load("Perlang.StdLib");
 
-            var globalCallablesQueryable = AppDomain.CurrentDomain.GetAssemblies()
+            RegisterGlobalFunctions();
+            RegisterGlobalClasses();
+
+            // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
+            // we can feed it to the Resolver class.
+            return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type) kvp.Value);
+        }
+
+        /// <summary>
+        /// Registers global functions defined in native .NET code.
+        /// </summary>
+        /// <exception cref="PerlangInterpreterException">in case of errors</exception>
+        private void RegisterGlobalFunctions()
+        {
+            var globalFunctionsQueryable = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
                 .Select(t => new
                 {
                     Type = t,
-                    CallableAttribute = t.GetCustomAttributes(typeof(GlobalCallableAttribute), inherit: false)
-                        .Cast<GlobalCallableAttribute>()
+                    GlobalFunctionAttribute = t.GetCustomAttributes(typeof(GlobalFunctionAttribute), inherit: false)
+                        .Cast<GlobalFunctionAttribute>()
                         .FirstOrDefault()
                 })
-                .Where(t => t.CallableAttribute != null);
+                .Where(t => t.GlobalFunctionAttribute != null);
 
-            foreach (var globalCallable in globalCallablesQueryable)
+            foreach (var globalFunction in globalFunctionsQueryable)
             {
-                MethodInfo method = globalCallable.Type.GetMethod("Call");
+                MethodInfo method = globalFunction.Type.GetMethod("Call");
 
                 if (method == null)
                 {
@@ -92,7 +111,7 @@ namespace Perlang.Interpreter
                         $"Invalid callable encountered: First parameter of Call method must be IInterpreter, not {parameters[0].ParameterType.Name}");
                 }
 
-                object callableInstance = Activator.CreateInstance(globalCallable.Type);
+                object callableInstance = Activator.CreateInstance(globalFunction.Type);
                 var callableReturnTypeReference = new TypeReference(method.ReturnType);
 
                 // The first parameter is the IInterpreter instance; it's not interesting in this context. We tuck away the
@@ -101,9 +120,39 @@ namespace Perlang.Interpreter
                     .Select(pi => pi.ParameterType)
                     .ToArray();
 
-                globalCallables[globalCallable.CallableAttribute.Name] = new TypeReferenceNativeFunction(
+                globalFunctions[globalFunction.GlobalFunctionAttribute.Name] = new TypeReferenceNativeFunction(
                     callableReturnTypeReference, callableInstance, method, callableParameters
                 );
+            }
+        }
+
+        /// <summary>
+        /// Registers global classes defined in native .NET code.
+        /// </summary>
+        /// <exception cref="PerlangInterpreterException">in case of errors</exception>
+        private void RegisterGlobalClasses()
+        {
+            var globalClassesQueryable = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Select(t => new
+                {
+                    Type = t,
+                    ClassAttribute = t.GetCustomAttribute<GlobalClassAttribute>()
+                })
+                .Where(t => t.ClassAttribute != null);
+
+            foreach (var globalClass in globalClassesQueryable)
+            {
+                var name = globalClass.ClassAttribute.Name ?? globalClass.Type.Name;
+
+                if (globals.Get(name) != null)
+                {
+                    throw new PerlangInterpreterException(
+                        $"Attempted to define global class '{name}', but another identifier with the same name already exists"
+                    );
+                }
+
+                globalClasses[name] = globalClass.Type;
             }
         }
 
@@ -163,8 +212,10 @@ namespace Perlang.Interpreter
                 // evaluation - resolving variable and function names.
 
                 bool hasResolveErrors = false;
-                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
-                    AddGlobalClass,
+
+                var resolver = new Resolver(
+                    globalFunctions.ToImmutableDictionary(), nativeClasses,
+                    AddLocal, AddGlobal, AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -208,8 +259,9 @@ namespace Perlang.Interpreter
                 // a method call or reading a variable.
 
                 bool hasResolveErrors = false;
-                var resolver = new Resolver(globalCallables.ToImmutableDictionary(), AddLocal, AddGlobal,
-                    AddGlobalClass,
+                var resolver = new Resolver(
+                    globalFunctions.ToImmutableDictionary(), nativeClasses,
+                    AddLocal, AddGlobal, AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
@@ -410,9 +462,9 @@ namespace Perlang.Interpreter
                     $"Object reference not set to an instance of an object");
             }
 
-            if (expr.Method != null)
+            if (expr.Methods.SingleOrDefault() != null)
             {
-                return new TargetAndMethodContainer(obj, expr.Method);
+                return new TargetAndMethodContainer(obj, expr.Methods.Single());
             }
             else
             {
@@ -451,9 +503,14 @@ namespace Perlang.Interpreter
                         $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
                 }
             }
-            else if (globalCallables.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction globalCallable))
+            else if (globalFunctions.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction globalCallable))
             {
                 return globalCallable;
+            }
+            else if (globalClasses.TryGetValue(name.Lexeme, out object globalClass))
+            {
+                // TODO: This probably means we could drop Perlang classes from being registered as globals as well.
+                return globalClass;
             }
             else
             {

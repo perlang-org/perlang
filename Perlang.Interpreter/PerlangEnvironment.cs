@@ -47,9 +47,14 @@ namespace Perlang.Interpreter
 
         internal object Get(Token name)
         {
-            if (values.ContainsKey(name.Lexeme))
+            return Get(name.Lexeme);
+        }
+
+        internal object Get(string name)
+        {
+            if (values.ContainsKey(name))
             {
-                return values[name.Lexeme];
+                return values[name];
             }
 
             // Fall-back to the enclosing scope if the variable isn't found in the current scope.

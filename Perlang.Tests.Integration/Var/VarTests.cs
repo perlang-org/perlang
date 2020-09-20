@@ -300,7 +300,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Undefined variable 'not_defined'", exception.Message);
+            Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.TypeValidationErrors.First();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Undefined variable 'not_defined'", exception.Message);
+            Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
         [Fact]
@@ -352,7 +352,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.TypeValidationErrors.FirstOrDefault();
 
             Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Undefined variable 'not_defined'", exception.Message);
+            Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
         [Fact]

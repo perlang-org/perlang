@@ -10,8 +10,4 @@
       <ProjectReference Include="..\Perlang.Common\Perlang.Common.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Stdlib" />
-    </ItemGroup>
-
 </Project>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Perlang.Stdlib.Callables
 {
-    [GlobalCallable("clock")]
+    [GlobalFunction("clock")]
     public class Clock
     {
         public object Call(IInterpreter interpreter)

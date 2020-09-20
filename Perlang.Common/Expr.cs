@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 
 namespace Perlang
@@ -88,7 +90,7 @@ namespace Perlang
             public Token Paren { get; }
             public List<Expr> Arguments { get; }
 
-            public string CalleeToString
+            public string? CalleeToString
             {
                 get
                 {
@@ -119,7 +121,7 @@ namespace Perlang
                 return visitor.VisitCallExpr(this);
             }
 
-            public override string ToString()
+            public override string? ToString()
             {
                 if (Callee is Identifier variable)
                 {
@@ -240,7 +242,7 @@ namespace Perlang
             }
 
             public override string ToString() =>
-                Name.Lexeme;
+                $"#<Identifier {Name.Lexeme}>";
         }
 
         public class Get : Expr
@@ -248,9 +250,10 @@ namespace Perlang
             public Expr Object { get; }
             public Token Name { get; }
 
-            // TODO: Would be much nicer to have this be immutable, but there is no easy way to accomplish this, since
-            // TODO: the MethodInfo data isn't available at construction time.
-            public MethodInfo? Method { get; set; }
+            // TODO: Would be much nicer to have this be without setter, but there is no easy way to accomplish this,
+            // TODO: since the MethodInfo data isn't available at construction time. Also, we replace this with the
+            // TODO: single matching MethodInfo after method overload resolution has completed.
+            public ImmutableArray<MethodInfo> Methods { get; set; }
 
             public Get(Expr @object, Token name)
             {

@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
+using Perlang.Stdlib;
 using Xunit;
 
 namespace Perlang.Tests
@@ -14,10 +16,33 @@ namespace Perlang.Tests
     public class TypeValidatorTest
     {
         [Fact]
+        public void Validate_Call_expr_does_something_useful()
+        {
+            // Arrange
+            var name = new Token(TokenType.IDENTIFIER, "to_string", null, 1);
+            var identifier = new Expr.Identifier(name);
+            var get = new Expr.Get(identifier, name);
+            var paren = new Token(TokenType.RIGHT_PAREN, ")", null, 1);
+            var call = new Expr.Call(get, paren, new List<Expr>());
+            var bindings = new Dictionary<Expr, Binding>
+            {
+                {identifier, new NativeClassBinding(identifier, typeof(string))}
+            };
+
+            var typeValidationErrors = new List<TypeValidationError>();
+
+            // Act
+            TypeValidator.Validate(call, error => typeValidationErrors.Add(error), expr => bindings[expr]);
+
+            // Assert
+            Assert.Empty(typeValidationErrors);
+        }
+
+        [Fact]
         public void Validate_Get_expr_yields_expected_error_for_undefined_variable()
         {
             // Arrange
-            var name = new Token(TokenType.IDENTIFIER, "Foo", null, -1);
+            var name = new Token(TokenType.IDENTIFIER, "foo", null, -1);
             var identifier = new Expr.Identifier(name);
             var get = new Expr.Get(identifier, name);
 
@@ -34,7 +59,7 @@ namespace Perlang.Tests
 
             // Assert
             Assert.Single(typeValidationErrors);
-            Assert.Matches(typeValidationErrors.Single().Message, "Undefined variable 'Foo'");
+            Assert.Matches(typeValidationErrors.Single().Message, "Undefined identifier 'foo'");
         }
 
         [Fact]
