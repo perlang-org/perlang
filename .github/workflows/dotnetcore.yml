@@ -13,7 +13,7 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Re-generate auto-generated files
-      run: make auto_generated
+      run: make auto-generated
     - name: Build with dotnet
       run: dotnet build --configuration Release
 
@@ -27,6 +27,6 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Re-generate auto-generated files
-      run: make auto_generated
+      run: make auto-generated
     - name: Run test suite
       run: dotnet test --configuration Release --verbosity normal
