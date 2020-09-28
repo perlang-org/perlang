@@ -1,0 +1,9 @@
+/* main.css - CSS overrides go here */
+
+body {
+    font-size: 15px;
+}
+
+.sideaffix {
+    font-size: 13px;
+}

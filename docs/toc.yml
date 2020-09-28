@@ -1,0 +1,14 @@
+- name: Home
+  href: index.md
+
+- name: Contribute
+  href: contribute/
+  homepage: contribute/index.md
+
+- name: Download
+  href: download/
+  homepage: download/index.md
+
+- name: API Documentation
+  href: api/
+  homepage: api/index.md
