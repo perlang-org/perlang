@@ -24,9 +24,16 @@ namespace Perlang.Tests.Integration.Stdlib
         }
 
         [Fact]
-        public void Base64_decode_with_a_string_argument_returns_the_expected_result()
+        public void Base64_decode_with_a_padded_string_argument_returns_the_expected_result()
         {
             Assert.Equal("hej hej", Eval("Base64.decode(\"aGVqIGhlag==\")"));
+        }
+
+        [Fact]
+        public void Base64_decode_with_an_non_padded_string_argument_returns_the_expected_result()
+        {
+            // This used to fail at one point, which is why we added a test for it.
+            Assert.Equal("hej hej", Eval("Base64.decode(\"aGVqIGhlag\")"));
         }
 
         [Fact]
