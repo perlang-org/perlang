@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      # TODO: Replace Perlang** with src/ once we have moved all the projects in there.
+      # TODO: https://github.com/perlun/perlang/issues/82
+      - Perlang**
 
 jobs:
   build:

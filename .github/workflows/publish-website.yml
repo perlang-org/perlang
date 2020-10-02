@@ -1,0 +1,34 @@
+name: Publish website
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      # TODO: Replace Perlang** with src/ once we have moved all the projects in there.
+      # TODO: https://github.com/perlun/perlang/issues/82
+      - docs/**
+      - Perlang**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Rebuild website
+      run: make docs
+
+    #
+    # Upload files to public web server via rsync
+    #
+    - name: Upload generated web site
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.WWW_SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "./_site/"
+          REMOTE_HOST: ${{ secrets.WWW_SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.WWW_SSH_REMOTE_USER }}
+          TARGET: ${{ secrets.WWW_SSH_REMOTE_TARGET }}

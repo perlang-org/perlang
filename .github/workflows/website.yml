@@ -1,9 +1,15 @@
 name: Website
 
-on: [push]
+# No need to run this on master pushes since publish-website takes care of it
+# for that branch.
+on:
+  push:
+    branches:
+      - '*'
+      - '!master'
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
