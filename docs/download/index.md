@@ -1,4 +1,4 @@
-# Installing Perlang
+# Downloading Perlang
 
 ## Released versions
 

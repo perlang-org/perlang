@@ -62,6 +62,10 @@
         "globalMetadataFiles": [],
         "fileMetadataFiles": [],
 
+        "globalMetadata": {
+            "_appFooter": "© Copyright 2020 The Perlang Authors"
+        },
+
         // Our custom template changes are in docs/template
         "template": [
             "default",
@@ -70,9 +74,6 @@
 
         "postProcessors": [],
         "markdownEngineName": "markdig",
-        "noLangKeyword": false,
-        "keepFileLink": false,
-        "cleanupCacheHistory": false,
-        "disableGitFeatures": false
+        "noLangKeyword": false
     }
 }
