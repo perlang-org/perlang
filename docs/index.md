@@ -6,19 +6,19 @@ Welcome to the Perlang documentation. In this documentation, we try to describe 
 
 ## Background - Why Perlang?
 
-Perlang was born in my heart sometime around 2017-2018. I had been working as a programmer for a long time, working with languages like Perl, Java, PHP, C++, C#. At this time for me, my focus had largely moved over to spending a lot of time Ruby code. I also did some marginal  vyu8CoffeeScript or JavaScript work occasionally.
+Perlang - _The Per Language_ - was born in my heart sometime around 2017-2018. I had been working as a programmer for a long time, working with languages like Perl, Java, PHP, C++ and C#. At this time for me, my focus had largely moved over to spending a lot of time reading and writing Ruby code. I also did some marginal CoffeeScript or JavaScript work occasionally.
 
-Some of these languages felt inherently more pleasant to work with than others. Sometimes, my view of a language was formed not only by facts but also by "hearsay"; for example, other people complaining about a language being overly verbose (like Java), rather than having spent a great amount of time working with this language lately.
+Some of these languages felt inherently more pleasant to work with than others. I also heard people complaining about languages like Java being overly verbose. As for me, I hadn't done very much Java programming since working with it a long time ago.
 
-Of the languages mentioned, Ruby was a language that _particularly_ made me frustrated and annoyed. If you don't know Ruby from beforehand, it's a dynamically typed scripting language, often used for writing web application backends (with "Ruby on Rails", which is a highly popular web application framework written in Ruby). Ruby definitely has its strengths, and a few years later, I started to appreciate it much more, perhaps because I was now using it for use cases where it was an even better fit than his previous projects.
+Of the languages mentioned, Ruby was a language that _particularly_ made me frustrated and annoyed. If you don't know Ruby from beforehand, it's a dynamically typed scripting language, often used for writing web application backends (with "Ruby on Rails", which is a highly popular web application framework written in Ruby). Ruby definitely has its strengths, and a few years later, I started to appreciate it much more, perhaps because I was now using it for use cases where it was an even better fit than for my previous projects.
 
 ## Things I was missing in Ruby
 
 ### Optional typing
 
-Ruby is a dynamically typed language, so variables, fields and method parameters are inherently untyped. However, unlike modern languages like [TypeScript](https://www.typescriptlang.org/) that provide a way to add an "optional" type specifier for the variable or parameter, Ruby provides no such mechanism. Why is this a problem?
+Ruby is a dynamically typed language, so variables, fields and method parameters are inherently untyped. However, unlike modern languages like [TypeScript](https://www.typescriptlang.org/) that provide a way to add an "optional" type specifier for a variable or parameter, Ruby provides no such mechanism. Why is this a problem?
 
-Well, it doesn't have to be, depending on whether you are dynamically or statically inclined. But regardless of your personal preferences, types _exist_. They are real. It's not like they don't exist in a dynamically typed language, it's just that all the type checking has been deferred to a later stage - to runtime.
+Well, it doesn't have to be, depending on whether you are dynamically or statically inclined as a person. But regardless of our personal preferences, types _exist_. They are real. It's not like they don't exist in a dynamically typed language, it's just that all the type checking has been deferred to a later stage - to runtime.
 
 For me, when writing code, I tend to think about what type of objects a method will receive. A simple example to get you going:
 
@@ -32,7 +32,7 @@ Perhaps I know when writing the code above that the _only_ valid type of paramet
 
 When I write Ruby code, I'm essentially forced to **throw away** this information in my mind when writing the code. There is absolutely no way to write down in my program's source code what type a given parameter is expected to be of. For me, this is frustrating since it means that in the conversion from a mental model (in my head) to source code, I am essentially _forced_ to remove information. Not redundant information, but actually information that would help the computer run my program in a more efficient way.
 
-This leads us naturally to my next point:
+This leads us naturally over to my next point, namely:
 
 ### Static type analysis
 
@@ -68,7 +68,7 @@ Ruby uses an extreme form of "dynamic dispatch" when it comes to calling methods
 
 ```ruby
 def foo
-  # Calling a non-existent method
+  # Note how this method is calling another, non-existent method
   bar(123)
 end
 
@@ -98,9 +98,9 @@ $ ruby foo.rb
 You called bar with [123]
 ```
 
-Nice, huh? This functionality is what powers some of the existing [DSL:s](https://en.wikipedia.org/wiki/Domain-specific_language) written in Ruby, like [Sequel](https://github.com/jeremyevans/sequel).
+Nice, huh? This functionality is what powers some of the existing [DSL:s](https://en.wikipedia.org/wiki/Domain-specific_language) written in Ruby, like som parts of the [Sequel](https://github.com/jeremyevans/sequel) library.
 
-I think it's good to have this kind of functionality in the language, but the bad part about it is that there's absolutely no way to "turn it off" for cases where you would prefer a `use strict`-mode or similar. I have had cases when there was a typo in a method call or field/variable reference where this was not caught by the unit tests, and I released an updated version of an (internal) Ruby gem - only to realize my folly a bit later.
+I want to make it clear here that I _do_ think it's good to have this kind of functionality in the language sometimes, but the bad part about it is that there's absolutely no way to "turn it off" for cases where you would prefer a `use strict`-mode or similar. I have had cases when there was a typo in a method call or field/variable reference where this was not caught by the unit tests, and I released an updated version of an (internal) Ruby gem - only to realize my folly a bit later.
 
 It is my strong conviction that a really good programming language should help you avoid easy mistakes like this.
 
