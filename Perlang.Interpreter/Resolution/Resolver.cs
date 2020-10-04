@@ -30,8 +30,8 @@ namespace Perlang.Interpreter.Resolution
         /// <summary>
         /// Creates a new Resolver instance.
         /// </summary>
-        /// <param name="globalFunctions">a dictionary of global functions, with the function name as key</param>
-        /// <param name="globalClasses">a dictionary of global classes, with the class name as key</param>
+        /// <param name="globalFunctions">A dictionary of global functions, with the function name as key.</param>
+        /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
         /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
         /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
         /// <param name="addGlobalExprCallback">A callback used to add an expression to the global scope.</param>

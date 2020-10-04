@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Expressions;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
-using Perlang.Stdlib;
 using Xunit;
 
-namespace Perlang.Tests
+namespace Perlang.Tests.Interpreter
 {
     /// <summary>
     /// Test for <see cref="TypeValidator"/>.
