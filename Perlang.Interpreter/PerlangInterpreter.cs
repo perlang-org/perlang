@@ -651,7 +651,7 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitClassStmt(Stmt.Class stmt)
         {
-            currentEnvironment.Define(stmt.Name.Lexeme, globalClasses[stmt.Name.Lexeme]);
+            currentEnvironment.Define(stmt.Name, globalClasses[stmt.Name.Lexeme]);
             return VoidObject.Void;
         }
 
@@ -664,7 +664,7 @@ namespace Perlang.Interpreter
         public VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             var function = new PerlangFunction(stmt, currentEnvironment);
-            currentEnvironment.Define(stmt.Name.Lexeme, function);
+            currentEnvironment.Define(stmt.Name, function);
             return VoidObject.Void;
         }
 
@@ -706,7 +706,7 @@ namespace Perlang.Interpreter
                 value = Evaluate(stmt.Initializer);
             }
 
-            currentEnvironment.Define(stmt.Name.Lexeme, value);
+            currentEnvironment.Define(stmt.Name, value);
             return VoidObject.Void;
         }
 

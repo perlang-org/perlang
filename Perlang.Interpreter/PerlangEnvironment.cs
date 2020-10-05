@@ -18,9 +18,16 @@ namespace Perlang.Interpreter
             this.enclosing = (PerlangEnvironment)enclosing;
         }
 
-        public void Define(string name, object value)
+        public void Define(Token name, object value)
         {
-            values[name] = value;
+            if (values.ContainsKey(name.Lexeme))
+            {
+                throw new RuntimeError(name, "Variable with this name already declared in this scope.");
+            }
+            else
+            {
+                values[name.Lexeme] = value;
+            }
         }
 
         public object GetAt(int distance, string name)

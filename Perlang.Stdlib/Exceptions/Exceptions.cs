@@ -1,5 +1,3 @@
-using Perlang.Interpreter;
-
 namespace Perlang.Exceptions
 {
     /// <summary>
