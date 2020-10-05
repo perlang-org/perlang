@@ -8,6 +8,20 @@ namespace Perlang.Tests.Integration.Var
     public class VarTests
     {
         [Fact]
+        public void declare_typed_global_does_not_throw_any_error()
+        {
+            // It is an error to declare an implicitly typed variable without an initializer (what type would it be?),
+            // but declaring an uninitialized variable with an explicit type is perfectly fine.
+            string source = @"
+                var a: int;
+            ";
+
+            var result = EvalWithRuntimeCatch(source);
+
+            Assert.Empty(result.RuntimeErrors);
+        }
+
+        [Fact]
         public void collide_with_parameter_throws_expected_error()
         {
             string source = @"
@@ -159,24 +173,23 @@ namespace Perlang.Tests.Integration.Var
         }
 
         [Fact]
-        public void redeclare_global()
+        public void redeclare_global_throws_expected_error()
         {
             string source = @"
                 var a = 1;
-                var a = 2;
+                var a: int;
                 print a;
             ";
 
-            var output = EvalReturningOutput(source);
+            var result = EvalWithRuntimeCatch(source);
+            var exception = result.RuntimeErrors.FirstOrDefault();
 
-            Assert.Equal(new[]
-            {
-                "2"
-            }, output);
+            Assert.Single(result.RuntimeErrors);
+            Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
         [Fact]
-        public void redefine_global()
+        public void redefine_global_variable_throws_expected_error()
         {
             string source = @"
                 var a = 1;
@@ -184,12 +197,11 @@ namespace Perlang.Tests.Integration.Var
                 print a;
             ";
 
-            var output = EvalReturningOutput(source);
+            var result = EvalWithRuntimeCatch(source);
+            var exception = result.RuntimeErrors.FirstOrDefault();
 
-            Assert.Equal(new[]
-            {
-                "2"
-            }, output);
+            Assert.Single(result.RuntimeErrors);
+            Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
         [Fact]
@@ -368,29 +380,6 @@ namespace Perlang.Tests.Integration.Var
             Assert.Single(result.ParseErrors);
 
             Assert.Matches("Error at 'false': Expecting variable name", exception.ToString());
-        }
-
-        [Fact]
-        public void redefining_global_variable_works()
-        {
-            // TODO: I'm not at all convinced this is such a great thing to support. Investigate how Java/C#/Rust
-            // TODO: handles this. I _think_ that it actually works in Rust, but not in the others.
-            // TODO:
-            // TODO: C#: fails
-            // TODO: Java: ??
-            // TODO: Rust: works?
-            string source = @"
-                var a = 1;
-                var a = 2;
-                print a;
-            ";
-
-            var output = EvalReturningOutput(source);
-
-            Assert.Equal(new[]
-            {
-                "2"
-            }, output);
         }
 
         [Fact]

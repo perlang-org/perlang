@@ -79,8 +79,10 @@ namespace Perlang.Interpreter.Typing
         {
             // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
             if (expr == null) throw new ArgumentException("expr cannot be null");
-            if (typeValidationErrorCallback == null) throw new ArgumentException("typeValidationErrorCallback cannot be null");
-            if (getVariableOrFunctionCallback == null) throw new ArgumentException("getVariableOrFunctionCallback cannot be null");
+            if (typeValidationErrorCallback == null)
+                throw new ArgumentException("typeValidationErrorCallback cannot be null");
+            if (getVariableOrFunctionCallback == null)
+                throw new ArgumentException("getVariableOrFunctionCallback cannot be null");
 
             bool typeResolvingFailed = false;
 
@@ -931,32 +933,30 @@ namespace Perlang.Interpreter.Typing
 
                 if (stmt.TypeReference.IsResolved)
                 {
-                    if (!CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
+                    if (stmt.Initializer != null &&
+                        !CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
                     {
                         typeValidationErrorCallback(new TypeValidationError(stmt.TypeReference.TypeSpecifier,
                             $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"));
                     }
                 }
+                else if (stmt.Initializer == null)
+                {
+                    typeValidationErrorCallback(new TypeValidationError(null,
+                        $"Type inference for variable '{stmt.Name.Lexeme}' cannot be performed when initializer is not specified. " +
+                        "Either provide an initializer, or specify the type explicitly."));
+                }
+                else if (!stmt.TypeReference.ExplicitTypeSpecified)
+                {
+                    // FIXME: Let's see if we'll ever go into this branch. If we don't have a test that reproduces
+                    // this once all tests are green, we should consider wiping it from the face off the earth.
+                    typeValidationErrorCallback(new TypeValidationError(null,
+                        $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."));
+                }
                 else
                 {
-                    if (stmt.Initializer == null)
-                    {
-                        typeValidationErrorCallback(new TypeValidationError(null,
-                            $"Type inference for variable '{stmt.Name.Lexeme}' cannot be performed when initializer is not specified. " +
-                            "Either provide an initializer, or specify the type explicitly."));
-                    }
-                    else if (!stmt.TypeReference.ExplicitTypeSpecified)
-                    {
-                        // FIXME: Let's see if we'll ever go into this branch. If we don't have a test that reproduces
-                        // this once all tests are green, we should consider wiping it from the face off the earth.
-                        typeValidationErrorCallback(new TypeValidationError(null,
-                            $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."));
-                    }
-                    else
-                    {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.TypeReference.TypeSpecifier,
-                            $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"));
-                    }
+                    typeValidationErrorCallback(new TypeValidationError(stmt.TypeReference.TypeSpecifier,
+                        $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"));
                 }
 
                 return VoidObject.Void;

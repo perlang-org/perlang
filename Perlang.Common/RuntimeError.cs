@@ -1,6 +1,6 @@
 using System;
 
-namespace Perlang.Interpreter
+namespace Perlang
 {
     public class RuntimeError : Exception
     {
