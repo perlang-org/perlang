@@ -16,8 +16,6 @@ namespace Perlang.ConsoleApp
 {
     public class Program
     {
-        private readonly PerlangInterpreter interpreter;
-
         private static readonly ISet<string> ReplCommands = new HashSet<string>
         {
             "quit"
@@ -26,6 +24,15 @@ namespace Perlang.ConsoleApp
         private static bool hadError;
         private static bool hadRuntimeError;
 
+        private readonly PerlangInterpreter interpreter;
+        private readonly Action<string> standardOutputHandler;
+        private readonly Action<string> standardErrorHandler;
+
+        /// <summary>
+        /// Entry point for the `perlang` binary.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <returns>Zero if the program executed successfully; non-zero otherwise</returns>
         public static int Main(string[] args)
         {
             var rootCommand = new RootCommand
@@ -67,9 +74,16 @@ namespace Perlang.ConsoleApp
             return rootCommand.Invoke(args);
         }
 
-        private Program(IEnumerable<string> arguments = null)
+        internal Program(IEnumerable<string> arguments = null,
+                         Action<string> standardOutputHandler = null,
+                         Action<RuntimeError> runtimeErrorHandler = null)
         {
-            interpreter = new PerlangInterpreter(RuntimeError, arguments: arguments ?? new List<string>());
+            this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
+
+            // TODO: Make it possible to override this at some point, so the caller can separate between these types of output.
+            this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
+
+            interpreter = new PerlangInterpreter(runtimeErrorHandler: runtimeErrorHandler ?? RuntimeError, this.standardOutputHandler, arguments ?? new List<string>());
         }
 
         private void RunFile(string path)
@@ -115,39 +129,39 @@ namespace Perlang.ConsoleApp
             }
         }
 
-        private void Run(string source)
+        internal void Run(string source)
         {
             object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, TypeValidationError);
 
             if (result != null)
             {
-                Console.WriteLine(result);
+                standardOutputHandler(result.ToString());
             }
         }
 
-        private static void PrintBanner()
+        private void PrintBanner()
         {
-            Console.WriteLine($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()})");
+            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()})");
         }
 
-        private static void ScanError(ScanError scanError)
+        private void ScanError(ScanError scanError)
         {
             Report(scanError.Line, "", scanError.Message);
         }
 
-        private static void RuntimeError(RuntimeError error)
+        private void RuntimeError(RuntimeError error)
         {
-            Console.WriteLine($"[line {error.Token.Line}] {error.Message}");
+            standardOutputHandler($"[line {error.Token.Line}] {error.Message}");
             hadRuntimeError = true;
         }
 
-        private static void Report(int line, string where, string message)
+        private void Report(int line, string where, string message)
         {
-            Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
+            standardErrorHandler($"[line {line}] Error{where}: {message}");
             hadError = true;
         }
 
-        private static void Error(Token token, string message)
+        private void Error(Token token, string message)
         {
             if (token.Type == TokenType.EOF)
             {
@@ -172,12 +186,12 @@ namespace Perlang.ConsoleApp
             Error(parseError.Token, parseError.Message);
         }
 
-        private static void ResolveError(ResolveError resolveError)
+        private void ResolveError(ResolveError resolveError)
         {
             Error(resolveError.Token, resolveError.Message);
         }
 
-        private static void TypeValidationError(TypeValidationError typeValidationError)
+        private void TypeValidationError(TypeValidationError typeValidationError)
         {
             Error(typeValidationError.Token, typeValidationError.Message);
         }

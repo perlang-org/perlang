@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,7 +13,13 @@ using static Perlang.Utils;
 
 namespace Perlang.Interpreter
 {
-    public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object>, Stmt.IVisitor<VoidObject>
+    /// <summary>
+    /// Interpreter for Perlang code.
+    ///
+    /// This class is not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously is likely to
+    /// lead to race conditions and is not supported.
+    /// </summary>
+    public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
@@ -22,6 +29,8 @@ namespace Perlang.Interpreter
 
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
+
+        private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
 
         /// <summary>
         /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
@@ -39,13 +48,13 @@ namespace Perlang.Interpreter
         /// <summary>
         /// Creates a new Perlang interpreter instance.
         /// </summary>
-        /// <param name="runtimeErrorHandler">a callback that will be called on runtime errors</param>
-        /// <param name="standardOutputHandler">an optional parameter that will receive output printed to
+        /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors.</param>
+        /// <param name="standardOutputHandler">An optional parameter that will receive output printed to
         ///     standard output. If not provided or null, output will be printed to the standard output of the
-        ///     running process</param>
-        /// <param name="arguments">an optional list of runtime arguments</param>
+        ///     running process.</param>
+        /// <param name="arguments">An optional list of runtime arguments.</param>
         public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler,
-            Action<string> standardOutputHandler = null, IEnumerable<string> arguments = null)
+            Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
@@ -90,7 +99,7 @@ namespace Perlang.Interpreter
 
             foreach (var globalFunction in globalFunctionsQueryable)
             {
-                MethodInfo method = globalFunction.Type.GetMethod("Call");
+                MethodInfo? method = globalFunction.Type.GetMethod("Call");
 
                 if (method == null)
                 {
@@ -111,7 +120,7 @@ namespace Perlang.Interpreter
                         $"Invalid callable encountered: First parameter of Call method must be IInterpreter, not {parameters[0].ParameterType.Name}");
                 }
 
-                object callableInstance = Activator.CreateInstance(globalFunction.Type);
+                object? callableInstance = Activator.CreateInstance(globalFunction.Type);
                 var callableReturnTypeReference = new TypeReference(method.ReturnType);
 
                 // The first parameter is the IInterpreter instance; it's not interesting in this context. We tuck away the
@@ -143,7 +152,7 @@ namespace Perlang.Interpreter
 
             foreach (var globalClass in globalClassesQueryable)
             {
-                var name = globalClass.ClassAttribute.Name ?? globalClass.Type.Name;
+                string name = globalClass.ClassAttribute!.Name ?? globalClass.Type.Name;
 
                 if (globals.Get(name) != null)
                 {
@@ -161,13 +170,19 @@ namespace Perlang.Interpreter
         ///
         /// If provided an expression, returns the result; otherwise, null.
         /// </summary>
-        /// <param name="source">the Perlang source code</param>
-        /// <param name="scanErrorHandler">a handler for scanner errors</param>
-        /// <param name="parseErrorHandler">a handler for parse errors</param>
-        /// <param name="resolveErrorHandler">a handler for resolve errors</param>
-        /// <param name="typeValidationErrorHandler">a handler for type validation errors</param>
-        /// <returns>if the provided source is an expression, the value of the expression. Otherwise, null.</returns>
-        public object Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
+        /// <remarks>
+        /// Note that variables, methods and classes defined in an invocation to this method will persist to subsequent
+        /// invocations. This might seem inconvenient at times, but it makes it possible to implement the Perlang
+        /// REPL in a reasonable way.
+        /// </remarks>
+        /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
+        /// <param name="scanErrorHandler">A handler for scanner errors.</param>
+        /// <param name="parseErrorHandler">A handler for parse errors.</param>
+        /// <param name="resolveErrorHandler">A handler for resolve errors.</param>
+        /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
+        /// <returns>If the provided source is an expression, the value of the expression is returned. Otherwise,
+        /// `null`.</returns>
+        public object? Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
             ResolveErrorHandler resolveErrorHandler, TypeValidationErrorHandler typeValidationErrorHandler)
         {
             if (String.IsNullOrWhiteSpace(source))
@@ -208,6 +223,8 @@ namespace Perlang.Interpreter
 
             if (syntax is List<Stmt> statements)
             {
+                var previousAndNewStatements = previousStatements.Concat(statements).ToImmutableList();
+
                 // The provided code parsed cleanly as a set of statements. Move on to the next phase in the
                 // evaluation - resolving variable and function names.
 
@@ -222,7 +239,7 @@ namespace Perlang.Interpreter
                         resolveErrorHandler(resolveError);
                     });
 
-                resolver.Resolve(statements);
+                resolver.Resolve(previousAndNewStatements);
 
                 if (hasResolveErrors)
                 {
@@ -234,7 +251,7 @@ namespace Perlang.Interpreter
                 bool typeValidationFailed = false;
 
                 TypeValidator.Validate(
-                    statements,
+                    previousAndNewStatements,
                     typeValidationError =>
                     {
                         typeValidationFailed = true;
@@ -248,15 +265,20 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                // All validation was successful => add these statements to the list of "previous statements". Recording
+                // them like this is necessary to be able to declare a variable in one REPL line and refer to it in
+                // another.
+                previousStatements = previousAndNewStatements.ToImmutableList();
+
                 Interpret(statements);
 
                 return null;
             }
             else if (syntax is Expr expr)
             {
-                // The provided is a single expression. Move on to the next phase in the evaluation - resolving
-                // variable and function names. This is important since even a single expression might refer to
-                // a method call or reading a variable.
+                // The provided code is a single expression. Move on to the next phase in the evaluation - resolving
+                // variable and function names. This is important since even a single expression might refer to a method
+                // call or reading a variable.
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(
@@ -325,11 +347,16 @@ namespace Perlang.Interpreter
             }
         }
 
-        private string Interpret(Expr expression)
+        /// <summary>
+        /// Evaluates the given expression and returns its value, converted to a string representation.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate</param>
+        /// <returns>The evaluated value, or null if a <see cref="RuntimeError"/> occurs.</returns>
+        private string? Interpret(Expr expression)
         {
             try
             {
-                Object value = Evaluate(expression);
+                object? value = Evaluate(expression);
                 return Stringify(value);
             }
             catch (RuntimeError error)
@@ -344,9 +371,9 @@ namespace Perlang.Interpreter
             return expr.Value;
         }
 
-        public object VisitLogicalExpr(Expr.Logical expr)
+        public object? VisitLogicalExpr(Expr.Logical expr)
         {
-            object left = Evaluate(expr.Left);
+            object? left = Evaluate(expr.Left);
 
             if (expr.Operator.Type == OR)
             {
@@ -364,9 +391,9 @@ namespace Perlang.Interpreter
             return Evaluate(expr.Right);
         }
 
-        public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
+        public object? VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
-            object right = Evaluate(expr.Right);
+            object? right = Evaluate(expr.Right);
 
             switch (expr.Operator.Type)
             {
@@ -379,7 +406,7 @@ namespace Perlang.Interpreter
                     // which is clearly doable but a bit more work. For now, the CheckNumberOperand() method is the
                     // guarantee that the dynamic operation will succeed.
                     CheckNumberOperand(expr.Operator, right);
-                    return -(dynamic) right;
+                    return -(dynamic?) right;
             }
 
             // Unreachable.
@@ -388,7 +415,7 @@ namespace Perlang.Interpreter
 
         public object VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
         {
-            object left = Evaluate(expr.Left);
+            object? left = Evaluate(expr.Left);
 
             // We do have a check at the parser side also, but this one covers "null" cases.
             if (!IsValidNumberType(left))
@@ -409,7 +436,7 @@ namespace Perlang.Interpreter
                 }
             }
 
-            dynamic previousValue = left;
+            dynamic? previousValue = left;
             var variable = (Expr.Identifier) expr.Left;
             object value;
 
@@ -427,7 +454,7 @@ namespace Perlang.Interpreter
                     throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
             }
 
-            if (localBindings.TryGetValue(expr, out Binding binding))
+            if (localBindings.TryGetValue(expr, out Binding? binding))
             {
                 if (binding is IDistanceAwareBinding distanceAwareBinding)
                 {
@@ -454,7 +481,7 @@ namespace Perlang.Interpreter
 
         public object VisitGetExpr(Expr.Get expr)
         {
-            object obj = Evaluate(expr.Object);
+            object? obj = Evaluate(expr.Object);
 
             if (obj == null)
             {
@@ -473,7 +500,7 @@ namespace Perlang.Interpreter
             }
         }
 
-        private Binding GetVariableOrFunctionBinding(Expr expr)
+        private Binding? GetVariableOrFunctionBinding(Expr expr)
         {
             if (localBindings.ContainsKey(expr))
             {
@@ -491,7 +518,7 @@ namespace Perlang.Interpreter
 
         private object LookUpVariable(Token name, Expr expr)
         {
-            if (localBindings.TryGetValue(expr, out Binding localBinding))
+            if (localBindings.TryGetValue(expr, out Binding? localBinding))
             {
                 if (localBinding is IDistanceAwareBinding distanceAwareBinding)
                 {
@@ -503,11 +530,11 @@ namespace Perlang.Interpreter
                         $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
                 }
             }
-            else if (globalFunctions.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction globalCallable))
+            else if (globalFunctions.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction? globalCallable))
             {
                 return globalCallable;
             }
-            else if (globalClasses.TryGetValue(name.Lexeme, out object globalClass))
+            else if (globalClasses.TryGetValue(name.Lexeme, out object? globalClass))
             {
                 // TODO: This probably means we could drop Perlang classes from being registered as globals as well.
                 return globalClass;
@@ -518,7 +545,7 @@ namespace Perlang.Interpreter
             }
         }
 
-        private static void CheckNumberOperand(Token _operator, object operand)
+        private static void CheckNumberOperand(Token _operator, object? operand)
         {
             if (IsValidNumberType(operand))
             {
@@ -528,7 +555,7 @@ namespace Perlang.Interpreter
             throw new RuntimeError(_operator, "Operand must be a number.");
         }
 
-        private static void CheckNumberOperands(Token _operator, object left, object right)
+        private static void CheckNumberOperands(Token _operator, object? left, object? right)
         {
             if (IsValidNumberType(left) && IsValidNumberType(right))
             {
@@ -538,7 +565,7 @@ namespace Perlang.Interpreter
             throw new RuntimeError(_operator, "Operands must be numbers.");
         }
 
-        private static bool IsValidNumberType(object value)
+        private static bool IsValidNumberType(object? value)
         {
             if (value == null)
             {
@@ -563,7 +590,7 @@ namespace Perlang.Interpreter
             return false;
         }
 
-        private static bool IsTruthy(object _object)
+        private static bool IsTruthy(object? _object)
         {
             if (_object == null)
             {
@@ -578,7 +605,7 @@ namespace Perlang.Interpreter
             return true;
         }
 
-        private static bool IsEqual(object a, object b)
+        private static bool IsEqual(object? a, object? b)
         {
             // nil is only equal to nil.
             if (a == null && b == null)
@@ -594,12 +621,12 @@ namespace Perlang.Interpreter
             return a.Equals(b);
         }
 
-        public object VisitGroupingExpr(Expr.Grouping expr)
+        public object? VisitGroupingExpr(Expr.Grouping expr)
         {
             return Evaluate(expr.Expression);
         }
 
-        private object Evaluate(Expr expr)
+        private object? Evaluate(Expr expr)
         {
             return expr.Accept(this);
         }
@@ -684,14 +711,14 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
-            object value = Evaluate(stmt.Expression);
+            object? value = Evaluate(stmt.Expression);
             standardOutputHandler(Stringify(value));
             return VoidObject.Void;
         }
 
         public VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
-            object value = null;
+            object? value = null;
             if (stmt.Value != null) value = Evaluate(stmt.Value);
 
             throw new Return(value);
@@ -699,7 +726,7 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitVarStmt(Stmt.Var stmt)
         {
-            object value = null;
+            object? value = null;
 
             if (stmt.Initializer != null)
             {
@@ -720,16 +747,16 @@ namespace Perlang.Interpreter
             return VoidObject.Void;
         }
 
-        public object VisitEmptyExpr(Expr.Empty expr)
+        public object? VisitEmptyExpr(Expr.Empty expr)
         {
             return null;
         }
 
-        public object VisitAssignExpr(Expr.Assign expr)
+        public object? VisitAssignExpr(Expr.Assign expr)
         {
-            object value = Evaluate(expr.Value);
+            object? value = Evaluate(expr.Value);
 
-            if (localBindings.TryGetValue(expr, out Binding binding))
+            if (localBindings.TryGetValue(expr, out Binding? binding))
             {
                 if (binding is IDistanceAwareBinding distanceAwareBinding)
                 {
@@ -749,18 +776,18 @@ namespace Perlang.Interpreter
             return value;
         }
 
-        public object VisitBinaryExpr(Expr.Binary expr)
+        public object? VisitBinaryExpr(Expr.Binary expr)
         {
-            object left = Evaluate(expr.Left);
-            object right = Evaluate(expr.Right);
+            object? left = Evaluate(expr.Left);
+            object? right = Evaluate(expr.Right);
 
             // Using 'dynamic' here to avoid excessive complexity, having to support all permutations of
             // comparisons (int16 to int32, int32 to int64, etc etc). Since we validate the numerability of the
             // values first, these should be "safe" in that sense. Performance might not be great but let's live
             // with that until we rewrite the whole Perlang interpreter as an on-demand, statically typed but
             // dynamically compiled language.
-            dynamic leftNumber = left;
-            dynamic rightNumber = right;
+            dynamic? leftNumber = left;
+            dynamic? rightNumber = right;
 
             switch (expr.Operator.Type)
             {
@@ -803,9 +830,9 @@ namespace Perlang.Interpreter
             return null;
         }
 
-        public object VisitCallExpr(Expr.Call expr)
+        public object? VisitCallExpr(Expr.Call expr)
         {
-            object callee = Evaluate(expr.Callee);
+            object? callee = Evaluate(expr.Callee);
 
             var arguments = new List<object>();
 

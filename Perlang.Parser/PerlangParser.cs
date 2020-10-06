@@ -66,7 +66,7 @@ namespace Perlang.Parser
         /// <see cref="ParseExpression"/> and <see cref="ParseStatements"/> methods are typically more convenient
         /// to use.
         /// </summary>
-        /// <returns>an <see cref="Expr"/> or a list of <see cref="Stmt"/> objects.</returns>
+        /// <returns>An <see cref="Expr"/> or a list of <see cref="Stmt"/> objects.</returns>
         public object ParseExpressionOrStatements()
         {
             allowExpression = true;

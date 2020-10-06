@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Perlang.ConsoleApp\Perlang.ConsoleApp.csproj" />
       <ProjectReference Include="..\Perlang.Interpreter\Perlang.Interpreter.csproj" />
     </ItemGroup>
 
