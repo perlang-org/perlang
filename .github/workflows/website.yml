@@ -9,7 +9,7 @@ on:
       - '!master'
 
 jobs:
-  publish:
+  rebuild:
     runs-on: ubuntu-latest
 
     steps:
