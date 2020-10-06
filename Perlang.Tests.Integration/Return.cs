@@ -9,7 +9,7 @@ namespace Perlang.Tests.Integration
         // Tests based on Lox test suite: https://github.com/munificent/craftinginterpreters/tree/master/test/return
 
         [Fact]
-        void after_else()
+        public void after_else()
         {
             string source = @"
                 fun f(): string {
@@ -25,7 +25,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void after_if()
+        public void after_if()
         {
             string source = @"
                 fun f(): string {
@@ -41,7 +41,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void after_while()
+        public void after_while()
         {
             string source = @"
                 fun f(): string {
@@ -57,7 +57,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void at_top_level()
+        public void at_top_level()
         {
             string source = @"
                 return ""wat"";
@@ -71,7 +71,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void in_function()
+        public void in_function()
         {
             string source = @"
                 fun f(): string {
@@ -88,7 +88,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact(Skip = "Blocked pending https://github.com/perlun/perlang/issues/66")]
-        void in_method()
+        public void in_method()
         {
             string source = @"
                 class Foo {
@@ -107,7 +107,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void return_nil_if_no_value()
+        public void return_nil_if_no_value()
         {
             string source = @"
                 fun f(): string {

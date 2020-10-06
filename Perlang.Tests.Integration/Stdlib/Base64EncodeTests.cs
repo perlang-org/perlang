@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Text;
-using Perlang.Interpreter;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -8,12 +7,6 @@ namespace Perlang.Tests.Integration.Stdlib
 {
     public class Base64EncodeTests
     {
-        // [Fact]
-        // public void base64_encode_is_a_callable()
-        // {
-        //     Assert.IsAssignableFrom<ICallable>(Eval("base64_encode"));
-        // }
-
         [Fact]
         public void Base64_encode_with_no_arguments_throws_the_expected_exception()
         {
@@ -57,8 +50,7 @@ namespace Perlang.Tests.Integration.Stdlib
 
             Assert.Single(result.TypeValidationErrors);
 
-            Assert.Equal("Cannot pass System.Double argument as System.String parameter to encode()",
-                runtimeError.Message);
+            Assert.Equal("Cannot pass System.Double argument as System.String parameter to encode()", runtimeError.Message);
         }
     }
 }

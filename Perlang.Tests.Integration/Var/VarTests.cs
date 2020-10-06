@@ -34,8 +34,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.ResolveErrors.First();
 
             Assert.Single(result.ResolveErrors);
-            Assert.Matches("Error at 'a': Variable with this name already declared in this scope.",
-                exception.ToString());
+            Assert.Matches("Error at 'a': Variable with this name already declared in this scope.", exception.ToString());
         }
 
         [Fact]
@@ -52,8 +51,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.ResolveErrors.First();
 
             Assert.Single(result.ResolveErrors);
-            Assert.Matches("Error at 'a': Variable with this name already declared in this scope.",
-                exception.ToString());
+            Assert.Matches("Error at 'a': Variable with this name already declared in this scope.", exception.ToString());
         }
 
         [Fact]
@@ -70,8 +68,7 @@ namespace Perlang.Tests.Integration.Var
             var exception = result.ResolveErrors.First();
 
             Assert.Single(result.ResolveErrors);
-            Assert.Matches("Error at 'arg': Variable with this name already declared in this scope.",
-                exception.ToString());
+            Assert.Matches("Error at 'arg': Variable with this name already declared in this scope.", exception.ToString());
         }
 
         [Fact]
@@ -141,12 +138,9 @@ namespace Perlang.Tests.Integration.Var
                 }
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "outer"
-            }, output);
+            Assert.Equal("outer", output);
         }
 
         [Fact(Skip = "Blocked pending https://github.com/perlun/perlang/issues/66")]
@@ -164,12 +158,9 @@ namespace Perlang.Tests.Integration.Var
                 Foo().method();
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "variable"
-            }, output);
+            Assert.Equal("variable", output);
         }
 
         [Fact]
@@ -391,12 +382,9 @@ namespace Perlang.Tests.Integration.Var
                 print b;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "value"
-            }, output);
+            Assert.Equal("value", output);
         }
 
         [Fact]

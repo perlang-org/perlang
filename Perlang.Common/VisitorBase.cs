@@ -51,8 +51,10 @@ namespace Perlang
         }
 
         /// <summary>
-        /// Does not need to be called by child classes; method is no-op.
+        /// Visits a Literal expression. This method does not need to be called in child classes.
         /// </summary>
+        /// <param name="expr">The identifier expression.</param>
+        /// <returns>This method does not return a meaningful return value.</returns>
         public virtual VoidObject VisitLiteralExpr(Expr.Literal expr)
         {
             return VoidObject.Void;
@@ -81,8 +83,10 @@ namespace Perlang
         }
 
         /// <summary>
-        /// Does not need to be called in child classes.
+        /// Visits an Identifier expression. This method does not need to be called in child classes.
         /// </summary>
+        /// <param name="expr">The identifier expression.</param>
+        /// <returns>This method does not return a meaningful return value.</returns>
         public virtual VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
             return VoidObject.Void;

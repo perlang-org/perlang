@@ -10,15 +10,15 @@ namespace Perlang
     /// but making global things really be global is the simplest approach for now.
     ///
     /// For the time being, decorating a class with this attribute means that all public methods become callable from
-    /// Perlang code. For static methods, they are called with <code>Class.method_name()</code> notation; if the class
+    /// Perlang code. For static methods, they are called with `Class.method_name()` notation; if the class
     /// is non-static, it can be instantiated from Perlang just like any other (Perlang) class and instance methods can
-    /// be called using <code>instance.method_name()</code> notation. Perlang respects the visibility of methods - if
+    /// be called using `instance.method_name()` notation. Perlang respects the visibility of methods - if
     /// they are private, Perlang will produce a compile-time error if an attempt is made to call the method.
     /// </summary>
     public class GlobalClassAttribute : Attribute
     {
         /// <summary>
-        /// An optional custom name for the class. If not provided, the short-name of the class will be used.
+        /// Gets or sets an optional custom name for the class. If not provided, the short-name of the class will be used.
         /// </summary>
         public string Name { get; set; }
     }

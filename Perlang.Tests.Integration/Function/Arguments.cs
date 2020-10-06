@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Function
         //
 
         [Fact]
-        void function_can_receive_0_arguments()
+        public void function_can_receive_0_arguments()
         {
             string source = @"
                 fun f0(): int { return 0; }
@@ -26,7 +26,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_1_argument()
+        public void function_can_receive_1_argument()
         {
             string source = @"
                 fun f1(a: int): int { return a; }
@@ -39,7 +39,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_2_arguments()
+        public void function_can_receive_2_arguments()
         {
             string source = @"
                 fun f2(a: int, b: int): int { return a + b; }
@@ -52,7 +52,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_3_arguments()
+        public void function_can_receive_3_arguments()
         {
             string source = @"
                 fun f3(a: int, b: int, c: int): int { return a + b + c; }
@@ -65,7 +65,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_4_arguments()
+        public void function_can_receive_4_arguments()
         {
             string source = @"
                 fun f4(a: int, b: int, c: int, d: int): int { return a + b + c + d; }
@@ -78,7 +78,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_5_arguments()
+        public void function_can_receive_5_arguments()
         {
             string source = @"
                 fun f5(a: int, b: int, c: int, d: int, e: int): int { return a + b + c + d + e; }
@@ -91,7 +91,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_6_arguments()
+        public void function_can_receive_6_arguments()
         {
             string source = @"
                 fun f6(a: int, b: int, c: int, d: int, e: int, f: int): int { return a + b + c + d + e + f; }
@@ -104,7 +104,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_7_arguments()
+        public void function_can_receive_7_arguments()
         {
             string source = @"
                 fun f7(a: int, b: int, c: int, d: int, e: int, f: int, g: int): int { return a + b + c + d + e + f + g; }
@@ -117,7 +117,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_8_arguments()
+        public void function_can_receive_8_arguments()
         {
             string source = @"
                 fun f8(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int): int { return a + b + c + d + e + f + g + h; }
@@ -130,7 +130,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_binary_expression_as_argument()
+        public void function_can_receive_binary_expression_as_argument()
         {
             string source = @"
                 var a = 1;
@@ -145,7 +145,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void function_can_receive_function_call_result_as_argument()
+        public void function_can_receive_function_call_result_as_argument()
         {
             string source = @"
                 fun f(i: int): int { return i * 42; }
@@ -163,7 +163,7 @@ namespace Perlang.Tests.Integration.Function
         //
 
         [Fact]
-        void extra_arguments_expects_runtime_error()
+        public void extra_arguments_expects_runtime_error()
         {
             string source = @"
                 fun f(a: int, b: int): void {
@@ -183,7 +183,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void missing_arguments_expects_runtime_error()
+        public void missing_arguments_expects_runtime_error()
         {
             string source = @"
                 fun f(a: int, b: int): void {}
@@ -200,7 +200,7 @@ namespace Perlang.Tests.Integration.Function
         }
 
         [Fact]
-        void missing_comma_in_parameters_expects_parse_error()
+        public void missing_comma_in_parameters_expects_parse_error()
         {
             string source = @"
                 fun foo(a, b c, d, e, f) {}

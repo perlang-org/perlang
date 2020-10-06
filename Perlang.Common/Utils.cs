@@ -1,29 +1,28 @@
 namespace Perlang
 {
     /// <summary>
-    /// Various utility methods
+    /// Various utility methods.
     /// </summary>
-    public class Utils
+    public static class Utils
     {
-        public static string Stringify(object _object)
+        public static string Stringify(object @object)
         {
-            if (_object == null)
+            if (@object == null)
             {
                 return "nil";
             }
 
-            return _object.ToString();
+            return @object.ToString();
         }
 
-        public static string StringifyType(object _object)
+        public static string StringifyType(object @object)
         {
-            if (_object == null)
+            if (@object == null)
             {
                 return "nil";
             }
 
-            return _object.GetType().Name;
+            return @object.GetType().Name;
         }
-
     }
 }

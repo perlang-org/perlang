@@ -19,7 +19,7 @@ namespace Perlang.Tests.ConsoleApp
         {
             subject.Run("var a = 42; print a;");
 
-            Assert.Equal(new List<string> {"42"}, output);
+            Assert.Equal(new List<string> { "42" }, output);
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Perlang.Tests.ConsoleApp
             subject.Run("var a = 42;");
             subject.Run("print a;");
 
-            Assert.Equal(new List<string> {"42"}, output);
+            Assert.Equal(new List<string> { "42" }, output);
         }
 
         [Fact]

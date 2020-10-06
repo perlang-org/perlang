@@ -9,10 +9,14 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <DocumentationFile>bin\Debug\Perlang.Common.xml</DocumentationFile>
+      <NoWarn>1591;1701;1702</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <DocumentationFile>bin\Release\Perlang.Common.xml</DocumentationFile>
+      <NoWarn>1591;1701;1702</NoWarn>
     </PropertyGroup>
 
 </Project>

@@ -11,6 +11,14 @@
         <AssemblyName>perlang</AssemblyName>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\Perlang.ConsoleApp.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\Perlang.ConsoleApp.xml</DocumentationFile>
+    </PropertyGroup>
+
     <ItemGroup>
         <!-- Assemblies implicitly referenced via reflection must be listed here, to be included in the
              trimmed result -->

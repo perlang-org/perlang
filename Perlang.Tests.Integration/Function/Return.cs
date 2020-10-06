@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Function
     public class Return
     {
         [Fact]
-        void function_can_return_values_in_if_statement()
+        public void function_can_return_values_in_if_statement()
         {
             string source = @"
                 fun f(i: int): int {

@@ -17,7 +17,7 @@ namespace Perlang.Tests.Integration.Operator
 
             var output = EvalReturningOutput(source);
 
-            Assert.Equal(new[] {"-1"}, output);
+            Assert.Equal(new[] { "-1" }, output);
         }
 
         [Fact]
