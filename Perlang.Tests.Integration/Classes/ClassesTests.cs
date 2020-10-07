@@ -5,9 +5,9 @@ using static Perlang.Tests.Integration.EvalHelper;
 namespace Perlang.Tests.Integration.Classes
 {
     /// <summary>
-    /// Class-related tests
+    /// Class-related tests.
     ///
-    /// Based on https://github.com/munificent/craftinginterpreters/tree/master/test/class
+    /// Based on https://github.com/munificent/craftinginterpreters/tree/master/test/class.
     /// </summary>
     public class ClassesTests
     {
@@ -20,12 +20,9 @@ namespace Perlang.Tests.Integration.Classes
                 print Foo;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Foo",
-            }, output);
+            Assert.Equal("Foo", output);
         }
 
         [Fact]
@@ -55,12 +52,9 @@ namespace Perlang.Tests.Integration.Classes
                 print Base64;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Perlang.Stdlib.Base64",
-            }, output);
+            Assert.Equal("Perlang.Stdlib.Base64", output);
         }
 
         [Fact]
@@ -86,13 +80,10 @@ namespace Perlang.Tests.Integration.Classes
                 print Foo.to_string;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                // This comes straight out of the MethodInfo, so uses .NET-casing for now.
-                "#<Foo System.String ToString()>",
-            }, output);
+            // This comes straight out of the MethodInfo, so uses .NET-casing for now.
+            Assert.Equal("#<Foo System.String ToString()>", output);
         }
 
         [Fact]
@@ -102,13 +93,10 @@ namespace Perlang.Tests.Integration.Classes
                 print Base64.to_string;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                // This comes straight out of the MethodInfo, so uses .NET-casing for now.
-                "#<Perlang.Stdlib.Base64 System.String ToString()>",
-            }, output);
+            // This comes straight out of the MethodInfo, so uses .NET-casing for now.
+            Assert.Equal("#<Perlang.Stdlib.Base64 System.String ToString()>", output);
         }
 
         [Fact]
@@ -120,12 +108,9 @@ namespace Perlang.Tests.Integration.Classes
                 print Foo.to_string();
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Foo",
-            }, output);
+            Assert.Equal("Foo", output);
         }
 
         [Fact]
@@ -135,12 +120,9 @@ namespace Perlang.Tests.Integration.Classes
                 print Base64.to_string();
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Perlang.Stdlib.Base64",
-            }, output);
+            Assert.Equal("Perlang.Stdlib.Base64", output);
         }
 
         [Fact]
@@ -152,12 +134,9 @@ namespace Perlang.Tests.Integration.Classes
                 print Foo.to_string().to_string();
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Foo",
-            }, output);
+            Assert.Equal("Foo", output);
         }
     }
 }

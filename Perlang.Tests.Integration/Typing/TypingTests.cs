@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -108,12 +107,9 @@ namespace Perlang.Tests.Integration.Typing
                 foo(""Hello World"");
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "Hello World"
-            }, output);
+            Assert.Equal("Hello World", output);
         }
 
         [Fact]
@@ -145,12 +141,9 @@ namespace Perlang.Tests.Integration.Typing
                 print foo();
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "typed return value"
-            }, output);
+            Assert.Equal("typed return value", output);
         }
 
         [Fact]
@@ -165,12 +158,9 @@ namespace Perlang.Tests.Integration.Typing
                 print s;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[]
-            {
-                "typed return value"
-            }, output);
+            Assert.Equal("typed return value", output);
         }
 
         [Fact]

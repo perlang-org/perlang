@@ -44,8 +44,7 @@ namespace Perlang.Tests.Integration.Stdlib
 
             Assert.Single(result.TypeValidationErrors);
 
-            Assert.Equal("Cannot pass System.Double argument as System.String parameter to decode()",
-                runtimeError.Message);
+            Assert.Equal("Cannot pass System.Double argument as System.String parameter to decode()", runtimeError.Message);
         }
     }
 }

@@ -1,0 +1,22 @@
+<RuleSet Name="Perlang StyleCop rules" ToolsVersion="15.0">
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+
+        <Rule Id="SA1003" Action="None"/>       <!-- Symbols should be spaced correctly -->
+        <Rule Id="SA1009" Action="None"/>       <!-- Closing parenthesis should be spaced correctly -->
+        <Rule Id="SA1101" Action="None"/>       <!-- Prefix local calls with this -->
+        <Rule Id="SA1111" Action="None"/>       <!-- Closing parenthesis should be on line of last parameter -->
+        <Rule Id="SA1120" Action="None"/>       <!-- Comments should contain text -->
+        <Rule Id="SA1121" Action="None"/>       <!-- Use built-in type alias -->
+
+        <!-- TODO: Consider fixing this. Here are the docs: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1201.md -->
+        <Rule Id="SA1201" Action="None"/>       <!-- Elements should appear in the correct order -->
+
+        <Rule Id="SA1413" Action="None"/>       <!-- Use trailing comma in multi-line initializers -->
+        <Rule Id="SA1512" Action="None"/>       <!-- Single-line comments should not be followed by blank line -->
+        <Rule Id="SA1516" Action="None"/>       <!-- Elements should be separated by blank line -->
+
+        <Rule Id="SA1600" Action="None"/>       <!-- Elements should be documented -->
+        <Rule Id="SA1602" Action="None"/>       <!-- Enumeration items should be documented -->
+        <Rule Id="SA1633" Action="None"/>       <!-- File should have header -->
+    </Rules>
+</RuleSet>

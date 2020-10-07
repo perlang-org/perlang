@@ -7,7 +7,7 @@ namespace Perlang.Tests.Integration
     public class Blocks
     {
         [Fact]
-        void calling_an_undefined_function_inside_a_block_throws_expected_exception()
+        public void calling_an_undefined_function_inside_a_block_throws_expected_exception()
         {
             var result = EvalWithTypeValidationErrorCatch("if (true) { die_hard(); }");
             var exception = result.TypeValidationErrors.First();
@@ -17,7 +17,7 @@ namespace Perlang.Tests.Integration
         }
 
         [Fact]
-        void referring_to_an_undefined_variable_inside_a_block_throws_expected_exception()
+        public void referring_to_an_undefined_variable_inside_a_block_throws_expected_exception()
         {
             var result = EvalWithTypeValidationErrorCatch("if (true) { var a = die_hard; }");
             var exception = result.TypeValidationErrors.First();

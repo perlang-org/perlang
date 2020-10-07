@@ -47,28 +47,29 @@ namespace Perlang
         }
 
         /// <summary>
-        /// The type reference contains an explicit type specifier. If this is false, the user is perhaps intending for
-        /// the type to be inferred from the program context.
+        /// Gets a value indicating whether the type reference contains an explicit type specifier or not. If this is
+        /// false, the user is perhaps intending for the type to be inferred from the program context.
         /// </summary>
         public bool ExplicitTypeSpecified => TypeSpecifier != null;
 
         /// <summary>
-        /// The type reference has been successfully resolved to a (loaded) CLR type.
+        /// Gets a value indicating whether the type reference has been successfully resolved to a (loaded) CLR type or
+        /// not.
         /// </summary>
         public bool IsResolved => ClrType != null;
 
         /// <summary>
-        /// Creates a TypeReference for a given type specifier. The type specifier can be null, in which case
-        /// type inference will be attempted.
+        /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type
+        /// specifier can be null, in which case type inference will be attempted.
         /// </summary>
-        /// <param name="typeSpecifier">The token providing the type specifier. (e.g. 'int' or 'string')</param>
+        /// <param name="typeSpecifier">The token providing the type specifier (e.g. 'int' or 'string').</param>
         public TypeReference(Token? typeSpecifier)
         {
             TypeSpecifier = typeSpecifier;
         }
 
         /// <summary>
-        /// Creates a TypeReference for a given CLR type.
+        /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given CLR type.
         /// </summary>
         /// <param name="clrType">The CLR type..</param>
         public TypeReference(Type clrType)

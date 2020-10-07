@@ -13,11 +13,11 @@ namespace Perlang
     /// using this type as type parameter is expected to return "VoidObject.Void" from all its methods.
     /// </summary>
     /// <remarks>This link goes into detail in explaining how "void" works in .NET:
-    /// https://softwareengineering.stackexchange.com/a/131099/87701</remarks>
+    /// https://softwareengineering.stackexchange.com/a/131099/87701.</remarks>
     public abstract class VoidObject
     {
         /// <summary>
-        /// A value indicating that no meaningful return value was provided.
+        /// Gets a value indicating that no meaningful return value was provided.
         /// </summary>
         public static VoidObject Void => null;
     }

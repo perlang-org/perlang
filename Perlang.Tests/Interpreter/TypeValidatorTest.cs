@@ -22,7 +22,7 @@ namespace Perlang.Tests.Interpreter
             var call = new Expr.Call(get, paren, new List<Expr>());
             var bindings = new Dictionary<Expr, Binding>
             {
-                {identifier, new NativeClassBinding(identifier, typeof(string))}
+                { identifier, new NativeClassBinding(identifier, typeof(string)) }
             };
 
             var typeValidationErrors = new List<TypeValidationError>();
@@ -45,7 +45,7 @@ namespace Perlang.Tests.Interpreter
             var bindings = new Dictionary<Expr, Binding>
             {
                 // A null TypeReference here is the condition that is expected to lead to an "undefined variable" error.
-                {identifier, new VariableBinding(typeReference: null, 0, identifier)}
+                { identifier, new VariableBinding(typeReference: null, 0, identifier) }
             };
 
             var typeValidationErrors = new List<TypeValidationError>();
@@ -71,7 +71,7 @@ namespace Perlang.Tests.Interpreter
 
             var bindings = new Dictionary<Expr, Binding>
             {
-                {identifier, new ClassBinding(identifier, new PerlangClass("Foo", new List<Stmt.Function>()))}
+                { identifier, new ClassBinding(identifier, new PerlangClass("Foo", new List<Stmt.Function>())) }
             };
 
             var typeValidationErrors = new List<TypeValidationError>();

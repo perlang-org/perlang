@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -73,8 +72,7 @@ namespace Perlang
             public ImmutableList<Stmt> Body { get; }
             public TypeReference ReturnTypeReference { get; }
 
-            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body,
-                TypeReference returnTypeReference)
+            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference)
             {
                 Name = name;
                 Parameters = parameters.ToImmutableList();

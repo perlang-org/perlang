@@ -55,7 +55,7 @@ namespace Perlang.Tests.Integration.For
 
             var output = EvalReturningOutput(source);
 
-            Assert.Equal(new[] {"done"}, output);
+            Assert.Equal(new[] { "done" }, output);
         }
 
         [Fact]

@@ -10,7 +10,7 @@ namespace Perlang.Tests.Integration.Function
 
         // Technically not recursion, but still related to nested function calls.
         [Fact]
-        void function_can_call_another_function()
+        public void function_can_call_another_function()
         {
             string source = @"
                 fun f(i: int): int { return i * 42; }
@@ -19,13 +19,13 @@ namespace Perlang.Tests.Integration.Function
                 print g();
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
             Assert.Equal("1764", output);
         }
 
         [Fact]
-        void recursive_function_returns_expected_result()
+        public void recursive_function_returns_expected_result()
         {
             string source = @"
                 fun fib(n: int): int {
@@ -36,7 +36,7 @@ namespace Perlang.Tests.Integration.Function
                 print fib(8);
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
             Assert.Equal("21", output);
         }

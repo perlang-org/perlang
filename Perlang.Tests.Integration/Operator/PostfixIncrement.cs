@@ -15,9 +15,9 @@ namespace Perlang.Tests.Integration.Operator
                 print i;
             ";
 
-            var output = EvalReturningOutput(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal(new[] { "1" }, output);
+            Assert.Equal("1", output);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Perlang.Tests.Integration.Operator
                 print j;
             ";
 
-            var output = EvalReturningOutput(source).SingleOrDefault();
+            var output = EvalReturningOutputString(source);
 
             Assert.Equal("101", output);
         }
