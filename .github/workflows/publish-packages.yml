@@ -30,16 +30,13 @@ jobs:
       # Build releases
       #
       - name: Build linux-x64 release
-        run: dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true
-        working-directory: ./Perlang.ConsoleApp
+        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
       - name: Build osx-x64 release
-        run: dotnet publish -c Release -r osx-x64 --self-contained true
-        working-directory: ./Perlang.ConsoleApp
+        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r osx-x64 --self-contained true /p:SolutionDir=$(pwd)/
 
       - name: Build win-x64 release
-        run: dotnet publish -c Release -r win-x64 --self-contained true
-        working-directory: ./Perlang.ConsoleApp
+        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r win-x64 --self-contained true /p:SolutionDir=$(pwd)/
 
       #
       # Create .tar.gz archives
