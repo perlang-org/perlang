@@ -18,8 +18,8 @@ namespace Perlang.Interpreter.Resolution
         public string FunctionName { get; }
         public ImmutableArray<Parameter> Parameters { get; }
 
-        public NativeBinding(MethodInfo method, string functionName, IEnumerable<Type> parameterTypes, TypeReference returnTypeReference, Expr referringExpr) :
-            base(returnTypeReference, referringExpr)
+        public NativeBinding(MethodInfo method, string functionName, IEnumerable<Type> parameterTypes, TypeReference returnTypeReference, Expr referringExpr)
+            : base(returnTypeReference, referringExpr)
         {
             Method = method;
             FunctionName = functionName;

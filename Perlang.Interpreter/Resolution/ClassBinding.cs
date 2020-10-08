@@ -9,8 +9,8 @@ namespace Perlang.Interpreter.Resolution
     {
         public PerlangClass PerlangClass { get; }
 
-        public ClassBinding(Expr referringExpr, PerlangClass perlangClass) :
-            base(new TypeReference(typeof(PerlangClass)), referringExpr)
+        public ClassBinding(Expr referringExpr, PerlangClass perlangClass)
+            : base(new TypeReference(typeof(PerlangClass)), referringExpr)
         {
             PerlangClass = perlangClass;
         }

@@ -2,37 +2,38 @@ using System.Collections.Generic;
 
 namespace Perlang.Interpreter.Extensions
 {
+    /// <summary>
+    /// Extension methods for IDictionary&lt;string, T&gt;.
+    /// </summary>
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// Returns a value from a dictionary, returning <see cref="defaultValue"/> (defaults to null) if the key
-        /// cannot be found
+        /// Returns a value from a dictionary, returning `defaultValue` (defaults to null) if the key cannot be found.
         ///
-        /// This method only works for value types/structs.
+        /// This method only works for value types/`struct`s.
         /// </summary>
-        /// <param name="dictionary">the dictionary</param>
-        /// <param name="key">the key</param>
-        /// <param name="defaultValue">the default value</param>
-        /// <typeparam name="T">the type of values in the dictionary</typeparam>
-        /// <returns>the value from the dictionary, or defaultValue if the key is not found</returns>
-        internal static T? TryGetStructValue<T>(this IDictionary<string, T> dictionary, string key,
-            T? defaultValue = null) where T : struct
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <typeparam name="T">The type of values in the dictionary.</typeparam>
+        /// <returns>The value from the dictionary, or `defaultValue` if the key is not found.</returns>
+        internal static T? TryGetStructValue<T>(this IDictionary<string, T> dictionary, string key, T? defaultValue = null)
+            where T : struct
         {
             return dictionary.TryGetValue(key, out T value) ? value : defaultValue;
         }
 
         /// <summary>
-        /// Returns a value from a dictionary, returning <see cref="defaultValue"/> (defaults to null) if the key
-        /// cannot be found
+        /// Returns a value from a dictionary, returning `defaultValue` (defaults to null) if the key cannot be found.
         ///
-        /// This method is mostly suited for reference types. It can still be used with value types, but
-        /// <see cref="defaultValue"/> cannot be null in those cases.
+        /// This method is mostly suited for reference types. It can still be used with value types, but `defaultValue`
+        /// cannot be null in those cases.
         /// </summary>
-        /// <param name="dictionary">the dictionary</param>
-        /// <param name="key">the key</param>
-        /// <param name="defaultValue">the default value</param>
-        /// <typeparam name="T">the type of values in the dictionary</typeparam>
-        /// <returns>the value from the dictionary, or defaultValue if the key is not found</returns>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <typeparam name="T">The type of values in the dictionary.</typeparam>
+        /// <returns>The value from the dictionary, or `defaultValue` if the key is not found.</returns>
         internal static T TryGetObjectValue<T>(this IDictionary<string, T> dictionary, string key, T defaultValue = default)
         {
             return dictionary.TryGetValue(key, out T value) ? value : defaultValue;

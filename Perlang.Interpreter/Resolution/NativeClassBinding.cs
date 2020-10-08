@@ -6,8 +6,8 @@ namespace Perlang.Interpreter.Resolution
     {
         public Type Type { get; }
 
-        internal NativeClassBinding(Expr referringExpr, Type type) :
-            base(new TypeReference(type), referringExpr)
+        internal NativeClassBinding(Expr referringExpr, Type type)
+            : base(new TypeReference(type), referringExpr)
         {
             Type = type;
         }
