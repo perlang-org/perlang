@@ -9,8 +9,8 @@ namespace Perlang.Interpreter.Resolution
 
         public Stmt.Function Function { get; }
 
-        public FunctionBinding(Stmt.Function function, TypeReference typeReference, int distance, Expr referringExpr) :
-            base(typeReference, referringExpr)
+        public FunctionBinding(Stmt.Function function, TypeReference typeReference, int distance, Expr referringExpr)
+            : base(typeReference, referringExpr)
         {
             // Likewise, the Function property is permitted to be null for variable bindings (but not for Call
             // bindings)

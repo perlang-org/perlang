@@ -13,22 +13,18 @@ namespace Perlang.Interpreter.Resolution
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
         private readonly ImmutableDictionary<string, TypeReferenceNativeFunction> globalFunctions;
-
-        private readonly List<IDictionary<string, IBindingFactory>> scopes =
-            new List<IDictionary<string, IBindingFactory>>();
-
-        private readonly IDictionary<string, IBindingFactory> globals =
-            new Dictionary<string, IBindingFactory>();
-
-        private FunctionType currentFunction = FunctionType.NONE;
+        private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
+        private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
 
         private readonly Action<Binding> addLocalExprCallback;
         private readonly Action<Binding> addGlobalExprCallback;
         private readonly Action<string, PerlangClass> addGlobalClassCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
 
+        private FunctionType currentFunction = FunctionType.NONE;
+
         /// <summary>
-        /// Creates a new Resolver instance.
+        /// Initializes a new instance of the <see cref="Resolver"/> class.
         /// </summary>
         /// <param name="globalFunctions">A dictionary of global functions, with the function name as key.</param>
         /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
@@ -38,7 +34,8 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
-        internal Resolver(ImmutableDictionary<string, TypeReferenceNativeFunction> globalFunctions,
+        internal Resolver(
+            ImmutableDictionary<string, TypeReferenceNativeFunction> globalFunctions,
             ImmutableDictionary<string, Type> globalClasses,
             Action<Binding> addLocalExprCallback,
             Action<Binding> addGlobalExprCallback,
@@ -87,7 +84,10 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="name">The name of the variable or function.</param>
         private void Declare(Token name)
         {
-            if (IsEmpty(scopes)) return;
+            if (IsEmpty(scopes))
+            {
+                return;
+            }
 
             // This adds the variable to the innermost scope so that it shadows any outer one and so that we know the
             // variable exists.
@@ -201,9 +201,13 @@ namespace Perlang.Interpreter.Resolution
             {
                 var globalTypeReferenceAndCallable = globalFunctions[name.Lexeme];
 
-                addGlobalExprCallback(new NativeBinding(globalTypeReferenceAndCallable.Method, name.Lexeme,
-                    globalTypeReferenceAndCallable.ParameterTypes, globalTypeReferenceAndCallable.ReturnTypeReference,
-                    referringExpr));
+                addGlobalExprCallback(new NativeBinding(
+                    globalTypeReferenceAndCallable.Method,
+                    name.Lexeme,
+                    globalTypeReferenceAndCallable.ParameterTypes,
+                    globalTypeReferenceAndCallable.ReturnTypeReference,
+                    referringExpr
+                ));
             }
 
             // Not found in any of the local scopes. Assume it is global, or non-existent.

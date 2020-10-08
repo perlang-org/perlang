@@ -4,8 +4,8 @@ namespace Perlang.Interpreter
 {
     public class PerlangInterpreterException : Exception
     {
-        public PerlangInterpreterException(string message) :
-            base(message)
+        public PerlangInterpreterException(string message)
+            : base(message)
         {
         }
     }

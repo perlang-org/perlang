@@ -1,4 +1,7 @@
 <RuleSet Name="Perlang StyleCop rules" ToolsVersion="15.0">
+    <!--
+      Stylecop defaults can be found here: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/StyleCop.Analyzers/StyleCop.Analyzers.CodeFixes/rulesets/StyleCopAnalyzersDefault.ruleset
+      -->
     <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
 
         <Rule Id="SA1003" Action="None"/>       <!-- Symbols should be spaced correctly -->
@@ -10,6 +13,12 @@
 
         <!-- TODO: Consider fixing this. Here are the docs: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1201.md -->
         <Rule Id="SA1201" Action="None"/>       <!-- Elements should appear in the correct order -->
+
+        <!-- TODO: This should definitely be fixed. Here are the docs: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1202.md -->
+        <Rule Id="SA1202" Action="None"/>       <!-- Elements should be ordered by access -->
+
+        <!-- TODO: This should definitely be fixed. Here are the docs: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1204.md -->
+        <Rule Id="SA1204" Action="None"/>       <!-- Static elements should appear before instance elements -->
 
         <Rule Id="SA1413" Action="None"/>       <!-- Use trailing comma in multi-line initializers -->
         <Rule Id="SA1512" Action="None"/>       <!-- Single-line comments should not be followed by blank line -->

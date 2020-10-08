@@ -16,8 +16,8 @@ namespace Perlang.Interpreter
     /// <summary>
     /// Interpreter for Perlang code.
     ///
-    /// This class is not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously is likely to
-    /// lead to race conditions and is not supported.
+    /// This class is not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously can lead to race
+    /// conditions and is not supported.
     /// </summary>
     public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
@@ -30,31 +30,27 @@ namespace Perlang.Interpreter
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
-        private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
-
         /// <summary>
         /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
         /// </summary>
-        private readonly IDictionary<string, object> globalClasses =
-            new Dictionary<string, object>();
+        private readonly IDictionary<string, object> globalClasses = new Dictionary<string, object>();
 
         private readonly ImmutableDictionary<string, Type> nativeClasses;
-
-        private IEnvironment currentEnvironment;
         private readonly Action<string> standardOutputHandler;
 
+        private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
+        private IEnvironment currentEnvironment;
         public List<string> Arguments { get; }
 
         /// <summary>
-        /// Creates a new Perlang interpreter instance.
+        /// Initializes a new instance of the <see cref="PerlangInterpreter"/> class.
         /// </summary>
         /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors.</param>
         /// <param name="standardOutputHandler">An optional parameter that will receive output printed to
         ///     standard output. If not provided or null, output will be printed to the standard output of the
         ///     running process.</param>
         /// <param name="arguments">An optional list of runtime arguments.</param>
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler,
-            Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null)
+        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
@@ -83,7 +79,8 @@ namespace Perlang.Interpreter
         /// <summary>
         /// Registers global functions defined in native .NET code.
         /// </summary>
-        /// <exception cref="PerlangInterpreterException">in case of errors</exception>
+        /// <exception cref="PerlangInterpreterException">One or more global functions are defined
+        /// incorrectly.</exception>
         private void RegisterGlobalFunctions()
         {
             var globalFunctionsQueryable = AppDomain.CurrentDomain.GetAssemblies()
@@ -138,7 +135,7 @@ namespace Perlang.Interpreter
         /// <summary>
         /// Registers global classes defined in native .NET code.
         /// </summary>
-        /// <exception cref="PerlangInterpreterException">in case of errors</exception>
+        /// <exception cref="PerlangInterpreterException">Multiple classes with the same name was encountered.</exception>
         private void RegisterGlobalClasses()
         {
             var globalClassesQueryable = AppDomain.CurrentDomain.GetAssemblies()
@@ -182,8 +179,12 @@ namespace Perlang.Interpreter
         /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
         /// <returns>If the provided source is an expression, the value of the expression is returned. Otherwise,
         /// `null`.</returns>
-        public object? Eval(string source, ScanErrorHandler scanErrorHandler, ParseErrorHandler parseErrorHandler,
-            ResolveErrorHandler resolveErrorHandler, TypeValidationErrorHandler typeValidationErrorHandler)
+        public object? Eval(
+            string source,
+            ScanErrorHandler scanErrorHandler,
+            ParseErrorHandler parseErrorHandler,
+            ResolveErrorHandler resolveErrorHandler,
+            TypeValidationErrorHandler typeValidationErrorHandler)
         {
             if (String.IsNullOrWhiteSpace(source))
             {
@@ -231,13 +232,17 @@ namespace Perlang.Interpreter
                 bool hasResolveErrors = false;
 
                 var resolver = new Resolver(
-                    globalFunctions.ToImmutableDictionary(), nativeClasses,
-                    AddLocal, AddGlobal, AddGlobalClass,
+                    globalFunctions.ToImmutableDictionary(),
+                    nativeClasses,
+                    AddLocal,
+                    AddGlobal,
+                    AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
                         resolveErrorHandler(resolveError);
-                    });
+                    }
+                );
 
                 resolver.Resolve(previousAndNewStatements);
 
@@ -282,13 +287,17 @@ namespace Perlang.Interpreter
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(
-                    globalFunctions.ToImmutableDictionary(), nativeClasses,
-                    AddLocal, AddGlobal, AddGlobalClass,
+                    globalFunctions.ToImmutableDictionary(),
+                    nativeClasses,
+                    AddLocal,
+                    AddGlobal,
+                    AddGlobalClass,
                     resolveError =>
                     {
                         hasResolveErrors = true;
                         resolveErrorHandler(resolveError);
-                    });
+                    }
+                );
 
                 resolver.Resolve(expr);
 
@@ -350,8 +359,8 @@ namespace Perlang.Interpreter
         /// <summary>
         /// Evaluates the given expression and returns its value, converted to a string representation.
         /// </summary>
-        /// <param name="expression">The expression to evaluate</param>
-        /// <returns>The evaluated value, or null if a <see cref="RuntimeError"/> occurs.</returns>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The evaluated value, or null if a `RuntimeError` occurs.</returns>
         private string? Interpret(Expr expression)
         {
             try
@@ -377,11 +386,17 @@ namespace Perlang.Interpreter
 
             if (expr.Operator.Type == OR)
             {
-                if (IsTruthy(left)) return left;
+                if (IsTruthy(left))
+                {
+                    return left;
+                }
             }
             else if (expr.Operator.Type == AND)
             {
-                if (!IsTruthy(left)) return left;
+                if (!IsTruthy(left))
+                {
+                    return left;
+                }
             }
             else
             {
@@ -423,16 +438,13 @@ namespace Perlang.Interpreter
                 switch (expr.Operator.Type)
                 {
                     case PLUS_PLUS:
-                        throw new RuntimeError(expr.Operator,
-                            $"++ can only be used to increment numbers, not {StringifyType(left)}");
+                        throw new RuntimeError(expr.Operator, $"++ can only be used to increment numbers, not {StringifyType(left)}");
 
                     case MINUS_MINUS:
-                        throw new RuntimeError(expr.Operator,
-                            $"-- can only be used to decrement numbers, not {StringifyType(left)}");
+                        throw new RuntimeError(expr.Operator, $"-- can only be used to decrement numbers, not {StringifyType(left)}");
 
                     default:
-                        throw new RuntimeError(expr.Operator,
-                            $"Unsupported operator encountered: {expr.Operator.Type}");
+                        throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
                 }
             }
 
@@ -462,8 +474,7 @@ namespace Perlang.Interpreter
                 }
                 else
                 {
-                    throw new RuntimeError(expr.Operator,
-                        $"Unsupported operator '{expr.Operator.Type}' encountered for non-distance-aware binding '{binding}'");
+                    throw new RuntimeError(expr.Operator, $"Unsupported operator '{expr.Operator.Type}' encountered for non-distance-aware binding '{binding}'");
                 }
             }
             else
@@ -485,8 +496,7 @@ namespace Perlang.Interpreter
 
             if (obj == null)
             {
-                throw new RuntimeError(expr.Name,
-                    $"Object reference not set to an instance of an object");
+                throw new RuntimeError(expr.Name, "Object reference not set to an instance of an object");
             }
 
             if (expr.Methods.SingleOrDefault() != null)
@@ -495,8 +505,7 @@ namespace Perlang.Interpreter
             }
             else
             {
-                throw new RuntimeError(expr.Name,
-                    $"Internal runtime error: Expected expr.Method to be non-null");
+                throw new RuntimeError(expr.Name, "Internal runtime error: Expected expr.Method to be non-null");
             }
         }
 
@@ -526,8 +535,7 @@ namespace Perlang.Interpreter
                 }
                 else
                 {
-                    throw new RuntimeError(name,
-                        $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
+                    throw new RuntimeError(name, $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
                 }
             }
             else if (globalFunctions.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction? globalCallable))
@@ -545,24 +553,24 @@ namespace Perlang.Interpreter
             }
         }
 
-        private static void CheckNumberOperand(Token _operator, object? operand)
+        private static void CheckNumberOperand(Token @operator, object? operand)
         {
             if (IsValidNumberType(operand))
             {
                 return;
             }
 
-            throw new RuntimeError(_operator, "Operand must be a number.");
+            throw new RuntimeError(@operator, "Operand must be a number.");
         }
 
-        private static void CheckNumberOperands(Token _operator, object? left, object? right)
+        private static void CheckNumberOperands(Token @operator, object? left, object? right)
         {
             if (IsValidNumberType(left) && IsValidNumberType(right))
             {
                 return;
             }
 
-            throw new RuntimeError(_operator, "Operands must be numbers.");
+            throw new RuntimeError(@operator, "Operands must be numbers.");
         }
 
         private static bool IsValidNumberType(object? value)
@@ -590,14 +598,14 @@ namespace Perlang.Interpreter
             return false;
         }
 
-        private static bool IsTruthy(object? _object)
+        private static bool IsTruthy(object? @object)
         {
-            if (_object == null)
+            if (@object == null)
             {
                 return false;
             }
 
-            if (_object is bool b)
+            if (@object is bool b)
             {
                 return b;
             }
@@ -719,7 +727,11 @@ namespace Perlang.Interpreter
         public VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
             object? value = null;
-            if (stmt.Value != null) value = Evaluate(stmt.Value);
+
+            if (stmt.Value != null)
+            {
+                value = Evaluate(stmt.Value);
+            }
 
             throw new Return(value);
         }
@@ -764,8 +776,7 @@ namespace Perlang.Interpreter
                 }
                 else
                 {
-                    throw new RuntimeError(expr.Name,
-                        $"Unsupported variable assignment encountered for non-distance-aware binding '{binding}'");
+                    throw new RuntimeError(expr.Name, $"Unsupported variable assignment encountered for non-distance-aware binding '{binding}'");
                 }
             }
             else
@@ -838,7 +849,7 @@ namespace Perlang.Interpreter
 
             foreach (Expr argument in expr.Arguments)
             {
-                arguments.Add(Evaluate(argument));
+                arguments.Add(Evaluate(argument)!);
             }
 
             switch (callee)
@@ -876,8 +887,10 @@ namespace Perlang.Interpreter
                 case ICallable callable:
                     if (arguments.Count != callable.Arity())
                     {
-                        throw new RuntimeError(expr.Paren, "Expected " + callable.Arity() + " argument(s) but got " +
-                                                           arguments.Count + ".");
+                        throw new RuntimeError(
+                            expr.Paren,
+                            "Expected " + callable.Arity() + " argument(s) but got " + arguments.Count + "."
+                        );
                     }
 
                     try
@@ -903,13 +916,11 @@ namespace Perlang.Interpreter
                     }
                     else
                     {
-                        throw new RuntimeError(expr.Paren,
-                            $"Internal error: Expected Get expression, not {expr.Callee}.");
+                        throw new RuntimeError(expr.Paren, $"Internal error: Expected Get expression, not {expr.Callee}.");
                     }
 
                 default:
-                    throw new RuntimeError(expr.Paren,
-                        $"Can only call functions, classes and native methods, not {callee}.");
+                    throw new RuntimeError(expr.Paren, $"Can only call functions, classes and native methods, not {callee}.");
             }
         }
     }

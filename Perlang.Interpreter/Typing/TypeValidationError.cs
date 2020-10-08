@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-
 namespace Perlang.Interpreter.Typing
 {
     public class TypeValidationError : PerlangInterpreterException
     {
         /// <summary>
-        /// The approximate location at which the error occurred.
+        /// Gets the approximate location at which the error occurred.
         /// </summary>
         public Token Token { get; }
 
@@ -14,10 +12,5 @@ namespace Perlang.Interpreter.Typing
         {
             Token = token;
         }
-    }
-
-    public class TypeValidationErrors : List<TypeValidationError>
-    {
-        public bool Empty() => Count == 0;
     }
 }

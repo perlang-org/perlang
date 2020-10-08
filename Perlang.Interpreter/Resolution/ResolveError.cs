@@ -6,8 +6,8 @@ namespace Perlang.Interpreter.Resolution
     {
         public Token Token { get; }
 
-        public ResolveError(string message, Token token) :
-            base(message)
+        public ResolveError(string message, Token token)
+            : base(message)
         {
             Token = token;
         }

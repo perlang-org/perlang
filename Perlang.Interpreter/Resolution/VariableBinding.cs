@@ -2,14 +2,14 @@
 namespace Perlang.Interpreter.Resolution
 {
     /// <summary>
-    /// A binding to a variable (local or global)
+    /// A binding to a (local or global) variable.
     /// </summary>
     internal class VariableBinding : Binding, IDistanceAwareBinding
     {
         public int Distance { get; }
 
-        public VariableBinding(TypeReference? typeReference, int distance, Expr referringExpr) :
-            base(typeReference, referringExpr)
+        public VariableBinding(TypeReference? typeReference, int distance, Expr referringExpr)
+            : base(typeReference, referringExpr)
         {
             Distance = distance;
         }

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 #nullable enable
 namespace Perlang.Interpreter.Resolution
 {
@@ -10,18 +12,21 @@ namespace Perlang.Interpreter.Resolution
     internal abstract class Binding
     {
         /// <summary>
-        /// The type reference of the declaring statement. (typically a 'var' initializer or a function return type)
+        /// Gets the type reference of the declaring statement (typically a 'var' initializer or a function return type).
         /// </summary>
         public TypeReference? TypeReference { get; }
 
         /// <summary>
-        /// An expression referring to the declaring statement's type reference. Note that multiple expressions can
+        /// Gets an expression referring to the declaring statement's type reference. Note that multiple expressions can
         /// refer to a single declaration statement, as illustrated by the following program:
         ///
+        /// ```c#
         /// var a = 123;
         /// var b = a; // b refers to a
-        /// var c = a; // c also refers to a
+        /// var c = a; // c also refers to a.
+        /// ```
         /// </summary>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1629:DocumentationTextMustEndWithAPeriod", Justification = "Code block.")]
         public Expr ReferringExpr { get; }
 
         protected Binding(TypeReference? typeReference, Expr referringExpr)

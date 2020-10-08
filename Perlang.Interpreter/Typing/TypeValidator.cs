@@ -1,3 +1,5 @@
+#pragma warning disable SA1118
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -28,18 +30,18 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal static class TypeValidator
     {
-        public static void Validate(IList<Stmt> statements,
-            Action<TypeValidationError> typeValidationErrorCallback,
-            Func<Expr, Binding> getVariableOrFunctionCallback)
+        public static void Validate(IList<Stmt> statements, Action<TypeValidationError> typeValidationErrorCallback, Func<Expr, Binding> getVariableOrFunctionCallback)
         {
             bool typeResolvingFailed = false;
 
-            var typeResolver = new TypeResolver(getVariableOrFunctionCallback,
+            var typeResolver = new TypeResolver(
+                getVariableOrFunctionCallback,
                 validationError =>
                 {
                     typeValidationErrorCallback(validationError);
                     typeResolvingFailed = true;
-                });
+                }
+            );
 
             try
             {
@@ -73,20 +75,28 @@ namespace Perlang.Interpreter.Typing
                 .ReportErrors(statements);
         }
 
-        public static void Validate(Expr expr,
-            Action<TypeValidationError> typeValidationErrorCallback,
-            Func<Expr, Binding> getVariableOrFunctionCallback)
+        public static void Validate(Expr expr, Action<TypeValidationError> typeValidationErrorCallback, Func<Expr, Binding> getVariableOrFunctionCallback)
         {
             // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
-            if (expr == null) throw new ArgumentException("expr cannot be null");
+            if (expr == null)
+            {
+                throw new ArgumentException("expr cannot be null");
+            }
+
             if (typeValidationErrorCallback == null)
+            {
                 throw new ArgumentException("typeValidationErrorCallback cannot be null");
+            }
+
             if (getVariableOrFunctionCallback == null)
+            {
                 throw new ArgumentException("getVariableOrFunctionCallback cannot be null");
+            }
 
             bool typeResolvingFailed = false;
 
-            var typeResolver = new TypeResolver(getVariableOrFunctionCallback,
+            var typeResolver = new TypeResolver(
+                getVariableOrFunctionCallback,
                 validationError =>
                 {
                     typeValidationErrorCallback(validationError);
@@ -138,12 +148,13 @@ namespace Perlang.Interpreter.Typing
             private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
             /// <summary>
-            /// Creates a new TypeResolver instance.
+            /// Initializes a new instance of the <see cref="TypeResolver"/> class.
             /// </summary>
-            /// <param name="getIdentifierCallback">a callback used to retrieve a binding for a given expression.</param>
-            /// <param name="typeValidationErrorCallback">a callback which will receive type-validation errors, if they occur.</param>
-            public TypeResolver(Func<Expr, Binding> getIdentifierCallback,
-                Action<TypeValidationError> typeValidationErrorCallback)
+            /// <param name="getIdentifierCallback">A callback used to retrieve a binding for a given
+            /// expression.</param>
+            /// <param name="typeValidationErrorCallback">A callback which will receive type-validation errors, if they
+            /// occur.</param>
+            public TypeResolver(Func<Expr, Binding> getIdentifierCallback, Action<TypeValidationError> typeValidationErrorCallback)
             {
                 this.getIdentifierCallback = getIdentifierCallback;
                 this.typeValidationErrorCallback = typeValidationErrorCallback;
@@ -261,8 +272,7 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (expr.Callee is Expr.Identifier identifier)
                     {
-                        throw new NameResolutionError(identifier.Name,
-                            $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
+                        throw new NameResolutionError(identifier.Name, $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
                     }
                     else
                     {
@@ -389,12 +399,11 @@ namespace Perlang.Interpreter.Typing
                     Type type = expr.Object.TypeReference.ClrType;
 
                     // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
-                    // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but
-                    // I see no way around this if we want to retain snake_case (which we do).
+                    // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but I see
+                    // no way around this if we want to retain snake_case (which we do).
                     string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
 
                     // TODO: Move this logic to new ReflectionHelper class
-                    //MethodInfo method = type.GetMethod(pascalizedMethodName, new Type[] { typeof(String) });
                     var methods = type.GetMethods()
                         .Where(mi => mi.Name == pascalizedMethodName)
                         .ToImmutableArray();
@@ -513,15 +522,15 @@ namespace Perlang.Interpreter.Typing
             /// <summary>
             /// Returns the approximate max value for the given type.
             ///
-            /// The "approximate" part is important to understand how to properly use this method. Do not_ use it in
+            /// The "approximate" part is important to understand how to properly use this method. Do _not_ use it in
             /// case you need an exact value. It is only suited for "size comparisons", to determine which one of two
             /// values that uses the "larger" type. For example, Double is larger than Single; Double is also larger
-            /// than Decimal (even though the latter has a higher level of precision). Because of this, an example
-            /// of types for which this method will return an approximate, inexact return value is Decimal.
+            /// than Decimal (even though the latter has a higher level of precision). Because of this, an example of
+            /// types for which this method will return an approximate, inexact return value is Decimal.
             /// </summary>
-            /// <param name="type">a Type</param>
-            /// <returns>the approximate max value for the given type</returns>
-            /// <exception cref="ArgumentOutOfRangeException">in case the given type is not supported by this method</exception>
+            /// <param name="type">A Type.</param>
+            /// <returns>The approximate max value for the given type.</returns>
+            /// <exception cref="ArgumentOutOfRangeException">The given type is not supported by this method.</exception>
             private static double? GetMaxValue(Type type)
             {
                 switch (Type.GetTypeCode(type))
@@ -534,10 +543,10 @@ namespace Perlang.Interpreter.Typing
                     case TypeCode.DateTime:
                     case TypeCode.String:
                         // The types above are unsuitable for arithmetic operations. We might at some point consider
-                        // relaxing this and supporting Ruby-like things, like '*' * 10 to produce '**********'. However,
-                        // after having used Ruby for a long time, our conclusion is that such constructs are rarely used
-                        // and even though they add a bit of elegance/syntactic sugar to the expressiveness of the
-                        // language, the cost in terms of added complexity might not be worth it.
+                        // relaxing this and supporting Ruby-like things, like '*' * 10 to produce '**********'.
+                        // However, after having used Ruby for a long time, our conclusion is that such constructs are
+                        // rarely used and even though they add a bit of elegance/syntactic sugar to the expressiveness
+                        // of the language, the cost in terms of added complexity might not be worth it.
                         return null;
 
                     case TypeCode.SByte:
@@ -576,8 +585,8 @@ namespace Perlang.Interpreter.Typing
                     return;
                 }
 
-                // Initial phase: Resolve a limited set of built-in types. Only short type names are supported;
-                // fully qualified type names will have to come at a later stage.
+                // Initial phase: Resolve a limited set of built-in types. Only short type names are supported; fully
+                // qualified type names will have to come at a later stage.
                 string lexeme = typeReference.TypeSpecifier.Lexeme;
 
                 switch (lexeme)
@@ -616,8 +625,7 @@ namespace Perlang.Interpreter.Typing
             private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
             private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
-            internal TypeValidatorHelper(Func<Expr, Binding> getVariableOrFunctionCallback,
-                Action<TypeValidationError> typeValidationErrorCallback)
+            internal TypeValidatorHelper(Func<Expr, Binding> getVariableOrFunctionCallback, Action<TypeValidationError> typeValidationErrorCallback)
             {
                 this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
                 this.typeValidationErrorCallback = typeValidationErrorCallback;
@@ -672,8 +680,11 @@ namespace Perlang.Interpreter.Typing
                     // error messages to the caller than when calling an overloaded method.
                     if (parameters.Length != call.Arguments.Count)
                     {
-                        typeValidationErrorCallback(new TypeValidationError(call.Paren,
-                            $"Method '{methodName}' has {parameters.Length} parameter(s) but was called with {call.Arguments.Count} argument(s)"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            call.Paren,
+                            $"Method '{methodName}' has {parameters.Length} parameter(s) but was called with {call.Arguments.Count} argument(s)"
+                        ));
+
                         return;
                     }
 
@@ -739,10 +750,10 @@ namespace Perlang.Interpreter.Typing
                         }
                     }
 
-                    typeValidationErrorCallback(
-                        new NameResolutionError(call.Paren,
-                            $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters.")
-                    );
+                    typeValidationErrorCallback(new NameResolutionError(
+                        call.Paren,
+                        $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters."
+                    ));
                 }
             }
 
@@ -753,8 +764,7 @@ namespace Perlang.Interpreter.Typing
                 if (binding == null)
                 {
                     typeValidationErrorCallback(
-                        new NameResolutionError(expr.Paren,
-                            $"Attempting to call undefined function '{expr.CalleeToString}'")
+                        new NameResolutionError(expr.Paren, $"Attempting to call undefined function '{expr.CalleeToString}'")
                     );
 
                     return;
@@ -770,8 +780,7 @@ namespace Perlang.Interpreter.Typing
 
                         if (function == null)
                         {
-                            throw new NameResolutionError(expr.Paren,
-                                $"Internal compiler error: function for {expr} not expected to be null");
+                            throw new NameResolutionError(expr.Paren, $"Internal compiler error: function for {expr} not expected to be null");
                         }
 
                         parameters = function.Parameters;
@@ -784,14 +793,16 @@ namespace Perlang.Interpreter.Typing
                         break;
 
                     default:
-                        throw new NameResolutionError(expr.Paren,
-                            $"Attempting to call invalid function {binding} using {expr}");
+                        throw new NameResolutionError(expr.Paren, $"Attempting to call invalid function {binding} using {expr}");
                 }
 
                 if (parameters.Count != expr.Arguments.Count)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(expr.Paren,
-                        $"Function '{functionName}' has {parameters.Count} parameter(s) but was called with {expr.Arguments.Count} argument(s)"));
+                    typeValidationErrorCallback(new TypeValidationError(
+                        expr.Paren,
+                        $"Function '{functionName}' has {parameters.Count} parameter(s) but was called with {expr.Arguments.Count} argument(s)")
+                    );
+
                     return;
                 }
 
@@ -802,8 +813,7 @@ namespace Perlang.Interpreter.Typing
 
                     if (!argument.TypeReference.IsResolved)
                     {
-                        throw new PerlangInterpreterException(
-                            $"Internal compiler error: Argument '{argument}' to function {functionName} not resolved");
+                        throw new PerlangInterpreterException($"Internal compiler error: Argument '{argument}' to function {functionName} not resolved");
                     }
 
                     if (!CanBeCoercedInto(parameter.TypeReference, argument.TypeReference))
@@ -846,8 +856,10 @@ namespace Perlang.Interpreter.Typing
                     }
                     else
                     {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.ReturnTypeReference.TypeSpecifier,
-                            $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier.Lexeme}"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.ReturnTypeReference.TypeSpecifier,
+                            $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier.Lexeme}"
+                        ));
                     }
                 }
 
@@ -874,8 +886,10 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (!stmt.Value.TypeReference.IsResolved)
                     {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.Keyword,
-                            $"Internal compiler error: return {stmt.Value} inference has not been attempted"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.Keyword,
+                            $"Internal compiler error: return {stmt.Value} inference has not been attempted"
+                        ));
 
                         sanityCheckFailed = true;
                     }
@@ -902,8 +916,10 @@ namespace Perlang.Interpreter.Typing
                 // Sanity check the input to ensure that we don't get NullReferenceExceptions later on
                 if (stmt.TypeReference == null)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(stmt.Name,
-                        $"Internal compiler error: {stmt.Name.Lexeme} is missing a TypeReference"));
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.Name,
+                        $"Internal compiler error: {stmt.Name.Lexeme} is missing a TypeReference"
+                    ));
 
                     sanityCheckFailed = true;
                 }
@@ -912,15 +928,19 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (stmt.Initializer.TypeReference == null)
                     {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.Name,
-                            $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} missing a TypeReference"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.Name,
+                            $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} missing a TypeReference"
+                        ));
 
                         sanityCheckFailed = true;
                     }
                     else if (!stmt.Initializer.TypeReference.IsResolved)
                     {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.Name,
-                            $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.Name,
+                            $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"
+                        ));
 
                         sanityCheckFailed = true;
                     }
@@ -936,27 +956,35 @@ namespace Perlang.Interpreter.Typing
                     if (stmt.Initializer != null &&
                         !CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
                     {
-                        typeValidationErrorCallback(new TypeValidationError(stmt.TypeReference.TypeSpecifier,
-                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"));
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.TypeReference.TypeSpecifier,
+                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"
+                        ));
                     }
                 }
                 else if (stmt.Initializer == null)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(null,
+                    typeValidationErrorCallback(new TypeValidationError(
+                        null,
                         $"Type inference for variable '{stmt.Name.Lexeme}' cannot be performed when initializer is not specified. " +
-                        "Either provide an initializer, or specify the type explicitly."));
+                        "Either provide an initializer, or specify the type explicitly."
+                    ));
                 }
                 else if (!stmt.TypeReference.ExplicitTypeSpecified)
                 {
                     // FIXME: Let's see if we'll ever go into this branch. If we don't have a test that reproduces
                     // this once all tests are green, we should consider wiping it from the face off the earth.
-                    typeValidationErrorCallback(new TypeValidationError(null,
-                        $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."));
+                    typeValidationErrorCallback(new TypeValidationError(
+                        null,
+                        $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."
+                    ));
                 }
                 else
                 {
-                    typeValidationErrorCallback(new TypeValidationError(stmt.TypeReference.TypeSpecifier,
-                        $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"));
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.TypeReference.TypeSpecifier,
+                        $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"
+                    ));
                 }
 
                 return VoidObject.Void;
@@ -966,17 +994,16 @@ namespace Perlang.Interpreter.Typing
             /// Determines if a value of <paramref name="sourceTypeReference"/> can be coerced into
             /// <paramref name="targetTypeReference"/>.
             ///
-            /// The <![CDATA[source]]> and <![CDATA[target]]> concepts are important here. Sometimes values can
-            /// be coerced in one direction but not the other. For example, an int can be coerced to a long, but not
-            /// the other way around (without an explicit type cast). The same goes for unsigned integer types; they
-            /// can not be coerced to their signed counterpart (uint -> int), but they can be coerced to a larger
-            /// signed type if available.
+            /// The `source` and `target` concepts are important here. Sometimes values can be coerced in one direction
+            /// but not the other. For example, an `int` can be coerced to a `long`, but not the other way around
+            /// (without an explicit type cast). The same goes for unsigned integer types; they can not be coerced to
+            /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
+            /// available.
             /// </summary>
-            /// <param name="targetTypeReference">a reference to the target type</param>
-            /// <param name="sourceTypeReference">a reference to the source type</param>
-            /// <returns>true if a source value can be coerced into the target type, false otherwise</returns>
-            private static bool CanBeCoercedInto(TypeReference targetTypeReference,
-                TypeReference sourceTypeReference)
+            /// <param name="targetTypeReference">A reference to the target type.</param>
+            /// <param name="sourceTypeReference">A reference to the source type.</param>
+            /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
+            private static bool CanBeCoercedInto(TypeReference targetTypeReference, TypeReference sourceTypeReference)
             {
                 return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType);
             }
@@ -985,15 +1012,15 @@ namespace Perlang.Interpreter.Typing
             /// Determines if a value of <paramref name="sourceType"/> can be coerced into
             /// <paramref name="targetType"/>.
             ///
-            /// The <![CDATA[source]]> and <![CDATA[target]]> concepts are important here. Sometimes values can
-            /// be coerced in one direction but not the other. For example, an int can be coerced to a long, but not
-            /// the other way around (without an explicit type cast). The same goes for unsigned integer types; they
-            /// can not be coerced to their signed counterpart (uint -> int), but they can be coerced to a larger
-            /// signed type if available.
+            /// The `source` and `target` concepts are important here. Sometimes values can be coerced in one direction
+            /// but not the other. For example, an `int` can be coerced to a `long`, but not the other way around
+            /// (without an explicit type cast). The same goes for unsigned integer types; they can not be coerced to
+            /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
+            /// available.
             /// </summary>
-            /// <param name="targetType">the target type</param>
-            /// <param name="sourceType">the source type</param>
-            /// <returns>true if a source value can be coerced into the target type, false otherwise</returns>
+            /// <param name="targetType">The target type.</param>
+            /// <param name="sourceType">The source type.</param>
+            /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
             private static bool CanBeCoercedInto(Type targetType, Type sourceType)
             {
                 // TODO: Implement some of these coercions being advertised in the XML docs. ;)
