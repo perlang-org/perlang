@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+      - uses: actions/checkout@v1
 
-    - name: Rebuild website
-      run: make docs
+      - name: Rebuild website
+        run: make docs
 
-    #
-    # Upload files to public web server via rsync
-    #
-    - name: Upload generated web site
-      uses: easingthemes/ssh-deploy@v2.1.1
-      env:
+      #
+      # Upload files to public web server via rsync
+      #
+      - name: Upload generated web site
+        uses: easingthemes/ssh-deploy@v2.1.1
+        env:
           SSH_PRIVATE_KEY: ${{ secrets.WWW_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvO"
           SOURCE: "./_site/"

@@ -14,11 +14,11 @@ jobs:
           - macos-10.15
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Run perlang-install script
-      run: ./scripts/perlang-install
-    - name: Output perlang version
-      run: $HOME/.perlang/nightly/bin/perlang --version
+      - uses: actions/checkout@v1
+      - name: Run perlang-install script
+        run: ./scripts/perlang-install
+      - name: Output perlang version
+        run: $HOME/.perlang/nightly/bin/perlang --version
 
   # Windows need special treatment, since the default shell for Windows with
   # GitHub actions is Powershell. We do not want to change to 'bash' for the
@@ -28,10 +28,10 @@ jobs:
     runs-on: windows-2019
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Run perlang-install script
-      run: ./scripts/perlang-install
-      shell: bash
-    - name: Output perlang version
-      run: $HOME/.perlang/nightly/bin/perlang --version
-      shell: bash
+      - uses: actions/checkout@v1
+      - name: Run perlang-install script
+        run: ./scripts/perlang-install
+        shell: bash
+      - name: Output perlang version
+        run: $HOME/.perlang/nightly/bin/perlang --version
+        shell: bash
