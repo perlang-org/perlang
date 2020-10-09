@@ -7,6 +7,7 @@ on:
     paths:
       # TODO: Replace Perlang** with src/ once we have moved all the projects in there.
       # TODO: https://github.com/perlun/perlang/issues/82
+      - .github/workflows/publish-website.yml
       - docs/**
       - Perlang**
 
