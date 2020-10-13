@@ -32,7 +32,7 @@ namespace Perlang.ConsoleApp
         /// Entry point for the `perlang` binary.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
-        /// <returns>Zero if the program executed successfully; non-zero otherwise</returns>
+        /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
             var rootCommand = new RootCommand
@@ -53,8 +53,10 @@ namespace Perlang.ConsoleApp
                         {
                             new Program().RunFile(scriptName);
                         }
-                        else // More than 1 argument
+                        else
                         {
+                            // More than 1 argument. The remaining arguments are passed to the program, which can use
+                            // argv_pop() to retrieve them.
                             var remainingArguments = parseResult.Tokens.Skip(1)
                                 .Take(parseResult.Tokens.Count - 1)
                                 .Select(r => r.Value);
@@ -74,9 +76,10 @@ namespace Perlang.ConsoleApp
             return rootCommand.Invoke(args);
         }
 
-        internal Program(IEnumerable<string> arguments = null,
-                         Action<string> standardOutputHandler = null,
-                         Action<RuntimeError> runtimeErrorHandler = null)
+        internal Program(
+            IEnumerable<string> arguments = null,
+            Action<string> standardOutputHandler = null,
+            Action<RuntimeError> runtimeErrorHandler = null)
         {
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
 
@@ -116,7 +119,7 @@ namespace Perlang.ConsoleApp
             ReadLine.HistoryEnabled = true;
             ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
 
-            for (;;)
+            while (true)
             {
                 string command = ReadLine.Read("> ");
 
@@ -146,7 +149,7 @@ namespace Perlang.ConsoleApp
 
         private void ScanError(ScanError scanError)
         {
-            Report(scanError.Line, "", scanError.Message);
+            Report(scanError.Line, String.Empty, scanError.Message);
         }
 
         private void RuntimeError(RuntimeError error)
@@ -213,7 +216,7 @@ namespace Perlang.ConsoleApp
             }
 
             // characters to start completion from
-            public char[] Separators { get; set; } = {' ', '.', '/'};
+            public char[] Separators { get; set; } = { ' ', '.', '/' };
         }
     }
 }
