@@ -5,8 +5,8 @@ namespace Perlang.Exceptions
     /// </summary>
     public class IllegalStateException : StdlibException
     {
-        public IllegalStateException(string message) :
-            base(message)
+        public IllegalStateException(string message)
+            : base(message)
         {
         }
     }
