@@ -8,10 +8,14 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DocumentationFile>bin\Debug\Perlang.Parser.xml</DocumentationFile>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <NoWarn>1591;1701;1702</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <DocumentationFile>bin\Release\Perlang.Parser.xml</DocumentationFile>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <NoWarn>1591;1701;1702</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

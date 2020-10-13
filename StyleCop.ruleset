@@ -7,6 +7,10 @@
         <Rule Id="SA1003" Action="None"/>       <!-- Symbols should be spaced correctly -->
         <Rule Id="SA1009" Action="None"/>       <!-- Closing parenthesis should be spaced correctly -->
         <Rule Id="SA1101" Action="None"/>       <!-- Prefix local calls with this -->
+
+        <!-- This one mostly makes sense, _but_ it can at the same time be useful to document the "else // condition-here". -->
+        <Rule Id="SA1108" Action="None"/>       <!-- Block statements should not contain embedded comments -->
+
         <Rule Id="SA1111" Action="None"/>       <!-- Closing parenthesis should be on line of last parameter -->
         <Rule Id="SA1120" Action="None"/>       <!-- Comments should contain text -->
         <Rule Id="SA1121" Action="None"/>       <!-- Use built-in type alias -->
