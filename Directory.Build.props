@@ -1,11 +1,13 @@
 <Project>
-    <!-- StyleCop Analyzers configuration -->
+    <!-- C# analyzers configuration -->
     <PropertyGroup>
-        <CodeAnalysisRuleSet>$(SolutionDir)StyleCop.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>$(SolutionDir)global.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205" PrivateAssets="all" />
         <AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
+
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.14.0.22654" />
     </ItemGroup>
 </Project>

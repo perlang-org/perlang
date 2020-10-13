@@ -4,7 +4,7 @@ namespace Perlang.Interpreter.Resolution
 {
     internal class NativeClassBindingFactory : IBindingFactory
     {
-        private Type type;
+        private readonly Type type;
 
         public NativeClassBindingFactory(Type type)
         {

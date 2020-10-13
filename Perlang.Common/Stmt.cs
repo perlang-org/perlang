@@ -5,7 +5,7 @@ namespace Perlang
 {
     public abstract class Stmt
     {
-        public interface IVisitor<TR>
+        public interface IVisitor<out TR>
         {
             TR VisitBlockStmt(Block stmt);
             TR VisitClassStmt(Class stmt);

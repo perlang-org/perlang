@@ -32,4 +32,12 @@
         <Rule Id="SA1602" Action="None"/>       <!-- Enumeration items should be documented -->
         <Rule Id="SA1633" Action="None"/>       <!-- File should have header -->
     </Rules>
+
+    <Rules AnalyzerId="SonarAnalyzer.CSharp" RuleNamespace="SonarAnalyzer.CSharp">
+        <Rule Id="S125" Action="None"/>
+        <Rule Id="S1134" Action="None"/>
+        <Rule Id="S1135" Action="None"/>
+        <Rule Id="S3376" Action="None"/>
+        <Rule Id="S3925" Action="None"/>
+    </Rules>
 </RuleSet>

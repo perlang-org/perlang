@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static Perlang.TokenType;
 using static Perlang.Utils;
@@ -19,11 +20,12 @@ namespace Perlang.Parser
         private bool allowExpression;
         private bool foundExpression = false;
 
-        private class ParseError : Exception
+        [SuppressMessage("SonarAnalyzer.CSharp", "S3871", Justification = "Exception is not propagated outside class")]
+        private class InternalParseError : Exception
         {
             public ParseErrorType? ParseErrorType { get; }
 
-            public ParseError(ParseErrorType? parseErrorType)
+            public InternalParseError(ParseErrorType? parseErrorType)
             {
                 ParseErrorType = parseErrorType;
             }
@@ -58,7 +60,7 @@ namespace Perlang.Parser
             {
                 return Expression();
             }
-            catch (ParseError)
+            catch (InternalParseError)
             {
                 // Error has already been reported at this point
                 return null;
@@ -115,7 +117,7 @@ namespace Perlang.Parser
 
                 return Statement();
             }
-            catch (ParseError)
+            catch (InternalParseError)
             {
                 Synchronize();
                 return null;
@@ -610,7 +612,7 @@ namespace Perlang.Parser
         /// <param name="message">The error message to use if the token does not match.</param>
         /// <param name="parseErrorType">An optional parameter indicating the type of parse error.</param>
         /// <returns>The matched token.</returns>
-        /// <exception cref="ParseError">The token does not match.</exception>
+        /// <exception cref="InternalParseError">The token does not match.</exception>
         private Token Consume(TokenType type, string message, ParseErrorType? parseErrorType = null)
         {
             if (Check(type))
@@ -670,11 +672,11 @@ namespace Perlang.Parser
             return tokens[current - 1];
         }
 
-        private ParseError Error(Token token, string message, ParseErrorType? parseErrorType = null)
+        private InternalParseError Error(Token token, string message, ParseErrorType? parseErrorType = null)
         {
-            parseErrorHandler(new Parser.ParseError(message, token, parseErrorType));
+            parseErrorHandler(new ParseError(message, token, parseErrorType));
 
-            return new ParseError(parseErrorType);
+            return new InternalParseError(parseErrorType);
         }
 
         private void Synchronize()
