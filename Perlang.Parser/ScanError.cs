@@ -6,8 +6,8 @@ namespace Perlang.Parser
     {
         public int Line { get; }
 
-        public ScanError(string message, int line) :
-            base(message)
+        public ScanError(string message, int line)
+            : base(message)
         {
             Line = line;
         }

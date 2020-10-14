@@ -9,22 +9,22 @@ namespace Perlang.Parser
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
-                {"and", AND},
-                {"class", CLASS},
-                {"else", ELSE},
-                {"false", FALSE},
-                {"for", FOR},
-                {"fun", FUN},
-                {"if", IF},
-                {"nil", NIL},
-                {"or", OR},
-                {"print", PRINT},
-                {"return", RETURN},
-                {"super", SUPER},
-                {"this", THIS},
-                {"true", TRUE},
-                {"var", VAR},
-                {"while", WHILE}
+                { "and", AND },
+                { "class", CLASS },
+                { "else", ELSE },
+                { "false", FALSE },
+                { "for", FOR },
+                { "fun", FUN },
+                { "if", IF },
+                { "nil", NIL },
+                { "or", OR },
+                { "print", PRINT },
+                { "return", RETURN },
+                { "super", SUPER },
+                { "this", THIS },
+                { "true", TRUE },
+                { "var", VAR },
+                { "while", WHILE }
             };
 
         private readonly string source;
@@ -50,7 +50,7 @@ namespace Perlang.Parser
                 ScanToken();
             }
 
-            tokens.Add(new Token(EOF, "", null, line));
+            tokens.Add(new Token(EOF, System.String.Empty, null, line));
             return tokens;
         }
 
@@ -109,8 +109,11 @@ namespace Perlang.Parser
                 case '/':
                     if (Match('/'))
                     {
-                        // A comment goes until the end of the line.
-                        while (Peek() != '\n' && !IsAtEnd()) Advance();
+                        // A comment continues until the end of the line.
+                        while (Peek() != '\n' && !IsAtEnd())
+                        {
+                            Advance();
+                        }
                     }
                     else
                     {
@@ -153,7 +156,10 @@ namespace Perlang.Parser
 
         private void Identifier()
         {
-            while (IsAlphaNumeric(Peek())) Advance();
+            while (IsAlphaNumeric(Peek()))
+            {
+                Advance();
+            }
 
             // See if the identifier is a reserved word.
             string text = source[start..current];
@@ -166,7 +172,10 @@ namespace Perlang.Parser
         {
             bool isFractional = false;
 
-            while (IsDigit(Peek())) Advance();
+            while (IsDigit(Peek()))
+            {
+                Advance();
+            }
 
             // Look for a fractional part.
             if (Peek() == '.' && IsDigit(PeekNext()))
@@ -176,7 +185,10 @@ namespace Perlang.Parser
                 // Consume the "."
                 Advance();
 
-                while (IsDigit(Peek())) Advance();
+                while (IsDigit(Peek()))
+                {
+                    Advance();
+                }
             }
 
             if (isFractional)
@@ -193,15 +205,15 @@ namespace Perlang.Parser
 
                 if (value < Int32.MaxValue)
                 {
-                    AddToken(NUMBER, (int)value);
+                    AddToken(NUMBER, (int) value);
                 }
                 else if (value < UInt32.MaxValue)
                 {
-                    AddToken(NUMBER, (uint)value);
+                    AddToken(NUMBER, (uint) value);
                 }
                 else if (value < Int64.MaxValue)
                 {
-                    AddToken(NUMBER, (long)value);
+                    AddToken(NUMBER, (long) value);
                 }
                 else // ulong
                 {
@@ -214,7 +226,11 @@ namespace Perlang.Parser
         {
             while (Peek() != '"' && !IsAtEnd())
             {
-                if (Peek() == '\n') line++;
+                if (Peek() == '\n')
+                {
+                    line++;
+                }
+
                 Advance();
             }
 

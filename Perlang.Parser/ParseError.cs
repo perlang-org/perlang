@@ -7,8 +7,8 @@ namespace Perlang.Parser
         public Token Token { get; }
         public ParseErrorType? ParseErrorType { get; }
 
-        public ParseError(string message, Token token, ParseErrorType? errorType) :
-            base(message)
+        public ParseError(string message, Token token, ParseErrorType? errorType)
+            : base(message)
         {
             Token = token;
             ParseErrorType = errorType;

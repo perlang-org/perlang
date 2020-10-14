@@ -1,4 +1,11 @@
-﻿using System;
+// This class contains a number of these violations. While slightly ugly, it does make the code a bit more dense and
+// arguably, readable. I'm not fully convinced that adding the braces in this _particular case_ makes the code better.
+// Some form of switch expression-based solution would probably be good enough to convince me; feel free to give it a
+// try and send a PR.
+
+#pragma warning disable SA1503
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Perlang.TokenType;
@@ -175,12 +182,13 @@ namespace Perlang.Parser
                 });
             }
 
-            if (condition == null) condition = new Expr.Literal(true);
+            condition ??= new Expr.Literal(true);
+
             body = new Stmt.While(condition, body);
 
             if (initializer != null)
             {
-                body = new Stmt.Block(new List<Stmt> {initializer, body});
+                body = new Stmt.Block(new List<Stmt> { initializer, body });
             }
 
             return body;
@@ -279,7 +287,8 @@ namespace Perlang.Parser
 
             var methods = new List<Stmt.Function>();
 
-            while (!Check(RIGHT_BRACE) && !IsAtEnd()) {
+            while (!Check(RIGHT_BRACE) && !IsAtEnd())
+            {
                 methods.Add(Function("method"));
             }
 
@@ -314,7 +323,8 @@ namespace Perlang.Parser
                     }
 
                     parameters.Add(new Parameter(parameterName, new TypeReference(parameterTypeSpecifier)));
-                } while (Match(COMMA));
+                }
+                while (Match(COMMA));
             }
 
             Consume(RIGHT_PAREN, "Expect ')' after parameters.");
@@ -401,9 +411,9 @@ namespace Perlang.Parser
 
             while (Match(OR))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = And();
-                expr = new Expr.Logical(expr, _operator, right);
+                expr = new Expr.Logical(expr, @operator, right);
             }
 
             return expr;
@@ -415,9 +425,9 @@ namespace Perlang.Parser
 
             while (Match(AND))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = Equality();
-                expr = new Expr.Logical(expr, _operator, right);
+                expr = new Expr.Logical(expr, @operator, right);
             }
 
             return expr;
@@ -429,9 +439,9 @@ namespace Perlang.Parser
 
             while (Match(BANG_EQUAL, EQUAL_EQUAL))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = Comparison();
-                expr = new Expr.Binary(expr, _operator, right);
+                expr = new Expr.Binary(expr, @operator, right);
             }
 
             return expr;
@@ -443,9 +453,9 @@ namespace Perlang.Parser
 
             while (Match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = Addition();
-                expr = new Expr.Binary(expr, _operator, right);
+                expr = new Expr.Binary(expr, @operator, right);
             }
 
             return expr;
@@ -457,9 +467,9 @@ namespace Perlang.Parser
 
             while (Match(MINUS, PLUS))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = Multiplication();
-                expr = new Expr.Binary(expr, _operator, right);
+                expr = new Expr.Binary(expr, @operator, right);
             }
 
             return expr;
@@ -471,9 +481,9 @@ namespace Perlang.Parser
 
             while (Match(SLASH, STAR))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = UnaryPrefix();
-                expr = new Expr.Binary(expr, _operator, right);
+                expr = new Expr.Binary(expr, @operator, right);
             }
 
             return expr;
@@ -483,9 +493,9 @@ namespace Perlang.Parser
         {
             if (Match(BANG, MINUS))
             {
-                Token _operator = Previous();
+                Token @operator = Previous();
                 Expr right = UnaryPrefix();
-                return new Expr.UnaryPrefix(_operator, right);
+                return new Expr.UnaryPrefix(@operator, right);
             }
 
             return Call();
@@ -529,7 +539,8 @@ namespace Perlang.Parser
                     }
 
                     arguments.Add(Expression());
-                } while (Match(COMMA));
+                }
+                while (Match(COMMA));
             }
 
             Token paren = Consume(RIGHT_PAREN, "Expect ')' after arguments.");
@@ -575,8 +586,8 @@ namespace Perlang.Parser
         ///
         /// For a non-consuming version of this, see <see cref="Check"/>.
         /// </summary>
-        /// <param name="types">One or more token types to match</param>
-        /// <returns>true if a matching token was found and consumed, false otherwise</returns>
+        /// <param name="types">One or more token types to match.</param>
+        /// <returns>`true` if a matching token was found and consumed, `false` otherwise.</returns>
         private bool Match(params TokenType[] types)
         {
             foreach (TokenType type in types)
@@ -592,14 +603,14 @@ namespace Perlang.Parser
         }
 
         /// <summary>
-        /// Matches the given token type at the current position. If the current token does not match, an exception is
-        /// thrown.
+        /// Matches the given token type at the current position, expecting a match. If the current token does not
+        /// match, an exception is thrown.
         /// </summary>
-        /// <param name="type">the type of token to match</param>
-        /// <param name="message">the error message to use if the token does not match</param>
-        /// <param name="parseErrorType">an optional parameter indicating the type of parse error</param>
-        /// <returns>the matched token</returns>
-        /// <exception cref="ParseError">if the token does not match</exception>
+        /// <param name="type">The type of token to match.</param>
+        /// <param name="message">The error message to use if the token does not match.</param>
+        /// <param name="parseErrorType">An optional parameter indicating the type of parse error.</param>
+        /// <returns>The matched token.</returns>
+        /// <exception cref="ParseError">The token does not match.</exception>
         private Token Consume(TokenType type, string message, ParseErrorType? parseErrorType = null)
         {
             if (Check(type))
@@ -611,11 +622,11 @@ namespace Perlang.Parser
         }
 
         /// <summary>
-        /// Checks if the current token matches the provided TokenType. Similar to <see cref="Match"/> but does not
-        /// consume the token on matches.
+        /// Non-consuming version of <see cref="Match"/>: checks if the current token matches the provided <see
+        /// cref="TokenType"/>, but does not consume the token even if it matches.
         /// </summary>
-        /// <param name="type">the TokenType to match</param>
-        /// <returns>true if it matches, false otherwise</returns>
+        /// <param name="type">The `TokenType` to match.</param>
+        /// <returns>`true` if it matches, `false` otherwise.</returns>
         private bool Check(TokenType type)
         {
             if (IsAtEnd())
@@ -644,7 +655,7 @@ namespace Perlang.Parser
         /// <summary>
         /// Returns the token at the current position.
         /// </summary>
-        /// <returns>A Token</returns>
+        /// <returns>A token.</returns>
         private Token Peek()
         {
             return tokens[current];
@@ -653,7 +664,7 @@ namespace Perlang.Parser
         /// <summary>
         /// Returns the token right before the current position.
         /// </summary>
-        /// <returns>A Token</returns>
+        /// <returns>A token.</returns>
         private Token Previous()
         {
             return tokens[current - 1];
