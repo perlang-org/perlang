@@ -37,6 +37,7 @@ namespace Perlang.Interpreter
 
         private readonly ImmutableDictionary<string, Type> nativeClasses;
         private readonly Action<string> standardOutputHandler;
+        private readonly bool replMode;
 
         private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
         private IEnvironment currentEnvironment;
@@ -50,10 +51,13 @@ namespace Perlang.Interpreter
         ///     standard output. If not provided or null, output will be printed to the standard output of the
         ///     running process.</param>
         /// <param name="arguments">An optional list of runtime arguments.</param>
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null)
+        /// <param name="replMode">A flag indicating whether REPL mode will be active or not. In REPL mode, statements
+        /// without semicolons are accepted.</param>
+        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null, bool replMode = false)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
+            this.replMode = replMode;
 
             Arguments = new List<string>(arguments ?? new string[0]);
 
@@ -207,11 +211,15 @@ namespace Perlang.Interpreter
             }
 
             bool hasParseErrors = false;
-            var parser = new PerlangParser(tokens, parseError =>
-            {
-                hasParseErrors = true;
-                parseErrorHandler(parseError);
-            });
+            var parser = new PerlangParser(
+                tokens,
+                parseError =>
+                {
+                    hasParseErrors = true;
+                    parseErrorHandler(parseError);
+                },
+                allowSemicolonElision: replMode
+            );
 
             object syntax = parser.ParseExpressionOrStatements();
 

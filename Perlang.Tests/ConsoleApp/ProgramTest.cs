@@ -17,7 +17,7 @@ namespace Perlang.Tests.ConsoleApp
         }
 
         [Fact]
-        public void Run_can_run_multiple_statements_separated_by_semicolon()
+        public void Run_supports_multiple_statements_separated_by_semicolon()
         {
             subject.Run("var a = 42; print a;");
 
@@ -25,12 +25,28 @@ namespace Perlang.Tests.ConsoleApp
         }
 
         [Fact]
+        public void Run_supports_final_semicolon_elision_single_statement()
+        {
+            subject.Run("print 10");
+
+            Assert.Equal(new List<string> { "10" }, output);
+        }
+
+        [Fact]
+        public void Run_supports_final_semicolon_elision_multiple_statements()
+        {
+            subject.Run("var a = 43; print a");
+
+            Assert.Equal(new List<string> { "43" }, output);
+        }
+
+        [Fact]
         public void Run_state_persists_between_invocations()
         {
-            subject.Run("var a = 42;");
+            subject.Run("var a = 44;");
             subject.Run("print a;");
 
-            Assert.Equal(new List<string> { "42" }, output);
+            Assert.Equal(new List<string> { "44" }, output);
         }
 
         [Fact]
