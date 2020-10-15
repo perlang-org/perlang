@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -25,7 +26,7 @@ namespace Perlang.Parser
                 { "true", TRUE },
                 { "var", VAR },
                 { "while", WHILE }
-            };
+            }.ToImmutableDictionary();
 
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;

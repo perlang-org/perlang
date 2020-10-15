@@ -5,7 +5,7 @@ namespace Perlang.Exceptions
     /// </summary>
     public abstract class StdlibException : RuntimeError
     {
-        public StdlibException(string message)
+        protected StdlibException(string message)
             : base(null, message)
         {
         }

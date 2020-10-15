@@ -21,12 +21,12 @@ namespace Perlang.ConsoleApp
             "quit"
         };
 
-        private static bool hadError;
-        private static bool hadRuntimeError;
-
         private readonly PerlangInterpreter interpreter;
         private readonly Action<string> standardOutputHandler;
         private readonly Action<string> standardErrorHandler;
+
+        private bool hadError;
+        private bool hadRuntimeError;
 
         /// <summary>
         /// Entry point for the `perlang` binary.

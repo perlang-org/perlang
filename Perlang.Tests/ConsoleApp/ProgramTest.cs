@@ -1,3 +1,5 @@
+#pragma warning disable S3626
+
 using System.Collections.Generic;
 using Perlang.ConsoleApp;
 using Xunit;

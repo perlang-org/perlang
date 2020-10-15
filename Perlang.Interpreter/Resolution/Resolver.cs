@@ -1,3 +1,5 @@
+#pragma warning disable S1199
+
 using System;
 using System.Collections;
 using System.Collections.Generic;

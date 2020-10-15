@@ -1,3 +1,5 @@
+#pragma warning disable S907
+#pragma warning disable S3218
 #pragma warning disable SA1118
 
 using System;
@@ -533,7 +535,9 @@ namespace Perlang.Interpreter.Typing
             /// <exception cref="ArgumentOutOfRangeException">The given type is not supported by this method.</exception>
             private static double? GetMaxValue(Type type)
             {
-                switch (Type.GetTypeCode(type))
+                var typeCode = Type.GetTypeCode(type);
+
+                switch (typeCode)
                 {
                     case TypeCode.Empty:
                     case TypeCode.Object:
@@ -573,7 +577,7 @@ namespace Perlang.Interpreter.Typing
                         // Note: this will likely loose some precision.
                         return Convert.ToDouble(Decimal.MaxValue);
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentException($"{typeCode} is not supported");
                 }
             }
 
