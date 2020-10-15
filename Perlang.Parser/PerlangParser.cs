@@ -14,9 +14,18 @@ using static Perlang.Utils;
 
 namespace Perlang.Parser
 {
-    // Convoluted name to avoid conflict with namespace
+    // Convoluted class name to avoid conflict with namespace
+
+    /// <summary>
+    /// Parses Perlang code to either a list of statements or a single expression.
+    ///
+    /// This class is not thread safe; a single instance of the class can not be used simultaneously from multiple
+    /// threads.
+    /// </summary>
     public class PerlangParser
     {
+        private readonly bool allowSemicolonElision;
+
         private bool allowExpression;
         private bool foundExpression = false;
 
@@ -36,17 +45,18 @@ namespace Perlang.Parser
 
         private int current;
 
-        public PerlangParser(List<Token> tokens, ParseErrorHandler parseErrorHandler)
+        public PerlangParser(List<Token> tokens, ParseErrorHandler parseErrorHandler, bool allowSemicolonElision)
         {
             this.parseErrorHandler = parseErrorHandler;
             this.tokens = tokens;
+            this.allowSemicolonElision = allowSemicolonElision;
         }
 
         public IList<Stmt> ParseStatements()
         {
             var statements = new List<Stmt>();
 
-            while (!IsAtEnd())
+            while (!IsAtEnd)
             {
                 statements.Add(Declaration());
             }
@@ -82,7 +92,7 @@ namespace Perlang.Parser
 
             var statements = new List<Stmt>();
 
-            while (!IsAtEnd())
+            while (!IsAtEnd)
             {
                 statements.Add(Declaration());
 
@@ -216,7 +226,12 @@ namespace Perlang.Parser
         private Stmt PrintStatement()
         {
             Expr value = Expression();
-            Consume(SEMICOLON, "Expect ';' after value.");
+
+            if (!IsAtEnd || !allowSemicolonElision)
+            {
+                Consume(SEMICOLON, "Expect ';' after value.");
+            }
+
             return new Stmt.Print(value);
         }
 
@@ -230,7 +245,11 @@ namespace Perlang.Parser
                 value = Expression();
             }
 
-            Consume(SEMICOLON, "Expecting ';' after return value.");
+            if (!IsAtEnd || !allowSemicolonElision)
+            {
+                Consume(SEMICOLON, "Expecting ';' after return value.");
+            }
+
             return new Stmt.Return(keyword, value);
         }
 
@@ -252,7 +271,11 @@ namespace Perlang.Parser
                 initializer = Expression();
             }
 
-            Consume(SEMICOLON, "Expect ';' after variable declaration.");
+            if (!IsAtEnd || !allowSemicolonElision)
+            {
+                Consume(SEMICOLON, "Expect ';' after variable declaration.");
+            }
+
             return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier));
         }
 
@@ -270,11 +293,11 @@ namespace Perlang.Parser
         {
             Expr expr = Expression();
 
-            if (allowExpression && IsAtEnd())
+            if (allowExpression && IsAtEnd)
             {
                 foundExpression = true;
             }
-            else
+            else if (!allowSemicolonElision || !IsAtEnd)
             {
                 Consume(SEMICOLON, "Expect ';' after expression.", ParseErrorType.MISSING_TRAILING_SEMICOLON);
             }
@@ -289,7 +312,7 @@ namespace Perlang.Parser
 
             var methods = new List<Stmt.Function>();
 
-            while (!Check(RIGHT_BRACE) && !IsAtEnd())
+            while (!Check(RIGHT_BRACE) && !IsAtEnd)
             {
                 methods.Add(Function("method"));
             }
@@ -347,7 +370,7 @@ namespace Perlang.Parser
         {
             var statements = new List<Stmt>();
 
-            while (!Check(RIGHT_BRACE) && !IsAtEnd())
+            while (!Check(RIGHT_BRACE) && !IsAtEnd)
             {
                 statements.Add(Declaration());
             }
@@ -631,7 +654,7 @@ namespace Perlang.Parser
         /// <returns>`true` if it matches, `false` otherwise.</returns>
         private bool Check(TokenType type)
         {
-            if (IsAtEnd())
+            if (IsAtEnd)
             {
                 return false;
             }
@@ -641,7 +664,7 @@ namespace Perlang.Parser
 
         private Token Advance()
         {
-            if (!IsAtEnd())
+            if (!IsAtEnd)
             {
                 current++;
             }
@@ -649,10 +672,8 @@ namespace Perlang.Parser
             return Previous();
         }
 
-        private bool IsAtEnd()
-        {
-            return Peek().Type == EOF;
-        }
+        private bool IsAtEnd =>
+            Peek().Type == EOF;
 
         /// <summary>
         /// Returns the token at the current position.
@@ -683,7 +704,7 @@ namespace Perlang.Parser
         {
             Advance();
 
-            while (!IsAtEnd())
+            while (!IsAtEnd)
             {
                 if (Previous().Type == SEMICOLON)
                 {

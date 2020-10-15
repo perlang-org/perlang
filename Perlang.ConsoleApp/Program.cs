@@ -86,7 +86,12 @@ namespace Perlang.ConsoleApp
             // TODO: Make it possible to override this at some point, so the caller can separate between these types of output.
             this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
 
-            interpreter = new PerlangInterpreter(runtimeErrorHandler: runtimeErrorHandler ?? RuntimeError, this.standardOutputHandler, arguments ?? new List<string>());
+            interpreter = new PerlangInterpreter(
+                runtimeErrorHandler: runtimeErrorHandler ?? RuntimeError,
+                this.standardOutputHandler,
+                arguments ?? new List<string>(),
+                replMode: true
+            );
         }
 
         private void RunFile(string path)
