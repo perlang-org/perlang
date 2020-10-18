@@ -134,12 +134,14 @@ main() {
 
     echo
 
+    local _perlang_version=$($HOME/.perlang/${_toolchain}/bin/perlang --version)
+
     if $ansi_escapes_are_valid; then
         # We presume that the likeliness of Unicode emojis working is higher in
         # case ANSI escape sequences are valid.
-        printf "🎉 \33[1mInstallation complete 🎉\33[0m\n"
+        printf "🎉 \33[1mPerlang ${_perlang_version} successfully installed 🎉\33[0m\n"
     else
-        echo "Installation complete"
+        echo "Perlang ${_perlang_version} successfully installed"
     fi
 
     echo
