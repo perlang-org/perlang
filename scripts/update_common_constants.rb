@@ -2,7 +2,12 @@
 
 SOLUTION_DIR = ARGV.pop or abort('Error: Solution directory must be provided')
 
-GIT_VERSION = `git describe --always`.rstrip
+# Need to take -dev part out of e.g. 1.0.0-dev, since assembly versions must
+# adhere to the following format: major[.minor[.build[.revision]]]
+GIT_TAG_VERSION = `git describe --tags --abbrev=0 | sed s/-dev//`.rstrip
+
+GIT_DESCRIBE_VERSION = `git describe --tags | sed s/-g.*$// | sed s/dev-/dev./`.rstrip
+GIT_REVISION = `git describe --always`.rstrip
 
 common_constants = <<~EOF
 //
@@ -12,7 +17,9 @@ namespace Perlang
 {
     public static partial class CommonConstants
     {
-        public const string GitVersion = "#{GIT_VERSION}";
+        public const string GitTagVersion = "#{GIT_TAG_VERSION}";
+        public const string GitDescribeVersion = "#{GIT_DESCRIBE_VERSION}";
+        public const string GitRevision = "#{GIT_REVISION}";
     }
 }
 EOF

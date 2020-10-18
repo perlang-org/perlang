@@ -14,8 +14,8 @@ namespace Perlang
     /// </summary>
     public static partial class CommonConstants
     {
-        public const string Version = "0.1.0";
-        public const string InformationalVersion = Version + "+" + GitVersion;
+        public const string Version = GitTagVersion;
+        public const string InformationalVersion = GitDescribeVersion;
 
         public static string GetFullVersion() =>
             ((AssemblyInformationalVersionAttribute)Assembly
