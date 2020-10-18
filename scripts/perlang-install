@@ -19,7 +19,7 @@ PERLANG_BUILDS_ROOT="${PERLANG_BUILDS_ROOT:-https://builds.perlang.org}"
 
 usage() {
     cat 1>&2 <<EOF
-perlang-install (76bbdfa 2020-06-09)
+perlang-install (e55e0e0 2020-10-18)
 The installer for the perlang compiler and runtime.
 
 USAGE:
