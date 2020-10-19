@@ -18,3 +18,8 @@ If you have a previous build installed and want to overwrite it, use the followi
 
 ```shell
 $ curl -sSL https://perlang.org/install | sh -s -- --force
+```
+
+**Note**: If you are running the installer in Git Bash on Windows, running `perlang` after installation will unfortunately not work in the Bash shell (because of limitations preventing us from reading individual keystrokes in that shell). Please close the `bash` session after installation and `cd %userprofile%\.perlang\nightly\bin`. You should then be able to run `perlang` to open up the Perlang console session.
+
+For more details about this bug, please see https://github.com/perlun/perlang/issues/107.
