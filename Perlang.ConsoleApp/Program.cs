@@ -38,6 +38,18 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
+            return MainWithCustomConsole(args, console: null);
+        }
+
+        /// <summary>
+        /// Entry point for `perlang`, with the possibility to override the console streams (stdin, stdout, stderr).
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <param name="console">A custom `IConsole` implementation to use. May be null, in which case the standard
+        /// streams of the calling process will be used.</param>
+        /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
+        public static int MainWithCustomConsole(string[] args, IConsole console)
+        {
             var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
 
             var rootCommand = new RootCommand
@@ -90,7 +102,7 @@ namespace Perlang.ConsoleApp
             return new CommandLineBuilder(rootCommand)
                 .UseDefaults()
                 .Build()
-                .Invoke(args);
+                .Invoke(args, console);
         }
 
         internal Program(
@@ -104,7 +116,7 @@ namespace Perlang.ConsoleApp
             this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
 
             interpreter = new PerlangInterpreter(
-                runtimeErrorHandler: runtimeErrorHandler ?? RuntimeError,
+                runtimeErrorHandler ?? RuntimeError,
                 this.standardOutputHandler,
                 arguments ?? new List<string>(),
                 replMode: true
@@ -166,7 +178,7 @@ namespace Perlang.ConsoleApp
 
         private void PrintBanner()
         {
-            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()})");
+            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()}, built from {CommonConstants.GitRevision})");
         }
 
         private void ScanError(ScanError scanError)

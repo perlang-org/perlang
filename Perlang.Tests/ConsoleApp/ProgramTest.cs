@@ -1,6 +1,7 @@
 #pragma warning disable S3626
 
 using System.Collections.Generic;
+using System.CommandLine.IO;
 using Perlang.ConsoleApp;
 using Xunit;
 
@@ -75,14 +76,25 @@ namespace Perlang.Tests.ConsoleApp
         }
 
         [Fact]
-        public void Run_last_variable_defined_with_a_given_name_takes_precedence()
+        public void Run_variable_redefined_throws_expected_error()
         {
-            // This is definitely a bug. The second statement should cause an error, since a global variable with the
-            // same name already exists. For now, this test will remember us that these are the currently expected
-            // semantics.
+            // Act
             subject.Run("var a = 42;");
+
+            // Assert
             var exception = Assert.Throws<RuntimeError>(() => subject.Run("var a = 44;"));
             Assert.Matches("Variable with this name already declared in this scope", exception.Message);
+        }
+
+        [Fact]
+        public void Run_with_version_parameter_outputs_expected_value()
+        {
+            // Arrange & Act
+            var testConsole = new TestConsole();
+            Program.MainWithCustomConsole(new[] { "--version" }, testConsole);
+
+            // Assert
+            Assert.Equal(CommonConstants.InformationalVersion + "\n", testConsole.Out.ToString());
         }
     }
 }
