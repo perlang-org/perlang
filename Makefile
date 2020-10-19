@@ -6,7 +6,13 @@ SHELL=/bin/bash -e -o pipefail
 all: auto-generated
 	dotnet build
 
-auto-generated:
+auto-generated: Perlang.Common/CommonConstants.Generated.cs
+
+# Technically untrue, since this should be regenerated every time the git HEAD
+# is updated. But it's only critical that this is 100% correct in CI, where we
+# actually create builds that will be deployed to someone else's machine. (I
+# might have to eat this up someday. :-)
+Perlang.Common/CommonConstants.Generated.cs: ./scripts/update_common_constants.rb
 	./scripts/update_common_constants.rb `pwd`
 
 clean:

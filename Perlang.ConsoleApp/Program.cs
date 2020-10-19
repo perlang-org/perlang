@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
@@ -35,12 +38,20 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
+            var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
+
             var rootCommand = new RootCommand
             {
                 Description = "The Perlang Interpreter",
 
                 Handler = CommandHandler.Create((ParseResult parseResult, IConsole console) =>
                 {
+                    if (parseResult.HasOption(versionOption))
+                    {
+                        console.Out.WriteLine(CommonConstants.InformationalVersion);
+                        return Task.FromResult(0);
+                    }
+
                     if (parseResult.Tokens.Count == 0)
                     {
                         new Program().RunPrompt();
@@ -64,6 +75,8 @@ namespace Perlang.ConsoleApp
                             new Program(remainingArguments).RunFile(scriptName);
                         }
                     }
+
+                    return Task.FromResult(0);
                 })
             };
 
@@ -72,8 +85,12 @@ namespace Perlang.ConsoleApp
                 Arity = ArgumentArity.ZeroOrMore
             });
 
-            // Parse the incoming args and invoke the handler
-            return rootCommand.Invoke(args);
+            rootCommand.AddOption(versionOption);
+
+            return new CommandLineBuilder(rootCommand)
+                .UseDefaults()
+                .Build()
+                .Invoke(args);
         }
 
         internal Program(
