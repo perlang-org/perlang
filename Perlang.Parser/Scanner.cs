@@ -5,6 +5,15 @@ using static Perlang.TokenType;
 
 namespace Perlang.Parser
 {
+    /// <summary>
+    /// Scans a Perlang program, converting it to a list of <see cref="Token"/>s.
+    /// </summary>
+    /// <remarks>
+    /// Note that the documentation for this class talks about an "input stream" but in the current implementation, the
+    /// whole program is read into a `String`. If this turns out to be inefficient, we may replace it with a
+    /// stream-based implementation instead. An individual source file is unlikely to become much larger than a few
+    /// thousand lines at most, so just using a plain `String` is probably the easiest, reasonable approach for now.
+    /// </remarks>
     public class Scanner
     {
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
@@ -44,6 +53,16 @@ namespace Perlang.Parser
 
         public List<Token> ScanTokens()
         {
+            if (Peek() == '#' && PeekNext() == '!')
+            {
+                // The input stream starts with a shebang (typically '#!/usr/bin/env perlang') line. The shebang
+                // continues until the end of the line.
+                while (Peek() != '\n' && !IsAtEnd())
+                {
+                    Advance();
+                }
+            }
+
             while (!IsAtEnd())
             {
                 // We are at the beginning of the next lexeme.
@@ -250,6 +269,12 @@ namespace Perlang.Parser
             AddToken(STRING, value);
         }
 
+        /// <summary>
+        /// Checks if the current character of the input stream matches the given character. If it matches, the
+        /// character is consumed.
+        /// </summary>
+        /// <param name="expected">The character to look for.</param>
+        /// <returns>`true` if the character matches, `false` if it doesn't matches or if we are at EOF.</returns>
         private bool Match(char expected)
         {
             if (IsAtEnd())
@@ -266,6 +291,10 @@ namespace Perlang.Parser
             return true;
         }
 
+        /// <summary>
+        /// Returns the current character of the input stream, without advancing the current position.
+        /// </summary>
+        /// <returns>The character at the current position, or `\0` if at EOF.</returns>
         private char Peek()
         {
             if (IsAtEnd())
@@ -276,6 +305,11 @@ namespace Perlang.Parser
             return source[current];
         }
 
+        /// <summary>
+        /// Returns the character immediately after the current character of the input stream, without advancing the
+        /// current position.
+        /// </summary>
+        /// <returns>The character at the given position, or `\0` if at EOF.</returns>
         private char PeekNext()
         {
             if (current + 1 >= source.Length)
