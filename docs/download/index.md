@@ -11,13 +11,13 @@ Each commit to the `master` branch triggers a build that gets published as a set
 The easiest way to install the latest build is by using the [perlang-install](https://github.com/perlun/perlang/tree/master/scripts/perlang-install) script. It works on all supported platforms (Linux, macOS and Windows - the latter requires a POSIX shell like Git Bash to be available). Use it like this:
 
 ```shell
-$ curl -sSL https://perlang.org/install | sh
+$ curl -sSL https://perlang.org/install.sh | sh
 ```
 
 If you have a previous build installed and want to overwrite it, use the following:
 
 ```shell
-$ curl -sSL https://perlang.org/install | sh -s -- --force
+$ curl -sSL https://perlang.org/install.sh | sh -s -- --force
 ```
 
 **Note**: If you are running the installer in Git Bash on Windows, running `perlang` after installation will unfortunately not work in the Bash shell (because of limitations preventing us from reading individual keystrokes in that shell). Please close the `bash` session after installation and `cd %userprofile%\.perlang\nightly\bin`. You should then be able to run `perlang` to open up the Perlang console session.
