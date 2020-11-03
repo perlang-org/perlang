@@ -87,7 +87,7 @@ namespace Perlang.Tests.Integration
             Assert.Equal("ok", output);
         }
 
-        [Fact(Skip = "Blocked pending https://github.com/perlun/perlang/issues/66")]
+        [Fact(Skip = "Blocked pending https://github.com/perlang-org/perlang/issues/66")]
         public void in_method()
         {
             string source = @"

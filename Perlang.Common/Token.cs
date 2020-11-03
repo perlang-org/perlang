@@ -12,7 +12,7 @@ namespace Perlang
 
         public Token(TokenType type, string lexeme, object? literal, int line)
         {
-            // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
+            // TODO: Replace with non-nullable references instead. https://github.com/perlang-org/perlang/issues/39
             Type = type;
             Lexeme = lexeme ?? throw new ArgumentException("lexeme cannot be null");
             Literal = literal;

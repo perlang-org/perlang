@@ -79,7 +79,7 @@ namespace Perlang.Interpreter.Typing
 
         public static void Validate(Expr expr, Action<TypeValidationError> typeValidationErrorCallback, Func<Expr, Binding> getVariableOrFunctionCallback)
         {
-            // TODO: Replace with non-nullable references instead. https://github.com/perlun/perlang/issues/39
+            // TODO: Replace with non-nullable references instead. https://github.com/perlang-org/perlang/issues/39
             if (expr == null)
             {
                 throw new ArgumentException("expr cannot be null");
@@ -441,7 +441,7 @@ namespace Perlang.Interpreter.Typing
             {
                 if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
                 {
-                    // TODO: Remove once https://github.com/perlun/perlang/issues/43 is fully resolved.
+                    // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
                     typeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
@@ -457,7 +457,7 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (!parameter.TypeReference.ExplicitTypeSpecified)
                     {
-                        // TODO: Remove once https://github.com/perlun/perlang/issues/43 is fully resolved.
+                        // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
                         typeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
                             $"Inferred typing is not yet supported for function parameter '{parameter}'")
@@ -852,7 +852,7 @@ namespace Perlang.Interpreter.Typing
                     // add support for function return type inference.
                     if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
                     {
-                        // TODO: Remove once https://github.com/perlun/perlang/issues/43 is fully resolved.
+                        // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
                         typeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
                             $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
@@ -871,7 +871,7 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (parameter.TypeSpecifier == null)
                     {
-                        // TODO: Remove once https://github.com/perlun/perlang/issues/43 is fully resolved.
+                        // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
                         typeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
                             $"Inferred typing is not yet supported for parameter '{parameter.Name.Lexeme}' to function '{stmt.Name.Lexeme}'")

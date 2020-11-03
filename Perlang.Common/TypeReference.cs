@@ -74,7 +74,7 @@ namespace Perlang
         /// <param name="clrType">The CLR type..</param>
         public TypeReference(Type clrType)
         {
-            // TODO: Remove once we are done with https://github.com/perlun/perlang/issues/39
+            // TODO: Remove once we are done with https://github.com/perlang-org/perlang/issues/39
             this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
         }
 

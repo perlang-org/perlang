@@ -4,7 +4,7 @@ on:
   push:
     paths:
       # TODO: Replace Perlang** with src/ once we have moved all the projects in there.
-      # TODO: https://github.com/perlun/perlang/issues/82
+      # TODO: https://github.com/perlang-org/perlang/issues/82
       - .github/workflows/publish-packages.yml
       - Perlang**
 

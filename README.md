@@ -1,5 +1,5 @@
-![.NET Core build & test](https://github.com/perlun/perlang/workflows/.NET%20Core%20build%20&%20test/badge.svg)
-![perlang-install](https://github.com/perlun/perlang/workflows/perlang-install/badge.svg)
+![.NET Core build & test](https://github.com/perlang-org/perlang/workflows/.NET%20Core%20build%20&%20test/badge.svg)
+![perlang-install](https://github.com/perlang-org/perlang/workflows/perlang-install/badge.svg)
 
 # perlang
 
@@ -48,7 +48,7 @@ $ sudo apt-get install \
 ### How to build the Perlang interpreter
 
 ```shell
-$ git clone https://github.com/perlun/perlang.git
+$ git clone https://github.com/perlang-org/perlang.git
 $ cd perlang
 $ make
 ```
