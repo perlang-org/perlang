@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Perlang.Attributes;
 using Perlang.Exceptions;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
@@ -41,7 +42,6 @@ namespace Perlang.Interpreter
 
         private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
         private IEnvironment currentEnvironment;
-        public List<string> Arguments { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerlangInterpreter"/> class.
@@ -59,25 +59,62 @@ namespace Perlang.Interpreter
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
             this.replMode = replMode;
 
-            Arguments = new List<string>(arguments ?? new string[0]);
+            var argumentsList = (arguments ?? new string[0]).ToImmutableList();
 
             currentEnvironment = globals;
 
+            LoadStdlib();
             nativeClasses = RegisterGlobalFunctionsAndClasses();
+            var attributeSetters = DiscoverAttributeSetters();
+
+            PassAttributesToAttributeSetters(attributeSetters, argumentsList);
         }
 
-        private ImmutableDictionary<string, Type> RegisterGlobalFunctionsAndClasses()
+        private static void LoadStdlib()
         {
             // Because of implicit dependencies, this is not loaded automatically; we must manually load this
             // assembly to ensure all Callables within it are registered in the global namespace.
             Assembly.Load("Perlang.StdLib");
+        }
 
+        private ImmutableDictionary<string, Type> RegisterGlobalFunctionsAndClasses()
+        {
             RegisterGlobalFunctions();
             RegisterGlobalClasses();
 
             // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
             // we can feed it to the Resolver class.
             return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type) kvp.Value);
+        }
+
+        private static ImmutableList<Action<ImmutableList<string>>> DiscoverAttributeSetters()
+        {
+            var argumentSettersQueryable = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .SelectMany(t => t.GetMethods())
+                .Select(m => new
+                {
+                    MethodInfo = m,
+                    ArgumentsSetterAttribute = m.GetCustomAttribute<ArgumentsSetterAttribute>()
+                })
+                .Where(t => t.ArgumentsSetterAttribute != null);
+
+            var result = ImmutableList.CreateBuilder<Action<ImmutableList<string>>>();
+
+            foreach (var argumentSetter in argumentSettersQueryable)
+            {
+                result.Add((Action<ImmutableList<string>>) Delegate.CreateDelegate(typeof(Action<ImmutableList<string>>), argumentSetter.MethodInfo));
+            }
+
+            return result.ToImmutable();
+        }
+
+        private static void PassAttributesToAttributeSetters(ImmutableList<Action<ImmutableList<string>>> attributeSetters, ImmutableList<string> arguments)
+        {
+            foreach (var setter in attributeSetters)
+            {
+                setter.Invoke(arguments);
+            }
         }
 
         /// <summary>
@@ -333,15 +370,7 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
-                try
-                {
-                    return Evaluate(expr);
-                }
-                catch (RuntimeError e)
-                {
-                    runtimeErrorHandler(e);
-                    return null;
-                }
+                return Evaluate(expr);
             }
             else
             {
@@ -362,25 +391,30 @@ namespace Perlang.Interpreter
             {
                 runtimeErrorHandler(error);
             }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException is RuntimeError error)
+                {
+                    runtimeErrorHandler(error);
+                }
+                else
+                {
+                    // No "well-defined" code path exists for this. We let it at least bubble up so that it doesn't go
+                    // unnoticed.
+                    throw;
+                }
+            }
         }
 
         /// <summary>
         /// Evaluates the given expression and returns its value, converted to a string representation.
         /// </summary>
         /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>The evaluated value, or null if a `RuntimeError` occurs.</returns>
+        /// <returns>The evaluated value.</returns>
         private string? Interpret(Expr expression)
         {
-            try
-            {
-                object? value = Evaluate(expression);
-                return Stringify(value);
-            }
-            catch (RuntimeError error)
-            {
-                runtimeErrorHandler(error);
-                return null;
-            }
+            object? value = Evaluate(expression);
+            return Stringify(value);
         }
 
         public object VisitLiteralExpr(Expr.Literal expr)
@@ -644,7 +678,29 @@ namespace Perlang.Interpreter
 
         private object? Evaluate(Expr expr)
         {
-            return expr.Accept(this);
+            try
+            {
+                return expr.Accept(this);
+            }
+            catch (RuntimeError e)
+            {
+                runtimeErrorHandler(e);
+                return null;
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException is RuntimeError error)
+                {
+                    runtimeErrorHandler(error);
+                    return null;
+                }
+                else
+                {
+                    // No "well-defined" code path exists for this. We let it at least bubble up so that it doesn't go
+                    // unnoticed.
+                    throw;
+                }
+            }
         }
 
         private void Execute(Stmt stmt)

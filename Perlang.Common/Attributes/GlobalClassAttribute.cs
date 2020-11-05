@@ -1,6 +1,7 @@
 using System;
+using JetBrains.Annotations;
 
-namespace Perlang
+namespace Perlang.Attributes
 {
     /// <summary>
     /// Annotates a class for being registered in the global, top-level Perlang namespace.
@@ -15,6 +16,7 @@ namespace Perlang
     /// be called using `instance.method_name()` notation. Perlang respects the visibility of methods - if
     /// they are private, Perlang will produce a compile-time error if an attempt is made to call the method.
     /// </summary>
+    [MeansImplicitUse(ImplicitUseTargetFlags.Members)]
     public class GlobalClassAttribute : Attribute
     {
         /// <summary>

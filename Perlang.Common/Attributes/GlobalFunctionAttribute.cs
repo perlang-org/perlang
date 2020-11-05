@@ -1,6 +1,6 @@
 using System;
 
-namespace Perlang
+namespace Perlang.Attributes
 {
     /// <summary>
     /// Annotates a native .NET method for automatic registration in the global namespace.
