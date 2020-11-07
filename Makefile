@@ -1,4 +1,6 @@
-.PHONY: all auto-generated clean docs docs-serve install run
+# Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
+# to force it to be regenerated.
+.PHONY: all auto-generated clean docs docs-serve install run Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -32,7 +34,7 @@ docfx/docfx.exe:
 	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.51/docfx.zip | busybox unzip - -d docfx
 	chmod +x docfx/docfx.exe
 
-install: all
+install: auto-generated
 	./scripts/local_install_linux.sh
 
 run:
