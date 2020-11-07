@@ -403,11 +403,21 @@ namespace Perlang.Interpreter.Typing
                     // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
                     // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but I see
                     // no way around this if we want to retain snake_case (which we do).
+                    //
+                    // We also make sure to support unconverted method names at this stage, i.e. methods which are named
+                    // "Some_Method" or "some_Method" on the C# side. This is uncommon but supported, and used as the
+                    // under-the-hood representation for property getters (a property named "Foo" produces a "get_Foo"
+                    // method under the hood). Calling property getters like this is surely ugly, but it's much better
+                    // than not being able to call them at all. If/when we support Foo.bar syntax for calling property
+                    // getters, we might want to exclude property getters and setters in this code.
+                    //
+                    // Tracking issue: https://github.com/perlang-org/perlang/issues/114
                     string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
 
                     // TODO: Move this logic to new ReflectionHelper class
                     var methods = type.GetMethods()
-                        .Where(mi => mi.Name == pascalizedMethodName)
+                        .Where(mi => mi.Name == pascalizedMethodName ||
+                                     mi.Name == expr.Name.Lexeme)
                         .ToImmutableArray();
 
                     if (methods.IsEmpty)
