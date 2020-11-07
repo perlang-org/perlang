@@ -26,5 +26,11 @@ namespace Perlang.Tests.Integration.Stdlib
         {
             Assert.True((long) Eval("Time.now().get_Ticks()") > 0);
         }
+
+        [Fact]
+        public void Time_now_ticks_returns_a_value_greater_than_zero()
+        {
+            Assert.True((long) Eval("Time.now().ticks()") > 0);
+        }
     }
 }

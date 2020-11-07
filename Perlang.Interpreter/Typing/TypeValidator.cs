@@ -417,7 +417,8 @@ namespace Perlang.Interpreter.Typing
                     // TODO: Move this logic to new ReflectionHelper class
                     var methods = type.GetMethods()
                         .Where(mi => mi.Name == pascalizedMethodName ||
-                                     mi.Name == expr.Name.Lexeme)
+                                     mi.Name == expr.Name.Lexeme ||
+                                     mi.Name == "get_" + pascalizedMethodName) // Quick-hack while waiting for #114
                         .ToImmutableArray();
 
                     if (methods.IsEmpty)
