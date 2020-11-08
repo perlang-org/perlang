@@ -25,9 +25,6 @@ namespace Perlang.Interpreter
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
 
-        private readonly IDictionary<string, TypeReferenceNativeFunction> globalFunctions =
-            new Dictionary<string, TypeReferenceNativeFunction>();
-
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
@@ -79,7 +76,6 @@ namespace Perlang.Interpreter
 
         private ImmutableDictionary<string, Type> RegisterGlobalFunctionsAndClasses()
         {
-            RegisterGlobalFunctions();
             RegisterGlobalClasses();
 
             // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
@@ -114,62 +110,6 @@ namespace Perlang.Interpreter
             foreach (var setter in attributeSetters)
             {
                 setter.Invoke(arguments);
-            }
-        }
-
-        /// <summary>
-        /// Registers global functions defined in native .NET code.
-        /// </summary>
-        /// <exception cref="PerlangInterpreterException">One or more global functions are defined
-        /// incorrectly.</exception>
-        private void RegisterGlobalFunctions()
-        {
-            var globalFunctionsQueryable = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Select(t => new
-                {
-                    Type = t,
-                    GlobalFunctionAttribute = t.GetCustomAttributes(typeof(GlobalFunctionAttribute), inherit: false)
-                        .Cast<GlobalFunctionAttribute>()
-                        .FirstOrDefault()
-                })
-                .Where(t => t.GlobalFunctionAttribute != null);
-
-            foreach (var globalFunction in globalFunctionsQueryable)
-            {
-                MethodInfo? method = globalFunction.Type.GetMethod("Call");
-
-                if (method == null)
-                {
-                    throw new PerlangInterpreterException("Invalid callable encountered: Call method missing");
-                }
-
-                var parameters = method.GetParameters();
-
-                if (parameters.Length == 0)
-                {
-                    throw new PerlangInterpreterException(
-                        "Invalid callable encountered: Call method must take an IInterpreter parameter as its first parameter");
-                }
-
-                if (parameters[0].ParameterType != typeof(IInterpreter))
-                {
-                    throw new PerlangInterpreterException(
-                        $"Invalid callable encountered: First parameter of Call method must be IInterpreter, not {parameters[0].ParameterType.Name}");
-                }
-
-                object? callableInstance = Activator.CreateInstance(globalFunction.Type);
-                var callableReturnTypeReference = new TypeReference(method.ReturnType);
-
-                // The first parameter is the IInterpreter instance; it's not interesting in this context. We tuck away the
-                // information about the parameters here so that it can be used by the static type analysis later on.
-                var callableParameters = parameters[1..]
-                    .Select(pi => pi.ParameterType)
-                    .ToArray();
-
-                globalFunctions[globalFunction.GlobalFunctionAttribute.Name] = new TypeReferenceNativeFunction(
-                    callableReturnTypeReference, callableInstance, method, callableParameters
-                );
             }
         }
 
@@ -277,7 +217,6 @@ namespace Perlang.Interpreter
                 bool hasResolveErrors = false;
 
                 var resolver = new Resolver(
-                    globalFunctions.ToImmutableDictionary(),
                     nativeClasses,
                     AddLocal,
                     AddGlobal,
@@ -332,7 +271,6 @@ namespace Perlang.Interpreter
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(
-                    globalFunctions.ToImmutableDictionary(),
                     nativeClasses,
                     AddLocal,
                     AddGlobal,
@@ -579,10 +517,6 @@ namespace Perlang.Interpreter
                 {
                     throw new RuntimeError(name, $"Attempting to lookup variable for non-distance-aware binding '{localBinding}'");
                 }
-            }
-            else if (globalFunctions.TryGetValue(name.Lexeme, out TypeReferenceNativeFunction? globalCallable))
-            {
-                return globalCallable;
             }
             else if (globalClasses.TryGetValue(name.Lexeme, out object? globalClass))
             {
@@ -918,36 +852,6 @@ namespace Perlang.Interpreter
 
             switch (callee)
             {
-                case TypeReferenceNativeFunction nativeFunction:
-                    // A long as we are an interpreted language, calling native functions will provide the IInterpreter
-                    // instance as the first parameter. Once we are compiled, we should aim for a more efficient
-                    // implementation in general, and
-                    var argumentsWithInterpreter = new object[arguments.Count + 1];
-
-                    argumentsWithInterpreter[0] = this;
-
-                    for (var i = 0; i < arguments.Count; i++)
-                    {
-                        object argument = arguments[i];
-                        argumentsWithInterpreter[i + 1] = argument;
-                    }
-
-                    try
-                    {
-                        return nativeFunction.Method.Invoke(nativeFunction.Callable, argumentsWithInterpreter);
-                    }
-                    catch (TargetInvocationException e)
-                    {
-                        if (e.InnerException != null)
-                        {
-                            throw e.InnerException;
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-
                 case ICallable callable:
                     if (arguments.Count != callable.Arity())
                     {

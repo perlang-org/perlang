@@ -14,7 +14,6 @@ namespace Perlang.Interpreter.Resolution
     /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly ImmutableDictionary<string, TypeReferenceNativeFunction> globalFunctions;
         private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
         private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
 
@@ -28,7 +27,6 @@ namespace Perlang.Interpreter.Resolution
         /// <summary>
         /// Initializes a new instance of the <see cref="Resolver"/> class.
         /// </summary>
-        /// <param name="globalFunctions">A dictionary of global functions, with the function name as key.</param>
         /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
         /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
         /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
@@ -37,14 +35,12 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
         internal Resolver(
-            ImmutableDictionary<string, TypeReferenceNativeFunction> globalFunctions,
             ImmutableDictionary<string, Type> globalClasses,
             Action<Binding> addLocalExprCallback,
             Action<Binding> addGlobalExprCallback,
             Action<string, PerlangClass> addGlobalClassCallback,
             ResolveErrorHandler resolveErrorHandler)
         {
-            this.globalFunctions = globalFunctions;
             this.addLocalExprCallback = addLocalExprCallback;
             this.addGlobalExprCallback = addGlobalExprCallback;
             this.addGlobalClassCallback = addGlobalClassCallback;
@@ -196,20 +192,6 @@ namespace Perlang.Interpreter.Resolution
 
                     return;
                 }
-            }
-
-            // Not found in the local scopes. Could we perhaps be dealing with a native (.NET) callable?
-            if (globalFunctions.ContainsKey(name.Lexeme))
-            {
-                var globalTypeReferenceAndCallable = globalFunctions[name.Lexeme];
-
-                addGlobalExprCallback(new NativeBinding(
-                    globalTypeReferenceAndCallable.Method,
-                    name.Lexeme,
-                    globalTypeReferenceAndCallable.ParameterTypes,
-                    globalTypeReferenceAndCallable.ReturnTypeReference,
-                    referringExpr
-                ));
             }
 
             // Not found in any of the local scopes. Assume it is global, or non-existent.
