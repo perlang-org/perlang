@@ -252,7 +252,7 @@ namespace Perlang
             // TODO: Would be much nicer to have this be without setter, but there is no easy way to accomplish this,
             // TODO: since the MethodInfo data isn't available at construction time. Also, we replace this with the
             // TODO: single matching MethodInfo after method overload resolution has completed.
-            public ImmutableArray<MethodInfo> Methods { get; set; }
+            public ImmutableArray<MethodInfo> Methods { get; set; } = ImmutableArray<MethodInfo>.Empty;
 
             public Get(Expr @object, Token name)
             {

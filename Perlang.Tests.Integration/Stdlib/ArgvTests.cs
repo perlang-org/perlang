@@ -1,13 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Perlang.Interpreter;
+using Perlang.Stdlib;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Stdlib
 {
-    public class ArgvTests
+    public class ArgvTests : IDisposable
     {
+        public ArgvTests()
+        {
+            // Motivation: The Argv [ArgumentsSetter] approach is not thread safe, and xUnit runs unit tests in parallel
+            // by default.
+            Monitor.Enter(typeof(Argv));
+        }
+
         [Fact]
         public void Argv_pop_is_defined()
         {
@@ -56,6 +66,11 @@ namespace Perlang.Tests.Integration.Stdlib
 
             Assert.Single(result.RuntimeErrors);
             Assert.Matches("No arguments left", exception.Message);
+        }
+
+        public void Dispose()
+        {
+            Monitor.Exit(typeof(Argv));
         }
     }
 }

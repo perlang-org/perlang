@@ -13,7 +13,7 @@ namespace Perlang.Attributes
     /// </code>
     ///
     /// Note that the method might be called multiple times, if multiple Perlang programs are being started during the
-    /// lifetime of the process. This is typically what happens when the Perlang unit tests are executed.
+    /// lifetime of the process.
     /// </summary>
     [MeansImplicitUse]
     public class ArgumentsSetterAttribute : Attribute

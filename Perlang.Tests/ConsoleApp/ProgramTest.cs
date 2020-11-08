@@ -96,5 +96,18 @@ namespace Perlang.Tests.ConsoleApp
             // Assert
             Assert.Equal(CommonConstants.InformationalVersion + "\n", testConsole.Out.ToString());
         }
+
+        // Test added to assert the bug fix for #117. Interestingly enough, the NRE did not occur when the test was
+        // placed in the ArgvTests class.
+        [Fact]
+        public void Time_now_tickz_fails_with_expected_exception()
+        {
+            subject.Run("Time.now().tickz()");
+
+            Assert.Equal(new List<string>
+            {
+                "[line 1] Error at 'tickz': Failed to locate method 'tickz' in class 'DateTime'"
+            }, output);
+        }
     }
 }

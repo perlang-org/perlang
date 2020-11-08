@@ -292,10 +292,8 @@ namespace Perlang.Interpreter.Typing
                     }
                     else if (get.TypeReference.ClrType == null)
                     {
-                        throw new TypeValidationError(
-                            expr.Paren,
-                            $"Internal compiler error: ClrType was null in {get} expression"
-                        );
+                        // This can happen when referencing an invalid method name, like Time.now().tickz()
+                        return VoidObject.Void;
                     }
                 }
 
@@ -425,7 +423,7 @@ namespace Perlang.Interpreter.Typing
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.Name,
-                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{type.Name}")
+                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{type.Name}'")
                         );
 
                         return VoidObject.Void;
