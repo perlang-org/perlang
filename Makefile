@@ -38,4 +38,7 @@ install: auto-generated
 	./scripts/local_install_linux.sh
 
 run:
-	cd Perlang.ConsoleApp && dotnet run
+	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
+	# /p:SolutionDir=$(pwd)/ to it.
+	dotnet build
+	./Perlang.ConsoleApp/bin/Debug/netcoreapp3.1/perlang
