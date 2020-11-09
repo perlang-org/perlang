@@ -37,7 +37,7 @@ docfx/docfx.exe:
 install: auto-generated
 	./scripts/local_install_linux.sh
 
-run:
+run: auto-generated
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
