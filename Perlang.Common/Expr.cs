@@ -83,7 +83,7 @@ namespace Perlang
             }
         }
 
-        public class Call : Expr
+        public class Call : Expr, ITokenAwareExpr
         {
             public Expr Callee { get; }
             public Token Paren { get; }
@@ -131,6 +131,8 @@ namespace Perlang
                     return base.ToString();
                 }
             }
+
+            public Token Token => Paren;
         }
 
         public class Grouping : Expr
@@ -244,7 +246,7 @@ namespace Perlang
                 $"#<Identifier {Name.Lexeme}>";
         }
 
-        public class Get : Expr
+        public class Get : Expr, ITokenAwareExpr
         {
             public Expr Object { get; }
             public Token Name { get; }
@@ -264,6 +266,8 @@ namespace Perlang
             {
                 return visitor.VisitGetExpr(this);
             }
+
+            public Token Token => Name;
         }
 
         public abstract TR Accept<TR>(IVisitor<TR> visitor);

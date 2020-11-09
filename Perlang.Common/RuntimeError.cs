@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 namespace Perlang
@@ -7,7 +8,7 @@ namespace Perlang
     // some point anyway, at which point we should be able to completely get rid of this class altogether.
     public class RuntimeError : Exception
     {
-        public Token Token { get; }
+        public Token? Token { get; set; }
 
         public RuntimeError(Token token, string message)
             : base(message)

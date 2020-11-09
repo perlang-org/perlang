@@ -188,7 +188,9 @@ namespace Perlang.ConsoleApp
 
         private void RuntimeError(RuntimeError error)
         {
-            standardOutputHandler($"[line {error.Token.Line}] {error.Message}");
+            string line = error.Token?.Line.ToString() ?? "unknown";
+
+            standardOutputHandler($"[line {line}] {error.Message}");
             hadRuntimeError = true;
         }
 

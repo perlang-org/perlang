@@ -144,7 +144,7 @@ namespace Perlang.Interpreter
         }
 
         /// <summary>
-        /// Runs the provided source code, in an eval()/REPL fashion.
+        /// Runs the provided source code, in an `eval()`/REPL fashion.
         ///
         /// If provided an expression, returns the result; otherwise, null.
         /// </summary>
@@ -625,6 +625,13 @@ namespace Perlang.Interpreter
             {
                 if (e.InnerException is RuntimeError error)
                 {
+                    if (expr is ITokenAwareExpr tokenAwareExpr)
+                    {
+                        // Mutating this is ugly, but we really don't want to loose the stack trace (by creating a new
+                        // expression) at this point. An InnerException _could_ work, worth looking into at some point.
+                        error.Token = tokenAwareExpr.Token;
+                    }
+
                     runtimeErrorHandler(error);
                     return null;
                 }

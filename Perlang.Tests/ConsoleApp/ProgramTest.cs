@@ -109,5 +109,20 @@ namespace Perlang.Tests.ConsoleApp
                 "[line 1] Error at 'tickz': Failed to locate method 'tickz' in class 'DateTime'"
             }, output);
         }
+
+        // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
+        [Fact]
+        public void ARGV_pop_with_no_arguments_throws_the_expected_exception()
+        {
+            // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
+            // error.
+            var program = new Program(standardOutputHandler: s => output.Add(s));
+            program.Run("Argv.pop()");
+
+            Assert.Equal(new List<string>
+            {
+                "[line 1] No arguments left"
+            }, output);
+        }
     }
 }
