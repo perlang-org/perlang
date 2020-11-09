@@ -800,11 +800,6 @@ namespace Perlang.Interpreter.Typing
                         functionName = function.Name.Lexeme;
                         break;
 
-                    case NativeBinding nativeBinding:
-                        parameters = nativeBinding.Parameters;
-                        functionName = nativeBinding.FunctionName;
-                        break;
-
                     default:
                         throw new NameResolutionError(expr.Paren, $"Attempting to call invalid function {binding} using {expr}");
                 }
