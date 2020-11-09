@@ -14,13 +14,21 @@ namespace Perlang.Interpreter.Resolution
     /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
-        private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
-
         private readonly Action<Binding> addLocalExprCallback;
         private readonly Action<Binding> addGlobalExprCallback;
         private readonly Action<string, PerlangClass> addGlobalClassCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
+
+        /// <summary>
+        /// An instance-local list of scopes. The innermost scope is always the last entry in this list. As the code is
+        /// being traversed, scopes are created and removed as blocks are opened/closed.
+        /// </summary>
+        private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
+
+        /// <summary>
+        /// An instance-local list of global symbols (variables, functions etc).
+        /// </summary>
+        private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
 
         private FunctionType currentFunction = FunctionType.NONE;
 
@@ -28,6 +36,8 @@ namespace Perlang.Interpreter.Resolution
         /// Initializes a new instance of the <see cref="Resolver"/> class.
         /// </summary>
         /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
+        /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
+        /// from outside of the program itself.</param>
         /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
         /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
         /// <param name="addGlobalExprCallback">A callback used to add an expression to the global scope.</param>
@@ -35,7 +45,8 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
         internal Resolver(
-            ImmutableDictionary<string, Type> globalClasses,
+            IImmutableDictionary<string, Type> globalClasses,
+            IImmutableDictionary<string, Type> superGlobals,
             Action<Binding> addLocalExprCallback,
             Action<Binding> addGlobalExprCallback,
             Action<string, PerlangClass> addGlobalClassCallback,
@@ -49,6 +60,11 @@ namespace Perlang.Interpreter.Resolution
             foreach ((string key, Type value) in globalClasses)
             {
                 globals[key] = new NativeClassBindingFactory(value);
+            }
+
+            foreach ((string key, Type value) in superGlobals)
+            {
+                globals[key] = new NativeObjectBindingFactory(value);
             }
         }
 
@@ -113,7 +129,7 @@ namespace Perlang.Interpreter.Resolution
         /// </summary>
         /// <param name="name">The variable or function name.</param>
         /// <param name="typeReference">A TypeReference describing the variable or function.</param>
-        /// <exception cref="ArgumentException">If typeReference is null.</exception>
+        /// <exception cref="ArgumentException">`typeReference` is null.</exception>
         private void Define(Token name, TypeReference typeReference)
         {
             if (typeReference == null)
@@ -162,9 +178,9 @@ namespace Perlang.Interpreter.Resolution
 
         private void DefineClass(Token name, PerlangClass perlangClass)
         {
-            if (globals.ContainsKey(name.Lexeme))
+            if (globals.TryGetValue(name.Lexeme, out IBindingFactory bindingFactory))
             {
-                resolveErrorHandler(new ResolveError($"Class {name.Lexeme} already defined; cannot redefine", name));
+                resolveErrorHandler(new ResolveError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
                 return;
             }
 
@@ -172,9 +188,10 @@ namespace Perlang.Interpreter.Resolution
             addGlobalClassCallback(name.Lexeme, perlangClass);
         }
 
-        private void ResolveLocal(Expr referringExpr, Token name)
+        private void ResolveLocalOrGlobal(Expr referringExpr, Token name)
         {
-            // Loop over all the scopes, from the innermost and outwards, trying to find a binding for this name.
+            // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
+            // that matches this name.
             for (int i = scopes.Count - 1; i >= 0; i--)
             {
                 if (scopes[i].ContainsKey(name.Lexeme))
@@ -194,7 +211,8 @@ namespace Perlang.Interpreter.Resolution
                 }
             }
 
-            // Not found in any of the local scopes. Assume it is global, or non-existent.
+            // The identifier was not found in any of the local scopes. If it cannot be found in the globals, we can
+            // safely assume it is non-existent.
             if (!globals.ContainsKey(name.Lexeme))
             {
                 return;
@@ -216,7 +234,7 @@ namespace Perlang.Interpreter.Resolution
         public VoidObject VisitAssignExpr(Expr.Assign expr)
         {
             Resolve(expr.Value);
-            ResolveLocal(expr, expr.Name);
+            ResolveLocalOrGlobal(expr, expr.Name);
 
             return VoidObject.Void;
         }
@@ -240,7 +258,7 @@ namespace Perlang.Interpreter.Resolution
 
             if (expr.Callee is Expr.Identifier identifierExpr)
             {
-                ResolveLocal(expr, identifierExpr.Name);
+                ResolveLocalOrGlobal(expr, identifierExpr.Name);
             }
 
             return VoidObject.Void;
@@ -275,22 +293,22 @@ namespace Perlang.Interpreter.Resolution
         public VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
         {
             Resolve(expr.Left);
-            ResolveLocal(expr, expr.Name);
+            ResolveLocalOrGlobal(expr, expr.Name);
 
             return VoidObject.Void;
         }
 
         public VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
-            // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must
-            // be able to distinguish between "set to null" and "not set at all".
+            // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must be able
+            // to distinguish between "set to null" and "not set at all".
             if (!IsEmpty(scopes) &&
                 scopes.Last().TryGetObjectValue(expr.Name.Lexeme, VariableBindingFactory.None) == null)
             {
                 resolveErrorHandler(new ResolveError("Cannot read local variable in its own initializer.", expr.Name));
             }
 
-            ResolveLocal(expr, expr.Name);
+            ResolveLocalOrGlobal(expr, expr.Name);
 
             return VoidObject.Void;
         }

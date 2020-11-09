@@ -389,7 +389,11 @@ namespace Perlang.Interpreter.Typing
                 // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
                 // It still feels somewhat better than allowing any kind of wild binding to pass through at this
                 // point.
-                if (binding is ClassBinding || binding is NativeClassBinding || binding == null)
+                if (binding is ClassBinding ||
+                    binding is VariableBinding ||
+                    binding is NativeClassBinding ||
+                    binding is NativeObjectBinding ||
+                    binding == null)
                 {
                     Type type = expr.Object.TypeReference.ClrType;
 
