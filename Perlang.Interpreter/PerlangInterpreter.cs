@@ -9,6 +9,7 @@ using Perlang.Exceptions;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
+using Perlang.Stdlib;
 using static Perlang.TokenType;
 using static Perlang.Utils;
 
@@ -25,8 +26,21 @@ namespace Perlang.Interpreter
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
 
+        /// <summary>
+        /// Map from referring expression to global binding (variable or function).
+        /// </summary>
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
+
+        /// <summary>
+        /// Map from referring expression to local binding (i.e. in a local scope) for variable or function.
+        /// </summary>
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
+
+        /// <summary>
+        /// Map from name to "super-globals". This is used for global variables not defined in Perlang code (i.e. the
+        /// super-global "ARGV" variable, which refers to an instance of the `Argv` class).
+        /// </summary>
+        private readonly IDictionary<string, Binding> superGlobalBindings = new Dictionary<string, Binding>();
 
         /// <summary>
         /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
@@ -50,7 +64,11 @@ namespace Perlang.Interpreter
         /// <param name="arguments">An optional list of runtime arguments.</param>
         /// <param name="replMode">A flag indicating whether REPL mode will be active or not. In REPL mode, statements
         /// without semicolons are accepted.</param>
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null, bool replMode = false)
+        public PerlangInterpreter(
+            Action<RuntimeError> runtimeErrorHandler,
+            Action<string>? standardOutputHandler = null,
+            IEnumerable<string>? arguments = null,
+            bool replMode = false)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
@@ -60,11 +78,12 @@ namespace Perlang.Interpreter
 
             currentEnvironment = globals;
 
+            // Set up the super-global ARGV variable.
+            globals.Define(new Token(VAR, "ARGV", null, -1), new Argv(argumentsList));
+            superGlobalBindings["ARGV"] = new NativeClassBinding(new Expr.Empty(), typeof(Argv));
+
             LoadStdlib();
             nativeClasses = RegisterGlobalFunctionsAndClasses();
-            var attributeSetters = DiscoverAttributeSetters();
-
-            PassAttributesToAttributeSetters(attributeSetters, argumentsList);
         }
 
         private static void LoadStdlib()
@@ -81,36 +100,6 @@ namespace Perlang.Interpreter
             // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
             // we can feed it to the Resolver class.
             return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type) kvp.Value);
-        }
-
-        private static ImmutableList<Action<ImmutableList<string>>> DiscoverAttributeSetters()
-        {
-            var argumentSettersQueryable = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .SelectMany(t => t.GetMethods())
-                .Select(m => new
-                {
-                    MethodInfo = m,
-                    ArgumentsSetterAttribute = m.GetCustomAttribute<ArgumentsSetterAttribute>()
-                })
-                .Where(t => t.ArgumentsSetterAttribute != null);
-
-            var result = ImmutableList.CreateBuilder<Action<ImmutableList<string>>>();
-
-            foreach (var argumentSetter in argumentSettersQueryable)
-            {
-                result.Add((Action<ImmutableList<string>>) Delegate.CreateDelegate(typeof(Action<ImmutableList<string>>), argumentSetter.MethodInfo));
-            }
-
-            return result.ToImmutable();
-        }
-
-        private static void PassAttributesToAttributeSetters(ImmutableList<Action<ImmutableList<string>>> attributeSetters, ImmutableList<string> arguments)
-        {
-            foreach (var setter in attributeSetters)
-            {
-                setter.Invoke(arguments);
-            }
         }
 
         /// <summary>
@@ -499,6 +488,11 @@ namespace Perlang.Interpreter
             if (globalBindings.ContainsKey(expr))
             {
                 return globalBindings[expr];
+            }
+
+            if (expr is Expr.Identifier identifier && superGlobalBindings.ContainsKey(identifier.Name.Lexeme))
+            {
+                return superGlobalBindings[identifier.Name.Lexeme];
             }
 
             // The variable does not exist, neither in the list of local nor global bindings.

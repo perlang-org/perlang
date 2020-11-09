@@ -113,7 +113,7 @@ namespace Perlang.Interpreter.Resolution
         /// </summary>
         /// <param name="name">The variable or function name.</param>
         /// <param name="typeReference">A TypeReference describing the variable or function.</param>
-        /// <exception cref="ArgumentException">If typeReference is null.</exception>
+        /// <exception cref="ArgumentException">`typeReference` is null.</exception>
         private void Define(Token name, TypeReference typeReference)
         {
             if (typeReference == null)
