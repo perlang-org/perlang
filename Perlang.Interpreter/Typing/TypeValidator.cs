@@ -8,7 +8,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Humanizer;
-using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Resolution;
 using static Perlang.TokenType;
 
