@@ -43,10 +43,10 @@ namespace Perlang.Tests.Integration.Operator
                 ""1"" / 1
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
         }
 
@@ -57,10 +57,10 @@ namespace Perlang.Tests.Integration.Operator
                 1 / ""1""
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
         }
     }

@@ -11,6 +11,32 @@ namespace Perlang
     /// </summary>
     public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
+        //
+        // Protected methods and methods they depend on. Used by child classes to perform the visitation.
+        //
+
+        protected void Visit(IEnumerable<Stmt> statements)
+        {
+            foreach (Stmt statement in statements)
+            {
+                Visit(statement);
+            }
+        }
+
+        private void Visit(Stmt stmt)
+        {
+            stmt.Accept(this);
+        }
+
+        protected void Visit(Expr expr)
+        {
+            expr.Accept(this);
+        }
+
+        //
+        // Implementation of IVisitor interface methods
+        //
+
         public virtual VoidObject VisitEmptyExpr(Expr.Empty expr)
         {
             return VoidObject.Void;
@@ -178,24 +204,6 @@ namespace Perlang
             Visit(stmt.Body);
 
             return VoidObject.Void;
-        }
-
-        private void Visit(IEnumerable<Stmt> statements)
-        {
-            foreach (Stmt statement in statements)
-            {
-                Visit(statement);
-            }
-        }
-
-        private void Visit(Stmt stmt)
-        {
-            stmt.Accept(this);
-        }
-
-        private void Visit(Expr expr)
-        {
-            expr.Accept(this);
         }
     }
 }

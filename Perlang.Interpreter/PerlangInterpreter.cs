@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Perlang.Attributes;
 using Perlang.Exceptions;
+using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
@@ -158,6 +159,7 @@ namespace Perlang.Interpreter
         /// <param name="parseErrorHandler">A handler for parse errors.</param>
         /// <param name="resolveErrorHandler">A handler for resolve errors.</param>
         /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
+        /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
         /// <returns>If the provided source is an expression, the value of the expression is returned. Otherwise,
         /// `null`.</returns>
         public object? Eval(
@@ -165,12 +167,17 @@ namespace Perlang.Interpreter
             ScanErrorHandler scanErrorHandler,
             ParseErrorHandler parseErrorHandler,
             ResolveErrorHandler resolveErrorHandler,
-            TypeValidationErrorHandler typeValidationErrorHandler)
+            ValidationErrorHandler typeValidationErrorHandler,
+            ValidationErrorHandler immutabilityValidationErrorHandler)
         {
             if (String.IsNullOrWhiteSpace(source))
             {
                 return null;
             }
+
+            //
+            // Scanning phase
+            //
 
             bool hasScanErrors = false;
             var scanner = new Scanner(source, scanError =>
@@ -186,6 +193,10 @@ namespace Perlang.Interpreter
                 // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
                 return null;
             }
+
+            //
+            // Parsing phase
+            //
 
             bool hasParseErrors = false;
             var parser = new PerlangParser(
@@ -211,8 +222,9 @@ namespace Perlang.Interpreter
             {
                 var previousAndNewStatements = previousStatements.Concat(statements).ToImmutableList();
 
-                // The provided code parsed cleanly as a set of statements. Move on to the next phase in the
-                // evaluation - resolving variable and function names.
+                //
+                // Resolving names phase
+                //
 
                 bool hasResolveErrors = false;
 
@@ -237,6 +249,10 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                //
+                // Type validation
+                //
+
                 bool typeValidationFailed = false;
 
                 TypeValidator.Validate(
@@ -254,6 +270,27 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                //
+                // Immutability validation
+                //
+
+                bool immutabilityValidationFailed = false;
+
+                ImmutabilityValidator.Validate(
+                    previousAndNewStatements,
+                    immutabilityValidationError =>
+                    {
+                        immutabilityValidationFailed = true;
+                        immutabilityValidationErrorHandler(immutabilityValidationError);
+                    },
+                    GetVariableOrFunctionBinding
+                );
+
+                if (immutabilityValidationFailed)
+                {
+                    return null;
+                }
+
                 // All validation was successful => add these statements to the list of "previous statements". Recording
                 // them like this is necessary to be able to declare a variable in one REPL line and refer to it in
                 // another.
@@ -265,9 +302,9 @@ namespace Perlang.Interpreter
             }
             else if (syntax is Expr expr)
             {
-                // The provided code is a single expression. Move on to the next phase in the evaluation - resolving
-                // variable and function names. This is important since even a single expression might refer to a method
-                // call or reading a variable.
+                //
+                // Resolving names phase
+                //
 
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(
@@ -291,6 +328,10 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                //
+                // Type validation
+                //
+
                 bool typeValidationFailed = false;
 
                 TypeValidator.Validate(
@@ -304,6 +345,27 @@ namespace Perlang.Interpreter
                 );
 
                 if (typeValidationFailed)
+                {
+                    return null;
+                }
+
+                //
+                // Immutability validation
+                //
+
+                bool immutabilityValidationFailed = false;
+
+                ImmutabilityValidator.Validate(
+                    expr,
+                    immutabilityValidationError =>
+                    {
+                        immutabilityValidationFailed = true;
+                        immutabilityValidationErrorHandler(immutabilityValidationError);
+                    },
+                    GetVariableOrFunctionBinding
+                );
+
+                if (immutabilityValidationFailed)
                 {
                     return null;
                 }
@@ -505,9 +567,18 @@ namespace Perlang.Interpreter
             return null;
         }
 
-        private object LookUpVariable(Token name, Expr expr)
+        /// <summary>
+        /// Gets the value of a variable, in the current scope or any surrounding scopes.
+        /// </summary>
+        /// <param name="name">The name of the variable.</param>
+        /// <param name="identifier">The expression identifying the variable. For example, in `var foo = bar`, `bar` is
+        /// the identifier expression.</param>
+        /// <returns>The value of the variable.</returns>
+        /// <exception cref="RuntimeError">When the binding found is not a <see cref="IDistanceAwareBinding"/>
+        /// instance.</exception>
+        private object LookUpVariable(Token name, Expr.Identifier identifier)
         {
-            if (localBindings.TryGetValue(expr, out Binding? localBinding))
+            if (localBindings.TryGetValue(identifier, out Binding? localBinding))
             {
                 if (localBinding is IDistanceAwareBinding distanceAwareBinding)
                 {

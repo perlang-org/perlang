@@ -299,10 +299,10 @@ namespace Perlang.Tests.Integration.Var
                 print not_defined;
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
@@ -315,10 +315,10 @@ namespace Perlang.Tests.Integration.Var
                 }
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
@@ -329,10 +329,10 @@ namespace Perlang.Tests.Integration.Var
                 var a;
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Type inference for variable 'a' cannot be performed when initializer is not specified", exception.Message);
         }
 
@@ -351,10 +351,10 @@ namespace Perlang.Tests.Integration.Var
                 print ""ok"";
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 

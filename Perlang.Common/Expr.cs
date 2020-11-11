@@ -42,20 +42,42 @@ namespace Perlang
             }
         }
 
+        /// <summary>
+        /// An assignment expression.
+        /// </summary>
         public class Assign : Expr
         {
-            public Token Name { get; }
+            /// <summary>
+            /// Gets the identifier which is the target of the assignment. For example, in the `a = 42` expression, `a` is the
+            /// identifier.
+            /// </summary>
+            public new Identifier Identifier { get; }
+
+            /// <summary>
+            /// Gets the value being assigned. Can be either a compile-time constant or an expression with a dynamic
+            /// value, computed at runtime.
+            /// </summary>
             public Expr Value { get; }
 
-            public Assign(Token name, Expr value)
+            /// <summary>
+            /// Gets the name of the identifier being assigned to.
+            /// </summary>
+            public Token Name => Identifier.Name;
+
+            public Assign(Identifier identifier, Expr value)
             {
-                Name = name;
+                Identifier = identifier;
                 Value = value;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitAssignExpr(this);
+            }
+
+            public override string ToString()
+            {
+                return $"{Name.Lexeme} = {Value}";
             }
         }
 

@@ -32,7 +32,10 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal static class TypeValidator
     {
-        public static void Validate(IList<Stmt> statements, Action<TypeValidationError> typeValidationErrorCallback, Func<Expr, Binding> getVariableOrFunctionCallback)
+        public static void Validate(
+            IList<Stmt> statements,
+            Action<TypeValidationError> typeValidationErrorCallback,
+            Func<Expr, Binding> getVariableOrFunctionCallback)
         {
             bool typeResolvingFailed = false;
 
@@ -47,7 +50,8 @@ namespace Perlang.Interpreter.Typing
 
             try
             {
-                typeResolver.Validate(statements);
+                // Walk the tree, resolving explicit and inferred type references to their corresponding CLR types.
+                typeResolver.Resolve(statements);
             }
             catch (TypeValidationError e)
             {
@@ -107,7 +111,7 @@ namespace Perlang.Interpreter.Typing
 
             try
             {
-                typeResolver.Validate(expr);
+                typeResolver.Resolve(expr);
             }
             catch (TypeValidationError e)
             {
@@ -162,23 +166,14 @@ namespace Perlang.Interpreter.Typing
                 this.typeValidationErrorCallback = typeValidationErrorCallback;
             }
 
-            internal void Validate(IList<Stmt> statements)
+            public void Resolve(IList<Stmt> statements)
             {
-                // Walk the tree, resolving explicit and inferred type references to their corresponding CLR types.
-                foreach (Stmt statement in statements)
-                {
-                    Validate(statement);
-                }
+                Visit(statements);
             }
 
-            internal void Validate(Expr expr)
+            public void Resolve(Expr expr)
             {
-                expr.Accept(this);
-            }
-
-            private void Validate(Stmt stmt)
-            {
-                stmt.Accept(this);
+                Visit(expr);
             }
 
             //

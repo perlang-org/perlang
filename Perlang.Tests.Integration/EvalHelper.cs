@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Resolution;
-using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 
 namespace Perlang.Tests.Integration
@@ -17,8 +16,8 @@ namespace Perlang.Tests.Integration
         /// errors are encountered, only the first will be thrown.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>The result of evaluating the provided expression, or `null` if provided a list of statements or
-        /// an invalid program.</returns>
+        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
+        /// provided a valid expression, `Value` will be set to `null`.</returns>
         internal static object Eval(string source)
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
@@ -28,7 +27,8 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
         }
 
@@ -41,7 +41,8 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
-        /// <returns>An EvalResult with the result of the provided expression, or null if not provided an expression.</returns>
+        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
+        /// provided a valid expression, `Value` will be set to `null`.</returns>
         internal static EvalResult EvalWithRuntimeCatch(string source, params string[] arguments)
         {
             var result = new EvalResult();
@@ -53,21 +54,24 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
 
             return result;
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see cref="EvalResult.Value"/>
-        /// contains the value of the evaluated expression; otherwise, this method will return `null`.
+        /// Evaluates the provided expression or list of statements. If provided an expression, <see
+        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
+        /// `null`.
         ///
-        /// This method will propagate all errors apart from  <see cref="ParseError"/> to the caller. Runtime errors
+        /// This method will propagate all errors apart from  <see cref="ParseError"/> to the caller. Parse errors
         /// will be available in the returned <see cref="EvalResult"/>.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the result of the provided expression, or `null` if not provided an expression.</returns>
+        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
+        /// provided a valid expression, `Value` will be set to `null`.</returns>
         internal static EvalResult EvalWithParseErrorCatch(string source)
         {
             var result = new EvalResult();
@@ -78,21 +82,24 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 parseError => result.ParseErrors.Add(parseError),
                 AssertFailResolveErrorHandler,
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
 
             return result;
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see cref="EvalResult.Value"/>
-        /// contains the value of the evaluated expression; otherwise, this method will return `null`.
+        /// Evaluates the provided expression or list of statements. If provided an expression, <see
+        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
+        /// `null`.
         ///
-        /// This method will propagate all errors apart from  <see cref="ResolveError"/> to the caller. Runtime errors
+        /// This method will propagate all errors apart from  <see cref="ResolveError"/> to the caller. Resolve errors
         /// will be available in the returned <see cref="EvalResult"/>.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the result of the provided expression, or `null` if not provided an expression.</returns>
+        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
+        /// provided a valid expression, `Value` will be set to `null`.</returns>
         internal static EvalResult EvalWithResolveErrorCatch(string source)
         {
             var result = new EvalResult();
@@ -103,13 +110,25 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 resolveError => result.ResolveErrors.Add(resolveError),
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
 
             return result;
         }
 
-        internal static EvalResult EvalWithTypeValidationErrorCatch(string source)
+        /// <summary>
+        /// Evaluates the provided expression or list of statements. If provided an expression, <see
+        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
+        /// `null`.
+        ///
+        /// This method will propagate all errors apart from  <see cref="ValidationError"/> to the caller. Validation
+        /// errors will be available in the returned <see cref="EvalResult"/>.
+        /// </summary>
+        /// <param name="source">A valid Perlang program.</param>
+        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
+        /// provided a valid expression, `Value` will be set to `null`.</returns>
+        internal static EvalResult EvalWithValidationErrorCatch(string source)
         {
             var result = new EvalResult();
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
@@ -119,7 +138,8 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                typeValidationError => result.TypeValidationErrors.Add(typeValidationError)
+                validationError => result.ValidationErrors.Add(validationError),
+                validationError => result.ValidationErrors.Add(validationError)
             );
 
             return result;
@@ -142,7 +162,8 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
 
             return output;
@@ -191,7 +212,8 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                AssertFailTypeValidationErrorHandler
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler
             );
         }
 
@@ -215,9 +237,9 @@ namespace Perlang.Tests.Integration
             throw runtimeError;
         }
 
-        private static void AssertFailTypeValidationErrorHandler(TypeValidationError typeValidationError)
+        private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
-            throw typeValidationError;
+            throw validationError;
         }
     }
 }
