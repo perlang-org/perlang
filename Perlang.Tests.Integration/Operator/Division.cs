@@ -44,9 +44,9 @@ namespace Perlang.Tests.Integration.Operator
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
         }
 
@@ -58,9 +58,9 @@ namespace Perlang.Tests.Integration.Operator
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
         }
     }

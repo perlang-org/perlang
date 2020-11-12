@@ -17,9 +17,9 @@ namespace Perlang.Tests.Integration.Immutability
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
@@ -32,9 +32,9 @@ namespace Perlang.Tests.Integration.Immutability
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
@@ -47,9 +47,9 @@ namespace Perlang.Tests.Integration.Immutability
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Function 'f' is immutable and cannot be modified.", exception.Message);
         }
     }

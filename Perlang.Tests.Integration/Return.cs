@@ -64,9 +64,9 @@ namespace Perlang.Tests.Integration
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Cannot return from top-level code.", exception.Message);
         }
 

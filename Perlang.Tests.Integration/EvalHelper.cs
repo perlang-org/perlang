@@ -9,15 +9,13 @@ namespace Perlang.Tests.Integration
     internal static class EvalHelper
     {
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, returns the result;
-        /// otherwise, returns null.
+        /// Evaluates the provided expression or list of statements, returning the evaluated value.
         ///
         /// This method will propagate both scanner, parser, resolver and runtime errors to the caller. If multiple
         /// errors are encountered, only the first will be thrown.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
-        /// provided a valid expression, `Value` will be set to `null`.</returns>
+        /// <returns>The result of evaluating the provided expression, or `null` if provided a list of statements.</returns>
         internal static object Eval(string source)
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
@@ -33,21 +31,22 @@ namespace Perlang.Tests.Integration
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see cref="EvalResult.Value"/>
-        /// contains the value of the evaluated expression; otherwise, this method will return `null`.
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
         ///
-        /// This method will propagate all errors apart from runtime errors to the caller. Runtime errors will be
-        /// available in the returned <see cref="EvalResult"/>.
+        /// This method will propagate all errors apart from  <see cref="RuntimeError"/> to the caller. Runtime errors
+        /// will be available in the returned <see cref="EvalResult{T}"/>.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
-        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
-        /// provided a valid expression, `Value` will be set to `null`.</returns>
-        internal static EvalResult EvalWithRuntimeCatch(string source, params string[] arguments)
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<RuntimeError> EvalWithRuntimeCatch(string source, params string[] arguments)
         {
-            var result = new EvalResult();
+            var result = new EvalResult<RuntimeError>();
             var interpreter =
-                new PerlangInterpreter(runtimeError => result.RuntimeErrors.Add(runtimeError), null, arguments);
+                new PerlangInterpreter(runtimeError => result.Errors.Add(runtimeError), null, arguments);
 
             result.Value = interpreter.Eval(
                 source,
@@ -62,25 +61,25 @@ namespace Perlang.Tests.Integration
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see
-        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
-        /// `null`.
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
         ///
         /// This method will propagate all errors apart from  <see cref="ParseError"/> to the caller. Parse errors
-        /// will be available in the returned <see cref="EvalResult"/>.
+        /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
-        /// provided a valid expression, `Value` will be set to `null`.</returns>
-        internal static EvalResult EvalWithParseErrorCatch(string source)
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<ParseError> EvalWithParseErrorCatch(string source)
         {
-            var result = new EvalResult();
+            var result = new EvalResult<ParseError>();
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
 
             result.Value = interpreter.Eval(
                 source,
                 AssertFailScanErrorHandler,
-                parseError => result.ParseErrors.Add(parseError),
+                parseError => result.Errors.Add(parseError),
                 AssertFailResolveErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler
@@ -90,26 +89,26 @@ namespace Perlang.Tests.Integration
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see
-        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
-        /// `null`.
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
         ///
         /// This method will propagate all errors apart from  <see cref="ResolveError"/> to the caller. Resolve errors
-        /// will be available in the returned <see cref="EvalResult"/>.
+        /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
-        /// provided a valid expression, `Value` will be set to `null`.</returns>
-        internal static EvalResult EvalWithResolveErrorCatch(string source)
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<ResolveError> EvalWithResolveErrorCatch(string source)
         {
-            var result = new EvalResult();
+            var result = new EvalResult<ResolveError>();
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
 
             result.Value = interpreter.Eval(
                 source,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
-                resolveError => result.ResolveErrors.Add(resolveError),
+                resolveError => result.Errors.Add(resolveError),
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler
             );
@@ -118,19 +117,19 @@ namespace Perlang.Tests.Integration
         }
 
         /// <summary>
-        /// Evaluates the provided expression or list of statements. If provided an expression, <see
-        /// cref="EvalResult.Value"/> contains the value of the evaluated expression; otherwise, this method will return
-        /// `null`.
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
         ///
         /// This method will propagate all errors apart from  <see cref="ValidationError"/> to the caller. Validation
-        /// errors will be available in the returned <see cref="EvalResult"/>.
+        /// errors will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <returns>An EvalResult with the `Value` property set to the result of the provided expression. If not
-        /// provided a valid expression, `Value` will be set to `null`.</returns>
-        internal static EvalResult EvalWithValidationErrorCatch(string source)
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<ValidationError> EvalWithValidationErrorCatch(string source)
         {
-            var result = new EvalResult();
+            var result = new EvalResult<ValidationError>();
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler);
 
             result.Value = interpreter.Eval(
@@ -138,8 +137,8 @@ namespace Perlang.Tests.Integration
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
                 AssertFailResolveErrorHandler,
-                validationError => result.ValidationErrors.Add(validationError),
-                validationError => result.ValidationErrors.Add(validationError)
+                validationError => result.Errors.Add(validationError),
+                validationError => result.Errors.Add(validationError)
             );
 
             return result;

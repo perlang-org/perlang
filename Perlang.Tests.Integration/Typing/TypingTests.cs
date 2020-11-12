@@ -26,9 +26,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Expecting type name", exception.Message);
         }
 
@@ -40,9 +40,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Cannot assign String value to Int32", exception.Message);
         }
 
@@ -54,9 +54,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -72,9 +72,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -90,9 +90,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -124,9 +124,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Cannot pass System.Int32 argument as parameter 's: System.String'", exception.Message);
         }
 
@@ -173,9 +173,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -193,9 +193,9 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Cannot assign String value to Int32", exception.Message);
         }
     }

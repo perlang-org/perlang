@@ -28,9 +28,9 @@ namespace Perlang.Tests.Integration.Operator
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Undefined identifier 'x'", exception.Message);
         }
 
@@ -43,9 +43,9 @@ namespace Perlang.Tests.Integration.Operator
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("can only be used to decrement numbers, not nil", exception.Message);
         }
 
@@ -58,9 +58,9 @@ namespace Perlang.Tests.Integration.Operator
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("can only be used to decrement numbers, not String", exception.Message);
         }
 
