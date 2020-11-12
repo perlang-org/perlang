@@ -16,10 +16,10 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void Base64_decode_with_no_arguments_throws_the_expected_exception()
         {
-            var result = EvalWithTypeValidationErrorCatch("Base64.decode()");
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch("Base64.decode()");
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Contains("Method 'decode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
@@ -39,10 +39,10 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void Base64_decode_with_a_numeric_argument_throws_the_expected_exception()
         {
-            var result = EvalWithTypeValidationErrorCatch("Base64.decode(123.45)");
-            var runtimeError = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch("Base64.decode(123.45)");
+            var runtimeError = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
 
             Assert.Equal("Cannot pass System.Double argument as System.String parameter to decode()", runtimeError.Message);
         }

@@ -6,8 +6,9 @@ namespace Perlang.Interpreter.Resolution
     internal class FunctionBinding : Binding, IDistanceAwareBinding
     {
         public int Distance { get; }
-
         public Stmt.Function Function { get; }
+
+        public override string ObjectType => "function";
 
         public FunctionBinding(Stmt.Function function, TypeReference typeReference, int distance, Expr referringExpr)
             : base(typeReference, referringExpr)

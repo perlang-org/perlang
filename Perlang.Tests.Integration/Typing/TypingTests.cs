@@ -39,10 +39,10 @@ namespace Perlang.Tests.Integration.Typing
                 var s: int = ""Hello World"";
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Cannot assign String value to Int32", exception.Message);
         }
 
@@ -53,10 +53,10 @@ namespace Perlang.Tests.Integration.Typing
                 var s: SomeUnknownType = ""Hello World"";
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -71,10 +71,10 @@ namespace Perlang.Tests.Integration.Typing
                 }
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -89,10 +89,10 @@ namespace Perlang.Tests.Integration.Typing
                 }
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -123,10 +123,10 @@ namespace Perlang.Tests.Integration.Typing
                 foo(42);
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Cannot pass System.Int32 argument as parameter 's: System.String'", exception.Message);
         }
 
@@ -172,10 +172,10 @@ namespace Perlang.Tests.Integration.Typing
                 }
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
         }
 
@@ -192,10 +192,10 @@ namespace Perlang.Tests.Integration.Typing
                 print s;
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.FirstOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.FirstOrDefault();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Cannot assign String value to Int32", exception.Message);
         }
     }

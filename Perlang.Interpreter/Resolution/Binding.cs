@@ -29,6 +29,29 @@ namespace Perlang.Interpreter.Resolution
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1629:DocumentationTextMustEndWithAPeriod", Justification = "Code block.")]
         public Expr ReferringExpr { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this binding is mutable (`true`) or immutable (`false`). All binding classes
+        /// not explicitly overriding this are immutable by default.
+        /// </summary>
+        public virtual bool IsMutable => false;
+
+        /// <summary>
+        /// Gets a value indicating whether this binding is immutable (`true`) or mutable (`false`). Convenience
+        /// property which is always the opposite of <see cref="IsMutable"/>.
+        /// </summary>
+        public bool IsImmutable => !IsMutable;
+
+        /// <summary>
+        /// Gets the type of object this binding refers to. Can be used to e.g. construct helpful error messages to end
+        /// users.
+        /// </summary>
+        public abstract string ObjectType { get; }
+
+        /// <summary>
+        /// Gets the type of object this binding refers to, with the initial letter converted to upper-case.
+        /// </summary>
+        public object ObjectTypeTitleized => ObjectType[0].ToString().ToUpper() + ObjectType.Substring(1);
+
         protected Binding(TypeReference? typeReference, Expr referringExpr)
         {
             // We allow null references on this one to sneak through, since it allows this test to succeed:

@@ -1,16 +1,13 @@
 namespace Perlang.Interpreter.Typing
 {
-    public class TypeValidationError : PerlangInterpreterException
+    /// <summary>
+    /// Exception thrown on type validation errors.
+    /// </summary>
+    public class TypeValidationError : ValidationError
     {
-        /// <summary>
-        /// Gets the approximate location at which the error occurred.
-        /// </summary>
-        public Token Token { get; }
-
         public TypeValidationError(Token token, string message)
-            : base(message)
+            : base(token, message)
         {
-            Token = token;
         }
     }
 }

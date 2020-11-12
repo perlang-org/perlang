@@ -27,10 +27,10 @@ namespace Perlang.Tests.Integration.Operator
                 x--;
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Undefined identifier 'x'", exception.Message);
         }
 

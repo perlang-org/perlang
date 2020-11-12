@@ -8,6 +8,9 @@ namespace Perlang.Interpreter.Resolution
     {
         public int Distance { get; }
 
+        public override string ObjectType => "variable";
+        public override bool IsMutable => true;
+
         public VariableBinding(TypeReference? typeReference, int distance, Expr referringExpr)
             : base(typeReference, referringExpr)
         {

@@ -19,8 +19,8 @@ namespace Perlang.Parser
     /// <summary>
     /// Parses Perlang code to either a list of statements or a single expression.
     ///
-    /// This class is not thread safe; a single instance of the class can not be used simultaneously from multiple
-    /// threads.
+    /// This class is not thread safe; a single instance of the class can not be safely used from multiple threads
+    /// simultaneously.
     /// </summary>
     public class PerlangParser
     {
@@ -390,8 +390,7 @@ namespace Perlang.Parser
 
                 if (expr is Expr.Identifier identifier)
                 {
-                    Token name = identifier.Name;
-                    return new Expr.Assign(name, value);
+                    return new Expr.Assign(identifier, value);
                 }
 
                 Error(equals, "Invalid assignment target.");

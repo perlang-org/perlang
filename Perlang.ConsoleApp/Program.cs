@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Resolution;
-using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
 
@@ -168,7 +167,7 @@ namespace Perlang.ConsoleApp
 
         internal void Run(string source)
         {
-            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, TypeValidationError);
+            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError);
 
             if (result != null)
             {
@@ -230,9 +229,9 @@ namespace Perlang.ConsoleApp
             Error(resolveError.Token, resolveError.Message);
         }
 
-        private void TypeValidationError(TypeValidationError typeValidationError)
+        private void ValidationError(ValidationError validationError)
         {
-            Error(typeValidationError.Token, typeValidationError.Message);
+            Error(validationError.Token, validationError.Message);
         }
 
         private class AutoCompletionHandler : IAutoCompleteHandler

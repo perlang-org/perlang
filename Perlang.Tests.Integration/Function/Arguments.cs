@@ -174,10 +174,10 @@ namespace Perlang.Tests.Integration.Function
                 f(1, 2, 3, 4);
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
+            Assert.Single(result.ValidationErrors);
             Assert.Matches("Function 'f' has 2 parameter\\(s\\) but was called with 4 argument\\(s\\)",
                 exception.Message);
         }
@@ -191,12 +191,15 @@ namespace Perlang.Tests.Integration.Function
                 f(1);
             ";
 
-            var result = EvalWithTypeValidationErrorCatch(source);
-            var exception = result.TypeValidationErrors.First();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.ValidationErrors.First();
 
-            Assert.Single(result.TypeValidationErrors);
-            Assert.Matches("Function 'f' has 2 parameter\\(s\\) but was called with 1 argument\\(s\\)",
-                exception.Message);
+            Assert.Single(result.ValidationErrors);
+
+            Assert.Matches(
+                "Function 'f' has 2 parameter\\(s\\) but was called with 1 argument\\(s\\)",
+                exception.Message
+            );
         }
 
         [Fact]
