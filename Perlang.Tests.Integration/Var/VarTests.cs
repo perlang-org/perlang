@@ -18,7 +18,7 @@ namespace Perlang.Tests.Integration.Var
 
             var result = EvalWithRuntimeCatch(source);
 
-            Assert.Empty(result.RuntimeErrors);
+            Assert.Empty(result.Errors);
         }
 
         [Fact]
@@ -31,9 +31,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Error at 'a': Variable with this name already declared in this scope.", exception.ToString());
         }
 
@@ -48,9 +48,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Error at 'a': Variable with this name already declared in this scope.", exception.ToString());
         }
 
@@ -65,9 +65,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Error at 'arg': Variable with this name already declared in this scope.", exception.ToString());
         }
 
@@ -173,9 +173,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
@@ -189,9 +189,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithRuntimeCatch(source);
-            var exception = result.RuntimeErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.RuntimeErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
         }
 
@@ -300,9 +300,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
@@ -316,9 +316,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
@@ -330,9 +330,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Type inference for variable 'a' cannot be performed when initializer is not specified", exception.Message);
         }
 
@@ -352,9 +352,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Undefined identifier 'not_defined'", exception.Message);
         }
 
@@ -366,9 +366,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
 
             Assert.Matches("Error at 'false': Expecting variable name", exception.ToString());
         }
@@ -399,9 +399,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Error at 'a': Cannot read local variable in its own initializer", exception.ToString());
         }
 
@@ -413,9 +413,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
 
             Assert.Matches("Error at 'nil': Expecting variable name.", exception.ToString());
         }
@@ -428,9 +428,9 @@ namespace Perlang.Tests.Integration.Var
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
 
             Assert.Matches("Error at 'this': Expecting variable name", exception.ToString());
         }

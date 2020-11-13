@@ -175,9 +175,9 @@ namespace Perlang.Tests.Integration.Function
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Function 'f' has 2 parameter\\(s\\) but was called with 4 argument\\(s\\)",
                 exception.Message);
         }
@@ -192,9 +192,9 @@ namespace Perlang.Tests.Integration.Function
             ";
 
             var result = EvalWithValidationErrorCatch(source);
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
 
             Assert.Matches(
                 "Function 'f' has 2 parameter\\(s\\) but was called with 1 argument\\(s\\)",
@@ -210,9 +210,9 @@ namespace Perlang.Tests.Integration.Function
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Expect '\\)' after parameters.", exception.Message);
         }
     }

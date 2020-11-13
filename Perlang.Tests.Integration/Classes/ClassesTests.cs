@@ -34,9 +34,9 @@ namespace Perlang.Tests.Integration.Classes
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Class Foo already defined; cannot redefine", exception.Message);
         }
 
@@ -65,9 +65,9 @@ namespace Perlang.Tests.Integration.Classes
             ";
 
             var result = EvalWithResolveErrorCatch(source);
-            var exception = result.ResolveErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ResolveErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Class Base64 already defined; cannot redefine", exception.Message);
         }
 

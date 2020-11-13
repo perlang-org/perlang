@@ -11,9 +11,9 @@ namespace Perlang.Tests.Integration.Stdlib
         public void Base64_encode_with_no_arguments_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.encode()");
-            var exception = result.ValidationErrors.First();
+            var exception = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
             Assert.Contains("Method 'encode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
@@ -46,9 +46,9 @@ namespace Perlang.Tests.Integration.Stdlib
         public void Base64_encode_with_a_numeric_argument_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.encode(123.45)");
-            var runtimeError = result.ValidationErrors.First();
+            var runtimeError = result.Errors.First();
 
-            Assert.Single(result.ValidationErrors);
+            Assert.Single(result.Errors);
 
             Assert.Equal("Cannot pass System.Double argument as System.String parameter to encode()", runtimeError.Message);
         }

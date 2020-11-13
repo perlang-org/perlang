@@ -15,9 +15,9 @@ namespace Perlang.Tests.Integration.Number
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Expect identifier after '.'", exception.Message);
         }
 
@@ -29,9 +29,9 @@ namespace Perlang.Tests.Integration.Number
             ";
 
             var result = EvalWithParseErrorCatch(source);
-            var exception = result.ParseErrors.FirstOrDefault();
+            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.ParseErrors);
+            Assert.Single(result.Errors);
             Assert.Matches("Expect expression", exception.Message);
         }
 
