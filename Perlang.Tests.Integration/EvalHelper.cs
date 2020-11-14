@@ -42,7 +42,7 @@ namespace Perlang.Tests.Integration
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<RuntimeError> EvalWithRuntimeCatch(string source, params string[] arguments)
+        internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, params string[] arguments)
         {
             var result = new EvalResult<RuntimeError>();
             var interpreter =

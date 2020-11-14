@@ -16,7 +16,7 @@ namespace Perlang.Tests.Integration.Var
                 var a: int;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
+            var result = EvalWithRuntimeErrorCatch(source);
 
             Assert.Empty(result.Errors);
         }
@@ -172,7 +172,7 @@ namespace Perlang.Tests.Integration.Var
                 print a;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
+            var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
@@ -188,7 +188,7 @@ namespace Perlang.Tests.Integration.Var
                 print a;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
+            var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);

@@ -29,7 +29,7 @@ namespace Perlang.Tests.Integration.For
         {
             string source = @"
                 for (var a = 0; a < 3; a = a + 1) {
-                  print a;
+                    print a;
                 }
             ";
 
@@ -48,7 +48,7 @@ namespace Perlang.Tests.Integration.For
         {
             string source = @"
                 fun foo(): string {
-                  for (;;) return ""done"";
+                    for (;;) return ""done"";
                 }
                 print foo();
             ";
@@ -80,10 +80,10 @@ namespace Perlang.Tests.Integration.For
         {
             string source = @"
                 fun bar(): void {
-                  for (var i = 0;; i = i + 1) {
-                    print i;
-                    if (i >= 2) return;
-                  }
+                    for (var i = 0;; i = i + 1) {
+                        print i;
+                        if (i >= 2) return;
+                    }
                 }
                 bar();
             ";
@@ -103,8 +103,8 @@ namespace Perlang.Tests.Integration.For
         {
             string source = @"
                 for (var i = 0; i < 2;) {
-                  print i;
-                  i = i + 1;
+                    print i;
+                    i = i + 1;
                 }
             ";
 

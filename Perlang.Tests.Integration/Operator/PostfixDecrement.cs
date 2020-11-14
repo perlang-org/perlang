@@ -42,7 +42,7 @@ namespace Perlang.Tests.Integration.Operator
                 i--;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
+            var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
@@ -57,7 +57,7 @@ namespace Perlang.Tests.Integration.Operator
                 i--;
             ";
 
-            var result = EvalWithRuntimeCatch(source);
+            var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
