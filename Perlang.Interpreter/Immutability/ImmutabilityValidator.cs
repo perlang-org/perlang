@@ -44,12 +44,10 @@ namespace Perlang.Interpreter.Immutability
 
             Binding? binding = getVariableOrFunctionBinding(expr);
 
-            if (binding == null)
-            {
-                throw new PerlangInterpreterException($"Failed to locate binding for {expr.Identifier}");
-            }
-
-            if (binding.IsImmutable)
+            // 'null' here can either be because of an internal error (failure to locate a binding that _should_ exist),
+            // or a completely valid case when trying to reassign an undefined variable. Regretfully, we cannot
+            // distinguish between these two scenarios at the moment.
+            if (binding?.IsImmutable == true)
             {
                 immutabilityValidationErrorCallback(new ImmutabilityValidationError(
                     expr.Name,

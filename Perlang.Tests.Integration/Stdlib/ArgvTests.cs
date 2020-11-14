@@ -27,7 +27,7 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void argv_pop_with_no_arguments_throws_the_expected_exception()
         {
-            var result = EvalWithRuntimeCatch("Argv.pop()");
+            var result = EvalWithRuntimeErrorCatch("Argv.pop()");
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
@@ -61,7 +61,7 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void argv_pop_too_many_times_throws_the_expected_exception()
         {
-            var result = EvalWithRuntimeCatch("Argv.pop(); Argv.pop();", "arg1");
+            var result = EvalWithRuntimeErrorCatch("Argv.pop(); Argv.pop();", "arg1");
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
