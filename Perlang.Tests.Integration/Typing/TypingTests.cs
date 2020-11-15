@@ -97,6 +97,20 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
+        public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source()
+        {
+            string source = @"
+                var foo = 123;
+                var bar = foo;
+
+                print bar.get_type();
+            ";
+
+            string result = EvalReturningOutputString(source);
+            Assert.Equal("System.Int32", result);
+        }
+
+        [Fact]
         public void function_parameter_can_provide_a_type()
         {
             string source = @"

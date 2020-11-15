@@ -5,6 +5,7 @@
     <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
 
         <Rule Id="SA1003" Action="None"/>       <!-- Symbols should be spaced correctly -->
+        <Rule Id="SA1005" Action="None"/>       <!-- Single line comment should begin with a space -->
         <Rule Id="SA1009" Action="None"/>       <!-- Closing parenthesis should be spaced correctly -->
         <Rule Id="SA1101" Action="None"/>       <!-- Prefix local calls with this -->
 

@@ -6,6 +6,8 @@ namespace Perlang.Interpreter.Resolution
     {
         private readonly PerlangClass perlangClass;
 
+        public string ObjectType => "class";
+
         public ClassBindingFactory(PerlangClass perlangClass)
         {
             this.perlangClass = perlangClass ?? throw new ArgumentException("perlangClass cannot be null");

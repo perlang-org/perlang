@@ -117,7 +117,7 @@ namespace Perlang.Tests.ConsoleApp
             // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
             // error.
             var program = new Program(standardOutputHandler: s => output.Add(s));
-            program.Run("Argv.pop()");
+            program.Run("ARGV.pop()");
 
             Assert.Equal(new List<string>
             {

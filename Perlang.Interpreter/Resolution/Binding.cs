@@ -62,5 +62,17 @@ namespace Perlang.Interpreter.Resolution
 
             ReferringExpr = referringExpr ?? throw new PerlangInterpreterException("referringExpr cannot be null");
         }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name} " +
+                   "{" +
+                   $"{nameof(ReferringExpr)}: {ReferringExpr}, " +
+                   $"{nameof(TypeReference)}: {TypeReference}, " +
+                   $"{nameof(IsImmutable)}: {IsImmutable}, " +
+                   $"{nameof(ObjectType)}: {ObjectType}, " +
+                   $"GetHashCode: {GetHashCode()}" +
+                   "}";
+        }
     }
 }

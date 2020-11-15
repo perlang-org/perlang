@@ -174,9 +174,9 @@ namespace Perlang
 
         public class Literal : Expr
         {
-            public object Value { get; }
+            public object? Value { get; }
 
-            public Literal(object value)
+            public Literal(object? value)
             {
                 Value = value;
             }
@@ -188,7 +188,15 @@ namespace Perlang
 
             public override string ToString()
             {
-                return Value?.ToString() ?? "null";
+                if (Value is string s)
+                {
+                    // Surround with quotes to make it more distinguishable when debugging.
+                    return '"' + s + '"';
+                }
+                else
+                {
+                    return Value?.ToString() ?? "null";
+                }
             }
         }
 

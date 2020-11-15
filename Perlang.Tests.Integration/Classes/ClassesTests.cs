@@ -58,7 +58,7 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
-        public void duplicate_class_name_as_native_class_throws_expected_error()
+        public void class_name_clash_with_native_class_throws_expected_error()
         {
             string source = @"
                 class Base64 {}
@@ -69,6 +69,52 @@ namespace Perlang.Tests.Integration.Classes
 
             Assert.Single(result.Errors);
             Assert.Matches("Class Base64 already defined; cannot redefine", exception.Message);
+        }
+
+        [Fact]
+        public void class_name_clash_with_native_object_throws_expected_error()
+        {
+            string source = @"
+                class ARGV {}
+            ";
+
+            var result = EvalWithResolveErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Object ARGV already defined; cannot redefine", exception.Message);
+        }
+
+        [Fact]
+        public void class_name_clash_with_function_throws_expected_error()
+        {
+            string source = @"
+                fun Hello() {}
+
+                class Hello {}
+            ";
+
+            var result = EvalWithResolveErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Function Hello already defined; cannot redefine", exception.Message);
+        }
+
+        [Fact]
+        public void class_name_clash_with_variable_throws_expected_error()
+        {
+            string source = @"
+                var Hello = 1;
+
+                class Hello {}
+            ";
+
+            var result = EvalWithResolveErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Variable Hello already defined; cannot redefine", exception.Message);
         }
 
         [Fact]

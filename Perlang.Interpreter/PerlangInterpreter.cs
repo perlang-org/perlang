@@ -10,6 +10,7 @@ using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
+using Perlang.Stdlib;
 using static Perlang.TokenType;
 using static Perlang.Utils;
 
@@ -18,15 +19,23 @@ namespace Perlang.Interpreter
     /// <summary>
     /// Interpreter for Perlang code.
     ///
-    /// This class is not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously can lead to race
-    /// conditions and is not supported.
+    /// Instances of this class are not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously can
+    /// lead to race conditions and is not supported.
     /// </summary>
     public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
         private readonly Action<RuntimeError> runtimeErrorHandler;
         private readonly PerlangEnvironment globals = new PerlangEnvironment();
+        private readonly IImmutableDictionary<string, Type> superGlobals;
 
+        /// <summary>
+        /// Map from referring expression to global binding (variable or function).
+        /// </summary>
         private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
+
+        /// <summary>
+        /// Map from referring expression to local binding (i.e. in a local scope) for variable or function.
+        /// </summary>
         private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
 
         /// <summary>
@@ -51,7 +60,11 @@ namespace Perlang.Interpreter
         /// <param name="arguments">An optional list of runtime arguments.</param>
         /// <param name="replMode">A flag indicating whether REPL mode will be active or not. In REPL mode, statements
         /// without semicolons are accepted.</param>
-        public PerlangInterpreter(Action<RuntimeError> runtimeErrorHandler, Action<string>? standardOutputHandler = null, IEnumerable<string>? arguments = null, bool replMode = false)
+        public PerlangInterpreter(
+            Action<RuntimeError> runtimeErrorHandler,
+            Action<string>? standardOutputHandler = null,
+            IEnumerable<string>? arguments = null,
+            bool replMode = false)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
@@ -61,11 +74,25 @@ namespace Perlang.Interpreter
 
             currentEnvironment = globals;
 
+            superGlobals = CreateSuperGlobals(argumentsList);
+
             LoadStdlib();
             nativeClasses = RegisterGlobalFunctionsAndClasses();
-            var attributeSetters = DiscoverAttributeSetters();
+        }
 
-            PassAttributesToAttributeSetters(attributeSetters, argumentsList);
+        private IImmutableDictionary<string, Type> CreateSuperGlobals(ImmutableList<string> argumentsList)
+        {
+            // Set up the super-global ARGV variable.
+            var result = new Dictionary<string, Type>
+            {
+                { "ARGV", typeof(Argv) }
+            }.ToImmutableDictionary();
+
+            // TODO: Returning a value AND modifying the globals like this feels like a code smell. Try to figure out
+            // TODO: a more sensible way.
+            globals.Define(new Token(VAR, "ARGV", null, -1), new Argv(argumentsList));
+
+            return result;
         }
 
         private static void LoadStdlib()
@@ -82,36 +109,6 @@ namespace Perlang.Interpreter
             // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
             // we can feed it to the Resolver class.
             return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type) kvp.Value);
-        }
-
-        private static ImmutableList<Action<ImmutableList<string>>> DiscoverAttributeSetters()
-        {
-            var argumentSettersQueryable = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .SelectMany(t => t.GetMethods())
-                .Select(m => new
-                {
-                    MethodInfo = m,
-                    ArgumentsSetterAttribute = m.GetCustomAttribute<ArgumentsSetterAttribute>()
-                })
-                .Where(t => t.ArgumentsSetterAttribute != null);
-
-            var result = ImmutableList.CreateBuilder<Action<ImmutableList<string>>>();
-
-            foreach (var argumentSetter in argumentSettersQueryable)
-            {
-                result.Add((Action<ImmutableList<string>>) Delegate.CreateDelegate(typeof(Action<ImmutableList<string>>), argumentSetter.MethodInfo));
-            }
-
-            return result.ToImmutable();
-        }
-
-        private static void PassAttributesToAttributeSetters(ImmutableList<Action<ImmutableList<string>>> attributeSetters, ImmutableList<string> arguments)
-        {
-            foreach (var setter in attributeSetters)
-            {
-                setter.Invoke(arguments);
-            }
         }
 
         /// <summary>
@@ -230,6 +227,7 @@ namespace Perlang.Interpreter
 
                 var resolver = new Resolver(
                     nativeClasses,
+                    superGlobals,
                     AddLocal,
                     AddGlobal,
                     AddGlobalClass,
@@ -309,6 +307,7 @@ namespace Perlang.Interpreter
                 bool hasResolveErrors = false;
                 var resolver = new Resolver(
                     nativeClasses,
+                    superGlobals,
                     AddLocal,
                     AddGlobal,
                     AddGlobalClass,
@@ -417,7 +416,7 @@ namespace Perlang.Interpreter
             return Stringify(value);
         }
 
-        public object VisitLiteralExpr(Expr.Literal expr)
+        public object? VisitLiteralExpr(Expr.Literal expr)
         {
             return expr.Value;
         }
