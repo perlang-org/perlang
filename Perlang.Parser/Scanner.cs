@@ -111,7 +111,7 @@ namespace Perlang.Parser
                     AddToken(SEMICOLON);
                     break;
                 case '*':
-                    AddToken(STAR);
+                    AddToken(Match('*') ? STAR_STAR : STAR);
                     break;
                 case '!':
                     AddToken(Match('=') ? BANG_EQUAL : BANG);

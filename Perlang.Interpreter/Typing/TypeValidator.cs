@@ -222,12 +222,13 @@ namespace Perlang.Interpreter.Typing
                         }
 
                         // goto is indeed evil, but code duplication is an even greater evil.
-                        goto STAR;
+                        goto STAR_STAR;
 
                     case MINUS:
                     case SLASH:
                     case STAR:
-                        STAR:
+                    case STAR_STAR:
+                        STAR_STAR:
                         TypeReference typeReference = GreaterType(leftTypeReference, rightTypeReference);
 
                         if (typeReference == null)

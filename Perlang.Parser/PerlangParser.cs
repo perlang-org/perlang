@@ -503,7 +503,7 @@ namespace Perlang.Parser
         {
             Expr expr = UnaryPrefix();
 
-            while (Match(SLASH, STAR))
+            while (Match(SLASH, STAR, STAR_STAR))
             {
                 Token @operator = Previous();
                 Expr right = UnaryPrefix();

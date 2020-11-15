@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using Perlang.Attributes;
 using Perlang.Exceptions;
@@ -616,7 +617,7 @@ namespace Perlang.Interpreter
                 return;
             }
 
-            throw new RuntimeError(@operator, "Operands must be numbers.");
+            throw new RuntimeError(@operator, $"Operands must be numbers, not {left?.GetType().Name} and {right?.GetType().Name}");
         }
 
         private static bool IsValidNumberType(object? value)
@@ -638,6 +639,7 @@ namespace Perlang.Interpreter
                 case UInt64 _:
                 case Single _: // i.e. float
                 case Double _:
+                case BigInteger _:
                     return true;
             }
 
@@ -906,14 +908,32 @@ namespace Perlang.Interpreter
                 case STAR:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber * rightNumber;
+                case STAR_STAR:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    if (leftNumber is float || leftNumber is double || rightNumber is float || rightNumber is double)
+                    {
+                        return Math.Pow(leftNumber, rightNumber);
+                    }
+                    else if (rightNumber < 0)
+                    {
+                        return Math.Pow(leftNumber, rightNumber);
+                    }
+                    else
+                    {
+                        // Both values are some form of integers. The BigInteger implementation is more likely to yield
+                        // a result that is useful for us in this case.
+                        return BigInteger.Pow(leftNumber, rightNumber);
+                    }
+
                 case BANG_EQUAL:
                     return !IsEqual(left, right);
                 case EQUAL_EQUAL:
                     return IsEqual(left, right);
-            }
 
-            // Unreachable.
-            return null;
+                default:
+                    throw new RuntimeError(expr.Operator, $"Internal error: Unsupported operator {expr.Operator.Type} in binary expression.");
+            }
         }
 
         public object? VisitCallExpr(Expr.Call expr)
