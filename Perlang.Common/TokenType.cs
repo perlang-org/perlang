@@ -14,7 +14,6 @@ namespace Perlang
         SEMICOLON,
         COLON,
         SLASH,
-        STAR,
 
         // One or two character tokens.
         BANG,
@@ -27,6 +26,8 @@ namespace Perlang
         LESS_EQUAL,
         PLUS_PLUS,
         MINUS_MINUS,
+        STAR,
+        STAR_STAR,
 
         // Literals.
         IDENTIFIER,
