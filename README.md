@@ -55,6 +55,11 @@ $ make
 
 You should now have a `perlang` executable. Run `make run` to run it. If you are brave, `make install` (currently Linux only) will put binaries in a path under `~/.perlang` which you can put in your `$PATH` so you can easily use it from anywhere. **Note**: this script uses the same folder (`~/.perlang/nightly/bin`) as the nightly build installer. Any previous version will be overwritten without prompting. This means that if you have previously installed a nightly build and added the folder to your `$PATH`, the version installed with `make install` will now be available in the `$PATH` instead of the previous nightly version.
 
+## Documentation
+
+- [docs/syntax-grammar.md](docs/syntax-grammar.md): Specification of the syntax grammar for the Perlang language.
+- [docs](docs): The source code to the https://perlang.org web site. Built using [docfx](https://dotnet.github.io/docfx)
+
 ## Building the docs
 
 ```shell
