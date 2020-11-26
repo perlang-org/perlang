@@ -45,6 +45,8 @@ main() {
     need_cmd rmdir
     need_cmd tar
 
+    ansi_escapes_are_valid=false
+
     get_architecture || return 1
     local _arch="$RETVAL"
     assert_nz "$_arch" "arch"
@@ -54,8 +56,6 @@ main() {
     local _file="${_dir}/perlang-build.tar.gz"
 
     local _is_tty=false
-
-    ansi_escapes_are_valid=false
 
     if [ -t 2 ]; then
         _is_tty=true
