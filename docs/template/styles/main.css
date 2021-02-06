@@ -7,3 +7,12 @@ body {
 .sideaffix {
     font-size: 13px;
 }
+
+/* Makes the $ prefix for code blocks not be selectable, to make it easier to
+  copy-paste the curl oneliner for installation from the "download" page. */
+pre code.lang-shell span.hljs-meta {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
