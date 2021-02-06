@@ -2,6 +2,7 @@
     <!-- C# analyzers configuration -->
     <PropertyGroup>
         <CodeAnalysisRuleSet>$(SolutionDir)global.ruleset</CodeAnalysisRuleSet>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
