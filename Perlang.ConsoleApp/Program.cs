@@ -50,6 +50,7 @@ namespace Perlang.ConsoleApp
         public static int MainWithCustomConsole(string[] args, IConsole console)
         {
             var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
+            var detailedVersionOption = new Option("-V", "Show detailed version information");
 
             var rootCommand = new RootCommand
             {
@@ -60,6 +61,18 @@ namespace Perlang.ConsoleApp
                     if (parseResult.HasOption(versionOption))
                     {
                         console.Out.WriteLine(CommonConstants.InformationalVersion);
+                        return Task.FromResult(0);
+                    }
+
+                    if (parseResult.HasOption(detailedVersionOption))
+                    {
+                        console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} running on .NET {Environment.Version}");
+                        console.Out.WriteLine();
+                        console.Out.WriteLine($"  Number of detected (v)CPUs: {Environment.ProcessorCount}");
+                        console.Out.WriteLine($"  Running in 64-bit mode: {Environment.Is64BitProcess}");
+                        console.Out.WriteLine($"  Operating system info: {Environment.OSVersion.VersionString}");
+                        console.Out.WriteLine();
+
                         return Task.FromResult(0);
                     }
 
@@ -97,6 +110,7 @@ namespace Perlang.ConsoleApp
             });
 
             rootCommand.AddOption(versionOption);
+            rootCommand.AddOption(detailedVersionOption);
 
             return new CommandLineBuilder(rootCommand)
                 .UseDefaults()
