@@ -19,7 +19,7 @@ namespace Perlang.Tests.Interpreter
             var identifier = new Expr.Identifier(name);
             var get = new Expr.Get(identifier, name);
             var paren = new Token(TokenType.RIGHT_PAREN, ")", null, 1);
-            var call = new Expr.Call(get, paren, new List<Expr>());
+            var callExpr = new Expr.Call(get, paren, new List<Expr>());
             var bindings = new Dictionary<Expr, Binding>
             {
                 { identifier, new NativeClassBinding(identifier, typeof(string)) }
@@ -28,7 +28,11 @@ namespace Perlang.Tests.Interpreter
             var typeValidationErrors = new List<TypeValidationError>();
 
             // Act
-            TypeValidator.Validate(call, error => typeValidationErrors.Add(error), expr => bindings[expr]);
+            TypeValidator.Validate(
+                new List<Stmt> { new Stmt.ExpressionStmt(callExpr) },
+                error => typeValidationErrors.Add(error),
+                expr => bindings[expr]
+            );
 
             // Assert
             Assert.Empty(typeValidationErrors);
@@ -40,7 +44,7 @@ namespace Perlang.Tests.Interpreter
             // Arrange
             var name = new Token(TokenType.IDENTIFIER, "foo", null, -1);
             var identifier = new Expr.Identifier(name);
-            var get = new Expr.Get(identifier, name);
+            var getExpr = new Expr.Get(identifier, name);
 
             var bindings = new Dictionary<Expr, Binding>
             {
@@ -51,7 +55,11 @@ namespace Perlang.Tests.Interpreter
             var typeValidationErrors = new List<TypeValidationError>();
 
             // Act
-            TypeValidator.Validate(get, error => typeValidationErrors.Add(error), expr => bindings[expr]);
+            TypeValidator.Validate(
+                new List<Stmt> { new Stmt.ExpressionStmt(getExpr) },
+                error => typeValidationErrors.Add(error),
+                expr => bindings[expr]
+            );
 
             // Assert
             Assert.Single(typeValidationErrors);
@@ -67,7 +75,7 @@ namespace Perlang.Tests.Interpreter
             // Foo is a defined Perlang class.
             var name = new Token(TokenType.IDENTIFIER, "to_string", null, -1);
             var identifier = new Expr.Identifier(name);
-            var get = new Expr.Get(identifier, name);
+            var getExpr = new Expr.Get(identifier, name);
 
             var bindings = new Dictionary<Expr, Binding>
             {
@@ -77,7 +85,11 @@ namespace Perlang.Tests.Interpreter
             var typeValidationErrors = new List<TypeValidationError>();
 
             // Act
-            TypeValidator.Validate(get, error => typeValidationErrors.Add(error), expr => bindings[expr]);
+            TypeValidator.Validate(
+                new List<Stmt> { new Stmt.ExpressionStmt(getExpr) },
+                error => typeValidationErrors.Add(error),
+                expr => bindings[expr]
+            );
 
             // Assert
             Assert.Empty(typeValidationErrors);

@@ -301,6 +301,13 @@ namespace Perlang.Interpreter
             }
             else if (syntax is Expr expr)
             {
+                // Even though this is an expression, we need to make it a statement here so we can run the various
+                // validation steps on the complete program now (all the statements executed up to now + the expression
+                // we just received).
+                var previousAndNewStatements = previousStatements
+                    .Concat(ImmutableList.Create(new Stmt.ExpressionStmt(expr)))
+                    .ToImmutableList();
+
                 //
                 // Resolving names phase
                 //
@@ -319,7 +326,7 @@ namespace Perlang.Interpreter
                     }
                 );
 
-                resolver.Resolve(expr);
+                resolver.Resolve(previousAndNewStatements);
 
                 if (hasResolveErrors)
                 {
@@ -335,7 +342,7 @@ namespace Perlang.Interpreter
                 bool typeValidationFailed = false;
 
                 TypeValidator.Validate(
-                    expr,
+                    previousAndNewStatements,
                     typeValidationError =>
                     {
                         typeValidationFailed = true;
@@ -356,7 +363,7 @@ namespace Perlang.Interpreter
                 bool immutabilityValidationFailed = false;
 
                 ImmutabilityValidator.Validate(
-                    expr,
+                    previousAndNewStatements,
                     immutabilityValidationError =>
                     {
                         immutabilityValidationFailed = true;
@@ -364,6 +371,12 @@ namespace Perlang.Interpreter
                     },
                     GetVariableOrFunctionBinding
                 );
+
+                // All validation was successful, but unlike for statements, there is no need to mutate the
+                // previousStatements field in this case. Think about it for a moment. We know that the line being
+                // interpreted is an expression, so it _cannot_ have declared any new variable or anything like that
+                // (those are only allowed in statements). Hence, we presume that this expression is, if you will,
+                // "side-effect-free" in that sense.
 
                 if (immutabilityValidationFailed)
                 {

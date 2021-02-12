@@ -50,6 +50,9 @@ namespace Perlang
             }
         }
 
+        /// <summary>
+        /// An expression statement is a statement for wrapping a single expression in statement form.
+        /// </summary>
         public class ExpressionStmt : Stmt
         {
             public Expr Expression { get; }

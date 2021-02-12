@@ -7,10 +7,14 @@ using Xunit;
 
 namespace Perlang.Tests.ConsoleApp
 {
+    /// <summary>
+    /// Test for the Program class. This essentially lets us test the REPL, or various aspects of the language which
+    /// behaves differently in REPL mode vs regular interpreted/compiled modes.
+    /// </summary>
     public class ProgramTest
     {
         private readonly Program subject;
-        private readonly List<string> output = new List<string>();
+        private readonly List<string> output = new();
 
         public ProgramTest()
         {
@@ -51,6 +55,26 @@ namespace Perlang.Tests.ConsoleApp
         }
 
         [Fact]
+        public void Run_can_call_function_from_statement()
+        {
+            subject.Run("fun hello(): void { print 1; }");
+            subject.Run("hello();");
+
+            Assert.Equal(new List<string> { "1" }, output);
+        }
+
+        // This illustrates the bug described in #124; the example there used to throw an exception like this:
+        // [line 1] Error at 'hello': Attempting to call undefined function 'hello'
+        [Fact]
+        public void Run_can_call_function_from_expression()
+        {
+            subject.Run("fun hello(): void { print 1; }");
+            subject.Run("hello()");
+
+            Assert.Equal(new List<string> { "1" }, output);
+        }
+
+        [Fact]
         public void Run_state_does_not_persist_if_one_statement_is_invalid()
         {
             // When a program has an error (like the second Run() invocation below), all variables defined in it are
@@ -87,7 +111,7 @@ namespace Perlang.Tests.ConsoleApp
         }
 
         [Fact]
-        public void Run_with_version_parameter_outputs_expected_value()
+        public void MainWithCustomConsole_with_version_parameter_outputs_expected_value()
         {
             // Arrange & Act
             var testConsole = new TestConsole();
@@ -97,10 +121,10 @@ namespace Perlang.Tests.ConsoleApp
             Assert.Equal(CommonConstants.InformationalVersion + "\n", testConsole.Out.ToString());
         }
 
-        // Test added to assert the bug fix for #117. Interestingly enough, the NRE did not occur when the test was
-        // placed in the ArgvTests class.
+        // Test added to assert the bug fix for #117. Interestingly enough, the NRE described there did not occur when
+        // the test was placed in the ArgvTests class.
         [Fact]
-        public void Time_now_tickz_fails_with_expected_exception()
+        public void Run_Time_now_tickz_fails_with_expected_exception()
         {
             subject.Run("Time.now().tickz()");
 
@@ -112,7 +136,7 @@ namespace Perlang.Tests.ConsoleApp
 
         // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
         [Fact]
-        public void ARGV_pop_with_no_arguments_throws_the_expected_exception()
+        public void Run_ARGV_pop_with_no_arguments_throws_the_expected_exception()
         {
             // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
             // error.

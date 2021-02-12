@@ -22,14 +22,6 @@ namespace Perlang.Interpreter.Immutability
             new ImmutabilityValidator(immutabilityValidationErrorCallback, getVariableOrFunctionBinding).Visit(statements);
         }
 
-        public static void Validate(
-            Expr expr,
-            Action<ValidationError> immutabilityValidationErrorCallback,
-            Func<Expr, Binding?> getVariableOrFunctionBinding)
-        {
-            new ImmutabilityValidator(immutabilityValidationErrorCallback, getVariableOrFunctionBinding).Visit(expr);
-        }
-
         private ImmutabilityValidator(
             Action<ValidationError> immutabilityValidationErrorCallback,
             Func<Expr, Binding?> getVariableOrFunctionBinding)

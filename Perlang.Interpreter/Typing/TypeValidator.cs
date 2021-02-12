@@ -80,66 +80,6 @@ namespace Perlang.Interpreter.Typing
                 .ReportErrors(statements);
         }
 
-        public static void Validate(Expr expr, Action<TypeValidationError> typeValidationErrorCallback, Func<Expr, Binding> getVariableOrFunctionCallback)
-        {
-            // TODO: Replace with non-nullable references instead. https://github.com/perlang-org/perlang/issues/39
-            if (expr == null)
-            {
-                throw new ArgumentException("expr cannot be null");
-            }
-
-            if (typeValidationErrorCallback == null)
-            {
-                throw new ArgumentException("typeValidationErrorCallback cannot be null");
-            }
-
-            if (getVariableOrFunctionCallback == null)
-            {
-                throw new ArgumentException("getVariableOrFunctionCallback cannot be null");
-            }
-
-            bool typeResolvingFailed = false;
-
-            var typeResolver = new TypeResolver(
-                getVariableOrFunctionCallback,
-                validationError =>
-                {
-                    typeValidationErrorCallback(validationError);
-                    typeResolvingFailed = true;
-                });
-
-            try
-            {
-                typeResolver.Resolve(expr);
-            }
-            catch (TypeValidationError e)
-            {
-                // Some errors are handled gracefully by the Validate() method, while others cause an exception to
-                // be thrown and the rest of the validation to abort. We handle both kinds and invoke the callback
-                // in either cause, doing our very best to ensure exceptions are not propagated to the caller.
-                typeValidationErrorCallback(e);
-                return;
-            }
-
-            if (typeResolvingFailed)
-            {
-                // Something went wrong already at the type resolving stage. Possible causes for this could be
-                // references to undefined variables. All errors have been reported to the caller at this point.
-                // Since the resolving failed, we must not continue the processing since the expression tree(s) can
-                // not be guaranteed to be in a healthy state at this stage. It is quite likely that subsequent
-                // exceptions would be caused because of errors which are already reported upstream.
-                return;
-            }
-
-            // The whole expression tree should be walked by now; any type references still not resolved at this point
-            // is a critical error that should fail the type validation. To provide as much information to the user
-            // as possible, the full list errors (if any) are reported back to the caller; we don't just stop at the
-            // first error encountered. (The compiler could potentially discard information except for the first n
-            // errors if desired, though. The key point here is to not discard it at the wrong stage in the pipeline.)
-            new TypeValidatorHelper(getVariableOrFunctionCallback, typeValidationErrorCallback)
-                .ReportErrors(expr);
-        }
-
         /// <summary>
         /// Class responsible for resolving implicit and explicit type references.
         ///
