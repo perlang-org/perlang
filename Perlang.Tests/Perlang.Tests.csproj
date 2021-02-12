@@ -9,13 +9,12 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
       <DocumentationFile>bin\Debug\Perlang.Tests.xml</DocumentationFile>
-      <NoWarn>SA1116;SA1300;
-1591;1701;1702</NoWarn>
+      <NoWarn>SA1116;SA1117;SA1300;1591;1701;1702</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      <NoWarn>SA1116;SA1300;1591;1701;1702</NoWarn>
+      <NoWarn>SA1116;SA1117;SA1300;1591;1701;1702</NoWarn>
       <DocumentationFile>bin\Release\Perlang.Tests.xml</DocumentationFile>
     </PropertyGroup>
 
