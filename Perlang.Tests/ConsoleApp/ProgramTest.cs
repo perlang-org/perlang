@@ -121,6 +121,17 @@ namespace Perlang.Tests.ConsoleApp
             Assert.Equal(CommonConstants.InformationalVersion + "\n", testConsole.Out.ToString());
         }
 
+        [Fact]
+        public void MainWithCustomConsole_with_eval_parameter_outputs_expected_value()
+        {
+            // Arrange & Act
+            var testConsole = new TestConsole();
+            Program.MainWithCustomConsole(new[] { "-e", "print", "10" }, testConsole);
+
+            // Assert
+            Assert.Equal("10" + "\n", testConsole.Out.ToString());
+        }
+
         // Test added to assert the bug fix for #117. Interestingly enough, the NRE described there did not occur when
         // the test was placed in the ArgvTests class.
         [Fact]

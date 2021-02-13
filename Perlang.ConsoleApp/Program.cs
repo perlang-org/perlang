@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Resolution;
 using Perlang.Parser;
+using static System.CommandLine.Parsing.TokenType;
 using ParseError = Perlang.Parser.ParseError;
 
 namespace Perlang.ConsoleApp
@@ -51,6 +52,7 @@ namespace Perlang.ConsoleApp
         {
             var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option("-V", "Show detailed version information");
+            var evalOption = new Option("-e", "Executes a single-line script");
 
             var rootCommand = new RootCommand
             {
@@ -76,9 +78,17 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
-                    if (parseResult.Tokens.Count == 0)
+                    if (parseResult.HasOption(evalOption))
                     {
-                        new Program().RunPrompt();
+                        IEnumerable<string> arguments = parseResult.Tokens
+                            .Where(t => t.Type == System.CommandLine.Parsing.TokenType.Argument)
+                            .Select(t => t.Value);
+
+                        new Program(standardOutputHandler: console.Out.WriteLine).Run(String.Join(" ", arguments));
+                    }
+                    else if (parseResult.Tokens.Count == 0)
+                    {
+                        new Program(standardOutputHandler: console.Out.WriteLine).RunPrompt();
                     }
                     else
                     {
@@ -86,7 +96,7 @@ namespace Perlang.ConsoleApp
 
                         if (parseResult.Tokens.Count == 1)
                         {
-                            new Program().RunFile(scriptName);
+                            new Program(standardOutputHandler: console.Out.WriteLine).RunFile(scriptName);
                         }
                         else
                         {
@@ -96,7 +106,7 @@ namespace Perlang.ConsoleApp
                                 .Take(parseResult.Tokens.Count - 1)
                                 .Select(r => r.Value);
 
-                            new Program(remainingArguments).RunFile(scriptName);
+                            new Program(remainingArguments, console.Out.WriteLine).RunFile(scriptName);
                         }
                     }
 
@@ -111,6 +121,7 @@ namespace Perlang.ConsoleApp
 
             rootCommand.AddOption(versionOption);
             rootCommand.AddOption(detailedVersionOption);
+            rootCommand.AddOption(evalOption);
 
             return new CommandLineBuilder(rootCommand)
                 .UseDefaults()
