@@ -51,7 +51,10 @@ namespace Perlang.Tests.Integration.Operator
 
             var output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("99", output);
+            // As in languages C# and Java (and unlike C and C++), the operation above has well-defined semantics.
+            // The value of i++ is the value of the expression _before_ it gets evaluated, just like in those other
+            // languages. If we had a prefix decrement operator, it would differ in this regard.
+            Assert.Equal("100", output);
         }
 
         // "Negative tests", ensuring that unsupported operations fail in the expected way.

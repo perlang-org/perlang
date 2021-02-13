@@ -219,6 +219,10 @@ namespace Perlang
             }
         }
 
+        /// <summary>
+        /// Represents unary prefix expressions. Examples of such expressions are `!flag` and `-10`. Note that prefix
+        /// increment and decrement are currently not supported.
+        /// </summary>
         public class UnaryPrefix : Expr
         {
             public Token Operator { get; }
@@ -236,6 +240,9 @@ namespace Perlang
             }
         }
 
+        /// <summary>
+        /// Represents unary postfix expressions. Examples of such expressions are `i++` and `j--`.
+        /// </summary>
         public class UnaryPostfix : Expr
         {
             public Expr Left { get; }

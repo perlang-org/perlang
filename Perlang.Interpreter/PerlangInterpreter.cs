@@ -503,7 +503,8 @@ namespace Perlang.Interpreter
                 }
             }
 
-            dynamic? previousValue = left;
+            // The nullability check has been taken care of by IsValidNumberType() for us.
+            dynamic previousValue = left!;
             var variable = (Expr.Identifier) expr.Left;
             object value;
 
@@ -537,7 +538,7 @@ namespace Perlang.Interpreter
                 globals.Assign(variable.Name, value);
             }
 
-            return value;
+            return previousValue;
         }
 
         public object VisitIdentifierExpr(Expr.Identifier expr)
