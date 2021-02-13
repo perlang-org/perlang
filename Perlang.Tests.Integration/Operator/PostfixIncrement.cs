@@ -6,6 +6,8 @@ namespace Perlang.Tests.Integration.Operator
 {
     public class PostfixIncrement
     {
+        // "Positive" tests, testing for supported behavior
+
         [Fact]
         public void incrementing_defined_variable()
         {
@@ -19,6 +21,40 @@ namespace Perlang.Tests.Integration.Operator
 
             Assert.Equal("1", output);
         }
+
+        [Fact]
+        public void increment_can_be_used_in_for_loops()
+        {
+            string source = @"
+                for (var c = 0; c < 3; c++)
+                    print c;
+            ";
+
+            var output = EvalReturningOutput(source);
+
+            Assert.Equal(new[]
+            {
+                "0",
+                "1",
+                "2"
+            }, output);
+        }
+
+        [Fact]
+        public void increment_can_be_used_in_assignment()
+        {
+            string source = @"
+                var i = 100;
+                var j = i++;
+                print j;
+            ";
+
+            var output = EvalReturningOutputString(source);
+
+            Assert.Equal("101", output);
+        }
+
+        // "Negative tests", ensuring that unsupported operations fail in the expected way.
 
         [Fact]
         public void incrementing_undefined_variable_throws_expected_exception()
@@ -62,38 +98,6 @@ namespace Perlang.Tests.Integration.Operator
 
             Assert.Single(result.Errors);
             Assert.Matches("can only be used to increment numbers, not String", exception.Message);
-        }
-
-        [Fact]
-        public void increment_can_be_used_in_for_loops()
-        {
-            string source = @"
-                for (var c = 0; c < 3; c++)
-                    print c;
-            ";
-
-            var output = EvalReturningOutput(source);
-
-            Assert.Equal(new[]
-            {
-                "0",
-                "1",
-                "2"
-            }, output);
-        }
-
-        [Fact]
-        public void increment_can_be_used_in_assignment()
-        {
-            string source = @"
-                var i = 100;
-                var j = i++;
-                print j;
-            ";
-
-            var output = EvalReturningOutputString(source);
-
-            Assert.Equal("101", output);
         }
     }
 }
