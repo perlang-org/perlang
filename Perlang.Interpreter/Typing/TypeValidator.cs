@@ -38,6 +38,9 @@ namespace Perlang.Interpreter.Typing
         {
             bool typeResolvingFailed = false;
 
+            //
+            // Phase 1: Resolve explicit and explicit type references to their corresponding CLR types.
+            //
             var typeResolver = new TypeResolver(
                 getVariableOrFunctionCallback,
                 validationError =>
@@ -49,7 +52,6 @@ namespace Perlang.Interpreter.Typing
 
             try
             {
-                // Walk the tree, resolving explicit and inferred type references to their corresponding CLR types.
                 typeResolver.Resolve(statements);
             }
             catch (TypeValidationError e)
@@ -70,6 +72,10 @@ namespace Perlang.Interpreter.Typing
                 // exceptions would be caused because of errors which are already reported upstream.
                 return;
             }
+
+            //
+            // Phase 2: Validate that type resolving worked.
+            //
 
             // The whole expression tree should be walked by now; any type references still not resolved at this point
             // is a critical error that should fail the type validation. To provide as much information to the user
@@ -110,14 +116,25 @@ namespace Perlang.Interpreter.Typing
                 Visit(statements);
             }
 
-            public void Resolve(Expr expr)
-            {
-                Visit(expr);
-            }
-
             //
             // Expr visitors
             //
+
+            public override VoidObject VisitAssignExpr(Expr.Assign expr)
+            {
+                base.VisitAssignExpr(expr);
+
+                // Letting the type be inferred in an assignment expression is important to make constructs like
+                // "var i = 100; var j = i+= 2;" work correctly. This is indeed an odd way of writing code, but as long
+                // as += is an expression and not a statement, we need to have predictable semantics for cases like
+                // this.
+                if (!expr.TypeReference.IsResolved && expr.Value.TypeReference.IsResolved)
+                {
+                    expr.TypeReference.ClrType = expr.Value.TypeReference.ClrType;
+                }
+
+                return VoidObject.Void;
+            }
 
             public override VoidObject VisitBinaryExpr(Expr.Binary expr)
             {
@@ -137,13 +154,15 @@ namespace Perlang.Interpreter.Typing
 
                 if (!leftTypeReference.ClrType.IsAssignableTo(typeof(IComparable)))
                 {
-                    throw new PerlangInterpreterException(
+                    throw new TypeValidationError(
+                        expr.Operator,
                         $"{leftTypeReference} is not comparable and can therefore not be used with the ${expr.Operator} operator"
                     );
                 }
                 else if (!rightTypeReference.ClrType.IsAssignableTo(typeof(IComparable)))
                 {
-                    throw new PerlangInterpreterException(
+                    throw new TypeValidationError(
+                        expr.Operator,
                         $"{leftTypeReference} is not comparable and can therefore not be used with the ${expr.Operator} operator"
                     );
                 }
@@ -163,7 +182,9 @@ namespace Perlang.Interpreter.Typing
                         // goto is indeed evil, but code duplication is an even greater evil.
                         goto STAR_STAR;
 
+                    case PLUS_EQUAL:
                     case MINUS:
+                    case MINUS_EQUAL:
                     case SLASH:
                     case STAR:
                     case STAR_STAR:

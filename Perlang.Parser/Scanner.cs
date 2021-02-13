@@ -99,10 +99,34 @@ namespace Perlang.Parser
                     AddToken(DOT);
                     break;
                 case '-':
-                    AddToken(Match('-') ? MINUS_MINUS : MINUS);
+                    if (Match('-'))
+                    {
+                        AddToken(MINUS_MINUS);
+                    }
+                    else if (Match('='))
+                    {
+                        AddToken(MINUS_EQUAL);
+                    }
+                    else
+                    {
+                        AddToken(MINUS);
+                    }
+
                     break;
                 case '+':
-                    AddToken(Match('+') ? PLUS_PLUS : PLUS);
+                    if (Match('+'))
+                    {
+                        AddToken(PLUS_PLUS);
+                    }
+                    else if (Match('='))
+                    {
+                        AddToken(PLUS_EQUAL);
+                    }
+                    else
+                    {
+                        AddToken(PLUS);
+                    }
+
                     break;
                 case ':':
                     AddToken(COLON);
