@@ -5,9 +5,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 using Perlang.Attributes;
 using Perlang.Exceptions;
 using Perlang.Interpreter.Immutability;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
@@ -109,7 +111,7 @@ namespace Perlang.Interpreter
 
             // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
             // we can feed it to the Resolver class.
-            return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type) kvp.Value);
+            return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type)kvp.Value);
         }
 
         /// <summary>
@@ -391,6 +393,80 @@ namespace Perlang.Interpreter
             }
         }
 
+        /// <summary>
+        /// Parses the provided source code and returns a string representation of the parsed AST.
+        /// </summary>
+        /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
+        /// <param name="scanErrorHandler">A handler for scanner errors.</param>
+        /// <param name="parseErrorHandler">A handler for parse errors.</param>
+        /// <returns>A string representation of the parsed syntax tree for the given Perlang program, or `null` in case
+        /// one or more errors occurred.</returns>
+        public string? Parse(string source, Action<ScanError> scanErrorHandler, Action<ParseError> parseErrorHandler)
+        {
+            //
+            // Scanning phase
+            //
+
+            bool hasScanErrors = false;
+            var scanner = new Scanner(source, scanError =>
+            {
+                hasScanErrors = true;
+                scanErrorHandler(scanError);
+            });
+
+            var tokens = scanner.ScanTokens();
+
+            if (hasScanErrors)
+            {
+                // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
+                return null;
+            }
+
+            //
+            // Parsing phase
+            //
+
+            bool hasParseErrors = false;
+            var parser = new PerlangParser(
+                tokens,
+                parseError =>
+                {
+                    hasParseErrors = true;
+                    parseErrorHandler(parseError);
+                },
+                allowSemicolonElision: replMode
+            );
+
+            object syntax = parser.ParseExpressionOrStatements();
+
+            if (hasParseErrors)
+            {
+                // One or more parse errors were encountered. They have been reported upstream, so we just abort
+                // the evaluation at this stage.
+                return null;
+            }
+
+            if (syntax is List<Stmt> statements)
+            {
+                StringBuilder result = new();
+
+                foreach (Stmt statement in statements)
+                {
+                    result.Append(AstPrinter.Print(statement));
+                }
+
+                return result.ToString();
+            }
+            else if (syntax is Expr expr)
+            {
+                return AstPrinter.Print(expr);
+            }
+            else
+            {
+                throw new IllegalStateException("syntax was neither Expr nor list of Stmt");
+            }
+        }
+
         private void Interpret(IEnumerable<Stmt> statements)
         {
             try
@@ -417,17 +493,6 @@ namespace Perlang.Interpreter
                     throw;
                 }
             }
-        }
-
-        /// <summary>
-        /// Evaluates the given expression and returns its value, converted to a string representation.
-        /// </summary>
-        /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>The evaluated value.</returns>
-        private string? Interpret(Expr expression)
-        {
-            object? value = Evaluate(expression);
-            return Stringify(value);
         }
 
         public object? VisitLiteralExpr(Expr.Literal expr)
@@ -476,7 +541,7 @@ namespace Perlang.Interpreter
                     // which is clearly doable but a bit more work. For now, the CheckNumberOperand() method is the
                     // guarantee that the dynamic operation will succeed.
                     CheckNumberOperand(expr.Operator, right);
-                    return -(dynamic?) right;
+                    return -(dynamic?)right;
             }
 
             // Unreachable.
@@ -505,7 +570,7 @@ namespace Perlang.Interpreter
 
             // The nullability check has been taken care of by IsValidNumberType() for us.
             dynamic previousValue = left!;
-            var variable = (Expr.Identifier) expr.Left;
+            var variable = (Expr.Identifier)expr.Left;
             object value;
 
             switch (expr.Operator.Type)

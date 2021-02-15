@@ -47,6 +47,11 @@ namespace Perlang.ConsoleApp
             /// Any kind of runtime exception was thrown when running the user-provided program.
             /// </summary>
             RUNTIME_ERROR = 66,
+
+            /// <summary>
+            /// One or more command line argument provided had an invalid value.
+            /// </summary>
+            INVALID_ARGUMENT = 67
         }
 
         private readonly PerlangInterpreter interpreter;
@@ -78,6 +83,16 @@ namespace Perlang.ConsoleApp
             var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option("-V", "Show detailed version information");
             var evalOption = new Option("-e", "Executes a single-line script");
+            var printOption = new Option("-p", "Parse a single-line script and output a human-readable version of the AST");
+
+            // Note: options must be present in this list to be valid for the RootCommand.
+            var options = new[]
+            {
+                versionOption,
+                detailedVersionOption,
+                evalOption,
+                printOption
+            };
 
             var rootCommand = new RootCommand
             {
@@ -103,7 +118,11 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
-                    int result;
+                    if (parseResult.HasOption(evalOption) && parseResult.HasOption(printOption))
+                    {
+                        console.Error.WriteLine("Error: the -e and -p option are mutually exclusive");
+                        return Task.FromResult(ExitCodes.INVALID_ARGUMENT);
+                    }
 
                     if (parseResult.HasOption(evalOption))
                     {
@@ -116,7 +135,22 @@ namespace Perlang.ConsoleApp
                             standardOutputHandler: console.Out.WriteLine
                         );
 
-                        result = program.Run(String.Join(" ", arguments));
+                        int result = program.Run(String.Join(" ", arguments));
+
+                        return Task.FromResult(result);
+                    }
+                    else if (parseResult.HasOption(printOption))
+                    {
+                        IEnumerable<string> arguments = parseResult.Tokens
+                            .Where(t => t.Type == System.CommandLine.Parsing.TokenType.Argument)
+                            .Select(t => t.Value);
+
+                        new Program(
+                            replMode: true,
+                            standardOutputHandler: console.Out.WriteLine
+                        ).ParseAndPrint(String.Join(" ", arguments));
+
+                        return Task.FromResult(0);
                     }
                     else if (parseResult.Tokens.Count == 0)
                     {
@@ -125,11 +159,12 @@ namespace Perlang.ConsoleApp
                             standardOutputHandler: console.Out.WriteLine
                         ).RunPrompt();
 
-                        result = 0;
+                        return Task.FromResult(0);
                     }
                     else
                     {
                         string scriptName = parseResult.Tokens[0].Value;
+                        int result;
 
                         if (parseResult.Tokens.Count == 1)
                         {
@@ -156,9 +191,9 @@ namespace Perlang.ConsoleApp
 
                             result = program.RunFile(scriptName);
                         }
-                    }
 
-                    return Task.FromResult(result);
+                        return Task.FromResult(result);
+                    }
                 })
             };
 
@@ -167,9 +202,10 @@ namespace Perlang.ConsoleApp
                 Arity = ArgumentArity.ZeroOrMore
             });
 
-            rootCommand.AddOption(versionOption);
-            rootCommand.AddOption(detailedVersionOption);
-            rootCommand.AddOption(evalOption);
+            foreach (Option option in options)
+            {
+                rootCommand.AddOption(option);
+            }
 
             return new CommandLineBuilder(rootCommand)
                 .UseDefaults()
@@ -251,6 +287,13 @@ namespace Perlang.ConsoleApp
             }
 
             return (int)ExitCodes.SUCCESS;
+        }
+
+        private void ParseAndPrint(string source)
+        {
+            string result = interpreter.Parse(source, ScanError, ParseError);
+
+            standardOutputHandler(result);
         }
 
         private void PrintBanner()

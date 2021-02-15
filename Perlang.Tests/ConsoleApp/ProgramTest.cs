@@ -1,5 +1,6 @@
 #pragma warning disable S3626
 
+using System;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using Perlang.ConsoleApp;
@@ -151,66 +152,106 @@ namespace Perlang.Tests.ConsoleApp
 
         public class MainWithCustomConsole
         {
+            private readonly TestConsole testConsole = new();
+
+            /// <summary>
+            /// Gets the result of the execution, as printed to the standard output stream.
+            /// </summary>
+            private string StdoutResult => testConsole.Out.ToString() ?? String.Empty;
+
+            public class WithPrintParameter
+            {
+                private readonly TestConsole testConsole = new();
+
+                /// <summary>
+                /// Gets the result of the execution, as printed to the standard output stream.
+                /// </summary>
+                private string StdoutResult => testConsole.Out.ToString() ?? String.Empty;
+
+                [Fact]
+                public void assignment_and_increment()
+                {
+                    CallWithPrintParameter("i = i + 1");
+
+                    Assert.Equal("(i (+ i 1))\n", StdoutResult);
+                }
+
+                [Fact]
+                public void addition_assignment()
+                {
+                    CallWithPrintParameter("i += 1");
+
+                    Assert.Equal("(i (+= i 1))\n", StdoutResult);
+                }
+
+                [Fact]
+                public void print_variable()
+                {
+                    CallWithPrintParameter("print hej");
+
+                    Assert.Equal("(print hej)\n", StdoutResult);
+                }
+
+                private void CallWithPrintParameter(string script)
+                {
+                    Program.MainWithCustomConsole(new[] { "-p", script }, testConsole);
+                }
+            }
+
             [Fact]
             public void with_version_parameter_outputs_expected_value()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "--version" }, testConsole);
 
                 // Assert
-                Assert.Equal(CommonConstants.InformationalVersion + "\n", testConsole.Out.ToString());
+                Assert.Equal(CommonConstants.InformationalVersion + "\n", StdoutResult);
             }
 
             [Fact]
             public void with_eval_parameter_outputs_expected_value()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "-e", "print", "10" }, testConsole);
 
                 // Assert
-                Assert.Equal("10" + "\n", testConsole.Out.ToString());
+                Assert.Equal("10" + "\n", StdoutResult);
             }
 
             [Fact]
             public void with_script_outputs_expected_value()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "test/fixtures/hello_world.per" }, testConsole);
 
                 // Assert
-                Assert.Equal("Hello, World\n", testConsole.Out.ToString());
+                Assert.Equal("Hello, World\n", StdoutResult);
             }
 
             [Fact]
             public void with_script_and_script_argument_outputs_expected_value()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Equal("foo\n", testConsole.Out.ToString());
+                Assert.Equal("foo\n", StdoutResult);
             }
 
             [Fact]
             public void with_invalid_script_throws_expected_exception()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", testConsole.Out.ToString());
+                Assert.Contains("Error at end: Expect ';' after value", StdoutResult);
             }
 
             [Fact]
             public void with_invalid_script_and_script_argument_returns_expected_exit_code()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 int result = Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
 
                 // Assert
@@ -221,11 +262,10 @@ namespace Perlang.Tests.ConsoleApp
             public void with_invalid_script_and_script_argument_prints_expected_error_message()
             {
                 // Arrange & Act
-                var testConsole = new TestConsole();
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", testConsole.Out.ToString());
+                Assert.Contains("Error at end: Expect ';' after value", StdoutResult);
             }
         }
     }
