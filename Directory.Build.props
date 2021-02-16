@@ -11,4 +11,21 @@
 
         <PackageReference Include="SonarAnalyzer.CSharp" Version="8.14.0.22654" />
     </ItemGroup>
+
+    <!--
+        WarningsAsErrors configuration
+
+        We configure these to be more relaxed in Debug builds, to avoid being a pain in the neck while editing code
+        (where you might want to be able to e.g. comment out code temporarily, sometimes breaking these rules). However,
+        since we build a full build using the Release configuration in CI for each pull request, none of these warnings
+        should be able to slip through into the 'master' branch. This aims to be a suitable compromise between
+        conformity and convenience.
+      -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
 </Project>

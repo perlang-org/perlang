@@ -1,12 +1,15 @@
 # Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
-.PHONY: all auto-generated clean docs docs-serve install run Perlang.Common/CommonConstants.Generated.cs
+.PHONY: all auto-generated clean docs docs-serve install release run Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
 
 all: auto-generated
 	dotnet build
+
+release:
+	dotnet build -c Release
 
 auto-generated: Perlang.Common/CommonConstants.Generated.cs
 
