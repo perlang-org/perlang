@@ -908,12 +908,18 @@ namespace Perlang.Interpreter
                 case MINUS:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber - rightNumber;
+                case MINUS_EQUAL:
+                    CheckNumberOperands(expr.Operator, left, right);
+                    return leftNumber - rightNumber;
                 case PLUS:
                     if (left is string s1 && right is string s2)
                     {
                         return s1 + s2;
                     }
 
+                    CheckNumberOperands(expr.Operator, left, right);
+                    return leftNumber + rightNumber;
+                case PLUS_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber + rightNumber;
                 case SLASH:

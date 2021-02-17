@@ -379,6 +379,10 @@ namespace Perlang.Parser
             return statements;
         }
 
+        /// <summary>
+        /// Handles assignment, as well as the += and -= shorthand assignment operators.
+        /// </summary>
+        /// <returns>An expression.</returns>
         private Expr Assignment()
         {
             Expr expr = UnaryPostfix();
@@ -394,6 +398,31 @@ namespace Perlang.Parser
                 }
 
                 Error(equals, "Invalid assignment target.");
+            }
+            else if (Match(PLUS_EQUAL, MINUS_EQUAL))
+            {
+                // Much like the "for" implementation, += and -= do not consist of any dedicated AST nodes. Instead,
+                // the expression "i += 5" is essentially nothing but syntactic sugar for "i = i + 5". We want to
+                // retain the original token however, to be able to special-case them in other parts of the code. This
+                // is not currently necessary but it makes the code more predictable, again following the "explicit is
+                // better than implicit" philosophy.
+                Token token = Previous();
+
+                // Calling Addition() here will give us the whole content of the right-hand part of the expression,
+                // including an arbitrary number of other binary expressions. This makes things like "i += 1 + 5 - 3"
+                // work.
+                Expr addedOrSubtractedValue = Addition();
+
+                if (expr is Expr.Identifier identifier)
+                {
+                    // The expression being constructed here can be visualized as "identifier = binary_expression",
+                    // where "binary_expression = identifier + value1 + value2...".
+                    Expr value = new Expr.Binary(identifier, token, addedOrSubtractedValue);
+
+                    return new Expr.Assign(identifier, value);
+                }
+
+                Error(token, "Invalid assignment target.");
             }
 
             return expr;
