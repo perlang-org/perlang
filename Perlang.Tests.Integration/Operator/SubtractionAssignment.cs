@@ -111,7 +111,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to operator MINUS_EQUAL specified", exception.Message);
+            Assert.Matches("Invalid arguments to -= operator specified", exception.Message);
         }
     }
 }

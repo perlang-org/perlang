@@ -176,7 +176,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to operator STAR_STAR specified", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified", exception.Message);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to operator STAR_STAR specified", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified", exception.Message);
         }
 
         [Fact]

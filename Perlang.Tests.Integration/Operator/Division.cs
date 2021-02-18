@@ -26,7 +26,7 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
-        public void dividing_decimals_returns_decimal()
+        public void dividing_doubles_returns_double()
         {
             string source = @"
                 24.68 / 12.34
@@ -48,7 +48,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
+            Assert.Matches("Invalid arguments to / operator specified", exception.Message);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to operator SLASH specified", exception.Message);
+            Assert.Matches("Invalid arguments to / operator specified", exception.Message);
         }
     }
 }

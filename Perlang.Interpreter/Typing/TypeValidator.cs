@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Humanizer;
+using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Resolution;
 using static Perlang.TokenType;
 
@@ -195,7 +196,7 @@ namespace Perlang.Interpreter.Typing
                         {
                             throw new TypeValidationError(
                                 expr.Operator,
-                                $"Invalid arguments to operator {expr.Operator.Type} specified"
+                                $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified"
                             );
                         }
 
