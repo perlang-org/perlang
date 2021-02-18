@@ -28,6 +28,8 @@ namespace Perlang.Interpreter.Extensions
                     "*",
                 TokenType.STAR_STAR =>
                     "**",
+                TokenType.PERCENT =>
+                    "%",
                 _ =>
                     throw new ArgumentOutOfRangeException(nameof(tokenType), tokenType, null)
             };

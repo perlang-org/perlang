@@ -893,6 +893,10 @@ namespace Perlang.Interpreter
 
             switch (expr.Operator.Type)
             {
+                //
+                // Comparison operators
+                //
+
                 case GREATER:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber > rightNumber;
@@ -905,6 +909,15 @@ namespace Perlang.Interpreter
                 case LESS_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber <= rightNumber;
+                case BANG_EQUAL:
+                    return !IsEqual(left, right);
+                case EQUAL_EQUAL:
+                    return IsEqual(left, right);
+
+                //
+                // Arithmetic operators
+                //
+
                 case MINUS:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber - rightNumber;
@@ -946,10 +959,9 @@ namespace Perlang.Interpreter
                         return BigInteger.Pow(leftNumber, rightNumber);
                     }
 
-                case BANG_EQUAL:
-                    return !IsEqual(left, right);
-                case EQUAL_EQUAL:
-                    return IsEqual(left, right);
+                case PERCENT:
+                    CheckNumberOperands(expr.Operator, left, right);
+                    return leftNumber % rightNumber;
 
                 default:
                     throw new RuntimeError(expr.Operator, $"Internal error: Unsupported operator {expr.Operator.Type} in binary expression.");

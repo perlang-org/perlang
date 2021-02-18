@@ -6,7 +6,9 @@ namespace Perlang.Tests.Integration.Operator
 {
     public class PostfixDecrement
     {
+        //
         // "Positive" tests, testing for supported behavior
+        //
 
         [Fact]
         public void decrementing_defined_variable()
@@ -57,7 +59,9 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("100", output);
         }
 
+        //
         // "Negative tests", ensuring that unsupported operations fail in the expected way.
+        //
 
         [Fact]
         public void decrementing_undefined_variable_throws_expected_exception()
