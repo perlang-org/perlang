@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Perlang.Interpreter.Extensions
 {
     /// <summary>
-    /// Extension methods for IDictionary&lt;string, T&gt;.
+    /// Extension methods for <see cref="IDictionary{TKey,TValue}"/> where `TKey` is <see cref="string"/>.
     /// </summary>
     public static class DictionaryExtensions
     {
