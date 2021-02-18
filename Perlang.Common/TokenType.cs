@@ -11,6 +11,7 @@ namespace Perlang
         DOT,
         MINUS,
         PLUS,
+        PERCENT,
         SEMICOLON,
         COLON,
         SLASH,

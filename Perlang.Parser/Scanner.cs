@@ -134,6 +134,9 @@ namespace Perlang.Parser
                 case ';':
                     AddToken(SEMICOLON);
                     break;
+                case '%':
+                    AddToken(PERCENT);
+                    break;
                 case '*':
                     AddToken(Match('*') ? STAR_STAR : STAR);
                     break;

@@ -171,25 +171,23 @@ namespace Perlang.Interpreter.Typing
                 switch (expr.Operator.Type)
                 {
                     case PLUS:
-                        if (leftTypeReference.ClrType == typeof(string) ||
-                            rightTypeReference.ClrType == typeof(string))
-                        {
-                            // Special-casing of strings, to allow for string concatenation.
-                            expr.TypeReference.ClrType = leftTypeReference.ClrType;
-
-                            return VoidObject.Void;
-                        }
-
-                        // goto is indeed evil, but code duplication is an even greater evil.
-                        goto STAR_STAR;
-
                     case PLUS_EQUAL:
                     case MINUS:
                     case MINUS_EQUAL:
                     case SLASH:
                     case STAR:
                     case STAR_STAR:
-                        STAR_STAR:
+                    case PERCENT:
+                        if (expr.Operator.Type == PLUS &&
+                            (leftTypeReference.ClrType == typeof(string) ||
+                             rightTypeReference.ClrType == typeof(string)))
+                        {
+                            // Special-casing of "string" + "string", to allow for convenient string concatenation.
+                            expr.TypeReference.ClrType = leftTypeReference.ClrType;
+
+                            return VoidObject.Void;
+                        }
+
                         TypeReference typeReference = GreaterType(leftTypeReference, rightTypeReference);
 
                         if (typeReference == null)
