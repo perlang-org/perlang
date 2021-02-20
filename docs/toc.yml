@@ -1,13 +1,17 @@
 - name: Home
   href: /
 
-- name: Contribute
-  href: contribute/
-  homepage: contribute/
-
 - name: Download
   href: download/
   homepage: download/
+
+- name: Learn
+  href: learn/
+  homepage: learn/
+
+- name: Contribute
+  href: contribute/
+  homepage: contribute/
 
 - name: API Documentation
   href: api/

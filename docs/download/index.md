@@ -23,3 +23,9 @@ If you have a previous build installed and want to overwrite it, use the followi
 **Note**: If you are running the installer in Git Bash on Windows, running `perlang` after installation will unfortunately not work in the Bash shell (because of limitations preventing us from reading individual keystrokes in that shell). Please close the `bash` session after installation and `cd %userprofile%\.perlang\nightly\bin`. You should then be able to run `perlang` to open up the Perlang console session.
 
 For more details about this bug, please see https://github.com/perlang-org/perlang/issues/107.
+
+## Video tutorial
+
+For those of you who prefer to learn by watching videos, here's a short screencast (courtesy of [Asciinema](https://asciinema.org/)) which shows what the installer looks like when you run it:
+
+<asciinema-player cols="177" rows="28" src="/casts/perlang-install.cast"></asciinema-player>

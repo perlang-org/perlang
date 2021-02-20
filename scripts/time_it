@@ -1,0 +1,12 @@
+#!/bin/bash
+
+START=$(date +%s.%N)
+# do something #######################
+
+"$@" || exit 1
+
+#######################################
+TIMESTAMP=$(date '+%D %T')
+END=$(date +%s.%N)
+DIFF=$( echo "scale=1; (${END} - ${START})*1000/1" | bc )
+echo "[${TIMESTAMP}] Rebuilt in ${DIFF}ms"

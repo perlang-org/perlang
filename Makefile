@@ -30,6 +30,9 @@ docs-clean:
 docs: docfx/docfx.exe
 	./docfx/docfx.exe docs/docfx.json
 
+docs-autobuild:
+	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
+
 docs-serve:
 	live-server _site
 

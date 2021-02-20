@@ -40,7 +40,10 @@
         "resource": [
             {
                 "files": [
-                    "images/**"
+                    "casts/**",
+                    "images/**",
+                    "js/**",
+                    "styles/**"
                 ]
             }
         ],
@@ -72,7 +75,7 @@
         ],
 
         "postProcessors": [],
-        "markdownEngineName": "markdig",
+        "markdownEngineName": "dfm",
         "noLangKeyword": false
     }
 }

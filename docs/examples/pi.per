@@ -1,0 +1,16 @@
+// pi.per
+//
+// The number of digits we should calculate
+var digits = 1000;
+
+var i = 1;
+var x = 3 * (10 ** (digits + 20));
+var pi = x;
+
+while (x > 0) {
+    x = x * i / ((i + 1) * 4);
+    pi += (x / (i + 2));
+    i += 2;
+}
+
+print(pi / (10 ** 20));
