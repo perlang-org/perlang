@@ -28,4 +28,4 @@ For more details about this bug, please see https://github.com/perlang-org/perla
 
 For those of you who prefer to learn by watching videos, here's a short screencast (courtesy of [Asciinema](https://asciinema.org/)) which shows what the installer looks like when you run it:
 
-<asciinema-player cols="177" rows="28" src="/casts/perlang-install.cast"></asciinema-player>
+<asciinema-player cols="177" rows="28" speed="2" src="/casts/perlang-install.cast"></asciinema-player>

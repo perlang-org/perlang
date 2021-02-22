@@ -4,16 +4,18 @@ name: Website
 # for that branch.
 on:
   push:
-    branches:
-      - "*"
-      - "!master"
+    branches-ignore:
+      - master
 
 jobs:
-  rebuild:
+  build-website:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v1
 
-      - name: Rebuild website
-        run: make docs
+      - name: Build Perlang & rebuild website
+        run: make -j all docs
+
+      - name: Ensure examples execute without errors
+        run: make docs-test-examples

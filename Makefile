@@ -1,6 +1,8 @@
 # Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
-.PHONY: all auto-generated clean docs docs-serve install release run Perlang.Common/CommonConstants.Generated.cs
+.PHONY: \
+	all auto-generated clean docs docs-serve docs-test-examples \
+	install release run Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -32,6 +34,9 @@ docs: docfx/docfx.exe
 
 docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
+
+docs-test-examples:
+	for e in docs/examples/*.per ; do Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
 
 docs-serve:
 	live-server _site
