@@ -13,7 +13,7 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail -O inherit_errexit {0}
 
 jobs:
-  build:
+  publish-packages:
     runs-on: ubuntu-latest
 
     steps:

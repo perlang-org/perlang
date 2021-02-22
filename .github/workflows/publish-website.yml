@@ -12,7 +12,7 @@ on:
       - Perlang**
 
 jobs:
-  publish:
+  publish-website:
     runs-on: ubuntu-latest
 
     steps:

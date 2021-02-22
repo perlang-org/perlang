@@ -47,10 +47,7 @@ Worth mentioning is that normally in Perlang, each complete _statement_ (like `p
 
 #### Scripting mode
 
-```perlang
-// hello_world.per
-print "Hello World"
-```
+[!code-perlang[hello_world](../examples/hello_world.per)]
 
 The comment on the first line is strictly speaking not a required part in this script. It is only there to help you understand that this program should be saved to disk using the suggested file name given there. (Feel free to disobey this suggestion if you are a little rebellious, just like me.)
 
@@ -99,4 +96,4 @@ user	0m0.383s
 sys	0m0.005s
 ```
 
-So, we are running about 60% slower than the JavaScript counterpart. For many applications, this could be tolerable but it's quite obvious that there's a lot of work that needs to be done in this are before Perlang is anywhere near "production quality".
+So, we are running about 60% slower than the JavaScript counterpart. For many applications, this could be tolerable but it's quite obvious that there's a lot of work that needs to be done in this area before Perlang is anywhere near "production quality".

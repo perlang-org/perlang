@@ -29,10 +29,10 @@ The installer will download the latest Perlang build and unpack it in a folder u
 
 ### Further reading
 
-At the moment, there isn't much documentation about what you can do with Perlang available, but as soon as it exists, it will be published at the following locations:
+At the moment, there isn't much documentation about what you can do with Perlang available, but we are continuously working on making more and more material available at the following location:
 
-* https://perlang.org (currently redirects to the GitHub repository)
-* https://docs.perlang.org
+* https://perlang.org
+* [docs/syntax-grammar.md](docs/syntax-grammar.md): Specification of the syntax grammar for the Perlang language.
 
 ## Building from source
 
@@ -55,9 +55,15 @@ $ make
 
 You should now have a `perlang` executable. Run `make run` to run it. If you are brave, `make install` (currently Linux only) will put binaries in a path under `~/.perlang` which you can put in your `$PATH` so you can easily use it from anywhere. **Note**: this script uses the same folder (`~/.perlang/nightly/bin`) as the nightly build installer. Any previous version will be overwritten without prompting. This means that if you have previously installed a nightly build and added the folder to your `$PATH`, the version installed with `make install` will now be available in the `$PATH` instead of the previous nightly version.
 
-## Documentation
+## Building the docs
 
-- [docs/syntax-grammar.md](docs/syntax-grammar.md): Specification of the syntax grammar for the Perlang language.
+```shell
+$ npm install -g live-server
+$ make docs
+$ make docs-serve
+```
+
+If you want continuously rebuilt documentation, `make docs-autobuild` in a separate terminal window.
 
 ## License
 
