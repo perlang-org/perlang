@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Resolution;
 using Perlang.Parser;
-using static System.CommandLine.Parsing.TokenType;
 using ParseError = Perlang.Parser.ParseError;
 
 namespace Perlang.ConsoleApp
@@ -23,6 +22,32 @@ namespace Perlang.ConsoleApp
         {
             "quit"
         };
+
+        internal enum ExitCodes
+        {
+            /// <summary>
+            /// The program executed successfully.
+            /// </summary>
+            SUCCESS = 0,
+
+            // The convention to start error codes at 64 originates from /usr/include/sysexits.h in the Berkeley (BSD)
+            // system, anno 1993. :-)
+
+            /// <summary>
+            /// An attempt was made to execute a script that does not exist.
+            /// </summary>
+            FILE_NOT_FOUND = 64,
+
+            /// <summary>
+            /// A scanner, parser or type validation error.
+            /// </summary>
+            ERROR = 65,
+
+            /// <summary>
+            /// Any kind of runtime exception was thrown when running the user-provided program.
+            /// </summary>
+            RUNTIME_ERROR = 66,
+        }
 
         private readonly PerlangInterpreter interpreter;
         private readonly Action<string> standardOutputHandler;
@@ -78,17 +103,27 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
+                    int result;
+
                     if (parseResult.HasOption(evalOption))
                     {
                         IEnumerable<string> arguments = parseResult.Tokens
                             .Where(t => t.Type == System.CommandLine.Parsing.TokenType.Argument)
                             .Select(t => t.Value);
 
-                        new Program(standardOutputHandler: console.Out.WriteLine).Run(String.Join(" ", arguments));
+                        var program = new Program(
+                            standardOutputHandler: console.Out.WriteLine
+                        );
+
+                        result = program.Run(String.Join(" ", arguments));
                     }
                     else if (parseResult.Tokens.Count == 0)
                     {
-                        new Program(standardOutputHandler: console.Out.WriteLine).RunPrompt();
+                        new Program(
+                            standardOutputHandler: console.Out.WriteLine
+                        ).RunPrompt();
+
+                        result = 0;
                     }
                     else
                     {
@@ -96,7 +131,11 @@ namespace Perlang.ConsoleApp
 
                         if (parseResult.Tokens.Count == 1)
                         {
-                            new Program(standardOutputHandler: console.Out.WriteLine).RunFile(scriptName);
+                            var program = new Program(
+                                standardOutputHandler: console.Out.WriteLine
+                            );
+
+                            result = program.RunFile(scriptName);
                         }
                         else
                         {
@@ -106,11 +145,16 @@ namespace Perlang.ConsoleApp
                                 .Take(parseResult.Tokens.Count - 1)
                                 .Select(r => r.Value);
 
-                            new Program(remainingArguments, console.Out.WriteLine).RunFile(scriptName);
+                            var program = new Program(
+                                remainingArguments,
+                                console.Out.WriteLine
+                            );
+
+                            result = program.RunFile(scriptName);
                         }
                     }
 
-                    return Task.FromResult(0);
+                    return Task.FromResult(result);
                 })
             };
 
@@ -147,12 +191,12 @@ namespace Perlang.ConsoleApp
             );
         }
 
-        private void RunFile(string path)
+        private int RunFile(string path)
         {
             if (!File.Exists(path))
             {
                 Console.Error.WriteLine($"Error: File {path} not found");
-                Environment.Exit(65);
+                return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
             var bytes = File.ReadAllBytes(path);
@@ -162,13 +206,15 @@ namespace Perlang.ConsoleApp
             // Indicate an error in the exit code.
             if (hadError)
             {
-                Environment.Exit(65);
+                return (int)ExitCodes.ERROR;
             }
 
             if (hadRuntimeError)
             {
-                Environment.Exit(70);
+                return (int)ExitCodes.RUNTIME_ERROR;
             }
+
+            return (int)ExitCodes.SUCCESS;
         }
 
         private void RunPrompt()
@@ -190,7 +236,7 @@ namespace Perlang.ConsoleApp
             }
         }
 
-        internal void Run(string source)
+        internal int Run(string source)
         {
             object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError);
 
@@ -198,6 +244,8 @@ namespace Perlang.ConsoleApp
             {
                 standardOutputHandler(result.ToString());
             }
+
+            return (int)ExitCodes.SUCCESS;
         }
 
         private void PrintBanner()
