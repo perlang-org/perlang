@@ -28,4 +28,19 @@
       <ProjectReference Include="..\Perlang.Interpreter\Perlang.Interpreter.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="test\fixtures\hello_world.per" />
+      <Content Include="test\fixtures\hello_world.per">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="test\fixtures\invalid.per" />
+      <Content Include="test\fixtures\invalid.per">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="test\fixtures\argv_pop.per" />
+      <Content Include="test\fixtures\argv_pop.per">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

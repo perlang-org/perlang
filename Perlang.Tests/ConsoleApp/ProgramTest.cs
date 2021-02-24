@@ -21,6 +21,7 @@ namespace Perlang.Tests.ConsoleApp
             public Run()
             {
                 subject = new Program(
+                    replMode: true,
                     standardOutputHandler: s => output.Add(s),
                     runtimeErrorHandler: e => throw e
                 );
@@ -135,6 +136,7 @@ namespace Perlang.Tests.ConsoleApp
                 // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
                 // error.
                 var program = new Program(
+                    replMode: true,
                     standardOutputHandler: s => output.Add(s)
                 );
 
@@ -169,6 +171,61 @@ namespace Perlang.Tests.ConsoleApp
 
                 // Assert
                 Assert.Equal("10" + "\n", testConsole.Out.ToString());
+            }
+
+            [Fact]
+            public void with_script_outputs_expected_value()
+            {
+                // Arrange & Act
+                var testConsole = new TestConsole();
+                Program.MainWithCustomConsole(new[] { "test/fixtures/hello_world.per" }, testConsole);
+
+                // Assert
+                Assert.Equal("Hello, World\n", testConsole.Out.ToString());
+            }
+
+            [Fact]
+            public void with_script_and_script_argument_outputs_expected_value()
+            {
+                // Arrange & Act
+                var testConsole = new TestConsole();
+                Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per", "foo" }, testConsole);
+
+                // Assert
+                Assert.Equal("foo\n", testConsole.Out.ToString());
+            }
+
+            [Fact]
+            public void with_invalid_script_throws_expected_exception()
+            {
+                // Arrange & Act
+                var testConsole = new TestConsole();
+                Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per" }, testConsole);
+
+                // Assert
+                Assert.Contains("Error at end: Expect ';' after value", testConsole.Out.ToString());
+            }
+
+            [Fact]
+            public void with_invalid_script_and_script_argument_returns_expected_exit_code()
+            {
+                // Arrange & Act
+                var testConsole = new TestConsole();
+                int result = Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
+
+                // Assert
+                Assert.Equal((int)Program.ExitCodes.ERROR, result);
+            }
+
+            [Fact]
+            public void with_invalid_script_and_script_argument_prints_expected_error_message()
+            {
+                // Arrange & Act
+                var testConsole = new TestConsole();
+                Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
+
+                // Assert
+                Assert.Contains("Error at end: Expect ';' after value", testConsole.Out.ToString());
             }
         }
     }

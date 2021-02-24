@@ -112,6 +112,7 @@ namespace Perlang.ConsoleApp
                             .Select(t => t.Value);
 
                         var program = new Program(
+                            replMode: true,
                             standardOutputHandler: console.Out.WriteLine
                         );
 
@@ -120,6 +121,7 @@ namespace Perlang.ConsoleApp
                     else if (parseResult.Tokens.Count == 0)
                     {
                         new Program(
+                            replMode: true,
                             standardOutputHandler: console.Out.WriteLine
                         ).RunPrompt();
 
@@ -132,6 +134,7 @@ namespace Perlang.ConsoleApp
                         if (parseResult.Tokens.Count == 1)
                         {
                             var program = new Program(
+                                replMode: false,
                                 standardOutputHandler: console.Out.WriteLine
                             );
 
@@ -146,6 +149,7 @@ namespace Perlang.ConsoleApp
                                 .Select(r => r.Value);
 
                             var program = new Program(
+                                replMode: false,
                                 remainingArguments,
                                 console.Out.WriteLine
                             );
@@ -174,6 +178,7 @@ namespace Perlang.ConsoleApp
         }
 
         internal Program(
+            bool replMode,
             IEnumerable<string> arguments = null,
             Action<string> standardOutputHandler = null,
             Action<RuntimeError> runtimeErrorHandler = null)
@@ -187,7 +192,7 @@ namespace Perlang.ConsoleApp
                 runtimeErrorHandler ?? RuntimeError,
                 this.standardOutputHandler,
                 arguments ?? new List<string>(),
-                replMode: true
+                replMode: replMode
             );
         }
 
