@@ -192,6 +192,16 @@ namespace Perlang.Tests.ConsoleApp
                     Assert.Equal("(print hej)\n", StdoutResult);
                 }
 
+                // This was previously broken, before #161. The incomplete expression was not properly detected by the
+                // interpreter.
+                [Fact]
+                public void invalid_expression()
+                {
+                    CallWithPrintParameter("hej hej");
+
+                    Assert.Contains("Error at 'hej': Expect ';' after expression.", StdoutResult);
+                }
+
                 private void CallWithPrintParameter(string script)
                 {
                     Program.MainWithCustomConsole(new[] { "-p", script }, testConsole);
