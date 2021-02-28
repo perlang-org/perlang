@@ -334,14 +334,6 @@ namespace Perlang.ConsoleApp
 
         private void ParseError(ParseError parseError)
         {
-            if (parseError.ParseErrorType == ParseErrorType.MISSING_TRAILING_SEMICOLON)
-            {
-                // These errors are ignored; we will get them all them when we try to parse expressions as
-                // statements.
-                hadError = true;
-                return;
-            }
-
             Error(parseError.Token, parseError.Message);
         }
 

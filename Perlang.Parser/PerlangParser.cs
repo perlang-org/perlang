@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static Perlang.TokenType;
@@ -716,6 +717,7 @@ namespace Perlang.Parser
         /// Returns the token right before the current position.
         /// </summary>
         /// <returns>A token.</returns>
+        [DebuggerStepThrough]
         private Token Previous()
         {
             return tokens[current - 1];
