@@ -281,7 +281,7 @@ namespace Perlang.ConsoleApp
         {
             object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError);
 
-            if (result != null)
+            if (result != null && result != VoidObject.Void)
             {
                 standardOutputHandler(result.ToString());
             }

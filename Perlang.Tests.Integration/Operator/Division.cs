@@ -78,5 +78,19 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Single(result.Errors);
             Assert.Matches("Attempted to divide by zero.", exception.Message);
         }
+
+        [Fact]
+        public void division_by_zero_halts_execution()
+        {
+            string source = @"
+                1 / 0;
+                print ""hejhej"";
+            ";
+
+            string result = null;
+            Assert.Throws<RuntimeError>(() => result = EvalReturningOutputString(source));
+
+            Assert.DoesNotMatch("hejhej.", result);
+        }
     }
 }
