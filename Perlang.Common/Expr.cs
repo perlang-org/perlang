@@ -81,7 +81,7 @@ namespace Perlang
             }
         }
 
-        public class Binary : Expr
+        public class Binary : Expr, ITokenAwareExpr
         {
             public Expr Left { get; }
             public Token Operator { get; }
@@ -103,6 +103,8 @@ namespace Perlang
             {
                 return $"{Left} {Operator} {Right}";
             }
+
+            public Token Token => Operator;
         }
 
         public class Call : Expr, ITokenAwareExpr
