@@ -25,6 +25,8 @@ ProjectSection(SolutionItems) = preProject
 	global.ruleset = global.ruleset
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Architecture", "Perlang.Tests.Architecture\Perlang.Tests.Architecture.csproj", "{E9D632CB-E520-4868-9E64-A4A70ACD713C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{CD78DA11-CB31-4892-8F96-3B7FD7015B83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD78DA11-CB31-4892-8F96-3B7FD7015B83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD78DA11-CB31-4892-8F96-3B7FD7015B83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B338D29B-A85D-4650-9BFF-FBFE55258C58} = {B924E83B-6AFE-4ABF-B79D-444F92582892}
@@ -68,5 +74,6 @@ Global
 		{20267530-E991-4936-BFDC-0C5A1EDE90E7} = {B924E83B-6AFE-4ABF-B79D-444F92582892}
 		{CD78DA11-CB31-4892-8F96-3B7FD7015B83} = {F13F8E4E-5231-4321-9722-1BFCC08E5BB5}
 		{1874E267-5D6F-4EA4-8938-F2A0D19F27B1} = {F13F8E4E-5231-4321-9722-1BFCC08E5BB5}
+		{E9D632CB-E520-4868-9E64-A4A70ACD713C} = {F13F8E4E-5231-4321-9722-1BFCC08E5BB5}
 	EndGlobalSection
 EndGlobal

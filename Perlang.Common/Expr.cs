@@ -45,7 +45,7 @@ namespace Perlang
         /// <summary>
         /// An assignment expression.
         /// </summary>
-        public class Assign : Expr
+        public class Assign : Expr, ITokenAware
         {
             /// <summary>
             /// Gets the identifier which is the target of the assignment. For example, in the `a = 42` expression, `a` is the
@@ -79,9 +79,11 @@ namespace Perlang
             {
                 return $"{Name.Lexeme} = {Value}";
             }
+
+            public Token Token => Name;
         }
 
-        public class Binary : Expr, ITokenAwareExpr
+        public class Binary : Expr, ITokenAware
         {
             public Expr Left { get; }
             public Token Operator { get; }
@@ -107,7 +109,7 @@ namespace Perlang
             public Token Token => Operator;
         }
 
-        public class Call : Expr, ITokenAwareExpr
+        public class Call : Expr, ITokenAware
         {
             public Expr Callee { get; }
             public Token Paren { get; }
@@ -159,7 +161,7 @@ namespace Perlang
             public Token Token => Paren;
         }
 
-        public class Grouping : Expr
+        public class Grouping : Expr, ITokenAware
         {
             public Expr Expression { get; }
 
@@ -172,6 +174,8 @@ namespace Perlang
             {
                 return visitor.VisitGroupingExpr(this);
             }
+
+            public Token? Token => (Expression as ITokenAware)?.Token;
         }
 
         public class Literal : Expr
@@ -202,7 +206,7 @@ namespace Perlang
             }
         }
 
-        public class Logical : Expr
+        public class Logical : Expr, ITokenAware
         {
             public Expr Left { get; }
             public Token Operator { get; }
@@ -219,13 +223,15 @@ namespace Perlang
             {
                 return visitor.VisitLogicalExpr(this);
             }
+
+            public Token Token => Operator;
         }
 
         /// <summary>
         /// Represents unary prefix expressions. Examples of such expressions are `!flag` and `-10`. Note that prefix
         /// increment and decrement are currently not supported.
         /// </summary>
-        public class UnaryPrefix : Expr
+        public class UnaryPrefix : Expr, ITokenAware
         {
             public Token Operator { get; }
             public Expr Right { get; }
@@ -240,12 +246,14 @@ namespace Perlang
             {
                 return visitor.VisitUnaryPrefixExpr(this);
             }
+
+            public Token Token => Operator;
         }
 
         /// <summary>
         /// Represents unary postfix expressions. Examples of such expressions are `i++` and `j--`.
         /// </summary>
-        public class UnaryPostfix : Expr
+        public class UnaryPostfix : Expr, ITokenAware
         {
             public Expr Left { get; }
             public Token Name { get; }
@@ -262,12 +270,14 @@ namespace Perlang
             {
                 return visitor.VisitUnaryPostfixExpr(this);
             }
+
+            public Token Token => Operator;
         }
 
         /// <summary>
         /// Represents an identifier, such as a variable name, a function name or a class.
         /// </summary>
-        public class Identifier : Expr
+        public class Identifier : Expr, ITokenAware
         {
             public Token Name { get; }
 
@@ -283,9 +293,11 @@ namespace Perlang
 
             public override string ToString() =>
                 $"#<Identifier {Name.Lexeme}>";
+
+            public Token Token => Name;
         }
 
-        public class Get : Expr, ITokenAwareExpr
+        public class Get : Expr, ITokenAware
         {
             public Expr Object { get; }
             public Token Name { get; }

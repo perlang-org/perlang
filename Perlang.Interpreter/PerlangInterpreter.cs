@@ -776,7 +776,7 @@ namespace Perlang.Interpreter
             {
                 if (e.InnerException is RuntimeError error)
                 {
-                    if (expr is ITokenAwareExpr tokenAwareExpr)
+                    if (expr is ITokenAware tokenAwareExpr)
                     {
                         // Mutating this is ugly, but we really don't want to loose the stack trace (by creating a new
                         // expression) at this point. An InnerException _could_ work, worth looking into at some point.
@@ -795,7 +795,7 @@ namespace Perlang.Interpreter
             }
             catch (SystemException systemException)
             {
-                Token? token = (expr as ITokenAwareExpr)?.Token;
+                Token? token = (expr as ITokenAware)?.Token;
 
                 runtimeErrorHandler(new RuntimeError(token, systemException.Message));
                 return null;
