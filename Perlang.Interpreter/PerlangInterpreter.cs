@@ -793,6 +793,13 @@ namespace Perlang.Interpreter
                     throw;
                 }
             }
+            catch (SystemException systemException)
+            {
+                Token? token = (expr as ITokenAwareExpr)?.Token;
+
+                runtimeErrorHandler(new RuntimeError(token, systemException.Message));
+                return null;
+            }
         }
 
         private void Execute(Stmt stmt)

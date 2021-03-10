@@ -64,5 +64,19 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Single(result.Errors);
             Assert.Matches("Invalid arguments to / operator specified", exception.Message);
         }
+
+        [Fact]
+        public void division_by_zero_throws_expected_runtime_error()
+        {
+            string source = @"
+                1 / 0
+            ";
+
+            var result = EvalWithRuntimeErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Attempted to divide by zero.", exception.Message);
+        }
     }
 }
