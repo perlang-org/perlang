@@ -28,7 +28,7 @@ namespace Perlang.Interpreter
     public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
         private readonly Action<RuntimeError> runtimeErrorHandler;
-        private readonly PerlangEnvironment globals = new PerlangEnvironment();
+        private readonly PerlangEnvironment globals = new();
         private readonly IImmutableDictionary<string, Type> superGlobals;
 
         /// <summary>
@@ -56,7 +56,8 @@ namespace Perlang.Interpreter
         /// <summary>
         /// Initializes a new instance of the <see cref="PerlangInterpreter"/> class.
         /// </summary>
-        /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors.</param>
+        /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors. Note that after calling
+        ///     this handler, the interpreter will abort the script.</param>
         /// <param name="standardOutputHandler">An optional parameter that will receive output printed to
         ///     standard output. If not provided or null, output will be printed to the standard output of the
         ///     running process.</param>
@@ -73,7 +74,7 @@ namespace Perlang.Interpreter
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
             this.replMode = replMode;
 
-            var argumentsList = (arguments ?? new string[0]).ToImmutableList();
+            var argumentsList = (arguments ?? Array.Empty<string>()).ToImmutableList();
 
             currentEnvironment = globals;
 
@@ -160,8 +161,9 @@ namespace Perlang.Interpreter
         /// <param name="resolveErrorHandler">A handler for resolve errors.</param>
         /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
         /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
-        /// <returns>If the provided source is an expression, the value of the expression is returned. Otherwise,
-        /// `null`.</returns>
+        /// <returns>If the provided source is an expression, the value of the expression (which can be `null`) is
+        /// returned. If a runtime error occurs, <see cref="VoidObject.Void"/> is returned. In all other cases, `null`
+        /// is returned.</returns>
         public object? Eval(
             string source,
             ScanErrorHandler scanErrorHandler,
@@ -297,7 +299,15 @@ namespace Perlang.Interpreter
                 // another.
                 previousStatements = previousAndNewStatements.ToImmutableList();
 
-                Interpret(statements);
+                try
+                {
+                    Interpret(statements);
+                }
+                catch (RuntimeError e)
+                {
+                    runtimeErrorHandler(e);
+                    return VoidObject.Void;
+                }
 
                 return null;
             }
@@ -385,7 +395,15 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
-                return Evaluate(expr);
+                try
+                {
+                    return Evaluate(expr);
+                }
+                catch (RuntimeError e)
+                {
+                    runtimeErrorHandler(e);
+                    return VoidObject.Void;
+                }
             }
             else
             {
@@ -467,30 +485,31 @@ namespace Perlang.Interpreter
             }
         }
 
+        /// <summary>
+        /// Entry-point for interpreting one or more statements.
+        /// </summary>
+        /// <param name="statements">An enumerator for a collection of statements.</param>
         private void Interpret(IEnumerable<Stmt> statements)
         {
-            try
+            foreach (Stmt statement in statements)
             {
-                foreach (Stmt statement in statements)
+                try
                 {
                     Execute(statement);
                 }
-            }
-            catch (RuntimeError error)
-            {
-                runtimeErrorHandler(error);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException is RuntimeError error)
+                catch (TargetInvocationException ex)
                 {
-                    runtimeErrorHandler(error);
+                    // ex.InnerException should always be non-null at this point, but since it is a nullable property,
+                    // I guess it's best to take the unexpected into account and presume it can be null... :-)
+                    string message = ex.InnerException?.Message ?? ex.Message;
+
+                    // Setting the token to 'null' here is clearly not optimal, but the problem is that we really don't
+                    // know what particular source location triggered the error in question.
+                    throw new RuntimeError(null, message);
                 }
-                else
+                catch (SystemException ex)
                 {
-                    // No "well-defined" code path exists for this. We let it at least bubble up so that it doesn't go
-                    // unnoticed.
-                    throw;
+                    throw new RuntimeError(null, ex.Message);
                 }
             }
         }
@@ -761,44 +780,35 @@ namespace Perlang.Interpreter
             return Evaluate(expr.Expression);
         }
 
+        /// <summary>
+        /// Entry-point for evaluating a single expression. This method is also recursively called from the methods
+        /// implementing <see cref="Expr.IVisitor{TR}"/>.
+        /// </summary>
+        /// <param name="expr">An expression.</param>
+        /// <returns>The evaluated value of the expression. For example, if the expression is "1 + 1", the return value
+        /// is the integer "2" and so forth.</returns>
+        /// <exception cref="RuntimeError">When a runtime error is encountered while evaluating.</exception>
         private object? Evaluate(Expr expr)
         {
             try
             {
                 return expr.Accept(this);
             }
-            catch (RuntimeError e)
-            {
-                runtimeErrorHandler(e);
-                return null;
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException is RuntimeError error)
-                {
-                    if (expr is ITokenAware tokenAwareExpr)
-                    {
-                        // Mutating this is ugly, but we really don't want to loose the stack trace (by creating a new
-                        // expression) at this point. An InnerException _could_ work, worth looking into at some point.
-                        error.Token = tokenAwareExpr.Token;
-                    }
-
-                    runtimeErrorHandler(error);
-                    return null;
-                }
-                else
-                {
-                    // No "well-defined" code path exists for this. We let it at least bubble up so that it doesn't go
-                    // unnoticed.
-                    throw;
-                }
-            }
-            catch (SystemException systemException)
+            catch (TargetInvocationException ex)
             {
                 Token? token = (expr as ITokenAware)?.Token;
 
-                runtimeErrorHandler(new RuntimeError(token, systemException.Message));
-                return null;
+                // ex.InnerException should always be non-null at this point, but since it is a nullable property,
+                // I guess it's best to take the unexpected into account and presume it can be null... :-)
+                string message = ex.InnerException?.Message ?? ex.Message;
+
+                throw new RuntimeError(token, message);
+            }
+            catch (SystemException ex)
+            {
+                Token? token = (expr as ITokenAware)?.Token;
+
+                throw new RuntimeError(token, ex.Message);
             }
         }
 

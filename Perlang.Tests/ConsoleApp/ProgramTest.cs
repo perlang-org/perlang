@@ -132,7 +132,7 @@ namespace Perlang.Tests.ConsoleApp
 
             // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
             [Fact]
-            public void ARGV_pop_with_no_arguments_throws_the_expected_exception()
+            public void ARGV_pop_expr_with_no_arguments_throws_the_expected_exception()
             {
                 // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
                 // error.
@@ -142,6 +142,25 @@ namespace Perlang.Tests.ConsoleApp
                 );
 
                 program.Run("ARGV.pop()");
+
+                Assert.Equal(new List<string>
+                {
+                    "[line 1] No arguments left"
+                }, output);
+            }
+
+            [Fact]
+            public void ARGV_pop_stmt_with_no_arguments_throws_the_expected_exception()
+            {
+                // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
+                // error.
+                var program = new Program(
+                    replMode: true,
+                    standardOutputHandler: s => output.Add(s)
+                );
+
+                // Note that the trailing ; makes this a complete statement.
+                program.Run("ARGV.pop();");
 
                 Assert.Equal(new List<string>
                 {
@@ -246,6 +265,16 @@ namespace Perlang.Tests.ConsoleApp
 
                 // Assert
                 Assert.Equal("foo\n", StdoutResult);
+            }
+
+            [Fact]
+            public void with_script_and_no_argument_prints_expected_error()
+            {
+                // Arrange & Act
+                Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per" }, testConsole);
+
+                // Assert
+                Assert.Equal("[line 1] No arguments left\n", StdoutResult);
             }
 
             [Fact]
