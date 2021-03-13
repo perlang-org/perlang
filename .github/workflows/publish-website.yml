@@ -21,15 +21,13 @@ jobs:
       - name: Rebuild website
         run: make docs
 
-      #
-      # Upload files to public web server via rsync
-      #
-      - name: Upload generated web site
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.WWW_SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvO"
-          SOURCE: "./_site/"
-          REMOTE_HOST: ${{ secrets.WWW_SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.WWW_SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.WWW_SSH_REMOTE_TARGET }}
+      - name: Deploy to perlang.org repo
+        uses: jamesives/github-pages-deploy-action@4.1.0
+        with:
+          repository-name: perlang-org/perlang.org
+          branch: master
+          folder: _site
+          target-folder: public
+          ssh-key: ${{ secrets.WEBSITE_DEPLOY_KEY }}
+          git-config-name: perlang.org-ci-uploader
+          git-config-email: perlang-ci-uploader@noreply.github.com
