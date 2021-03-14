@@ -352,7 +352,7 @@ MigrationBackup/
 ##
 ## Project-specific ignores
 ##
-Perlang.Common/CommonConstants.Generated.cs
+src/Perlang.Common/CommonConstants.Generated.cs
 _site/
 docfx/*.dll
 docfx/docfx.exe

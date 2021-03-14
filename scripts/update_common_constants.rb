@@ -24,7 +24,7 @@ namespace Perlang
 }
 EOF
 
-path = File.join(SOLUTION_DIR, 'Perlang.Common', 'CommonConstants.Generated.cs')
+path = File.join(SOLUTION_DIR, 'src', 'Perlang.Common', 'CommonConstants.Generated.cs')
 File.write(path, common_constants)
 
 puts("#{path} updated")
