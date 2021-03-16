@@ -1,8 +1,8 @@
-# Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
+# src/Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean docs docs-serve docs-test-examples \
-	install release run Perlang.Common/CommonConstants.Generated.cs
+	install release run src/Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -13,18 +13,14 @@ all: auto-generated
 release:
 	dotnet build -c Release
 
-auto-generated: Perlang.Common/CommonConstants.Generated.cs
+auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 
-# Technically untrue, since this should be regenerated every time the git HEAD
-# is updated. But it's only critical that this is 100% correct in CI, where we
-# actually create builds that will be deployed to someone else's machine. (I
-# might have to eat this up someday. :-)
-Perlang.Common/CommonConstants.Generated.cs: ./scripts/update_common_constants.rb
+src/Perlang.Common/CommonConstants.Generated.cs: ./scripts/update_common_constants.rb
 	./scripts/update_common_constants.rb `pwd`
 
 clean:
 	dotnet clean
-	rm -f Perlang.Common/CommonConstants.Generated.cs
+	rm -f src/Perlang.Common/CommonConstants.Generated.cs
 
 docs-clean:
 	rm -rf _site
@@ -36,7 +32,7 @@ docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
 docs-test-examples:
-	for e in docs/examples/*.per ; do Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
+	for e in docs/examples/*.per ; do src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
 
 docs-serve:
 	live-server _site
@@ -52,4 +48,4 @@ run: auto-generated
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
-	./Perlang.ConsoleApp/bin/Debug/net5.0/perlang
+	src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang

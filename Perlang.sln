@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Interpreter", "Perlang.Interpreter\Perlang.Interpreter.csproj", "{2E39F005-52FF-404D-B570-0AB2E9081272}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Interpreter", "src\Perlang.Interpreter\Perlang.Interpreter.csproj", "{2E39F005-52FF-404D-B570-0AB2E9081272}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Common", "Perlang.Common\Perlang.Common.csproj", "{B338D29B-A85D-4650-9BFF-FBFE55258C58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Common", "src\Perlang.Common\Perlang.Common.csproj", "{B338D29B-A85D-4650-9BFF-FBFE55258C58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Parser", "Perlang.Parser\Perlang.Parser.csproj", "{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Parser", "src\Perlang.Parser\Perlang.Parser.csproj", "{F1F9229C-D764-4A38-BEA2-1F86A1C2FF1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Integration", "Perlang.Tests.Integration\Perlang.Tests.Integration.csproj", "{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Integration", "src\Perlang.Tests.Integration\Perlang.Tests.Integration.csproj", "{1874E267-5D6F-4EA4-8938-F2A0D19F27B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.ConsoleApp", "Perlang.ConsoleApp\Perlang.ConsoleApp.csproj", "{EC950B39-0187-41BD-A9AA-FE18F73BD30F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.ConsoleApp", "src\Perlang.ConsoleApp\Perlang.ConsoleApp.csproj", "{EC950B39-0187-41BD-A9AA-FE18F73BD30F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Stdlib", "Perlang.Stdlib\Perlang.Stdlib.csproj", "{20267530-E991-4936-BFDC-0C5A1EDE90E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Stdlib", "src\Perlang.Stdlib\Perlang.Stdlib.csproj", "{20267530-E991-4936-BFDC-0C5A1EDE90E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests", "Perlang.Tests\Perlang.Tests.csproj", "{CD78DA11-CB31-4892-8F96-3B7FD7015B83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests", "src\Perlang.Tests\Perlang.Tests.csproj", "{CD78DA11-CB31-4892-8F96-3B7FD7015B83}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementation", "Implementation", "{B924E83B-6AFE-4ABF-B79D-444F92582892}"
 EndProject
@@ -25,7 +25,7 @@ ProjectSection(SolutionItems) = preProject
 	global.ruleset = global.ruleset
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Architecture", "Perlang.Tests.Architecture\Perlang.Tests.Architecture.csproj", "{E9D632CB-E520-4868-9E64-A4A70ACD713C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Architecture", "src\Perlang.Tests.Architecture\Perlang.Tests.Architecture.csproj", "{E9D632CB-E520-4868-9E64-A4A70ACD713C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

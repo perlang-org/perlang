@@ -3,10 +3,8 @@ name: .NET Core publish packages
 on:
   push:
     paths:
-      # TODO: Replace Perlang** with src/ once we have moved all the projects in there.
-      # TODO: https://github.com/perlang-org/perlang/issues/82
       - .github/workflows/publish-packages.yml
-      - Perlang**
+      - src/**
 
 defaults:
   run:
@@ -31,31 +29,31 @@ jobs:
       # Build releases
       #
       - name: Build linux-x64 release
-        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
       - name: Build osx-x64 release
-        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r osx-x64 --self-contained true /p:SolutionDir=$(pwd)/
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r osx-x64 --self-contained true /p:SolutionDir=$(pwd)/
 
       - name: Build win-x64 release
-        run: dotnet publish Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r win-x64 --self-contained true /p:SolutionDir=$(pwd)/
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r win-x64 --self-contained true /p:SolutionDir=$(pwd)/
 
       #
       # Create .tar.gz archives
       #
       - name: Create linux-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-x64.tar.gz *
-        working-directory: Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish
 
       - name: Create osx-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-osx-x64.tar.gz *
-        working-directory: Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/publish
 
       - name: Create win-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-win-x64.tar.gz *
-        working-directory: Perlang.ConsoleApp/bin/Release/net5.0/win-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/win-x64/publish
 
       - name: List .tar.gz files
-        run: ls -l Perlang.ConsoleApp/bin/Release/net5.0/*/*.tar.gz
+        run: ls -l src/Perlang.ConsoleApp/bin/Release/net5.0/*/*.tar.gz
 
       #
       # Upload files to releases server via rsync
@@ -65,7 +63,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
@@ -76,7 +74,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
@@ -87,7 +85,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./Perlang.ConsoleApp/bin/Release/net5.0/win-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/win-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
