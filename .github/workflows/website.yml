@@ -16,8 +16,6 @@ jobs:
 
       - name: Build Perlang & rebuild website
         run: make -j all docs
-        env:
-          DOCFX_SOURCE_BRANCH_NAME: ${{ env.GIT_BRANCH }}
 
       - name: Ensure examples execute without errors
         run: make docs-test-examples SHELL="sh -x -e"

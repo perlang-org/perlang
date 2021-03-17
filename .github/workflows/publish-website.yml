@@ -18,8 +18,6 @@ jobs:
 
       - name: Rebuild website
         run: make docs
-        env:
-          DOCFX_SOURCE_BRANCH_NAME: ${{ env.GIT_BRANCH }}
 
       - name: Deploy to perlang.org repo
         uses: jamesives/github-pages-deploy-action@4.1.0

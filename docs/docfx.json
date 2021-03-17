@@ -65,7 +65,10 @@
         "fileMetadataFiles": [],
 
         "globalMetadata": {
-            "_appFooter": "© Copyright 2020 The Perlang Authors"
+            "_appFooter": "© Copyright 2020 The Perlang Authors",
+            "_gitContribute": {
+                "branch": "master"
+              }
         },
 
         // Our custom template changes are in docs/template
