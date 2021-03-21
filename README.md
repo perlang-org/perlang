@@ -40,12 +40,12 @@ At the moment, there isn't much documentation about what you can do with Perlang
 
 ```shell
 $ sudo apt-get install \
-      dotnet-sdk-3.1 \
+      dotnet-sdk-5.0 \
       make \
       ruby
 ```
 
-### How to build the Perlang interpreter
+### Building the Perlang tooling
 
 ```shell
 $ git clone https://github.com/perlang-org/perlang.git

@@ -1,13 +1,16 @@
+# Note: the 'homepage' attribute is required to make links in the top-bar be
+# actual clickable links.
+
 - name: Home
   href: /
+
+- name: Perlang
+  href: perlang/
+  homepage: perlang/
 
 - name: Download
   href: download/
   homepage: download/
-
-- name: Learn
-  href: learn/
-  homepage: learn/
 
 - name: Contribute
   href: contribute/

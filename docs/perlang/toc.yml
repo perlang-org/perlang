@@ -1,0 +1,10 @@
+- name: Perlang
+  href: index.md
+
+- name: History
+  href: history/
+  homepage: history/
+
+- name: Learn
+  href: learn/
+  homepage: learn/

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-This section presumes that you have installed the Perlang tooling using the instructions on our [download page](../download), and added it to your `$PATH`.
+This section presumes that you have installed the Perlang tooling using the instructions on our [download page](/download), and added it to your `$PATH`.
 
 There are basically two ways in which you can use Perlang:
 
@@ -47,7 +47,7 @@ Worth mentioning is that normally in Perlang, each complete _statement_ (like `p
 
 #### Scripting mode
 
-[!code-perlang[hello_world](../examples/hello_world.per)]
+[!code-perlang[hello_world](../../examples/hello_world.per)]
 
 The comment on the first line is strictly speaking not a required part in this script. It is only there to help you understand that this program should be saved to disk using the suggested file name given there. (Feel free to disobey this suggestion if you are a little rebellious, just like me.)
 
@@ -64,7 +64,7 @@ Many programming language tutorials are kind of boring (_feel like calculating F
 
 (Given the size of this, there is little reason to show the REPL version; some of this would also have to be typed on a single line in the REPL at the moment, making it even more inconvenient.)
 
-[!code-perlang[pi](../examples/pi.per)]
+[!code-perlang[pi](../../examples/pi.per)]
 
 [1]: http://ajennings.net/blog/a-million-digits-of-pi-in-9-lines-of-javascript.html
 
