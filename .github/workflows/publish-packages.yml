@@ -1,10 +1,17 @@
 name: .NET Core publish packages
 
-on:
-  push:
-    paths:
-      - .github/workflows/publish-packages.yml
-      - src/**
+# Technically, this could be conditionalized on the following paths:
+#
+# - .github/workflows/publish-packages.yml
+# - src/**
+#
+# However, doing so means the workflow will never run on e.g. docs/ PRs. This is
+# bad because the job is a "mandatory job", required for CI to be considered
+# green. Hence, the easy way out is to let it run unconditionally.
+#
+# The underlying cause here is a limitation in GitHub:
+# https://github.community/t/feature-request-conditional-required-checks/16761
+on: [push]
 
 defaults:
   run:
