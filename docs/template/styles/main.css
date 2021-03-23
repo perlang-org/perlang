@@ -1,11 +1,11 @@
 /* main.css - CSS overrides go here */
 
 body {
-    font-size: 15px;
+    font-size: 18px;
 }
 
 .sideaffix {
-    font-size: 13px;
+    font-size: 16px;
 }
 
 /* Makes the $ prefix for code blocks not be selectable, to make it easier to

@@ -28,11 +28,10 @@
 
             {
                 "files": [
-                    "articles/**.md",
-                    "articles/**/toc.yml",
-                    "**/*.md",
+                    "*.md",
                     "toc.yml",
-                    "*.md"
+                    "**/*.md",
+                    "**/toc.yml"
                 ]
             }
         ],
