@@ -70,10 +70,11 @@
               }
         },
 
-        // Our custom template changes are in docs/template
+        // Our custom template changes are in docs/templates/override
         "template": [
             "default",
-            "template"
+            "templates/override",
+            "templates/darkerfx"
         ],
 
         "postProcessors": [],
