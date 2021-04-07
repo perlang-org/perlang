@@ -27,6 +27,8 @@ body.theme-dark {
     --theme-sidenav-border: #404040;
     --theme-sidenav-background: #2d2d30;
     --theme-sidenav-filter-background: #1d1d1d;
+    --theme-sidenav-toc-toggle-background: #1d1d1d;
+    --theme-sidenav-toc-toggle-hover: #fff;
     --theme-toc-hover: #fff;
     --theme-background: #2d2d30;
     --theme-body-background: #171717;
@@ -54,6 +56,8 @@ body.theme-light {
     --theme-sidenav-border: #e7e7e7;
     --theme-sidenav-background: #f1f1f1;
     --theme-sidenav-filter-background: #ffffff;
+    --theme-sidenav-toc-toggle-background: #f1f1f1;
+    --theme-sidenav-toc-toggle-hover: #337ab7;
     --theme-toc-hover: #4c4c4c;
     --theme-background: #ffffff;
     --theme-body-background: #ffffff;
@@ -138,8 +142,34 @@ article h4 {
     background-color: var(--theme-sidenav-background);
 }
 
+.sidenav {
+    background-color: var(--theme-sidenav-background);
+    padding-top: 0;
+}
+
+.sidenav>div.toc-toggle {
+    background-color: var(--theme-sidenav-toc-toggle-background);
+    margin: 0;
+    padding-top: 0px;
+}
+
+.sidenav a.toc-toggle {
+    color: var(--theme-navbar);
+}
+
+.sidenav a.toc-toggle:focus,
+.sidenav a.toc-toggle:hover {
+    color: var(--theme-sidenav-toc-toggle-hover);
+}
+
+.sidenav>.sidetoggle {
+    background-color: var(--theme-sidenav-background);
+}
+
 body.theme-dark {
-    button, a {
+
+    button,
+    a {
         color: #5999d8;
     }
 

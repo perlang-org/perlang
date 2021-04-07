@@ -25,8 +25,11 @@ clean:
 docs-clean:
 	rm -rf _site
 
-docs: docfx/docfx.exe
+docs: docfx/docfx.exe docs/templates/darkerfx/styles/main.css
 	./docfx/docfx.exe docs/docfx.json
+
+docs/templates/darkerfx/styles/main.css: docs/templates/darkerfx/styles/main.scss
+	sass $< $(@)
 
 docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
