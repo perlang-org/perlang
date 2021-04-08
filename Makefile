@@ -1,7 +1,7 @@
 # src/Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
 .PHONY: \
-	all auto-generated clean docs docs-serve docs-test-examples \
+	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
 	install release run src/Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
@@ -43,6 +43,11 @@ docs-serve:
 docfx/docfx.exe:
 	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.51/docfx.zip | busybox unzip - -d docfx
 	chmod +x docfx/docfx.exe
+
+# Pushes local changes to the darkerfx theme to the darkerfx repo. Presumes that
+# it is checked out next to the perlang repository.
+darkerfx-push:
+	rsync -av docs/templates/darkerfx/ ../darkerfx/darkerfx/
 
 install: auto-generated
 	./scripts/local_install_linux.sh
