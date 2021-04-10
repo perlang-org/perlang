@@ -100,7 +100,7 @@ namespace Perlang.Parser
                 if (foundExpression)
                 {
                     Stmt last = statements.Last();
-                    return ((Stmt.ExpressionStmt) last).Expression;
+                    return ((Stmt.ExpressionStmt)last).Expression;
                 }
 
                 allowExpression = false;
@@ -122,7 +122,6 @@ namespace Perlang.Parser
         {
             try
             {
-                if (Match(CLASS)) return ClassDeclaration();
                 if (Match(FUN)) return Function("function");
                 if (Match(VAR)) return VarDeclaration();
 
@@ -304,23 +303,6 @@ namespace Perlang.Parser
             }
 
             return new Stmt.ExpressionStmt(expr);
-        }
-
-        private Stmt.Class ClassDeclaration()
-        {
-            Token name = Consume(IDENTIFIER, "Expect class name.");
-            Consume(LEFT_BRACE, "Expect '{' before class body.");
-
-            var methods = new List<Stmt.Function>();
-
-            while (!Check(RIGHT_BRACE) && !IsAtEnd)
-            {
-                methods.Add(Function("method"));
-            }
-
-            Consume(RIGHT_BRACE, "Expect '}' after class body.");
-
-            return new Stmt.Class(name, methods);
         }
 
         private Stmt.Function Function(string kind)
@@ -743,7 +725,6 @@ namespace Perlang.Parser
 
                 switch (Peek().Type)
                 {
-                    case CLASS:
                     case FUN:
                     case VAR:
                     case FOR:

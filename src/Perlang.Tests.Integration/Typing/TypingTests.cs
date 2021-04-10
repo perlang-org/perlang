@@ -159,7 +159,7 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void function_return_value_can_provide_a_type()
+        public void function_return_type_can_specify_explicit_type()
         {
             string source = @"
                 fun foo(): String {
@@ -192,7 +192,7 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void function_return_value_detects_type_not_found()
+        public void function_return_type_detects_type_not_found()
         {
             string source = @"
                 fun foo(): SomeUnknownType {
