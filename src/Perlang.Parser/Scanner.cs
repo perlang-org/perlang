@@ -20,7 +20,6 @@ namespace Perlang.Parser
             new Dictionary<string, TokenType>
             {
                 { "and", AND },
-                { "class", CLASS },
                 { "else", ELSE },
                 { "false", FALSE },
                 { "for", FOR },
@@ -34,13 +33,16 @@ namespace Perlang.Parser
                 { "this", THIS },
                 { "true", TRUE },
                 { "var", VAR },
-                { "while", WHILE }
+                { "while", WHILE },
+
+                // Reserved keywords
+                { "class", RESERVED_WORD }, // Pending #66 to be resolved.
             }.ToImmutableDictionary();
 
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;
 
-        private readonly List<Token> tokens = new List<Token>();
+        private readonly List<Token> tokens = new();
         private int start;
         private int current;
         private int line = 1;

@@ -11,7 +11,7 @@ namespace Perlang.Tests.Integration.Classes
     /// </summary>
     public class ClassesTests
     {
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void empty_class_can_be_accessed_by_name()
         {
             string source = @"
@@ -25,7 +25,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("Foo", output);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void duplicate_class_name_throws_expected_error()
         {
             string source = @"
@@ -57,7 +57,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("Perlang.Stdlib.Base64", output);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void class_name_clash_with_native_class_throws_expected_error()
         {
             string source = @"
@@ -71,7 +71,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Matches("Class Base64 already defined; cannot redefine", exception.Message);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void class_name_clash_with_native_object_throws_expected_error()
         {
             string source = @"
@@ -85,7 +85,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Matches("Object ARGV already defined; cannot redefine", exception.Message);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void class_name_clash_with_function_throws_expected_error()
         {
             string source = @"
@@ -101,7 +101,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Matches("Function Hello already defined; cannot redefine", exception.Message);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void class_name_clash_with_variable_throws_expected_error()
         {
             string source = @"
@@ -117,7 +117,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Matches("Variable Hello already defined; cannot redefine", exception.Message);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void can_get_reference_to_static_method()
         {
             string source = @"
@@ -145,7 +145,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("#<Perlang.Stdlib.Base64 System.String ToString()>", output);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void can_call_static_method()
         {
             string source = @"
@@ -171,7 +171,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("Perlang.Stdlib.Base64", output);
         }
 
-        [Fact]
+        [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/66")]
         public void can_chain_method_calls_for_static_method()
         {
             string source = @"

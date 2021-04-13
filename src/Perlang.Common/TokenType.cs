@@ -1,3 +1,5 @@
+#pragma warning disable S4016
+
 namespace Perlang
 {
     public enum TokenType
@@ -39,7 +41,6 @@ namespace Perlang
 
         // Keywords.
         AND,
-        CLASS,
         ELSE,
         FALSE,
         FUN,
@@ -54,6 +55,9 @@ namespace Perlang
         TRUE,
         VAR,
         WHILE,
+
+        // Reserved keywords, not yet used by the language.
+        RESERVED_WORD,
 
         EOF
     }
