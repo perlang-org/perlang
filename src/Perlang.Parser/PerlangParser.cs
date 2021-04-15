@@ -255,7 +255,15 @@ namespace Perlang.Parser
 
         private Stmt VarDeclaration()
         {
+            if (Check(RESERVED_WORD))
+            {
+                // Special-case to provide a more helpful error message when e.g. 'byte' is being used as a variable name.
+                throw Error(Advance(), "Reserved word encountered");
+            }
+
             Token name = Consume(IDENTIFIER, "Expecting variable name.");
+
+            BlockReservedIdentifiers(name);
 
             // Support optional typing on this form:
             // var s: String;
@@ -311,6 +319,8 @@ namespace Perlang.Parser
             Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
             var parameters = new List<Parameter>();
 
+            BlockReservedIdentifiers(name);
+
             if (!Check(RIGHT_PAREN))
             {
                 do
@@ -320,7 +330,17 @@ namespace Perlang.Parser
                         Error(Peek(), "Cannot have more than 255 parameters.");
                     }
 
-                    var parameterName = Consume(IDENTIFIER, "Expect parameter name.");
+                    if (Check(RESERVED_WORD))
+                    {
+                        // Special-case to provide a more helpful error message when e.g. 'byte' is being used as
+                        // parameter name.
+                        throw Error(Advance(), "Reserved word encountered");
+                    }
+
+                    Token parameterName = Consume(IDENTIFIER, "Expect parameter name.");
+
+                    BlockReservedIdentifiers(parameterName);
+
                     Token parameterTypeSpecifier = null;
 
                     // Parameters can optionally use a specific type. If the type is not provided, the compiler will
@@ -341,11 +361,24 @@ namespace Perlang.Parser
 
             if (Match(COLON))
             {
-                returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+                if (Check(RESERVED_WORD))
+                {
+                    returnTypeSpecifier = Advance();
+
+                    // Special-case to try and fail as gracefully as possible if one of the type-related reserved words
+                    // (byte, sbyte, short etc) are specified at this position. If this happens, we want to emit _one_
+                    // single parse error only.
+                    parseErrorHandler(new ParseError("Expecting type name", returnTypeSpecifier, ParseErrorType.RESERVED_WORD_ENCOUNTERED));
+                }
+                else
+                {
+                    returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+                }
             }
 
             Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
             List<Stmt> body = Block();
+
             return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier));
         }
 
@@ -673,6 +706,11 @@ namespace Perlang.Parser
             return Peek().Type == type;
         }
 
+        /// <summary>
+        /// Advance the current position with one step. If the position is already at the end of the stream, this method
+        /// does nothing.
+        /// </summary>
+        /// <returns>The token at the stream position before advancing it.</returns>
         private Token Advance()
         {
             if (!IsAtEnd)
@@ -712,8 +750,14 @@ namespace Perlang.Parser
             return new InternalParseError(parseErrorType);
         }
 
+        /// <summary>
+        /// Synchronizes the parser after an <see cref="InternalParseError"/> has occurred.
+        /// </summary>
         private void Synchronize()
         {
+            // Do a best-effort attempt to recover from the current state. We try to forward to the end of the current
+            // statement.
+
             Advance();
 
             while (!IsAtEnd)
@@ -736,6 +780,36 @@ namespace Perlang.Parser
                 }
 
                 Advance();
+            }
+        }
+
+        /// <summary>
+        /// Throws a ParseError if the given token represents a reserved keyword.
+        /// </summary>
+        /// <param name="token">A token with the name of an identifier.</param>
+        /// <exception cref="InternalParseError">The given token represents a reserved keyword.</exception>
+        private void BlockReservedIdentifiers(Token token)
+        {
+            // "Reserved for future use". These are not currently supported in Perlang, but we reserve them for
+            // future use and define them now already (making it impossible to use when e.g. defining a variable of
+            // a function). That way, we reduce the risk of breaking old code if/when introducing these into the
+            // language proper.
+            //
+            // More details might be found in #178.
+
+            if (Scanner.ReservedKeywordStrings.Contains(token.Lexeme))
+            {
+                throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
+            }
+
+            // Some type-related keywords are actually not marked as reserved words in the Scanner class, since they
+            // are defined in Perlang.Interpreter.Typing.TypeValidator.TypeResolver.ResolveExplicitTypes. We
+            // special-case them here to make it easier to make these be proper reserved words sometime in the future.
+            switch (token.Lexeme)
+            {
+                case "int":
+                case "string":
+                    throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
             }
         }
     }

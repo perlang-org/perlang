@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -37,7 +38,81 @@ namespace Perlang.Parser
 
                 // Reserved keywords
                 { "class", RESERVED_WORD }, // Pending #66 to be resolved.
+
+                // Type names
+                //
+                // NOTE: only types not supported by
+                // Perlang.Interpreter.Typing.TypeValidator.TypeResolver.ResolveExplicitTypes should be listed here.
+                // Otherwise, we make it impossible to use them for variable declarations, return types etc.
+                //
+                { "byte", RESERVED_WORD },
+                { "sbyte", RESERVED_WORD },
+                { "short", RESERVED_WORD },
+                { "long", RESERVED_WORD },
+                { "ushort", RESERVED_WORD },
+                { "uint", RESERVED_WORD },
+                { "ulong", RESERVED_WORD },
+                { "float", RESERVED_WORD },
+                { "double", RESERVED_WORD },
+                { "decimal", RESERVED_WORD },
+                { "char", RESERVED_WORD },
+
+                // // Visibility, static/instance, etc
+                { "public", RESERVED_WORD },
+                { "private", RESERVED_WORD },
+                { "protected", RESERVED_WORD },
+                { "internal", RESERVED_WORD },
+                { "static", RESERVED_WORD },
+                { "volatile", RESERVED_WORD },
+
+                // Standard functions
+                { "printf", RESERVED_WORD },
+
+                // Flow control
+                { "switch", RESERVED_WORD },
+                { "break", RESERVED_WORD },
+                { "continue", RESERVED_WORD },
+
+                // Exception handling
+                { "try", RESERVED_WORD },
+                { "catch", RESERVED_WORD },
+                { "finally", RESERVED_WORD },
+
+                // Asynchronous programming
+                { "async", RESERVED_WORD },
+                { "await", RESERVED_WORD },
+
+                // Locking/synchronization
+                { "lock", RESERVED_WORD },
+                { "synchronized", RESERVED_WORD },
+
+                // Others
+                { "new", RESERVED_WORD },
+                { "mut", RESERVED_WORD },
+                { "let", RESERVED_WORD },
+                { "const", RESERVED_WORD },
+                { "struct", RESERVED_WORD },
+                { "enum", RESERVED_WORD },
+                { "sizeof", RESERVED_WORD },
+                { "nameof", RESERVED_WORD },
+                { "typeof", RESERVED_WORD },
+                { "asm", RESERVED_WORD }
             }.ToImmutableDictionary();
+
+        private static ISet<string> reservedKeywordStrings;
+
+        public static ISet<string> ReservedKeywordStrings
+        {
+            get
+            {
+                reservedKeywordStrings ??= ReservedKeywords
+                    .Where(kvp => kvp.Value == RESERVED_WORD)
+                    .Select(kvp => kvp.Key)
+                    .ToHashSet();
+
+                return reservedKeywordStrings;
+            }
+        }
 
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;
@@ -254,15 +329,15 @@ namespace Perlang.Parser
 
                 if (value < Int32.MaxValue)
                 {
-                    AddToken(NUMBER, (int) value);
+                    AddToken(NUMBER, (int)value);
                 }
                 else if (value < UInt32.MaxValue)
                 {
-                    AddToken(NUMBER, (uint) value);
+                    AddToken(NUMBER, (uint)value);
                 }
                 else if (value < Int64.MaxValue)
                 {
-                    AddToken(NUMBER, (long) value);
+                    AddToken(NUMBER, (long)value);
                 }
                 else // ulong
                 {

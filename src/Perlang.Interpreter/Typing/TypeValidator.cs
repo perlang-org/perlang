@@ -565,6 +565,10 @@ namespace Perlang.Interpreter.Typing
                 {
                     // TODO: Replace these with a dictionary of type names in the currently imported namespaces or similar.
                     // TODO: This is not really a scalable approach. :)
+                    //
+                    // Note that adding more supported types here also means the list of reserved identifiers in
+                    // PerlangParser.BlockReservedIdentifiers() should be updated. (Adding unit tests for the new
+                    // types in ReservedKeywordsTests is a good way to ensure this is not forgotten.)
                     case "int":
                     case "Int32":
                         typeReference.ClrType = typeof(int);
