@@ -803,8 +803,8 @@ namespace Perlang.Parser
             }
 
             // Some type-related keywords are actually not marked as reserved words in the Scanner class, since they
-            // are defined in Perlang.Interpreter.Typing.TypeValidator.TypeResolver.ResolveExplicitTypes. We
-            // special-case them here to make it easier to make these be proper reserved words sometime in the future.
+            // are defined in Perlang.Interpreter.Typing.TypeResolver.ResolveExplicitTypes. We special-case them here to
+            // make it easier to make these be proper reserved words sometime in the future.
             switch (token.Lexeme)
             {
                 case "int":

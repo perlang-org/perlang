@@ -1,5 +1,6 @@
 /* override.css - CSS overrides go here */
 
+/* Increase font sizes compared to the DocFx default */
 body {
     font-size: 18px;
 }
@@ -14,6 +15,24 @@ body {
     left: 3px;
 }
 
+.toc .level1>li {
+    font-weight: bold;
+    margin-top: 10px;
+    position: relative;
+    font-size: 18px;
+}
+
+.toc .level2 {
+    font-weight: normal;
+    margin: 5px 0 0 15px;
+    font-size: 16px;
+}
+
+/* Add margin between the links in the TOC */
+.toc .nav>li>a {
+    margin-bottom: 5px;
+}
+
 /* Makes the $ prefix for code blocks not be selectable, to make it easier to
   copy-paste the curl oneliner for installation from the "download" page. */
 pre code.lang-shell span.hljs-meta {
@@ -21,4 +40,4 @@ pre code.lang-shell span.hljs-meta {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-  }
+}

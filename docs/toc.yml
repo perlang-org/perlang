@@ -2,20 +2,24 @@
 # actual clickable links.
 
 - name: Home
-  href: /
+  href: index.md
 
-- name: Perlang
-  href: perlang/
-  homepage: perlang/
+- name: About
+  href: about/
+  homepage: about/index.md
+
+- name: Learn
+  href: learn/
+  homepage: learn/quickstart/index.md
 
 - name: Download
   href: download/
-  homepage: download/
+  homepage: download/index.md
 
 - name: Contribute
   href: contribute/
-  homepage: contribute/
+  homepage: contribute/index.md
 
 - name: API Documentation
   href: api/
-  homepage: api/
+  homepage: api/index.md

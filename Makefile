@@ -2,7 +2,9 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	install release run test src/Perlang.Common/CommonConstants.Generated.cs
+	install install-latest-snapshot release run src/Perlang.Common/CommonConstants.Generated.cs
+
+RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -35,7 +37,8 @@ docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
 docs-test-examples:
-	for e in docs/examples/*.per ; do echo == $$e ; src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang $$e ; echo ; done
+	for e in docs/examples/quickstart/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
+	for e in docs/examples/the-language/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
 
 docs-serve:
 	live-server _site
@@ -51,6 +54,10 @@ darkerfx-push:
 
 install: auto-generated
 	./scripts/local_install_linux.sh
+
+# Downloads and installs the latest snapshot from https://builds.perlang.org
+install-latest-snapshot:
+	curl -sSL https://perlang.org/install.sh | sh -s -- --force
 
 run: auto-generated
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
