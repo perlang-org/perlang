@@ -36,7 +36,7 @@ body.theme-dark {
   --theme-background-subnav: #1d1d1d;
   --theme-background-footer: #171717;
   --theme-background-table-alt: #212123;
-  --theme-background-quote: #69696e;
+  --theme-blockquote-border: #69696e;
   --theme-inline-code: inherit;
   --theme-inline-code-background: #454545;
   --theme-code-border: #404040;
@@ -65,6 +65,7 @@ body.theme-light {
   --theme-background-subnav: #f5f5f5;
   --theme-background-footer: #f8f8f8;
   --theme-background-table-alt: #f9f9f9;
+  --theme-blockquote-border: #eeeeee;
   --theme-inline-code: #c7254e;
   --theme-inline-code-background: #f9f2f4;
   --theme-code-border: #e7e7e7;
@@ -244,8 +245,7 @@ input#search-query:focus {
   background-color: var(--theme-background-table-alt); }
 
 blockquote {
-  border-left: 5px solid var(--theme-background-quote);
-  color: var(--theme-background-quote); }
+  border-left: 5px solid var(--theme-blockquote-border); }
 
 .pagination > .disabled > a,
 .pagination > .disabled > a:focus,
@@ -342,7 +342,8 @@ pre {
   border: 1px solid var(--theme-code-border);
   background-color: inherit; }
 
-legend, pre {
+legend,
+pre {
   color: var(--theme-code-color); }
 
 /*

@@ -35,7 +35,8 @@ docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
 docs-test-examples:
-	for e in docs/examples/*.per ; do src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
+	for e in docs/examples/quickstart/*.per ; do src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
+	for e in docs/examples/the-language/*.per ; do src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang $$e ; done
 
 docs-serve:
 	live-server _site

@@ -1,4 +1,4 @@
-# Learn Perlang
+# Quick Start
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ Worth mentioning is that normally in Perlang, each complete _statement_ (like `p
 
 #### Scripting mode
 
-[!code-perlang[hello_world](../../examples/hello_world.per)]
+[!code-perlang[hello_world](../../../examples/quickstart/hello_world.per)]
 
 The comment on the first line is strictly speaking not a required part in this script. It is only there to help you understand that this program should be saved to disk using the suggested file name given there. (Feel free to disobey this suggestion if you are a little rebellious, just like me.)
 
@@ -64,7 +64,7 @@ Many programming language tutorials are kind of boring (_feel like calculating F
 
 (Given the size of this, there is little reason to show the REPL version; some of this would also have to be typed on a single line in the REPL at the moment, making it even more inconvenient.)
 
-[!code-perlang[pi](../../examples/pi.per)]
+[!code-perlang[pi](../../../examples/quickstart/pi.per)]
 
 [1]: http://ajennings.net/blog/a-million-digits-of-pi-in-9-lines-of-javascript.html
 
@@ -97,3 +97,9 @@ sys	0m0.005s
 ```
 
 So, we are running about 60% slower than the JavaScript counterpart. For many applications, this could be tolerable but it's quite obvious that there's a lot of work that needs to be done in this area before Perlang is anywhere near "production quality".
+
+### Further reading
+
+This guide only takes some initial steps in teaching the user how to use Perlang. For example, _functions_ aren't covered at all.
+
+For a more in-depth guide which aims to cover all parts of Perlang which are currently implemented, see the page about [the Perlang language](../the-language).

@@ -6,5 +6,9 @@
   homepage: history/
 
 - name: Learn
-  href: learn/
-  homepage: learn/
+  items:
+    - name: Quickstart
+      href: learn/quickstart
+
+    - name: The Perlang Language
+      href: learn/the-language
