@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -143,6 +144,24 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
+        public void var_declaration_with_initializer_emits_warning_on_nil_usage()
+        {
+            string source = @"
+                var s: string = nil;
+
+                print s;
+            ";
+
+            var result = EvalWithResult(source);
+
+            Assert.Empty(result.Errors);
+            Assert.Single(result.CompilerWarnings);
+
+            var warning = result.CompilerWarnings.Single();
+            Assert.Matches("Initializing variable to nil detected", warning.Message);
+        }
+
+        [Fact]
         public void var_declaration_supports_reassignment_after_variable_is_defined()
         {
             string source = @"
@@ -154,6 +173,23 @@ namespace Perlang.Tests.Integration.Typing
 
             string result = EvalReturningOutputString(source);
             Assert.Equal("456", result);
+        }
+
+        [Fact]
+        public void var_declaration_detects_reassignment_of_incoercible_type()
+        {
+            string source = @"
+                var i = 123;
+                i = ""foo"";
+
+                print i;
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Cannot assign System.String to variable defined as 'System.Int32'", exception.Message);
         }
 
         [Fact]
@@ -169,6 +205,42 @@ namespace Perlang.Tests.Integration.Typing
             var result = EvalWithResult(source);
 
             Assert.Equal("nil", result.OutputAsString);
+        }
+
+        [Fact]
+        public void var_declaration_emits_warning_on_reassignment_to_nil_for_reference_type()
+        {
+            string source = @"
+                var s = ""foo"";
+                s = nil;
+
+                print s;
+            ";
+
+            EvalResult<Exception> result = EvalWithResult(source);
+
+            Assert.Empty(result.Errors);
+            Assert.Single(result.CompilerWarnings);
+
+            var warning = result.CompilerWarnings.Single();
+            Assert.Matches("Nil assignment detected", warning.Message);
+        }
+
+        [Fact]
+        public void var_declaration_detects_reassignment_to_nil_for_value_type()
+        {
+            string source = @"
+                var i = 1;
+                i = nil;
+
+                print i;
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Cannot assign Perlang.NullObject to variable defined as 'System.Int32'", exception.Message);
         }
 
         [Fact]
@@ -219,6 +291,26 @@ namespace Perlang.Tests.Integration.Typing
             var result = EvalWithResult(source);
 
             Assert.Equal("nil", result.OutputAsString);
+        }
+
+        [Fact]
+        public void function_parameter_emits_warning_when_nil_passed_for_reference_type_parameter()
+        {
+            string source = @"
+                fun foo(s: String): void {
+                    print(s);
+                }
+
+                foo(nil);
+            ";
+
+            var result = EvalWithResult(source);
+
+            Assert.Empty(result.Errors);
+            Assert.Single(result.CompilerWarnings);
+
+            var warning = result.CompilerWarnings.Single();
+            Assert.Matches("Nil parameter detected", warning.Message);
         }
 
         [Fact]

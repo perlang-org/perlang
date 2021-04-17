@@ -57,7 +57,7 @@ namespace Perlang.ConsoleApp
         private readonly PerlangInterpreter interpreter;
         private readonly Action<string> standardOutputHandler;
         private readonly Action<string> standardErrorHandler;
-        private readonly HashSet<WarningType> disabledWarningsAsErrors = new();
+        private readonly HashSet<WarningType> disabledWarningsAsErrors;
 
         private bool hadError;
         private bool hadRuntimeError;
@@ -85,6 +85,23 @@ namespace Perlang.ConsoleApp
             var detailedVersionOption = new Option("-V", "Show detailed version information");
             var evalOption = new Option<string>("-e", "Executes a single-line script") { AllowMultipleArgumentsPerToken = false, ArgumentHelpName = "script" };
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
+            var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
+
+            var disabledWarningsAsErrorsList = new List<WarningType>();
+
+            noWarnAsErrorOption.AddValidator(result =>
+            {
+                string warningName = result.GetValueOrDefault<string>();
+
+                if (!WarningType.KnownWarning(warningName))
+                {
+                    return $"Unknown warning: {warningName}";
+                }
+
+                disabledWarningsAsErrorsList.Add(WarningType.Get(warningName));
+
+                return null;
+            });
 
             // Note: options must be present in this list to be valid for the RootCommand.
             var options = new[]
@@ -92,7 +109,8 @@ namespace Perlang.ConsoleApp
                 versionOption,
                 detailedVersionOption,
                 evalOption,
-                printOption
+                printOption,
+                noWarnAsErrorOption
             };
 
             var rootCommand = new RootCommand
@@ -131,7 +149,8 @@ namespace Perlang.ConsoleApp
 
                         var program = new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine
+                            standardOutputHandler: console.Out.WriteLine,
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         );
 
                         int result = program.Run(source, program.CompilerWarning);
@@ -150,7 +169,8 @@ namespace Perlang.ConsoleApp
 
                         new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine
+                            standardOutputHandler: console.Out.WriteLine,
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         ).ParseAndPrint(source);
 
                         return Task.FromResult(0);
@@ -159,7 +179,8 @@ namespace Perlang.ConsoleApp
                     {
                         new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine
+                            standardOutputHandler: console.Out.WriteLine,
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         ).RunPrompt();
 
                         return Task.FromResult(0);
@@ -173,7 +194,8 @@ namespace Perlang.ConsoleApp
                         {
                             var program = new Program(
                                 replMode: false,
-                                standardOutputHandler: console.Out.WriteLine
+                                standardOutputHandler: console.Out.WriteLine,
+                                disabledWarningsAsErrors: disabledWarningsAsErrorsList
                             );
 
                             result = program.RunFile(scriptName);
@@ -189,7 +211,8 @@ namespace Perlang.ConsoleApp
                             var program = new Program(
                                 replMode: false,
                                 arguments: remainingArguments,
-                                standardOutputHandler: console.Out.WriteLine
+                                standardOutputHandler: console.Out.WriteLine,
+                                disabledWarningsAsErrors: disabledWarningsAsErrorsList
                             );
 
                             result = program.RunFile(scriptName);
@@ -257,6 +280,7 @@ namespace Perlang.ConsoleApp
         internal Program(
             bool replMode,
             IEnumerable<string> arguments = null,
+            IEnumerable<WarningType> disabledWarningsAsErrors = null,
             Action<string> standardOutputHandler = null,
             Action<RuntimeError> runtimeErrorHandler = null)
         {
@@ -264,6 +288,7 @@ namespace Perlang.ConsoleApp
             // output.
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
             this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
+            this.disabledWarningsAsErrors = (disabledWarningsAsErrors ?? Enumerable.Empty<WarningType>()).ToHashSet();
 
             interpreter = new PerlangInterpreter(
                 runtimeErrorHandler ?? RuntimeError,
@@ -314,7 +339,9 @@ namespace Perlang.ConsoleApp
                     break;
                 }
 
-                // REPL mode is more relaxed for now: warnings are not considered errors in this mode.
+                // REPL mode is more relaxed: -Wno-error is enabled for all warnings by default. It simply makes sense
+                // to be less strict in this mode, since it's often used in an ad-hoc fashion for exploratory
+                // programming.
                 Run(command, CompilerWarningAsWarning);
             }
         }

@@ -63,7 +63,9 @@ namespace Perlang.Interpreter.Typing
                 targetType != typeof(float))
             {
                 // Reassignment to `nil` is valid as long as the target is not a value type. In other words, reference
-                // types are nullable by default.
+                // types are nullable by default. We do emit a compiler warning though, and depending on the
+                // configuration of the front end, this warning can cause compilation to fail (if the front end is
+                // configured to disallow compiler warnings).
                 return true;
             }
 

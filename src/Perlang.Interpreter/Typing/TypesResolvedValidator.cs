@@ -223,6 +223,11 @@ namespace Perlang.Interpreter.Typing
                     throw new PerlangInterpreterException($"Internal compiler error: Argument '{argument}' to function {functionName} not resolved");
                 }
 
+                if (argument.TypeReference.IsNullObject)
+                {
+                    compilerWarningCallback(new CompilerWarning("Nil parameter detected", parameter.Name, WarningType.NIL_USAGE));
+                }
+
                 // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
                 if (!typeCoercer.CanBeCoercedInto(expr.Token, parameter.TypeReference, argument.TypeReference))
                 {
@@ -379,6 +384,11 @@ namespace Perlang.Interpreter.Typing
                             $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"
                         ));
                     }
+                    else if (stmt.Initializer.TypeReference.IsNullObject)
+                    {
+                        // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
+                        compilerWarningCallback(new CompilerWarning("Initializing variable to nil detected", stmt.Name, WarningType.NIL_USAGE));
+                    }
                 }
             }
             else if (stmt.Initializer == null)
@@ -404,6 +414,19 @@ namespace Perlang.Interpreter.Typing
                     stmt.TypeReference.TypeSpecifier,
                     $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"
                 ));
+            }
+
+            return VoidObject.Void;
+        }
+
+        public override VoidObject VisitAssignExpr(Expr.Assign expr)
+        {
+            base.VisitAssignExpr(expr);
+
+            if (expr.Value.TypeReference.IsNullObject)
+            {
+                // TODO: Use expr.Value.Token here instead of expr.name, #189
+                compilerWarningCallback(new CompilerWarning("Nil assignment detected", expr.Name, WarningType.NIL_USAGE));
             }
 
             return VoidObject.Void;
