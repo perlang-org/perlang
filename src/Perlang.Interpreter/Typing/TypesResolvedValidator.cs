@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Perlang.Interpreter.Resolution;
+using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -22,11 +23,20 @@ namespace Perlang.Interpreter.Typing
     {
         private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
+        private readonly Action<CompilerWarning> compilerWarningCallback;
 
-        internal TypesResolvedValidator(Func<Expr, Binding> getVariableOrFunctionCallback, Action<TypeValidationError> typeValidationErrorCallback)
+        private readonly TypeCoercer typeCoercer;
+
+        internal TypesResolvedValidator(
+            Func<Expr, Binding> getVariableOrFunctionCallback,
+            Action<TypeValidationError> typeValidationErrorCallback,
+            Action<CompilerWarning> compilerWarningCallback)
         {
             this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
+            this.compilerWarningCallback = compilerWarningCallback;
+
+            typeCoercer = new TypeCoercer(compilerWarningCallback);
         }
 
         internal void ReportErrors(IEnumerable<Stmt> statements)
@@ -97,7 +107,10 @@ namespace Perlang.Interpreter.Typing
                             $"Internal compiler error: Argument '{argument}' to function {methodName} not resolved");
                     }
 
-                    if (!CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                    // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
+                    // on this if we could provide the token for the argument expression instead. However, the Expr type
+                    // as used by 'argument' is a non-token-based expression so this is currently impossible.
+                    if (!typeCoercer.CanBeCoercedInto(call.Token, parameter.ParameterType, argument.TypeReference.ClrType))
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         typeValidationErrorCallback(new TypeValidationError(
@@ -133,7 +146,8 @@ namespace Perlang.Interpreter.Typing
                                 $"Internal compiler error: Argument '{argument}' to method {methodName} not resolved");
                         }
 
-                        if (!CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                        // FIXME: The same caveat as above with call.Token applies here as well.
+                        if (!typeCoercer.CanBeCoercedInto(call.Token, parameter.ParameterType, argument.TypeReference.ClrType))
                         {
                             coercionsFailed = true;
                             break;
@@ -209,7 +223,8 @@ namespace Perlang.Interpreter.Typing
                     throw new PerlangInterpreterException($"Internal compiler error: Argument '{argument}' to function {functionName} not resolved");
                 }
 
-                if (!CanBeCoercedInto(parameter.TypeReference, argument.TypeReference))
+                // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
+                if (!typeCoercer.CanBeCoercedInto(expr.Token, parameter.TypeReference, argument.TypeReference))
                 {
                     if (parameter.Name != null)
                     {
@@ -346,13 +361,24 @@ namespace Perlang.Interpreter.Typing
 
             if (stmt.TypeReference.IsResolved)
             {
-                if (stmt.Initializer != null &&
-                    !CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
+                if (stmt.Initializer != null)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(
-                        stmt.TypeReference.TypeSpecifier,
-                        $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"
-                    ));
+                    if (stmt.TypeReference.IsNullObject && stmt.Initializer.TypeReference.IsNullObject)
+                    {
+                        // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.Name,
+                            "Cannot assign nil to an implicitly typed local variable"
+                        ));
+                    }
+                    else if (!typeCoercer.CanBeCoercedInto(stmt.Name, stmt.TypeReference, stmt.Initializer.TypeReference))
+                    {
+                        // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.Name,
+                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"
+                        ));
+                    }
                 }
             }
             else if (stmt.Initializer == null)
@@ -381,49 +407,6 @@ namespace Perlang.Interpreter.Typing
             }
 
             return VoidObject.Void;
-        }
-
-        /// <summary>
-        /// Determines if a value of <paramref name="sourceTypeReference"/> can be coerced into
-        /// <paramref name="targetTypeReference"/>.
-        ///
-        /// The `source` and `target` concepts are important here. Sometimes values can be coerced in one direction
-        /// but not the other. For example, an `int` can be coerced to a `long`, but not the other way around
-        /// (without an explicit type cast). The same goes for unsigned integer types; they can not be coerced to
-        /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
-        /// available.
-        /// </summary>
-        /// <param name="targetTypeReference">A reference to the target type.</param>
-        /// <param name="sourceTypeReference">A reference to the source type.</param>
-        /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        private static bool CanBeCoercedInto(TypeReference targetTypeReference, TypeReference sourceTypeReference)
-        {
-            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType);
-        }
-
-        /// <summary>
-        /// Determines if a value of <paramref name="sourceType"/> can be coerced into
-        /// <paramref name="targetType"/>.
-        ///
-        /// The `source` and `target` concepts are important here. Sometimes values can be coerced in one direction
-        /// but not the other. For example, an `int` can be coerced to a `long`, but not the other way around
-        /// (without an explicit type cast). The same goes for unsigned integer types; they can not be coerced to
-        /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
-        /// available.
-        /// </summary>
-        /// <param name="targetType">The target type.</param>
-        /// <param name="sourceType">The source type.</param>
-        /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        private static bool CanBeCoercedInto(Type targetType, Type sourceType)
-        {
-            // TODO: Implement some of these coercions being advertised in the XML docs. ;)
-            if (targetType == sourceType)
-            {
-                return true;
-            }
-
-            // None of the defined type coercions was successful.
-            return false;
         }
     }
 }

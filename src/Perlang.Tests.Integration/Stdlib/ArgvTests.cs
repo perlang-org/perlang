@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Perlang.Interpreter;
 using Perlang.Stdlib;
@@ -48,11 +47,9 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void ARGV_pop_with_multiple_arguments_returns_the_expected_result()
         {
-            var output = new List<string>();
+            var result = EvalReturningOutput("ARGV.pop(); print ARGV.pop();", "arg1", "arg2").Single();
 
-            EvalWithArguments("ARGV.pop(); print ARGV.pop();", s => output.Add(s), "arg1", "arg2");
-
-            Assert.Equal("arg2", output.Single());
+            Assert.Equal("arg2", result);
         }
 
         [Fact]

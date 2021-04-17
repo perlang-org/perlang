@@ -58,20 +58,18 @@ namespace Perlang.Interpreter
         /// </summary>
         /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors. Note that after calling
         ///     this handler, the interpreter will abort the script.</param>
-        /// <param name="standardOutputHandler">An optional parameter that will receive output printed to
-        ///     standard output. If not provided or null, output will be printed to the standard output of the
-        ///     running process.</param>
+        /// <param name="standardOutputHandler">An callback that will receive output printed to standard output.</param>
         /// <param name="arguments">An optional list of runtime arguments.</param>
         /// <param name="replMode">A flag indicating whether REPL mode will be active or not. In REPL mode, statements
-        /// without semicolons are accepted.</param>
+        ///     without semicolons are accepted.</param>
         public PerlangInterpreter(
             Action<RuntimeError> runtimeErrorHandler,
-            Action<string>? standardOutputHandler = null,
+            Action<string> standardOutputHandler,
             IEnumerable<string>? arguments = null,
             bool replMode = false)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
-            this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
+            this.standardOutputHandler = standardOutputHandler;
             this.replMode = replMode;
 
             var argumentsList = (arguments ?? Array.Empty<string>()).ToImmutableList();
@@ -161,16 +159,18 @@ namespace Perlang.Interpreter
         /// <param name="resolveErrorHandler">A handler for resolve errors.</param>
         /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
         /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
+        /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
         /// <returns>If the provided source is an expression, the value of the expression (which can be `null`) is
-        /// returned. If a runtime error occurs, <see cref="VoidObject.Void"/> is returned. In all other cases, `null`
-        /// is returned.</returns>
+        ///     returned. If a runtime error occurs, <see cref="VoidObject.Void"/> is returned. In all other cases, `null`
+        ///     is returned.</returns>
         public object? Eval(
             string source,
             ScanErrorHandler scanErrorHandler,
             ParseErrorHandler parseErrorHandler,
             ResolveErrorHandler resolveErrorHandler,
             ValidationErrorHandler typeValidationErrorHandler,
-            ValidationErrorHandler immutabilityValidationErrorHandler)
+            ValidationErrorHandler immutabilityValidationErrorHandler,
+            CompilerWarningHandler compilerWarningHandler)
         {
             if (String.IsNullOrWhiteSpace(source))
             {
@@ -265,7 +265,16 @@ namespace Perlang.Interpreter
                         typeValidationFailed = true;
                         typeValidationErrorHandler(typeValidationError);
                     },
-                    GetVariableOrFunctionBinding
+                    GetVariableOrFunctionBinding,
+                    compilerWarning =>
+                    {
+                        bool result = compilerWarningHandler(compilerWarning);
+
+                        if (result)
+                        {
+                            typeValidationFailed = true;
+                        }
+                    }
                 );
 
                 if (typeValidationFailed)
@@ -360,7 +369,8 @@ namespace Perlang.Interpreter
                         typeValidationFailed = true;
                         typeValidationErrorHandler(typeValidationError);
                     },
-                    GetVariableOrFunctionBinding
+                    GetVariableOrFunctionBinding,
+                    compilerWarning => compilerWarningHandler(compilerWarning)
                 );
 
                 if (typeValidationFailed)

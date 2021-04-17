@@ -125,6 +125,53 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
+        public void var_declaration_with_initializer_detects_inference_attempt_from_nil()
+        {
+            // The following program should fail, since there is no way the compiler can infer any type information from
+            // a 'nil' initializer.
+            string source = @"
+                var s = nil;
+
+                print s;
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Cannot assign nil to an implicitly typed local variable", exception.Message);
+        }
+
+        [Fact]
+        public void var_declaration_supports_reassignment_after_variable_is_defined()
+        {
+            string source = @"
+                var i = 123;
+                i = 456;
+
+                print i;
+            ";
+
+            string result = EvalReturningOutputString(source);
+            Assert.Equal("456", result);
+        }
+
+        [Fact]
+        public void var_declaration_supports_reassignment_to_nil_for_reference_type()
+        {
+            string source = @"
+                var s = ""foo"";
+                s = nil;
+
+                print s;
+            ";
+
+            var result = EvalWithResult(source);
+
+            Assert.Equal("nil", result.OutputAsString);
+        }
+
+        [Fact]
         public void function_parameter_can_provide_a_type()
         {
             string source = @"
@@ -141,7 +188,7 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void function_parameter_detects_when_method_is_called_with_wrong_type()
+        public void function_parameter_detects_when_method_is_called_with_wrong_argument_type()
         {
             string source = @"
                 fun foo(s: String): void {
@@ -156,6 +203,40 @@ namespace Perlang.Tests.Integration.Typing
 
             Assert.Single(result.Errors);
             Assert.Matches("Cannot pass System.Int32 argument as parameter 's: System.String'", exception.Message);
+        }
+
+        [Fact]
+        public void function_parameter_allows_nil_argument_for_reference_type_parameter()
+        {
+            string source = @"
+                fun foo(s: String): void {
+                    print(s);
+                }
+
+                foo(nil);
+            ";
+
+            var result = EvalWithResult(source);
+
+            Assert.Equal("nil", result.OutputAsString);
+        }
+
+        [Fact]
+        public void function_parameter_detects_nil_argument_for_value_type_parameter()
+        {
+            string source = @"
+                fun foo(s: int): void {
+                    print(s);
+                }
+
+                foo(nil);
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Cannot pass Perlang.NullObject argument as parameter 's: System.Int32'", exception.Message);
         }
 
         [Fact]

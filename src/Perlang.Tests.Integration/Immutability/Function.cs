@@ -43,7 +43,7 @@ namespace Perlang.Tests.Integration.Immutability
         {
             string source = @"
                 fun f(): void {}
-                f = 42;
+                f = 123;
             ";
 
             var result = EvalWithValidationErrorCatch(source);

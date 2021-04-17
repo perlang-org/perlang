@@ -71,11 +71,12 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void short_circuits_at_the_first_true_argument()
         {
             string source = @"
-                var a = ""before"";
-                var b = ""before"";
+                var a = true;
+                var b = false;
+
                 (a = false) or
                     (b = true) or
-                    (a = ""bad"");
+                    (a = true);
                 
                 print a;
                 print b;
@@ -85,8 +86,8 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             Assert.Equal(new[]
             {
-                "False",
-                "True" // The a = "bad" assignment should never execute
+                "False", // The `a = true` assignment should never execute
+                "True"
             }, output);
         }
     }
