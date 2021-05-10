@@ -241,7 +241,7 @@ namespace Perlang.Tests.ConsoleApp
             public void with_eval_parameter_outputs_expected_value()
             {
                 // Arrange & Act
-                Program.MainWithCustomConsole(new[] { "-e", "print", "10" }, testConsole);
+                Program.MainWithCustomConsole(new[] { "-e", "print 10" }, testConsole);
 
                 // Assert
                 Assert.Equal("10" + "\n", StdoutResult);

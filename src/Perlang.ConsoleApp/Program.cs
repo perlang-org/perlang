@@ -82,8 +82,8 @@ namespace Perlang.ConsoleApp
         {
             var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option("-V", "Show detailed version information");
-            var evalOption = new Option("-e", "Executes a single-line script");
-            var printOption = new Option("-p", "Parse a single-line script and output a human-readable version of the AST");
+            var evalOption = new Option<string>("-e", "Executes a single-line script") { AllowMultipleArgumentsPerToken = false, ArgumentHelpName = "script" };
+            var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
 
             // Note: options must be present in this list to be valid for the RootCommand.
             var options = new[]
@@ -118,37 +118,39 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
-                    if (parseResult.HasOption(evalOption) && parseResult.HasOption(printOption))
-                    {
-                        console.Error.WriteLine("Error: the -e and -p option are mutually exclusive");
-                        return Task.FromResult(ExitCodes.INVALID_ARGUMENT);
-                    }
-
                     if (parseResult.HasOption(evalOption))
                     {
-                        IEnumerable<string> arguments = parseResult.Tokens
-                            .Where(t => t.Type == System.CommandLine.Parsing.TokenType.Argument)
-                            .Select(t => t.Value);
+                        // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
+                        OptionResult optionResult = parseResult.FindResultFor(evalOption);
+                        string source = optionResult.Children
+                            .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
+                            .Cast<ArgumentResult>()
+                            .First()
+                            .GetValueOrDefault<string>();
 
                         var program = new Program(
                             replMode: true,
                             standardOutputHandler: console.Out.WriteLine
                         );
 
-                        int result = program.Run(String.Join(" ", arguments));
+                        int result = program.Run(source);
 
                         return Task.FromResult(result);
                     }
                     else if (parseResult.HasOption(printOption))
                     {
-                        IEnumerable<string> arguments = parseResult.Tokens
-                            .Where(t => t.Type == System.CommandLine.Parsing.TokenType.Argument)
-                            .Select(t => t.Value);
+                        // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
+                        OptionResult optionResult = parseResult.FindResultFor(printOption);
+                        string source = optionResult.Children
+                            .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
+                            .Cast<ArgumentResult>()
+                            .First()
+                            .GetValueOrDefault<string>();
 
                         new Program(
                             replMode: true,
                             standardOutputHandler: console.Out.WriteLine
-                        ).ParseAndPrint(String.Join(" ", arguments));
+                        ).ParseAndPrint(source);
 
                         return Task.FromResult(0);
                     }
@@ -178,15 +180,15 @@ namespace Perlang.ConsoleApp
                         else
                         {
                             // More than 1 argument. The remaining arguments are passed to the program, which can use
-                            // argv_pop() to retrieve them.
+                            // ARGV.pop() to retrieve them.
                             var remainingArguments = parseResult.Tokens.Skip(1)
                                 .Take(parseResult.Tokens.Count - 1)
                                 .Select(r => r.Value);
 
                             var program = new Program(
                                 replMode: false,
-                                remainingArguments,
-                                console.Out.WriteLine
+                                arguments: remainingArguments,
+                                standardOutputHandler: console.Out.WriteLine
                             );
 
                             result = program.RunFile(scriptName);
@@ -197,10 +199,48 @@ namespace Perlang.ConsoleApp
                 })
             };
 
-            rootCommand.AddArgument(new Argument
+            var scriptNameArgument = new Argument<string>
             {
-                Arity = ArgumentArity.ZeroOrMore
+                Name = "script-name",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+
+            scriptNameArgument.AddValidator(result =>
+            {
+                var tokens = result.Parent!.Tokens;
+
+                if (tokens.Any(t => t.Type == System.CommandLine.Parsing.TokenType.Option && t.Value == evalOption.Name))
+                {
+                    return "<script-name> positional argument cannot be used together with the -e option";
+                }
+
+                return null;
             });
+
+            rootCommand.AddArgument(scriptNameArgument);
+
+            rootCommand.AddValidator(result =>
+            {
+                if (result.HasOption(evalOption) && result.HasOption(printOption))
+                {
+                    return "Error: the -e and -p option are mutually exclusive";
+                }
+
+                if (result.HasOption(evalOption) && result.HasArgument(scriptNameArgument))
+                {
+                    return "Error: the -e option cannot be combined with the <script-name> argument";
+                }
+
+                return null;
+            });
+
+            var scriptArguments = new Argument<string>
+            {
+                Name = "args",
+                Arity = ArgumentArity.ZeroOrMore
+            };
+
+            rootCommand.AddArgument(scriptArguments);
 
             foreach (Option option in options)
             {
@@ -219,9 +259,9 @@ namespace Perlang.ConsoleApp
             Action<string> standardOutputHandler = null,
             Action<RuntimeError> runtimeErrorHandler = null)
         {
+            // TODO: Make these be separate handlers at some point, so the caller can separate between these types of
+            // output.
             this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
-
-            // TODO: Make it possible to override this at some point, so the caller can separate between these types of output.
             this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
 
             interpreter = new PerlangInterpreter(
@@ -268,7 +308,7 @@ namespace Perlang.ConsoleApp
             {
                 string command = ReadLine.Read("> ");
 
-                if (command == "quit")
+                if (command == "quit" || command == "exit")
                 {
                     break;
                 }
