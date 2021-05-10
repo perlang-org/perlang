@@ -37,7 +37,7 @@
 
     <ItemGroup>
         <PackageReference Include="ReadLine" Version="2.0.1" />
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20158.1" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21216.1" />
     </ItemGroup>
 
 </Project>
