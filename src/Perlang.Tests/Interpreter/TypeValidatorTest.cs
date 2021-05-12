@@ -2,12 +2,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Perlang.Interpreter.Resolution;
 using Perlang.Interpreter.Typing;
+using Perlang.Parser;
 using Xunit;
 
 namespace Perlang.Tests.Interpreter
 {
     /// <summary>
     /// Test for <see cref="TypeValidator"/>.
+    ///
+    /// Note that the test methods in this test work on a very low level; as can be seen, tokens and expressions are
+    /// constructed manually in a very tedious way. This can be useful sometimes, but most of the time, it's much easier
+    /// to create integration tests where you just feed an entire Perlang program to the interpreter and let it
+    /// construct the data structures for you.
+    ///
+    /// For an example of the latter, see <see cref="Perlang.Tests.Integration.Assignment.AssignmentTests"/> and the
+    /// other tests in the `Perlang.Tests.Integration` project.
     /// </summary>
     public class TypeValidatorTest
     {
@@ -26,16 +35,19 @@ namespace Perlang.Tests.Interpreter
             };
 
             var typeValidationErrors = new List<TypeValidationError>();
+            var warnings = new List<CompilerWarning>();
 
             // Act
             TypeValidator.Validate(
                 new List<Stmt> { new Stmt.ExpressionStmt(callExpr) },
                 error => typeValidationErrors.Add(error),
-                expr => bindings[expr]
+                expr => bindings[expr],
+                warning => warnings.Add(warning)
             );
 
             // Assert
             Assert.Empty(typeValidationErrors);
+            Assert.Empty(warnings);
         }
 
         [Fact]
@@ -53,17 +65,21 @@ namespace Perlang.Tests.Interpreter
             };
 
             var typeValidationErrors = new List<TypeValidationError>();
+            var warnings = new List<CompilerWarning>();
 
             // Act
             TypeValidator.Validate(
                 new List<Stmt> { new Stmt.ExpressionStmt(getExpr) },
                 error => typeValidationErrors.Add(error),
-                expr => bindings[expr]
+                expr => bindings[expr],
+                warning => warnings.Add(warning)
             );
 
             // Assert
             Assert.Single(typeValidationErrors);
             Assert.Matches(typeValidationErrors.Single().Message, "Undefined identifier 'foo'");
+
+            Assert.Empty(warnings);
         }
 
         [Fact]
@@ -83,16 +99,19 @@ namespace Perlang.Tests.Interpreter
             };
 
             var typeValidationErrors = new List<TypeValidationError>();
+            var warnings = new List<CompilerWarning>();
 
             // Act
             TypeValidator.Validate(
                 new List<Stmt> { new Stmt.ExpressionStmt(getExpr) },
                 error => typeValidationErrors.Add(error),
-                expr => bindings[expr]
+                expr => bindings[expr],
+                warning => warnings.Add(warning)
             );
 
             // Assert
             Assert.Empty(typeValidationErrors);
+            Assert.Empty(warnings);
         }
     }
 }

@@ -57,6 +57,7 @@ namespace Perlang.ConsoleApp
         private readonly PerlangInterpreter interpreter;
         private readonly Action<string> standardOutputHandler;
         private readonly Action<string> standardErrorHandler;
+        private readonly HashSet<WarningType> disabledWarningsAsErrors = new();
 
         private bool hadError;
         private bool hadRuntimeError;
@@ -133,7 +134,7 @@ namespace Perlang.ConsoleApp
                             standardOutputHandler: console.Out.WriteLine
                         );
 
-                        int result = program.Run(source);
+                        int result = program.Run(source, program.CompilerWarning);
 
                         return Task.FromResult(result);
                     }
@@ -223,7 +224,7 @@ namespace Perlang.ConsoleApp
             {
                 if (result.HasOption(evalOption) && result.HasOption(printOption))
                 {
-                    return "Error: the -e and -p option are mutually exclusive";
+                    return "Error: the -e and -p options are mutually exclusive";
                 }
 
                 if (result.HasOption(evalOption) && result.HasArgument(scriptNameArgument))
@@ -282,7 +283,7 @@ namespace Perlang.ConsoleApp
 
             var bytes = File.ReadAllBytes(path);
 
-            Run(Encoding.UTF8.GetString(bytes));
+            Run(Encoding.UTF8.GetString(bytes), CompilerWarning);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -313,13 +314,14 @@ namespace Perlang.ConsoleApp
                     break;
                 }
 
-                Run(command);
+                // REPL mode is more relaxed for now: warnings are not considered errors in this mode.
+                Run(command, CompilerWarningAsWarning);
             }
         }
 
-        internal int Run(string source)
+        internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
-            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError);
+            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError, compilerWarningHandler);
 
             if (result != null && result != VoidObject.Void)
             {
@@ -343,7 +345,7 @@ namespace Perlang.ConsoleApp
 
         private void ScanError(ScanError scanError)
         {
-            Report(scanError.Line, String.Empty, scanError.Message);
+            ReportError(scanError.Line, String.Empty, scanError.Message);
         }
 
         private void RuntimeError(RuntimeError error)
@@ -354,22 +356,39 @@ namespace Perlang.ConsoleApp
             hadRuntimeError = true;
         }
 
-        private void Report(int line, string where, string message)
+        private void Error(Token token, string message)
+        {
+            if (token.Type == TokenType.EOF)
+            {
+                ReportError(token.Line, " at end", message);
+            }
+            else
+            {
+                ReportError(token.Line, " at '" + token.Lexeme + "'", message);
+            }
+        }
+
+        private void ReportError(int line, string where, string message)
         {
             standardErrorHandler($"[line {line}] Error{where}: {message}");
             hadError = true;
         }
 
-        private void Error(Token token, string message)
+        private void Warn(Token token, string message)
         {
             if (token.Type == TokenType.EOF)
             {
-                Report(token.Line, " at end", message);
+                ReportWarning(token.Line, " at end", message);
             }
             else
             {
-                Report(token.Line, " at '" + token.Lexeme + "'", message);
+                ReportWarning(token.Line, " at '" + token.Lexeme + "'", message);
             }
+        }
+
+        private void ReportWarning(int line, string where, string message)
+        {
+            standardErrorHandler($"[line {line}] Warning{where}: {message}");
         }
 
         private void ParseError(ParseError parseError)
@@ -385,6 +404,33 @@ namespace Perlang.ConsoleApp
         private void ValidationError(ValidationError validationError)
         {
             Error(validationError.Token, validationError.Message);
+        }
+
+        /// <returns>`true` if the warning is considered an error; `false` otherwise.</returns>
+        private bool CompilerWarning(CompilerWarning compilerWarning)
+        {
+            if (!disabledWarningsAsErrors.Contains(compilerWarning.WarningType))
+            {
+                return CompilerWarningAsError(compilerWarning);
+            }
+            else
+            {
+                return CompilerWarningAsWarning(compilerWarning);
+            }
+        }
+
+        private bool CompilerWarningAsError(CompilerWarning compilerWarning)
+        {
+            Error(compilerWarning.Token, compilerWarning.Message);
+
+            return true;
+        }
+
+        private bool CompilerWarningAsWarning(CompilerWarning compilerWarning)
+        {
+            Warn(compilerWarning.Token, compilerWarning.Message);
+
+            return false;
         }
 
         private class AutoCompletionHandler : IAutoCompleteHandler

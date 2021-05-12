@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Perlang.Parser;
 
 namespace Perlang.Tests.Integration
 {
@@ -19,8 +21,44 @@ namespace Perlang.Tests.Integration
         public object? Value { get; set; }
 
         /// <summary>
-        /// Gets a list of the errors thrown during the evaluation of the program.
+        /// Gets a collection of all lines printed to the output stream while executing the program.
         /// </summary>
-        public List<T> Errors { get; } = new List<T>();
+        public IReadOnlyList<string> Output => output.AsReadOnly();
+
+        private readonly List<string> output = new();
+
+        public IEnumerable<char> OutputAsString => String.Join("\n", output);
+
+        /// <summary>
+        /// Gets a collection of the errors thrown during the evaluation of the program.
+        /// </summary>
+        public ReadOnlyCollection<T> Errors => errors.AsReadOnly();
+
+        private readonly List<T> errors = new();
+
+        /// <summary>
+        /// Gets a collection of the compiler warnings emitted during the compilation of the program.
+        /// </summary>
+        public IReadOnlyList<CompilerWarning> CompilerWarnings => compilerWarnings.AsReadOnly();
+
+        private readonly List<CompilerWarning> compilerWarnings = new();
+
+        public void ErrorHandler(T error)
+        {
+            errors.Add(error);
+        }
+
+        public void OutputHandler(string line)
+        {
+            output.Add(line);
+        }
+
+        public bool WarningHandler(CompilerWarning compilerWarning)
+        {
+            compilerWarnings.Add(compilerWarning);
+
+            // Indicate to the caller that this warning is not considered an error.
+            return false;
+        }
     }
 }

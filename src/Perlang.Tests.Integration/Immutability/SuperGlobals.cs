@@ -10,7 +10,8 @@ namespace Perlang.Tests.Integration.Immutability
         public void ARGV_cannot_be_overwritten_by_assignment()
         {
             string source = @"
-                ARGV = 42
+                // Nonsensical code, but since #188 we cannot assign from an incoercible type any more. :-)
+                ARGV = ARGV
             ";
 
             var result = EvalWithValidationErrorCatch(source);

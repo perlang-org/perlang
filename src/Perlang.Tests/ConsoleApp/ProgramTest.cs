@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using Perlang.ConsoleApp;
+using Perlang.Parser;
 using Xunit;
 
 namespace Perlang.Tests.ConsoleApp
@@ -31,7 +32,7 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void supports_multiple_statements_separated_by_semicolon()
             {
-                subject.Run("var a = 42; print a;");
+                subject.Run("var a = 42; print a;", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "42" }, output);
             }
@@ -39,7 +40,7 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void supports_final_semicolon_elision_single_statement()
             {
-                subject.Run("print 10");
+                subject.Run("print 10", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "10" }, output);
             }
@@ -47,7 +48,7 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void supports_final_semicolon_elision_multiple_statements()
             {
-                subject.Run("var a = 43; print a");
+                subject.Run("var a = 43; print a", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "43" }, output);
             }
@@ -55,8 +56,8 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void state_persists_between_invocations()
             {
-                subject.Run("var a = 44;");
-                subject.Run("print a;");
+                subject.Run("var a = 44;", FatalWarningsHandler);
+                subject.Run("print a;", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "44" }, output);
             }
@@ -64,8 +65,8 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void can_call_function_from_statement()
             {
-                subject.Run("fun hello(): void { print 1; }");
-                subject.Run("hello();");
+                subject.Run("fun hello(): void { print 1; }", FatalWarningsHandler);
+                subject.Run("hello();", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "1" }, output);
             }
@@ -75,8 +76,8 @@ namespace Perlang.Tests.ConsoleApp
             [Fact]
             public void can_call_function_from_expression()
             {
-                subject.Run("fun hello(): void { print 1; }");
-                subject.Run("hello()");
+                subject.Run("fun hello(): void { print 1; }", FatalWarningsHandler);
+                subject.Run("hello()", FatalWarningsHandler);
 
                 Assert.Equal(new List<string> { "1" }, output);
             }
@@ -95,10 +96,10 @@ namespace Perlang.Tests.ConsoleApp
                 //
                 // Or even so: we could even just ignore invalid statements, meaning that the 'var c = 44' statement below
                 // would be successfully executed. This would perhaps be the most intuitive REPL experience.
-                subject.Run("var a = 42;");
-                subject.Run("var b = 43; x; var c = 44;");
-                subject.Run("print b;");
-                subject.Run("print c;");
+                subject.Run("var a = 42;", FatalWarningsHandler);
+                subject.Run("var b = 43; x; var c = 44;", FatalWarningsHandler);
+                subject.Run("print b;", FatalWarningsHandler);
+                subject.Run("print c;", FatalWarningsHandler);
 
                 Assert.Equal(3, output.Count);
                 Assert.Matches("Undefined identifier 'x'", output[0]);
@@ -110,19 +111,21 @@ namespace Perlang.Tests.ConsoleApp
             public void variable_redefined_throws_expected_error()
             {
                 // Act
-                subject.Run("var a = 42;");
+                subject.Run("var a = 42;", FatalWarningsHandler);
 
                 // Assert
-                var exception = Assert.Throws<RuntimeError>(() => subject.Run("var a = 44;"));
+                var exception = Assert.Throws<RuntimeError>(() => subject.Run("var a = 44;", FatalWarningsHandler));
                 Assert.Matches("Variable with this name already declared in this scope", exception.Message);
             }
 
             // Test added to assert the bug fix for #117. Interestingly enough, the NRE described there did not occur when
+
             // the test was placed in the ArgvTests class.
+
             [Fact]
             public void Time_now_tickz_fails_with_expected_exception()
             {
-                subject.Run("Time.now().tickz()");
+                subject.Run("Time.now().tickz()", FatalWarningsHandler);
 
                 Assert.Equal(new List<string>
                 {
@@ -130,42 +133,20 @@ namespace Perlang.Tests.ConsoleApp
                 }, output);
             }
 
-            // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
             [Fact]
-            public void ARGV_pop_expr_with_no_arguments_throws_the_expected_exception()
+            public void local_variable_inference_from_nil_throws_the_expected_exception()
             {
-                // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
-                // error.
-                var program = new Program(
-                    replMode: true,
-                    standardOutputHandler: s => output.Add(s)
-                );
-
-                program.Run("ARGV.pop()");
+                subject.Run("var s = nil;", FatalWarningsHandler);
 
                 Assert.Equal(new List<string>
                 {
-                    "[line 1] No arguments left"
+                    "[line 1] Error at 's': Cannot assign nil to an implicitly typed local variable"
                 }, output);
             }
 
-            [Fact]
-            public void ARGV_pop_stmt_with_no_arguments_throws_the_expected_exception()
+            private static bool FatalWarningsHandler(CompilerWarning compilerWarning)
             {
-                // Cannot use 'subject' here since we need it instantiated with different parameters to provoke this exact
-                // error.
-                var program = new Program(
-                    replMode: true,
-                    standardOutputHandler: s => output.Add(s)
-                );
-
-                // Note that the trailing ; makes this a complete statement.
-                program.Run("ARGV.pop();");
-
-                Assert.Equal(new List<string>
-                {
-                    "[line 1] No arguments left"
-                }, output);
+                throw compilerWarning;
             }
         }
 
@@ -174,25 +155,30 @@ namespace Perlang.Tests.ConsoleApp
             private readonly TestConsole testConsole = new();
 
             /// <summary>
-            /// Gets the result of the execution, as printed to the standard output stream.
+            /// Gets the content printed to the standard output stream during test execution.
             /// </summary>
-            private string StdoutResult => testConsole.Out.ToString() ?? String.Empty;
+            private string StdoutContent => testConsole.Out.ToString() ?? String.Empty;
+
+            /// <summary>
+            /// Gets the content printed to the standard output stream during test execution.
+            /// </summary>
+            private string StderrContent => testConsole.Error.ToString() ?? String.Empty;
 
             public class WithPrintParameter
             {
                 private readonly TestConsole testConsole = new();
 
                 /// <summary>
-                /// Gets the result of the execution, as printed to the standard output stream.
+                /// Gets the content printed to the standard output stream during test execution.
                 /// </summary>
-                private string StdoutResult => testConsole.Out.ToString() ?? String.Empty;
+                private string StdoutContent => testConsole.Out.ToString() ?? String.Empty;
 
                 [Fact]
                 public void assignment_and_increment()
                 {
                     CallWithPrintParameter("i = i + 1");
 
-                    Assert.Equal("(i (+ i 1))\n", StdoutResult);
+                    Assert.Equal("(i (+ i 1))\n", StdoutContent);
                 }
 
                 [Fact]
@@ -200,7 +186,7 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("i += 1");
 
-                    Assert.Equal("(i (+= i 1))\n", StdoutResult);
+                    Assert.Equal("(i (+= i 1))\n", StdoutContent);
                 }
 
                 [Fact]
@@ -208,7 +194,7 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("print hej");
 
-                    Assert.Equal("(print hej)\n", StdoutResult);
+                    Assert.Equal("(print hej)\n", StdoutContent);
                 }
 
                 // This was previously broken, before #161. The incomplete expression was not properly detected by the
@@ -218,7 +204,7 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("hej hej");
 
-                    Assert.Contains("Error at 'hej': Expect ';' after expression.", StdoutResult);
+                    Assert.Contains("Error at 'hej': Expect ';' after expression.", StdoutContent);
                 }
 
                 private void CallWithPrintParameter(string script)
@@ -234,7 +220,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "--version" }, testConsole);
 
                 // Assert
-                Assert.Equal(CommonConstants.InformationalVersion + "\n", StdoutResult);
+                Assert.Equal(CommonConstants.InformationalVersion + "\n", StdoutContent);
             }
 
             [Fact]
@@ -244,7 +230,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "-e", "print 10" }, testConsole);
 
                 // Assert
-                Assert.Equal("10" + "\n", StdoutResult);
+                Assert.Equal("10" + "\n", StdoutContent);
             }
 
             [Fact]
@@ -254,7 +240,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/hello_world.per" }, testConsole);
 
                 // Assert
-                Assert.Equal("Hello, World\n", StdoutResult);
+                Assert.Equal("Hello, World\n", StdoutContent);
             }
 
             [Fact]
@@ -264,7 +250,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Equal("foo\n", StdoutResult);
+                Assert.Equal("foo\n", StdoutContent);
             }
 
             [Fact]
@@ -274,7 +260,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per" }, testConsole);
 
                 // Assert
-                Assert.Equal("[line 1] No arguments left\n", StdoutResult);
+                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
             }
 
             [Fact]
@@ -284,7 +270,7 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", StdoutResult);
+                Assert.Contains("Error at end: Expect ';' after value", StdoutContent);
             }
 
             [Fact]
@@ -304,7 +290,26 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", StdoutResult);
+                Assert.Contains("Error at end: Expect ';' after value", StdoutContent);
+            }
+
+            // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
+            [Fact]
+            public void ARGV_pop_expr_with_no_arguments_throws_the_expected_exception()
+            {
+                // Note that the trailing ; makes this a complete statement.
+                Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop()" }, testConsole);
+
+                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
+            }
+
+            [Fact]
+            public void ARGV_pop_stmt_with_no_arguments_throws_the_expected_exception()
+            {
+                // Note that the trailing ; makes this a complete statement.
+                Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop();" }, testConsole);
+
+                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
             }
         }
     }

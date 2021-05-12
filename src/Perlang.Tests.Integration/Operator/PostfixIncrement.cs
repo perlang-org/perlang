@@ -81,8 +81,8 @@ namespace Perlang.Tests.Integration.Operator
         public void incrementing_nil_throws_expected_exception()
         {
             string source = @"
-                var i = nil;
-                i++;
+                var s: string= nil;
+                s++;
             ";
 
             var result = EvalWithRuntimeErrorCatch(source);

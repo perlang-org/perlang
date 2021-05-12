@@ -81,8 +81,8 @@ namespace Perlang.Tests.Integration.Operator
         public void decrementing_nil_throws_expected_exception()
         {
             string source = @"
-                var i = nil;
-                i--;
+                var s: string = nil;
+                s--;
             ";
 
             var result = EvalWithRuntimeErrorCatch(source);
@@ -96,8 +96,8 @@ namespace Perlang.Tests.Integration.Operator
         public void decrementing_string_throws_expected_exception()
         {
             string source = @"
-                var i = ""foo"";
-                i--;
+                var s = ""foo"";
+                s--;
             ";
 
             var result = EvalWithRuntimeErrorCatch(source);

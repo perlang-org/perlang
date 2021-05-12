@@ -59,6 +59,11 @@ namespace Perlang
         public bool IsResolved => ClrType != null;
 
         /// <summary>
+        /// Gets a value indicating whether this type reference refers to a `nil` value.
+        /// </summary>
+        public bool IsNullObject => ClrType == typeof(NullObject);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type
         /// specifier can be null, in which case type inference will be attempted.
         /// </summary>

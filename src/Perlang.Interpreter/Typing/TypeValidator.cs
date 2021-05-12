@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Perlang.Interpreter.Resolution;
+using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -25,7 +26,8 @@ namespace Perlang.Interpreter.Typing
         public static void Validate(
             IList<Stmt> statements,
             Action<TypeValidationError> typeValidationErrorCallback,
-            Func<Expr, Binding> getVariableOrFunctionCallback)
+            Func<Expr, Binding> getVariableOrFunctionCallback,
+            Action<CompilerWarning> compilerWarningCallback)
         {
             bool typeResolvingFailed = false;
 
@@ -73,7 +75,7 @@ namespace Perlang.Interpreter.Typing
             // as possible, the full list errors (if any) are reported back to the caller; we don't just stop at the
             // first error encountered. (The compiler could potentially discard information except for the first n
             // errors if desired, though. The key point here is to not discard it at the wrong stage in the pipeline.)
-            new TypesResolvedValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            new TypesResolvedValidator(getVariableOrFunctionCallback, typeValidationErrorCallback, compilerWarningCallback)
                 .ReportErrors(statements);
         }
     }
