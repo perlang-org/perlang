@@ -8,6 +8,12 @@ body {
     font-size: 16px;
 }
 
+.affix ul ul > li > a:before {
+    font-size: 16px;
+    top: 0px;
+    left: 3px;
+}
+
 /* Makes the $ prefix for code blocks not be selectable, to make it easier to
   copy-paste the curl oneliner for installation from the "download" page. */
 pre code.lang-shell span.hljs-meta {
