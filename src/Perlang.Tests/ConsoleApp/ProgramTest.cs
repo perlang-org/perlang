@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine.IO;
+using System.Linq;
 using Perlang.ConsoleApp;
 using Perlang.Parser;
 using Xunit;
@@ -25,7 +26,8 @@ namespace Perlang.Tests.ConsoleApp
                 subject = new Program(
                     replMode: true,
                     standardOutputHandler: s => output.Add(s),
-                    runtimeErrorHandler: e => throw e
+                    runtimeErrorHandler: e => throw e,
+                    disabledWarningsAsErrors: Enumerable.Empty<WarningType>()
                 );
             }
 
@@ -310,6 +312,52 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop();" }, testConsole);
 
                 Assert.Equal("[line 1] No arguments left\n", StdoutContent);
+            }
+
+            [Fact(DisplayName = "with -Wno-error=nil-usage parameter: emits no warning on nil assignment")]
+            public void with_Wno_error_nil_parameter_emits_warning_on_nil_assignment()
+            {
+                Program.MainWithCustomConsole(new[] { "-Wno-error=nil-usage", "-e", "var s: string; s = nil;" }, testConsole);
+
+                Assert.Contains("Warning at 's': Nil assignment detected", StdoutContent);
+                Assert.Equal(String.Empty, StderrContent);
+            }
+
+            [Fact(DisplayName = "with -Wno-error=nil-usage parameter: emits no warning when initializing to nil")]
+            public void with_Wno_error_nil_usage_parameter_emits_warning_when_initializing_to_nil()
+            {
+                Program.MainWithCustomConsole(new[] { "-Wno-error=nil-usage", "-e", "var s: string = nil;" }, testConsole);
+
+                Assert.Contains("Warning at 's': Initializing variable to nil detected", StdoutContent);
+                Assert.Equal(String.Empty, StderrContent);
+            }
+
+            [Fact]
+            public void without_parameter_throws_error_on_nil_assignment()
+            {
+                Program.MainWithCustomConsole(new[] { "-e", "var s: string; s = nil; print 10;" }, testConsole);
+
+                Assert.Contains("Error at 's': Nil assignment detected", StdoutContent);
+
+                // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, program
+                // execution should be aborted.
+                Assert.DoesNotContain("10", StdoutContent);
+
+                Assert.Equal(String.Empty, StderrContent);
+            }
+
+            [Fact]
+            public void without_parameter_throws_error_when_initializing_to_nil()
+            {
+                Program.MainWithCustomConsole(new[] { "-e", "var s: string = nil; print 10;" }, testConsole);
+
+                Assert.Contains("Error at 's': Initializing variable to nil detected", StdoutContent);
+
+                // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, program
+                // execution should be aborted.
+                Assert.DoesNotContain("10", StdoutContent);
+
+                Assert.Equal(String.Empty, StderrContent);
             }
         }
     }

@@ -77,6 +77,21 @@ namespace Perlang.Interpreter.Typing
             // errors if desired, though. The key point here is to not discard it at the wrong stage in the pipeline.)
             new TypesResolvedValidator(getVariableOrFunctionCallback, typeValidationErrorCallback, compilerWarningCallback)
                 .ReportErrors(statements);
+
+            //
+            // Phase 3: Ensure that no assignments are made from incoercible values
+            //
+
+            // An example error that the above detects is the following:
+            //
+            // var i = 1;
+            // i = "foo"; // error
+            //
+            // Once a variable has been defined, it's type has been set; it cannot be reassigned with a value of a
+            // completely different type. The only exception to this rule is when a smaller numeric value (e.g. `int`)
+            // is expanded to a larger type (e.g. `long`).
+            new TypeAssignmentValidator(getVariableOrFunctionCallback, typeValidationErrorCallback, compilerWarningCallback)
+                .ReportErrors(statements);
         }
     }
 }
