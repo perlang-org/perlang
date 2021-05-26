@@ -225,7 +225,7 @@ namespace Perlang.Interpreter.Typing
 
                 if (argument.TypeReference.IsNullObject)
                 {
-                    compilerWarningCallback(new CompilerWarning("Nil parameter detected", parameter.Name, WarningType.NIL_USAGE));
+                    compilerWarningCallback(new CompilerWarning("Null parameter detected", parameter.Name, WarningType.NULL_USAGE));
                 }
 
                 // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
@@ -373,7 +373,7 @@ namespace Perlang.Interpreter.Typing
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         typeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
-                            "Cannot assign nil to an implicitly typed local variable"
+                            "Cannot assign null to an implicitly typed local variable"
                         ));
                     }
                     else if (!typeCoercer.CanBeCoercedInto(stmt.Name, stmt.TypeReference, stmt.Initializer.TypeReference))
@@ -387,7 +387,7 @@ namespace Perlang.Interpreter.Typing
                     else if (stmt.Initializer.TypeReference.IsNullObject)
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
-                        compilerWarningCallback(new CompilerWarning("Initializing variable to nil detected", stmt.Name, WarningType.NIL_USAGE));
+                        compilerWarningCallback(new CompilerWarning("Initializing variable to null detected", stmt.Name, WarningType.NULL_USAGE));
                     }
                 }
             }
@@ -426,7 +426,7 @@ namespace Perlang.Interpreter.Typing
             if (expr.Value.TypeReference.IsNullObject)
             {
                 // TODO: Use expr.Value.Token here instead of expr.name, #189
-                compilerWarningCallback(new CompilerWarning("Nil assignment detected", expr.Name, WarningType.NIL_USAGE));
+                compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.Name, WarningType.NULL_USAGE));
             }
 
             return VoidObject.Void;

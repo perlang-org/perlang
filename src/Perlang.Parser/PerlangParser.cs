@@ -621,7 +621,7 @@ namespace Perlang.Parser
         {
             if (Match(FALSE)) return new Expr.Literal(false);
             if (Match(TRUE)) return new Expr.Literal(true);
-            if (Match(NIL)) return new Expr.Literal(null);
+            if (Match(NULL)) return new Expr.Literal(null);
 
             if (Match(NUMBER, STRING))
             {

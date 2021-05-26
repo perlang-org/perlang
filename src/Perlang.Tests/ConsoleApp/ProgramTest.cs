@@ -136,13 +136,13 @@ namespace Perlang.Tests.ConsoleApp
             }
 
             [Fact]
-            public void local_variable_inference_from_nil_throws_the_expected_exception()
+            public void local_variable_inference_from_null_throws_the_expected_exception()
             {
-                subject.Run("var s = nil;", FatalWarningsHandler);
+                subject.Run("var s = null;", FatalWarningsHandler);
 
                 Assert.Equal(new List<string>
                 {
-                    "[line 1] Error at 's': Cannot assign nil to an implicitly typed local variable"
+                    "[line 1] Error at 's': Cannot assign null to an implicitly typed local variable"
                 }, output);
             }
 
@@ -314,44 +314,44 @@ namespace Perlang.Tests.ConsoleApp
                 Assert.Equal("[line 1] No arguments left\n", StdoutContent);
             }
 
-            [Fact(DisplayName = "with -Wno-error=nil-usage parameter: emits no warning on nil assignment")]
-            public void with_Wno_error_nil_parameter_emits_warning_on_nil_assignment()
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning on null assignment")]
+            public void with_Wno_error_null_usage_parameter_emits_warning_on_null_assignment()
             {
-                Program.MainWithCustomConsole(new[] { "-Wno-error=nil-usage", "-e", "var s: string; s = nil;" }, testConsole);
+                Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string; s = null;" }, testConsole);
 
-                Assert.Contains("Warning at 's': Nil assignment detected", StdoutContent);
+                Assert.Contains("Warning at 's': Null assignment detected", StdoutContent);
                 Assert.Equal(String.Empty, StderrContent);
             }
 
-            [Fact(DisplayName = "with -Wno-error=nil-usage parameter: emits no warning when initializing to nil")]
-            public void with_Wno_error_nil_usage_parameter_emits_warning_when_initializing_to_nil()
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning when initializing to null")]
+            public void with_Wno_error_null_usage_parameter_emits_warning_when_initializing_to_null()
             {
-                Program.MainWithCustomConsole(new[] { "-Wno-error=nil-usage", "-e", "var s: string = nil;" }, testConsole);
+                Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string = null;" }, testConsole);
 
-                Assert.Contains("Warning at 's': Initializing variable to nil detected", StdoutContent);
+                Assert.Contains("Warning at 's': Initializing variable to null detected", StdoutContent);
                 Assert.Equal(String.Empty, StderrContent);
             }
 
             [Fact]
-            public void without_parameter_throws_error_on_nil_assignment()
+            public void without_parameter_throws_error_on_null_assignment()
             {
-                Program.MainWithCustomConsole(new[] { "-e", "var s: string; s = nil; print 10;" }, testConsole);
+                Program.MainWithCustomConsole(new[] { "-e", "var s: string; s = null; print 10;" }, testConsole);
 
-                Assert.Contains("Error at 's': Nil assignment detected", StdoutContent);
+                Assert.Contains("Error at 's': Null assignment detected", StdoutContent);
 
-                // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, program
-                // execution should be aborted.
+                // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, the
+                // program should not be executed.
                 Assert.DoesNotContain("10", StdoutContent);
 
                 Assert.Equal(String.Empty, StderrContent);
             }
 
             [Fact]
-            public void without_parameter_throws_error_when_initializing_to_nil()
+            public void without_parameter_throws_error_when_initializing_to_null()
             {
-                Program.MainWithCustomConsole(new[] { "-e", "var s: string = nil; print 10;" }, testConsole);
+                Program.MainWithCustomConsole(new[] { "-e", "var s: string = null; print 10;" }, testConsole);
 
-                Assert.Contains("Error at 's': Initializing variable to nil detected", StdoutContent);
+                Assert.Contains("Error at 's': Initializing variable to null detected", StdoutContent);
 
                 // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, program
                 // execution should be aborted.

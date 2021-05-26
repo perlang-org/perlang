@@ -78,10 +78,10 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
-        public void incrementing_nil_throws_expected_exception()
+        public void incrementing_null_variable_throws_expected_exception()
         {
             string source = @"
-                var s: string= nil;
+                var s: string = null;
                 s++;
             ";
 
@@ -89,7 +89,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("can only be used to increment numbers, not nil", exception.Message);
+            Assert.Matches("can only be used to increment numbers, not null", exception.Message);
         }
 
         [Fact]

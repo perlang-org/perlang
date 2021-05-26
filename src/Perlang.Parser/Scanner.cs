@@ -26,7 +26,7 @@ namespace Perlang.Parser
                 { "for", FOR },
                 { "fun", FUN },
                 { "if", IF },
-                { "nil", NIL },
+                { "null", NULL },
                 { "or", OR },
                 { "print", PRINT },
                 { "return", RETURN },

@@ -771,7 +771,7 @@ namespace Perlang.Interpreter
 
         private static bool IsEqual(object? a, object? b)
         {
-            // nil is only equal to nil.
+            // null is only equal to null.
             if (a == null && b == null)
             {
                 return true;

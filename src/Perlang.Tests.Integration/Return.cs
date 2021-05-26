@@ -106,8 +106,11 @@ namespace Perlang.Tests.Integration
             Assert.Equal("ok", output);
         }
 
+        // TODO: This is an oversight; as of https://github.com/perlang-org/perlang/pull/54, these semantics should no
+        // longer be supported. Automatically returning `null` when no value is provided is wrong. This should only be
+        // supported when the return type is explicitly declared as `void`.
         [Fact]
-        public void return_nil_if_no_value()
+        public void return_null_if_no_value()
         {
             string source = @"
                 fun f(): string {
@@ -120,7 +123,7 @@ namespace Perlang.Tests.Integration
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("nil", output);
+            Assert.Equal("null", output);
         }
     }
 }
