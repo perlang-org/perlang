@@ -215,5 +215,24 @@ namespace Perlang.Tests.Integration.Function
             Assert.Single(result.Errors);
             Assert.Matches("Expect '\\)' after parameters.", exception.Message);
         }
+
+        [Fact]
+        public void referring_to_undefined_variable_in_function_call_expects_type_validation_error()
+        {
+            string source = @"
+                fun foo(s: String): void {
+                    print(s);
+                }
+
+                // `bar` is undefined
+                foo(bar);
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Undefined identifier 'bar'", exception.Message);
+        }
     }
 }
