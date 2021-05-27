@@ -64,7 +64,7 @@ namespace Perlang.Interpreter.Internals
         {
             if (expr.Value == null)
             {
-                return "nil";
+                return "null";
             }
 
             return expr.Value.ToString()!;

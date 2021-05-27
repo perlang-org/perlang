@@ -46,7 +46,7 @@ namespace Perlang
         FUN,
         FOR,
         IF,
-        NIL,
+        NULL,
         OR,
         PRINT,
         RETURN,

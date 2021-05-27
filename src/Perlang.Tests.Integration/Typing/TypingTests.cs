@@ -126,12 +126,12 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void var_declaration_with_initializer_detects_inference_attempt_from_nil()
+        public void var_declaration_with_initializer_detects_inference_attempt_from_null()
         {
             // The following program should fail, since there is no way the compiler can infer any type information from
-            // a 'nil' initializer.
+            // a 'null' initializer.
             string source = @"
-                var s = nil;
+                var s = null;
 
                 print s;
             ";
@@ -140,14 +140,14 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign nil to an implicitly typed local variable", exception.Message);
+            Assert.Matches("Cannot assign null to an implicitly typed local variable", exception.Message);
         }
 
         [Fact]
-        public void var_declaration_with_initializer_emits_warning_on_nil_usage()
+        public void var_declaration_with_initializer_emits_warning_on_null_usage()
         {
             string source = @"
-                var s: string = nil;
+                var s: string = null;
 
                 print s;
             ";
@@ -158,7 +158,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Single(result.CompilerWarnings);
 
             var warning = result.CompilerWarnings.Single();
-            Assert.Matches("Initializing variable to nil detected", warning.Message);
+            Assert.Matches("Initializing variable to null detected", warning.Message);
         }
 
         [Fact]
@@ -193,26 +193,26 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void var_declaration_supports_reassignment_to_nil_for_reference_type()
+        public void var_declaration_supports_reassignment_to_null_for_reference_type()
         {
             string source = @"
                 var s = ""foo"";
-                s = nil;
+                s = null;
 
                 print s;
             ";
 
             var result = EvalWithResult(source);
 
-            Assert.Equal("nil", result.OutputAsString);
+            Assert.Equal("null", result.OutputAsString);
         }
 
         [Fact]
-        public void var_declaration_emits_warning_on_reassignment_to_nil_for_reference_type()
+        public void var_declaration_emits_warning_on_reassignment_to_null_for_reference_type()
         {
             string source = @"
                 var s = ""foo"";
-                s = nil;
+                s = null;
 
                 print s;
             ";
@@ -223,15 +223,15 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Single(result.CompilerWarnings);
 
             var warning = result.CompilerWarnings.Single();
-            Assert.Matches("Nil assignment detected", warning.Message);
+            Assert.Matches("Null assignment detected", warning.Message);
         }
 
         [Fact]
-        public void var_declaration_detects_reassignment_to_nil_for_value_type()
+        public void var_declaration_detects_reassignment_to_null_for_value_type()
         {
             string source = @"
                 var i = 1;
-                i = nil;
+                i = null;
 
                 print i;
             ";
@@ -278,30 +278,30 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void function_parameter_allows_nil_argument_for_reference_type_parameter()
+        public void function_parameter_allows_null_argument_for_reference_type_parameter()
         {
             string source = @"
                 fun foo(s: String): void {
                     print(s);
                 }
 
-                foo(nil);
+                foo(null);
             ";
 
             var result = EvalWithResult(source);
 
-            Assert.Equal("nil", result.OutputAsString);
+            Assert.Equal("null", result.OutputAsString);
         }
 
         [Fact]
-        public void function_parameter_emits_warning_when_nil_passed_for_reference_type_parameter()
+        public void function_parameter_emits_warning_when_null_passed_for_reference_type_parameter()
         {
             string source = @"
                 fun foo(s: String): void {
                     print(s);
                 }
 
-                foo(nil);
+                foo(null);
             ";
 
             var result = EvalWithResult(source);
@@ -310,18 +310,18 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Single(result.CompilerWarnings);
 
             var warning = result.CompilerWarnings.Single();
-            Assert.Matches("Nil parameter detected", warning.Message);
+            Assert.Matches("Null parameter detected", warning.Message);
         }
 
         [Fact]
-        public void function_parameter_detects_nil_argument_for_value_type_parameter()
+        public void function_parameter_detects_null_argument_for_value_type_parameter()
         {
             string source = @"
                 fun foo(s: int): void {
                     print(s);
                 }
 
-                foo(nil);
+                foo(null);
             ";
 
             var result = EvalWithValidationErrorCatch(source);

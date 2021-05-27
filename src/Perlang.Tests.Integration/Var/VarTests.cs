@@ -406,10 +406,10 @@ namespace Perlang.Tests.Integration.Var
         }
 
         [Fact]
-        public void use_nil_as_var()
+        public void use_null_as_var()
         {
             string source = @"
-                var nil = ""value"";
+                var null = ""value"";
             ";
 
             var result = EvalWithParseErrorCatch(source);
@@ -417,7 +417,7 @@ namespace Perlang.Tests.Integration.Var
 
             Assert.Single(result.Errors);
 
-            Assert.Matches("Error at 'nil': Expecting variable name.", exception.ToString());
+            Assert.Matches("Error at 'null': Expecting variable name.", exception.ToString());
         }
 
         [Fact]

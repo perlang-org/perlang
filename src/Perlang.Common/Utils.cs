@@ -9,7 +9,7 @@ namespace Perlang
         {
             if (@object == null)
             {
-                return "nil";
+                return "null";
             }
 
             return @object.ToString();
@@ -19,7 +19,7 @@ namespace Perlang
         {
             if (@object == null)
             {
-                return "nil";
+                return "null";
             }
 
             return @object.GetType().Name;

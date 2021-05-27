@@ -10,17 +10,20 @@ namespace Perlang.Parser
 {
     public class WarningType
     {
+        /// <summary>
+        /// Gets the name of the warning, as used in e.g. `-Werror=&lt;some-warning&gt;`.
+        /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// `nil` is used. This warning covers multiple usages of nil, like variable assignment (`s = nil`), variable
-        /// initializers (`var s: string = nil`) and function calls (`some_function(nil)`).
+        /// `null` is used. This warning covers multiple usages of `null`, like variable assignment (`s = null`),
+        /// variable initializers (`var s: string = null`) and function calls (`some_function(null)`).
         /// </summary>
-        public static readonly WarningType NIL_USAGE = new("nil-usage");
+        public static readonly WarningType NULL_USAGE = new("null-usage");
 
         private static readonly IReadOnlyDictionary<string, WarningType> AllWarnings = new[]
         {
-            NIL_USAGE
+            NULL_USAGE
         }.ToImmutableDictionary(w => w.Name, w => w);
 
         private WarningType(string name)

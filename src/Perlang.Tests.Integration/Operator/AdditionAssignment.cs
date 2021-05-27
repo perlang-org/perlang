@@ -85,10 +85,10 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
-        public void addition_assignment_to_nil_throws_expected_exception()
+        public void addition_assignment_to_null_throws_expected_exception()
         {
             string source = @"
-                var i = nil;
+                var i = null;
                 i += 4;
             ";
 

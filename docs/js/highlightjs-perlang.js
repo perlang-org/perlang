@@ -12,7 +12,7 @@ hljs.registerLanguage('perlang', function(hljs) {
             'break continue try catch finally async await lock synchronized new ' +
             'mut let const struct enum sizeof nameof typeof asm',
         literal:
-            'true false nil',
+            'true false null',
         built_in:
             'int string void'
     }

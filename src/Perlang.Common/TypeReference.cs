@@ -59,7 +59,7 @@ namespace Perlang
         public bool IsResolved => ClrType != null;
 
         /// <summary>
-        /// Gets a value indicating whether this type reference refers to a `nil` value.
+        /// Gets a value indicating whether this type reference refers to a `null` value.
         /// </summary>
         public bool IsNullObject => ClrType == typeof(NullObject);
 
