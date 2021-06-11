@@ -144,7 +144,7 @@ namespace Perlang.Interpreter.Typing
         {
             try
             {
-                base.VisitCallExpr(expr);
+                Visit(expr.Callee);
             }
             catch (NameResolutionError)
             {
@@ -156,6 +156,11 @@ namespace Perlang.Interpreter.Typing
                 {
                     throw;
                 }
+            }
+
+            foreach (Expr argument in expr.Arguments)
+            {
+                Visit(argument);
             }
 
             if (expr.Callee is Expr.Get get)
