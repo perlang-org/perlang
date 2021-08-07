@@ -24,6 +24,7 @@
         <!-- Assemblies implicitly referenced via reflection must be listed here, to be included in the trimmed result.
              If you get an error about 'Could not load type 'Foo' from assembly 'Bar', add the assembly for the _Foo_
              type to this list. -->
+        <TrimmerRootAssembly Include="System.ComponentModel.TypeConverter" />
         <TrimmerRootAssembly Include="System.Runtime.Extensions" />
         <TrimmerRootAssembly Include="System.Runtime.InteropServices" />
 
