@@ -14,11 +14,35 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Install SASS
-        run: sudo npm install -g sass
+        #
+        # Technically, this part is very different from the later part which
+        # rebuilds the web site. The reason for doing this is two-fold:
+        #
+        # 1) We want to ensure that the examples work, with the current (master)
+        #    version of Perlang. Executing the examples with the newly built
+        #    interpreter is the easiest way to accomplish this.
+        #
+        # 2) We want to ensure that a release build of Perlang actually _works_
+        #    and can run a Perlang script at all. There has been bugs (#199, I'm
+        #    looking at you!) where the release builds have been so badly broken
+        #    that _all_ scripts were broken. By specifically making a _release_
+        #    build here (which is self-contained and R2R-enhanced), we can help
+        #    prevent regressions in this area with very little extra work.
+        #
+      - name: Re-generate auto-generated files
+        run: make auto-generated
 
-      - name: Build Perlang & rebuild website
-        run: make -j all docs
+      - name: Build Perlang (in release mode)
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
       - name: Ensure examples execute without errors
         run: make docs-test-examples SHELL="sh -x -e"
+
+      #
+      # Build web site
+      #
+      - name: Install SASS
+        run: sudo npm install -g sass
+
+      - name: Rebuild website
+        run: make -j docs
