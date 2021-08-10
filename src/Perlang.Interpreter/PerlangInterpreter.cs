@@ -1017,13 +1017,31 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber - rightNumber;
                 case PLUS:
-                    if (left is string s1 && right is string s2)
+                    string? leftString = left as string;
+                    string? rightString = right as string;
+
+                    // Note: These operations rely on the semantics for 'dynamic' in .NET. It will likely be a
+                    // non-trivial task to rewrite this when we start doing bytecode compilation.
+                    if (leftString != null)
                     {
-                        return s1 + s2;
+                        if (rightString != null)
+                        {
+                            return leftString + rightString;
+                        }
+                        else if (IsValidNumberType(right))
+                        {
+                            return leftString + right;
+                        }
+                    }
+
+                    if (IsValidNumberType(left) && rightString != null)
+                    {
+                        return left + rightString;
                     }
 
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber + rightNumber;
+
                 case PLUS_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
                     return leftNumber + rightNumber;
