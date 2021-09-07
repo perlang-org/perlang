@@ -93,6 +93,19 @@ namespace Perlang.ConsoleApp
             {
                 string warningName = result.GetValueOrDefault<string>();
 
+                if (warningName == "list")
+                {
+                    console.Out.WriteLine("Available warnings:");
+                    console.Out.WriteLine();
+
+                    foreach ((string key, WarningType warningType) in WarningType.AllWarnings)
+                    {
+                        console.Out.WriteLine($"{key}: {warningType.HelpText}");
+                    }
+
+                    // TODO: How do we return from here without resorting to semi-ugly approaches, like throwing exceptions?
+                }
+
                 if (!WarningType.KnownWarning(warningName))
                 {
                     return $"Unknown warning: {warningName}";

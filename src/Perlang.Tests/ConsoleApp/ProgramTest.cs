@@ -314,6 +314,15 @@ namespace Perlang.Tests.ConsoleApp
                 Assert.Equal("[line 1] No arguments left\n", StdoutContent);
             }
 
+            [Fact(DisplayName = "with -Wno-error=list parameter: lists all warnings")]
+            public void with_Wno_error_list_parameter_lists_all_warnings()
+            {
+                Program.MainWithCustomConsole(new[] { "-Wno-error=list" }, testConsole);
+
+                Assert.Contains("null-usage: Warns on usage of null", StdoutContent);
+                Assert.Equal(String.Empty, StderrContent);
+            }
+
             [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning on null assignment")]
             public void with_Wno_error_null_usage_parameter_emits_warning_on_null_assignment()
             {
