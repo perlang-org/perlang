@@ -6,6 +6,7 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DocumentationFile>bin\Debug\Perlang.Tests.Integration.xml</DocumentationFile>
+        <WarningsAsErrors>;NU1605;NS1004</WarningsAsErrors>
       <NoWarn>SA1116;SA1117;SA1300;S3881;1591;1701;1702</NoWarn>
     </PropertyGroup>
 

@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     internal class NativeClassBindingFactory : IBindingFactory
     {

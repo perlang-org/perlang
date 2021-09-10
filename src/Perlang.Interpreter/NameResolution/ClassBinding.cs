@@ -1,5 +1,6 @@
 #nullable enable
-namespace Perlang.Interpreter.Resolution
+
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// A ClassBinding is a binding to a Perlang class. Note that this is specifically not referring to an instance of

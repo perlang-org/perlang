@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Perlang.Interpreter;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
 
@@ -349,7 +349,7 @@ namespace Perlang.ConsoleApp
 
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
-            object result = interpreter.Eval(source, ScanError, ParseError, ResolveError, ValidationError, ValidationError, compilerWarningHandler);
+            object result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
 
             if (result != null && result != VoidObject.Void)
             {
@@ -424,9 +424,9 @@ namespace Perlang.ConsoleApp
             Error(parseError.Token, parseError.Message);
         }
 
-        private void ResolveError(ResolveError resolveError)
+        private void NameResolutionError(NameResolutionError nameResolutionError)
         {
-            Error(resolveError.Token, resolveError.Message);
+            Error(nameResolutionError.Token, nameResolutionError.Message);
         }
 
         private void ValidationError(ValidationError validationError)

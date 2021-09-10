@@ -1,4 +1,4 @@
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// Container class which supports creating <see cref="VariableBinding"/> instances.

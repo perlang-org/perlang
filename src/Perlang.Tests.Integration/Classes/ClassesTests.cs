@@ -33,7 +33,7 @@ namespace Perlang.Tests.Integration.Classes
                 class Foo {}
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
@@ -64,7 +64,7 @@ namespace Perlang.Tests.Integration.Classes
                 class Base64 {}
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
@@ -78,7 +78,7 @@ namespace Perlang.Tests.Integration.Classes
                 class ARGV {}
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
@@ -94,7 +94,7 @@ namespace Perlang.Tests.Integration.Classes
                 class Hello {}
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
@@ -110,7 +110,7 @@ namespace Perlang.Tests.Integration.Classes
                 class Hello {}
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);

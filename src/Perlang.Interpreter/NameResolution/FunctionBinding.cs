@@ -1,4 +1,4 @@
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// A binding to a function defined in Perlang.

@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Humanizer;
 using Perlang.Interpreter.Extensions;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -146,11 +146,11 @@ namespace Perlang.Interpreter.Typing
             {
                 Visit(expr.Callee);
             }
-            catch (NameResolutionError)
+            catch (NameResolutionTypeValidationError)
             {
                 if (expr.Callee is Expr.Identifier identifier)
                 {
-                    throw new NameResolutionError(identifier.Name, $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
+                    throw new NameResolutionTypeValidationError(identifier.Name, $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
                 }
                 else
                 {
@@ -252,7 +252,7 @@ namespace Perlang.Interpreter.Typing
 
                 if (typeReference == null)
                 {
-                    throw new NameResolutionError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
+                    throw new NameResolutionTypeValidationError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
                 }
 
                 if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)

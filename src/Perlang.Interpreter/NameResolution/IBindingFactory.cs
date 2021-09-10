@@ -1,4 +1,4 @@
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     internal interface IBindingFactory
     {

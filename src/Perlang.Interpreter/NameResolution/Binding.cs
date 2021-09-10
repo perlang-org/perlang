@@ -1,7 +1,7 @@
+#nullable enable
 using System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// Holds information about a binding.

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
@@ -38,23 +38,23 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitAssignExpr(expr);
 
-            Binding variableExpr = getVariableOrFunctionCallback(expr);
+            Binding variableBinding = getVariableOrFunctionCallback(expr);
 
-            if (variableExpr == null)
+            if (variableBinding == null)
             {
                 // An attempt is made to assign a value to an undefined variable. This is an error, but it's handled
                 // elsewhere so we can silently ignore it at this point.
                 return VoidObject.Void;
             }
 
-            if (variableExpr is FunctionBinding)
+            if (variableBinding is FunctionBinding)
             {
                 // Functions are immutable, handled by a class in the Perlang.Interpreter.Immutability namespace. We can
                 // ignore it at this point; the attempt to reassign it will be detected elsewhere.
                 return VoidObject.Void;
             }
 
-            var targetTypeReference = variableExpr.TypeReference;
+            var targetTypeReference = variableBinding.TypeReference;
             var sourceTypeReference = expr.Value.TypeReference;
 
             if (!typeCoercer.CanBeCoercedInto(expr.Token, targetTypeReference, sourceTypeReference))

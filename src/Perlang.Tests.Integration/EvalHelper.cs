@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Perlang.Interpreter;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
 namespace Perlang.Tests.Integration
@@ -31,7 +31,7 @@ namespace Perlang.Tests.Integration
                 source,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler,
+                AssertFailNameResolutionErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailCompilerWarningHandler
@@ -67,7 +67,7 @@ namespace Perlang.Tests.Integration
                 source,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler,
+                AssertFailNameResolutionErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler,
                 result.WarningHandler
@@ -101,7 +101,7 @@ namespace Perlang.Tests.Integration
                 source,
                 AssertFailScanErrorHandler,
                 result.ErrorHandler,
-                AssertFailResolveErrorHandler,
+                AssertFailNameResolutionErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler,
                 result.WarningHandler
@@ -116,7 +116,7 @@ namespace Perlang.Tests.Integration
         ///
         /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
         ///
-        /// This method will propagate all errors apart from  <see cref="ResolveError"/> to the caller. Resolve errors
+        /// This method will propagate all errors apart from  <see cref="NameResolutionError"/> to the caller. Resolve errors
         /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         ///
         /// If any warnings are emitted, they will be available in the returned <see
@@ -126,9 +126,9 @@ namespace Perlang.Tests.Integration
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<ResolveError> EvalWithResolveErrorCatch(string source)
+        internal static EvalResult<NameResolutionError> EvalWithNameResolutionErrorCatch(string source)
         {
-            var result = new EvalResult<ResolveError>();
+            var result = new EvalResult<NameResolutionError>();
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
             result.Value = interpreter.Eval(
@@ -169,7 +169,7 @@ namespace Perlang.Tests.Integration
                 source,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler,
+                AssertFailNameResolutionErrorHandler,
                 result.ErrorHandler,
                 result.ErrorHandler,
                 result.WarningHandler
@@ -202,7 +202,7 @@ namespace Perlang.Tests.Integration
                 source,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler,
-                AssertFailResolveErrorHandler,
+                AssertFailNameResolutionErrorHandler,
                 AssertFailValidationErrorHandler,
                 AssertFailValidationErrorHandler,
                 result.WarningHandler
@@ -276,9 +276,9 @@ namespace Perlang.Tests.Integration
             throw parseError;
         }
 
-        private static void AssertFailResolveErrorHandler(ResolveError resolveError)
+        private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw resolveError;
+            throw nameResolutionError;
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)

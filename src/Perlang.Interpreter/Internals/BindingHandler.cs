@@ -1,7 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Internals
 {

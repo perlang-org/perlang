@@ -1,5 +1,6 @@
 #nullable enable
-namespace Perlang.Interpreter.Resolution
+
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// A binding to a (local or global) variable.

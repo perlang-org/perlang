@@ -63,7 +63,7 @@ namespace Perlang.Tests.Integration
                 return ""wat"";
             ";
 
-            var result = EvalWithResolveErrorCatch(source);
+            var result = EvalWithNameResolutionErrorCatch(source);
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);

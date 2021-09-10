@@ -10,7 +10,7 @@ using Perlang.Attributes;
 using Perlang.Exceptions;
 using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Internals;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using Perlang.Stdlib;
@@ -31,7 +31,7 @@ namespace Perlang.Interpreter
         private readonly PerlangEnvironment globals = new();
         private readonly IImmutableDictionary<string, Type> superGlobals;
 
-        private IBindingHandler BindingHandler { get; }
+        internal IBindingHandler BindingHandler { get; }
 
         /// <summary>
         /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
@@ -151,7 +151,7 @@ namespace Perlang.Interpreter
         /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
         /// <param name="scanErrorHandler">A handler for scanner errors.</param>
         /// <param name="parseErrorHandler">A handler for parse errors.</param>
-        /// <param name="resolveErrorHandler">A handler for resolve errors.</param>
+        /// <param name="nameResolutionErrorHandler">A handler for resolve errors.</param>
         /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
         /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
         /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
@@ -162,7 +162,7 @@ namespace Perlang.Interpreter
             string source,
             ScanErrorHandler scanErrorHandler,
             ParseErrorHandler parseErrorHandler,
-            ResolveErrorHandler resolveErrorHandler,
+            NameResolutionErrorHandler nameResolutionErrorHandler,
             ValidationErrorHandler typeValidationErrorHandler,
             ValidationErrorHandler immutabilityValidationErrorHandler,
             CompilerWarningHandler compilerWarningHandler)
@@ -193,23 +193,23 @@ namespace Perlang.Interpreter
                 // Resolving names phase
                 //
 
-                bool hasResolveErrors = false;
+                bool hasNameResolutionErrors = false;
 
-                var resolver = new Resolver(
+                var nameResolver = new NameResolver(
                     nativeClasses,
                     superGlobals,
                     BindingHandler,
                     AddGlobalClass,
-                    resolveError =>
+                    nameResolutionError =>
                     {
-                        hasResolveErrors = true;
-                        resolveErrorHandler(resolveError);
+                        hasNameResolutionErrors = true;
+                        nameResolutionErrorHandler(nameResolutionError);
                     }
                 );
 
-                resolver.Resolve(previousAndNewStatements);
+                nameResolver.Resolve(previousAndNewStatements);
 
-                if (hasResolveErrors)
+                if (hasNameResolutionErrors)
                 {
                     // Resolution errors has been reported back to the provided error handler. Nothing more remains
                     // to be done than aborting the evaluation.
@@ -294,25 +294,25 @@ namespace Perlang.Interpreter
                     .ToImmutableList();
 
                 //
-                // Resolving names phase
+                // Name resolution phase
                 //
 
-                bool hasResolveErrors = false;
-                var resolver = new Resolver(
+                bool hasNameResolutionErrors = false;
+                var nameResolver = new NameResolver(
                     nativeClasses,
                     superGlobals,
                     BindingHandler,
                     AddGlobalClass,
-                    resolveError =>
+                    nameResolutionError =>
                     {
-                        hasResolveErrors = true;
-                        resolveErrorHandler(resolveError);
+                        hasNameResolutionErrors = true;
+                        nameResolutionErrorHandler(nameResolutionError);
                     }
                 );
 
-                resolver.Resolve(previousAndNewStatements);
+                nameResolver.Resolve(previousAndNewStatements);
 
-                if (hasResolveErrors)
+                if (hasNameResolutionErrors)
                 {
                     // Resolution errors has been reported back to the provided error handler. Nothing more remains
                     // to be done than aborting the evaluation.
@@ -1152,7 +1152,7 @@ namespace Perlang.Interpreter
             public static ScanAndParseResult ParseErrorEncountered { get; } = new();
 
             public Expr? Expr { get; }
-            public IList<Stmt>? Statements { get; }
+            public List<Stmt>? Statements { get; }
 
             public bool HasExpr => Expr != null;
             public bool HasStatements => Statements != null;
@@ -1166,7 +1166,7 @@ namespace Perlang.Interpreter
                 Expr = expr;
             }
 
-            private ScanAndParseResult(IList<Stmt> statements)
+            private ScanAndParseResult(List<Stmt> statements)
             {
                 Statements = statements;
             }

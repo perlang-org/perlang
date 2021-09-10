@@ -1,12 +1,16 @@
 using System;
 
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
-    public class ResolveError : Exception
+    /// <summary>
+    /// Emitted for name resolution errors which can be detected at an early stage, before type validation is even
+    /// attempted.
+    /// </summary>
+    public class NameResolutionError : Exception
     {
         public Token Token { get; }
 
-        public ResolveError(string message, Token token)
+        public NameResolutionError(string message, Token token)
             : base(message)
         {
             Token = token;
