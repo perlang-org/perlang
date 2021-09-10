@@ -137,6 +137,19 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
+        public void exponential_integer_literals_as_variable_initializer()
+        {
+            string source = @"
+                var x = 2 ** 12;
+                print x;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            Assert.Equal("4096", result);
+        }
+
+        [Fact]
         public void exponential_function_return_value_and_integer_literal()
         {
             string source = @"
@@ -176,7 +189,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified: System.String and System.Int32", exception.Message);
         }
 
         [Fact]
@@ -190,7 +203,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified: System.Int32 and System.String", exception.Message);
         }
 
         [Fact]

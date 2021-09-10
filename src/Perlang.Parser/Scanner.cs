@@ -48,7 +48,6 @@ namespace Perlang.Parser
                 { "byte", RESERVED_WORD },
                 { "sbyte", RESERVED_WORD },
                 { "short", RESERVED_WORD },
-                { "long", RESERVED_WORD },
                 { "ushort", RESERVED_WORD },
                 { "uint", RESERVED_WORD },
                 { "ulong", RESERVED_WORD },

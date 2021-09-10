@@ -191,6 +191,21 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         }
 
         [Fact]
+        public void reserved_keyword_long_cannot_be_used_as_function_name()
+        {
+            string source = @"
+                fun long(): void {
+                }
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Error at 'long': Reserved keyword encountered", exception.ToString());
+        }
+
+        [Fact]
         public void reserved_keyword_float_cannot_be_used_as_function_name()
         {
             string source = @"
@@ -237,6 +252,21 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 
             Assert.Single(result.Errors);
             Assert.Matches("Error at 'int': Reserved keyword encountered", exception.ToString());
+        }
+
+        [Fact]
+        public void reserved_keyword_long_cannot_be_used_as_function_parameter_name()
+        {
+            string source = @"
+                fun foo(long: long): void {
+                }
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Error at 'long': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -323,22 +353,6 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 
             Assert.Single(result.Errors);
             Assert.Matches("Error at 'short': Expecting type name", exception.ToString());
-        }
-
-        [Fact]
-        public void function_return_type_detects_reserved_keyword_long()
-        {
-            string source = @"
-                fun foo(): long {
-                    return 123.45;
-                }
-            ";
-
-            var result = EvalWithParseErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
-
-            Assert.Single(result.Errors);
-            Assert.Matches("Error at 'long': Expecting type name", exception.ToString());
         }
 
         [Fact]

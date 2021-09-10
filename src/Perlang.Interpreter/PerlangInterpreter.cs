@@ -938,6 +938,8 @@ namespace Perlang.Interpreter
             if (stmt.Initializer != null)
             {
                 value = Evaluate(stmt.Initializer);
+
+                value = ExpandIntegerIfRequired(value, stmt.TypeReference);
             }
 
             currentEnvironment.Define(stmt.Name, value);
@@ -1066,7 +1068,7 @@ namespace Perlang.Interpreter
                 case STAR_STAR:
                     CheckNumberOperands(expr.Operator, left, right);
 
-                    if (leftNumber is float || leftNumber is double || rightNumber is float || rightNumber is double)
+                    if (leftNumber is float or double || rightNumber is float or double)
                     {
                         return Math.Pow(leftNumber, rightNumber);
                     }
@@ -1141,6 +1143,36 @@ namespace Perlang.Interpreter
                 default:
                     throw new RuntimeError(expr.Paren, $"Can only call functions, classes and native methods, not {callee}.");
             }
+        }
+
+        private static object? ExpandIntegerIfRequired(object? value, ITypeReference targetTypeReference)
+        {
+            if (IsValidNumberType(value) && targetTypeReference.IsResolved)
+            {
+                if (value!.GetType() == targetTypeReference.ClrType)
+                {
+                    // Avoid conversions when the value is already of the correct type.
+                    return value;
+                }
+                else if (targetTypeReference.ClrType == typeof(Int32))
+                {
+                    return Convert.ToInt32(value);
+                }
+                else if (targetTypeReference.ClrType == typeof(Int64))
+                {
+                    return Convert.ToInt64(value);
+                }
+                else if (targetTypeReference.ClrType == typeof(Double))
+                {
+                    return Convert.ToDouble(value);
+                }
+                else
+                {
+                    throw new IllegalStateException($"Unsupported target type {targetTypeReference.ClrType}");
+                }
+            }
+
+            return value;
         }
 
         /// <summary>

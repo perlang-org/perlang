@@ -170,11 +170,25 @@ namespace Perlang
             {
                 if (Initializer != null)
                 {
-                    return $"var {Name.Lexeme} = {Initializer};";
+                    if (TypeReference?.TypeSpecifier?.Lexeme != null)
+                    {
+                        return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme} = {Initializer};";
+                    }
+                    else
+                    {
+                        return $"var {Name.Lexeme} = {Initializer};";
+                    }
                 }
                 else
                 {
-                    return $"var {Name.Lexeme};";
+                    if (TypeReference?.TypeSpecifier?.Lexeme != null)
+                    {
+                        return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme};";
+                    }
+                    else
+                    {
+                        return $"var {Name.Lexeme};";
+                    }
                 }
             }
         }

@@ -808,6 +808,7 @@ namespace Perlang.Parser
             switch (token.Lexeme)
             {
                 case "int":
+                case "long":
                 case "string":
                     throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
             }

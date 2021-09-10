@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Perlang.Interpreter.NameResolution;
-using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -13,17 +12,13 @@ namespace Perlang.Interpreter.Typing
     {
         private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
-        private readonly TypeCoercer typeCoercer;
 
         public TypeAssignmentValidator(
             Func<Expr, Binding> getVariableOrFunctionCallback,
-            Action<TypeValidationError> typeValidationErrorCallback,
-            Action<CompilerWarning> compilerWarningCallback)
+            Action<TypeValidationError> typeValidationErrorCallback)
         {
             this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
-
-            typeCoercer = new TypeCoercer(compilerWarningCallback);
         }
 
         public void ReportErrors(IList<Stmt> statements)
@@ -57,7 +52,7 @@ namespace Perlang.Interpreter.Typing
             var targetTypeReference = variableBinding.TypeReference;
             var sourceTypeReference = expr.Value.TypeReference;
 
-            if (!typeCoercer.CanBeCoercedInto(expr.Token, targetTypeReference, sourceTypeReference))
+            if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference))
             {
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
