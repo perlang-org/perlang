@@ -31,15 +31,7 @@ namespace Perlang.Interpreter
         private readonly PerlangEnvironment globals = new();
         private readonly IImmutableDictionary<string, Type> superGlobals;
 
-        /// <summary>
-        /// Map from referring expression to global binding (variable or function).
-        /// </summary>
-        private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
-
-        /// <summary>
-        /// Map from referring expression to local binding (i.e. in a local scope) for variable or function.
-        /// </summary>
-        private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
+        private IBindingHandler BindingHandler { get; }
 
         /// <summary>
         /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
@@ -59,18 +51,21 @@ namespace Perlang.Interpreter
         /// <param name="runtimeErrorHandler">A callback that will be called on runtime errors. Note that after calling
         ///     this handler, the interpreter will abort the script.</param>
         /// <param name="standardOutputHandler">An callback that will receive output printed to standard output.</param>
+        /// <param name="bindingHandler">A binding handler, or `null` to let the interpreter create a new instance.</param>
         /// <param name="arguments">An optional list of runtime arguments.</param>
         /// <param name="replMode">A flag indicating whether REPL mode will be active or not. In REPL mode, statements
         ///     without semicolons are accepted.</param>
         public PerlangInterpreter(
             Action<RuntimeError> runtimeErrorHandler,
             Action<string> standardOutputHandler,
+            IBindingHandler? bindingHandler = null,
             IEnumerable<string>? arguments = null,
             bool replMode = false)
         {
             this.runtimeErrorHandler = runtimeErrorHandler;
             this.standardOutputHandler = standardOutputHandler;
             this.replMode = replMode;
+            this.BindingHandler = bindingHandler ?? new BindingHandler();
 
             var argumentsList = (arguments ?? Array.Empty<string>()).ToImmutableList();
 
@@ -233,8 +228,7 @@ namespace Perlang.Interpreter
                 var resolver = new Resolver(
                     nativeClasses,
                     superGlobals,
-                    AddLocal,
-                    AddGlobal,
+                    BindingHandler,
                     AddGlobalClass,
                     resolveError =>
                     {
@@ -265,7 +259,7 @@ namespace Perlang.Interpreter
                         typeValidationFailed = true;
                         typeValidationErrorHandler(typeValidationError);
                     },
-                    GetVariableOrFunctionBinding,
+                    BindingHandler.GetVariableOrFunctionBinding,
                     compilerWarning =>
                     {
                         bool result = compilerWarningHandler(compilerWarning);
@@ -295,7 +289,7 @@ namespace Perlang.Interpreter
                         immutabilityValidationFailed = true;
                         immutabilityValidationErrorHandler(immutabilityValidationError);
                     },
-                    GetVariableOrFunctionBinding
+                    BindingHandler.GetVariableOrFunctionBinding
                 );
 
                 if (immutabilityValidationFailed)
@@ -337,8 +331,7 @@ namespace Perlang.Interpreter
                 var resolver = new Resolver(
                     nativeClasses,
                     superGlobals,
-                    AddLocal,
-                    AddGlobal,
+                    BindingHandler,
                     AddGlobalClass,
                     resolveError =>
                     {
@@ -369,7 +362,7 @@ namespace Perlang.Interpreter
                         typeValidationFailed = true;
                         typeValidationErrorHandler(typeValidationError);
                     },
-                    GetVariableOrFunctionBinding,
+                    BindingHandler.GetVariableOrFunctionBinding,
                     compilerWarning => compilerWarningHandler(compilerWarning)
                 );
 
@@ -391,7 +384,7 @@ namespace Perlang.Interpreter
                         immutabilityValidationFailed = true;
                         immutabilityValidationErrorHandler(immutabilityValidationError);
                     },
-                    GetVariableOrFunctionBinding
+                    BindingHandler.GetVariableOrFunctionBinding
                 );
 
                 // All validation was successful, but unlike for statements, there is no need to mutate the
@@ -616,7 +609,7 @@ namespace Perlang.Interpreter
                     throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
             }
 
-            if (localBindings.TryGetValue(expr, out Binding? binding))
+            if (BindingHandler.GetLocalBinding(expr, out Binding? binding))
             {
                 if (binding is IDistanceAwareBinding distanceAwareBinding)
                 {
@@ -659,22 +652,6 @@ namespace Perlang.Interpreter
             }
         }
 
-        private Binding? GetVariableOrFunctionBinding(Expr expr)
-        {
-            if (localBindings.ContainsKey(expr))
-            {
-                return localBindings[expr];
-            }
-
-            if (globalBindings.ContainsKey(expr))
-            {
-                return globalBindings[expr];
-            }
-
-            // The variable does not exist, neither in the list of local nor global bindings.
-            return null;
-        }
-
         /// <summary>
         /// Gets the value of a variable, in the current scope or any surrounding scopes.
         /// </summary>
@@ -686,7 +663,7 @@ namespace Perlang.Interpreter
         /// instance.</exception>
         private object LookUpVariable(Token name, Expr.Identifier identifier)
         {
-            if (localBindings.TryGetValue(identifier, out Binding? localBinding))
+            if (BindingHandler.GetLocalBinding(identifier, out Binding? localBinding))
             {
                 if (localBinding is IDistanceAwareBinding distanceAwareBinding)
                 {
@@ -827,16 +804,6 @@ namespace Perlang.Interpreter
             stmt.Accept(this);
         }
 
-        private void AddGlobal(Binding binding)
-        {
-            globalBindings[binding.ReferringExpr] = binding;
-        }
-
-        private void AddLocal(Binding binding)
-        {
-            localBindings[binding.ReferringExpr] = binding;
-        }
-
         private void AddGlobalClass(string name, PerlangClass perlangClass)
         {
             globalClasses[name] = perlangClass;
@@ -951,7 +918,7 @@ namespace Perlang.Interpreter
         {
             object? value = Evaluate(expr.Value);
 
-            if (localBindings.TryGetValue(expr, out Binding? binding))
+            if (BindingHandler.GetLocalBinding(expr, out Binding? binding))
             {
                 if (binding is IDistanceAwareBinding distanceAwareBinding)
                 {

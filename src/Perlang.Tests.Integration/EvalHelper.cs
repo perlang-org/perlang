@@ -60,7 +60,7 @@ namespace Perlang.Tests.Integration
             var result = new EvalResult<RuntimeError>();
 
             var interpreter = new PerlangInterpreter(
-                result.ErrorHandler, result.OutputHandler, arguments
+                result.ErrorHandler, result.OutputHandler, null, arguments
             );
 
             result.Value = interpreter.Eval(
@@ -196,7 +196,7 @@ namespace Perlang.Tests.Integration
         internal static EvalResult<Exception> EvalWithResult(string source, params string[] arguments)
         {
             var result = new EvalResult<Exception>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler, arguments);
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
 
             result.Value = interpreter.Eval(
                 source,

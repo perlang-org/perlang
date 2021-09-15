@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Interpreter.Extensions;
+using Perlang.Interpreter.Internals;
 
 namespace Perlang.Interpreter.Resolution
 {
@@ -14,8 +15,7 @@ namespace Perlang.Interpreter.Resolution
     /// </summary>
     internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
-        private readonly Action<Binding> addLocalExprCallback;
-        private readonly Action<Binding> addGlobalExprCallback;
+        private readonly IBindingHandler bindingHandler;
         private readonly Action<string, PerlangClass> addGlobalClassCallback;
         private readonly ResolveErrorHandler resolveErrorHandler;
 
@@ -38,22 +38,18 @@ namespace Perlang.Interpreter.Resolution
         /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
         /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
         /// from outside of the program itself.</param>
-        /// <param name="addLocalExprCallback">A callback used to add an expression to a local scope at a
-        /// given depth away from the call site. One level of nesting = one extra level of depth.</param>
-        /// <param name="addGlobalExprCallback">A callback used to add an expression to the global scope.</param>
+        /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
         /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
         /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
         /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
         internal Resolver(
             IImmutableDictionary<string, Type> globalClasses,
             IImmutableDictionary<string, Type> superGlobals,
-            Action<Binding> addLocalExprCallback,
-            Action<Binding> addGlobalExprCallback,
+            IBindingHandler bindingHandler,
             Action<string, PerlangClass> addGlobalClassCallback,
             ResolveErrorHandler resolveErrorHandler)
         {
-            this.addLocalExprCallback = addLocalExprCallback;
-            this.addGlobalExprCallback = addGlobalExprCallback;
+            this.bindingHandler = bindingHandler;
             this.addGlobalClassCallback = addGlobalClassCallback;
             this.resolveErrorHandler = resolveErrorHandler;
 
@@ -205,7 +201,7 @@ namespace Perlang.Interpreter.Resolution
                         return;
                     }
 
-                    addLocalExprCallback(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
+                    bindingHandler.AddLocalExpr(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
 
                     return;
                 }
@@ -222,7 +218,7 @@ namespace Perlang.Interpreter.Resolution
             // in the for-loop above if we skip it.
             {
                 IBindingFactory bindingFactory = globals[name.Lexeme];
-                addGlobalExprCallback(bindingFactory.CreateBinding(-1, referringExpr));
+                bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(-1, referringExpr));
             }
         }
 
