@@ -9,7 +9,7 @@ namespace Perlang.Interpreter.Resolution
     /// Different types of bindings (=subclasses) provide slightly different mechanisms to retrieve information about
     /// the variable, function or class being bound to.
     /// </summary>
-    internal abstract class Binding
+    public abstract class Binding
     {
         /// <summary>
         /// Gets the type reference of the declaring statement (typically a 'var' initializer or a function return type).

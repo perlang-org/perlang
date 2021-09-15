@@ -293,6 +293,7 @@ namespace Perlang.ConsoleApp
             interpreter = new PerlangInterpreter(
                 runtimeErrorHandler ?? RuntimeError,
                 this.standardOutputHandler,
+                null,
                 arguments ?? new List<string>(),
                 replMode: replMode
             );
