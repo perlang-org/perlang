@@ -11,7 +11,7 @@ namespace Perlang.Interpreter.Resolution
         public override string ObjectType => "variable";
         public override bool IsMutable => true;
 
-        public VariableBinding(TypeReference? typeReference, int distance, Expr referringExpr)
+        public VariableBinding(ITypeReference? typeReference, int distance, Expr referringExpr)
             : base(typeReference, referringExpr)
         {
             Distance = distance;

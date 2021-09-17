@@ -14,7 +14,7 @@ namespace Perlang.Interpreter.Resolution
         /// <summary>
         /// Gets the type reference of the declaring statement (typically a 'var' initializer or a function return type).
         /// </summary>
-        public TypeReference? TypeReference { get; }
+        public ITypeReference? TypeReference { get; }
 
         /// <summary>
         /// Gets an expression referring to the declaring statement's type reference. Note that multiple expressions can
@@ -52,7 +52,7 @@ namespace Perlang.Interpreter.Resolution
         /// </summary>
         public object ObjectTypeTitleized => ObjectType[0].ToString().ToUpper() + ObjectType.Substring(1);
 
-        protected Binding(TypeReference? typeReference, Expr referringExpr)
+        protected Binding(ITypeReference? typeReference, Expr referringExpr)
         {
             // We allow null references on this one to sneak through, since it allows this test to succeed:
             // Perlang.Tests.Integration.Classes.ClassesTests.can_call_static_method
