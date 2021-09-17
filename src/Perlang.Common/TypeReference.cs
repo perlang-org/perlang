@@ -8,7 +8,7 @@ namespace Perlang
     ///
     /// The object is mutable.
     /// </summary>
-    public class TypeReference
+    public class TypeReference : ITypeReference
     {
         public static TypeReference Bool { get; } = new TypeReference(typeof(bool));
 
@@ -46,16 +46,10 @@ namespace Perlang
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the type reference contains an explicit type specifier or not. If this is
-        /// false, the user is perhaps intending for the type to be inferred from the program context.
-        /// </summary>
+        /// <inheritdoc/>
         public bool ExplicitTypeSpecified => TypeSpecifier != null;
 
-        /// <summary>
-        /// Gets a value indicating whether the type reference has been successfully resolved to a (loaded) CLR type or
-        /// not.
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsResolved => ClrType != null;
 
         /// <summary>

@@ -178,7 +178,7 @@ namespace Perlang.Interpreter.Typing
                 }
             }
 
-            TypeReference typeReference = getIdentifierCallback(expr)?.TypeReference;
+            ITypeReference typeReference = getIdentifierCallback(expr)?.TypeReference;
 
             if (typeReference == null)
             {
@@ -248,7 +248,7 @@ namespace Perlang.Interpreter.Typing
             }
             else
             {
-                TypeReference typeReference = binding?.TypeReference;
+                ITypeReference typeReference = binding?.TypeReference;
 
                 if (typeReference == null)
                 {
@@ -475,7 +475,7 @@ namespace Perlang.Interpreter.Typing
             }
         }
 
-        private static void ResolveExplicitTypes(TypeReference typeReference)
+        private static void ResolveExplicitTypes(ITypeReference typeReference)
         {
             if (typeReference.TypeSpecifier == null)
             {

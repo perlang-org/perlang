@@ -30,7 +30,7 @@ namespace Perlang.Interpreter.Typing
         /// <param name="targetTypeReference">A reference to the target type.</param>
         /// <param name="sourceTypeReference">A reference to the source type.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public bool CanBeCoercedInto(Token token, TypeReference targetTypeReference, TypeReference sourceTypeReference)
+        public bool CanBeCoercedInto(Token token, ITypeReference targetTypeReference, ITypeReference sourceTypeReference)
         {
             return CanBeCoercedInto(token, targetTypeReference.ClrType, sourceTypeReference.ClrType);
         }
