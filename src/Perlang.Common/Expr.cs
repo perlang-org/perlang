@@ -8,7 +8,7 @@ namespace Perlang
 {
     public abstract class Expr
     {
-        public TypeReference TypeReference { get; }
+        public ITypeReference TypeReference { get; }
 
         private Expr()
         {

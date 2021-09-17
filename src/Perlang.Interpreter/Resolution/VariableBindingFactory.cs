@@ -16,9 +16,9 @@ namespace Perlang.Interpreter.Resolution
 
         public string ObjectType => "variable";
 
-        public TypeReference TypeReference { get; }
+        public ITypeReference TypeReference { get; }
 
-        public VariableBindingFactory(TypeReference typeReference)
+        public VariableBindingFactory(ITypeReference typeReference)
         {
             TypeReference = typeReference;
         }

@@ -73,7 +73,7 @@ namespace Perlang
             public Token Name { get; }
             public ImmutableList<Parameter> Parameters { get; }
             public ImmutableList<Stmt> Body { get; }
-            public TypeReference ReturnTypeReference { get; }
+            public ITypeReference ReturnTypeReference { get; }
 
             public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference)
             {
@@ -150,7 +150,7 @@ namespace Perlang
         {
             public Token Name { get; }
             public Expr Initializer { get; }
-            public TypeReference TypeReference { get; }
+            public ITypeReference TypeReference { get; }
 
             public bool HasInitializer => Initializer != null;
 
