@@ -124,9 +124,9 @@ namespace Perlang.Interpreter.Resolution
         /// Defines a previously declared variable as initialized, available for use.
         /// </summary>
         /// <param name="name">The variable or function name.</param>
-        /// <param name="typeReference">A TypeReference describing the variable or function.</param>
+        /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
         /// <exception cref="ArgumentException">`typeReference` is null.</exception>
-        private void Define(Token name, TypeReference typeReference)
+        private void Define(Token name, ITypeReference typeReference)
         {
             if (typeReference == null)
             {
@@ -150,9 +150,9 @@ namespace Perlang.Interpreter.Resolution
         /// Defines a previously declared function as defined, available for use.
         /// </summary>
         /// <param name="name">The variable or function name.</param>
-        /// <param name="typeReference">A TypeReference describing the variable or function.</param>
+        /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
         /// <param name="function">The function statement should be provided here.</param>
-        private void DefineFunction(Token name, TypeReference typeReference, Stmt.Function function)
+        private void DefineFunction(Token name, ITypeReference typeReference, Stmt.Function function)
         {
             if (typeReference == null)
             {

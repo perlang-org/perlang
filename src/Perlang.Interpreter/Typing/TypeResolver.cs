@@ -109,7 +109,7 @@ namespace Perlang.Interpreter.Typing
                         return VoidObject.Void;
                     }
 
-                    TypeReference typeReference = GreaterType(leftTypeReference, rightTypeReference);
+                    ITypeReference typeReference = GreaterType(leftTypeReference, rightTypeReference);
 
                     if (typeReference == null)
                     {
@@ -395,7 +395,7 @@ namespace Perlang.Interpreter.Typing
             return VoidObject.Void;
         }
 
-        private static TypeReference GreaterType(TypeReference leftTypeReference, TypeReference rightTypeReference)
+        private static ITypeReference GreaterType(ITypeReference leftTypeReference, ITypeReference rightTypeReference)
         {
             var leftMaxValue = GetMaxValue(leftTypeReference.ClrType);
             var rightMaxValue = GetMaxValue(rightTypeReference.ClrType);
