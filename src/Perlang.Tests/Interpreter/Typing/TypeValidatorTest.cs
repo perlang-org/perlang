@@ -5,7 +5,7 @@ using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using Xunit;
 
-namespace Perlang.Tests.Interpreter
+namespace Perlang.Tests.Interpreter.Typing
 {
     /// <summary>
     /// Test for <see cref="TypeValidator"/>.
