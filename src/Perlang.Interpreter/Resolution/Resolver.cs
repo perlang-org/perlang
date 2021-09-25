@@ -30,6 +30,8 @@ namespace Perlang.Interpreter.Resolution
         /// </summary>
         private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
 
+        internal IDictionary<string, IBindingFactory> Globals => globals;
+
         private FunctionType currentFunction = FunctionType.NONE;
 
         /// <summary>
