@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
@@ -162,7 +162,7 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
 
-                typeValidationErrorCallback(new NameResolutionError(
+                typeValidationErrorCallback(new NameResolutionTypeValidationError(
                     call.Paren,
                     $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters."
                 ));
@@ -176,7 +176,7 @@ namespace Perlang.Interpreter.Typing
             if (binding == null)
             {
                 typeValidationErrorCallback(
-                    new NameResolutionError(expr.Paren, $"Attempting to call undefined function '{expr.CalleeToString}'")
+                    new NameResolutionTypeValidationError(expr.Paren, $"Attempting to call undefined function '{expr.CalleeToString}'")
                 );
 
                 return;
@@ -192,7 +192,7 @@ namespace Perlang.Interpreter.Typing
 
                     if (function == null)
                     {
-                        throw new NameResolutionError(expr.Paren, $"Internal compiler error: function for {expr} not expected to be null");
+                        throw new NameResolutionTypeValidationError(expr.Paren, $"Internal compiler error: function for {expr} not expected to be null");
                     }
 
                     parameters = function.Parameters;
@@ -200,7 +200,7 @@ namespace Perlang.Interpreter.Typing
                     break;
 
                 default:
-                    throw new NameResolutionError(expr.Paren, $"Attempting to call invalid function {binding} using {expr}");
+                    throw new NameResolutionTypeValidationError(expr.Paren, $"Attempting to call invalid function {binding} using {expr}");
             }
 
             if (parameters.Count != expr.Arguments.Count)

@@ -1,3 +1,4 @@
+#nullable enable
 #pragma warning disable S1199
 
 using System;
@@ -8,16 +9,16 @@ using System.Linq;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Internals;
 
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
-    /// The Resolver is responsible for resolving names of local and global variable/function names.
+    /// The `NameResolver` is responsible for resolving names of local and global variable/function names.
     /// </summary>
-    internal class Resolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
+    internal class NameResolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
     {
         private readonly IBindingHandler bindingHandler;
         private readonly Action<string, PerlangClass> addGlobalClassCallback;
-        private readonly ResolveErrorHandler resolveErrorHandler;
+        private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
         /// <summary>
         /// An instance-local list of scopes. The innermost scope is always the last entry in this list. As the code is
@@ -35,25 +36,25 @@ namespace Perlang.Interpreter.Resolution
         private FunctionType currentFunction = FunctionType.NONE;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Resolver"/> class.
+        /// Initializes a new instance of the <see cref="NameResolver"/> class.
         /// </summary>
         /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
         /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
         /// from outside of the program itself.</param>
         /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
         /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
-        /// <param name="resolveErrorHandler">A callback which will be called in case of resolution errors. Note that
-        /// multiple resolution errors will cause the provided callback to be called multiple times.</param>
-        internal Resolver(
+        /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
+        /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
+        internal NameResolver(
             IImmutableDictionary<string, Type> globalClasses,
             IImmutableDictionary<string, Type> superGlobals,
             IBindingHandler bindingHandler,
             Action<string, PerlangClass> addGlobalClassCallback,
-            ResolveErrorHandler resolveErrorHandler)
+            NameResolutionErrorHandler nameResolutionErrorHandler)
         {
             this.bindingHandler = bindingHandler;
             this.addGlobalClassCallback = addGlobalClassCallback;
-            this.resolveErrorHandler = resolveErrorHandler;
+            this.nameResolutionErrorHandler = nameResolutionErrorHandler;
 
             foreach ((string key, Type value) in globalClasses)
             {
@@ -107,7 +108,7 @@ namespace Perlang.Interpreter.Resolution
 
             if (scope.ContainsKey(name.Lexeme))
             {
-                resolveErrorHandler(new ResolveError("Variable with this name already declared in this scope.", name));
+                nameResolutionErrorHandler(new NameResolutionError("Variable with this name already declared in this scope.", name));
             }
 
             // We mark it as “not ready yet” by binding a known None-value in the scope map. Each value in the scope
@@ -176,9 +177,9 @@ namespace Perlang.Interpreter.Resolution
 
         private void DefineClass(Token name, PerlangClass perlangClass)
         {
-            if (globals.TryGetValue(name.Lexeme, out IBindingFactory bindingFactory))
+            if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
             {
-                resolveErrorHandler(new ResolveError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
+                nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
                 return;
             }
 
@@ -198,8 +199,8 @@ namespace Perlang.Interpreter.Resolution
 
                     if (bindingFactory == VariableBindingFactory.None)
                     {
-                        resolveErrorHandler(
-                            new ResolveError("Cannot read local variable in its own initializer.", name));
+                        nameResolutionErrorHandler(
+                            new NameResolutionError("Cannot read local variable in its own initializer.", name));
                         return;
                     }
 
@@ -303,7 +304,7 @@ namespace Perlang.Interpreter.Resolution
             if (!IsEmpty(scopes) &&
                 scopes.Last().TryGetObjectValue(expr.Name.Lexeme, VariableBindingFactory.None) == null)
             {
-                resolveErrorHandler(new ResolveError("Cannot read local variable in its own initializer.", expr.Name));
+                nameResolutionErrorHandler(new NameResolutionError("Cannot read local variable in its own initializer.", expr.Name));
             }
 
             ResolveLocalOrGlobal(expr, expr.Name);
@@ -404,7 +405,7 @@ namespace Perlang.Interpreter.Resolution
         {
             if (currentFunction == FunctionType.NONE)
             {
-                resolveErrorHandler(new ResolveError("Cannot return from top-level code.", stmt.Keyword));
+                nameResolutionErrorHandler(new NameResolutionError("Cannot return from top-level code.", stmt.Keyword));
             }
 
             if (stmt.Value != null)

@@ -1,6 +1,6 @@
 using System;
 
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     /// <summary>
     /// Binding implementation for referring to native .NET classes.

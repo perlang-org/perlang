@@ -2,19 +2,19 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Interpreter;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 using Xunit;
 
 namespace Perlang.Tests.Interpreter.Resolution
 {
-    public class ResolverTest
+    public class NameResolverTest
     {
         [Fact(Skip = "Known to be broken, will be fixed shortly on another branch")]
         public void VisitVarStmt_defines_variable_with_correct_TypeReference()
         {
             // Act
-            (Stmt singleStatement, Resolver resolver) = ScanParseAndResolveSingleStatement(@"
+            (Stmt singleStatement, NameResolver resolver) = ScanParseAndResolveSingleStatement(@"
                 var i: int = 123456;
             ");
 
@@ -27,7 +27,7 @@ namespace Perlang.Tests.Interpreter.Resolution
             Assert.Equal(((Stmt.Var)singleStatement).TypeReference, ((VariableBindingFactory)resolver.Globals["i"]).TypeReference);
         }
 
-        private static (Stmt Stmt, Resolver Resolver) ScanParseAndResolveSingleStatement(string program)
+        private static (Stmt Stmt, NameResolver Resolver) ScanParseAndResolveSingleStatement(string program)
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s));
 
@@ -38,19 +38,19 @@ namespace Perlang.Tests.Interpreter.Resolution
             );
 
             Assert.True(scanAndParseResult.HasStatements);
-            Assert.Equal(1, scanAndParseResult.Statements!.Count);
+            Assert.Single(scanAndParseResult.Statements!);
 
-            Stmt singleStatement = scanAndParseResult.Statements.Single();
+            Stmt singleStatement = scanAndParseResult.Statements!.Single();
 
-            var resolver = new Resolver(
+            var resolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
                 ImmutableDictionary<string, Type>.Empty,
-                null,
-                null,
-                AssertFailResolveErrorHandler
+                interpreter.BindingHandler,
+                AssertFailAddGlobalClassHandler,
+                AssertFailNameResolutionErrorHandler
             );
 
-            resolver.Resolve(scanAndParseResult.Statements);
+            resolver.Resolve(scanAndParseResult.Statements!);
 
             return (singleStatement, resolver);
         }
@@ -65,14 +65,19 @@ namespace Perlang.Tests.Interpreter.Resolution
             throw parseError;
         }
 
-        private static void AssertFailResolveErrorHandler(ResolveError resolveError)
+        private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw resolveError;
+            throw nameResolutionError;
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
             throw runtimeError;
+        }
+
+        private static void AssertFailAddGlobalClassHandler(string name, PerlangClass perlangClass)
+        {
+            throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
         }
     }
 }

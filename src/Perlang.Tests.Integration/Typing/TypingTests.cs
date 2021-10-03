@@ -5,6 +5,11 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Typing
 {
+    /// <summary>
+    /// Typing-related tests.
+    ///
+    /// These tests test both explicitly and implicitly typed expressions.
+    /// </summary>
     public class TypingTests
     {
         [Fact]
@@ -98,7 +103,7 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_variable()
+        public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_int_variable()
         {
             string source = @"
                 var foo = 123;
@@ -109,6 +114,20 @@ namespace Perlang.Tests.Integration.Typing
 
             string result = EvalReturningOutputString(source);
             Assert.Equal("System.Int32", result);
+        }
+
+        [Fact]
+        public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_long_variable()
+        {
+            string source = @"
+                var foo = 8589934592;
+                var bar = foo;
+
+                print bar.get_type();
+            ";
+
+            string result = EvalReturningOutputString(source);
+            Assert.Equal("System.Int64", result);
         }
 
         [Fact]

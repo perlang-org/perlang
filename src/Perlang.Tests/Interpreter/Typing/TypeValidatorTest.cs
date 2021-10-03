@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using Xunit;

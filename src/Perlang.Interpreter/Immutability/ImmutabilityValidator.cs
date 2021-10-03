@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Immutability
 {

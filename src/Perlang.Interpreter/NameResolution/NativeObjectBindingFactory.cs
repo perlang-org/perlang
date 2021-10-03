@@ -1,6 +1,6 @@
 using System;
 
-namespace Perlang.Interpreter.Resolution
+namespace Perlang.Interpreter.NameResolution
 {
     internal class NativeObjectBindingFactory : IBindingFactory
     {

@@ -1,6 +1,6 @@
 #nullable enable
 
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Internals
 {

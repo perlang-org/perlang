@@ -1,7 +1,7 @@
-using Perlang.Interpreter.Resolution;
+using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter
 {
-    public delegate void ResolveErrorHandler(ResolveError resolveError);
+    public delegate void NameResolutionErrorHandler(NameResolutionError nameResolutionError);
     public delegate void ValidationErrorHandler(ValidationError typeValidationError);
 }
