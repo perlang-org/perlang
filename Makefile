@@ -11,7 +11,7 @@ all: auto-generated
 	dotnet build
 
 release:
-	dotnet build -c Release
+	dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$$(pwd)/
 
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 
@@ -35,7 +35,7 @@ docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
 docs-test-examples:
-	for e in docs/examples/*.per ; do src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish/perlang $$e ; done
+	for e in docs/examples/*.per ; do echo == $$e ; src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish/perlang $$e ; echo ; done
 
 docs-serve:
 	live-server _site
