@@ -90,7 +90,7 @@ namespace Perlang.Interpreter.Typing
             // Once a variable has been defined, it's type has been set; it cannot be reassigned with a value of a
             // completely different type. The only exception to this rule is when a smaller numeric value (e.g. `int`)
             // is expanded to a larger type (e.g. `long`).
-            new TypeAssignmentValidator(getVariableOrFunctionCallback, typeValidationErrorCallback, compilerWarningCallback)
+            new TypeAssignmentValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
                 .ReportErrors(statements);
         }
     }

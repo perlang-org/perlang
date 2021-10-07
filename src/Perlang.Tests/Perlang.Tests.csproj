@@ -9,6 +9,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DocumentationFile>bin\Debug\Perlang.Tests.xml</DocumentationFile>
       <NoWarn>SA1116;SA1117;SA1300;1591;1701;1702</NoWarn>
+      <WarningsAsErrors>;NU1605;NS1004</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -21,6 +22,11 @@
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="coverlet.collector" Version="1.3.0" />
+        <PackageReference Include="Moq" Version="4.16.1" />
+        <PackageReference Include="Moq.Analyzers" Version="0.0.8" />
+
+        <!-- Dependency needed by Moq/Moq.Analyzers; our reflection code fails without this being listed explicitly -->
+        <PackageReference Include="Microsoft.CodeAnalysis" Version="2.6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

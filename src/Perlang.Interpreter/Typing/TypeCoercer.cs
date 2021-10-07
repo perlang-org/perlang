@@ -1,19 +1,20 @@
 using System;
-using Perlang.Parser;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using Perlang.Interpreter.Extensions;
 
 namespace Perlang.Interpreter.Typing
 {
     /// <summary>
     /// Handles type coercions.
     /// </summary>
-    public class TypeCoercer
+    public static class TypeCoercer
     {
-        private readonly Action<CompilerWarning> compilerWarningCallback;
-
-        public TypeCoercer(Action<CompilerWarning> compilerWarningCallback)
+        private static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
         {
-            this.compilerWarningCallback = compilerWarningCallback;
-        }
+            { typeof(Int32), 32 },
+            { typeof(Int64), 64 }
+        }.ToImmutableDictionary();
 
         /// <summary>
         /// Determines if a value of <paramref name="sourceTypeReference"/> can be coerced into
@@ -25,14 +26,12 @@ namespace Perlang.Interpreter.Typing
         /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
         /// available.
         /// </summary>
-        /// <param name="token">The approximate location of the source token (the token from which the <paramref
-        ///     name="sourceTypeReference"/> is derived).</param>
         /// <param name="targetTypeReference">A reference to the target type.</param>
         /// <param name="sourceTypeReference">A reference to the source type.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public bool CanBeCoercedInto(Token token, ITypeReference targetTypeReference, ITypeReference sourceTypeReference)
+        public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference)
         {
-            return CanBeCoercedInto(token, targetTypeReference.ClrType, sourceTypeReference.ClrType);
+            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType);
         }
 
         /// <summary>
@@ -42,17 +41,14 @@ namespace Perlang.Interpreter.Typing
         /// The `source` and `target` concepts are important here. Sometimes values can be coerced in one direction
         /// but not the other. For example, an `int` can be coerced to a `long`, but not the other way around
         /// (without an explicit type cast). The same goes for unsigned integer types; they can not be coerced to
-        /// their signed counterpart (`uint` -> `int`), but they can be coerced to a larger signed type if
-        /// available.
+        /// their signed counterpart (e.g. `uint` -> `int`), but they can be coerced to a larger signed type if
+        /// available (e.g. `uint` to `long`).
         /// </summary>
-        /// <param name="token">The approximate location of the source token (the token from which the <paramref
-        ///     name="sourceType"/> is derived).</param>
         /// <param name="targetType">The target type.</param>
         /// <param name="sourceType">The source type.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public bool CanBeCoercedInto(Token token, Type targetType, Type sourceType)
+        public static bool CanBeCoercedInto(Type targetType, Type sourceType)
         {
-            // TODO: Implement some of these coercions being advertised in the XML docs. ;)
             if (targetType == sourceType)
             {
                 return true;
@@ -66,6 +62,24 @@ namespace Perlang.Interpreter.Typing
                 // types are nullable by default. We do emit a compiler warning though, and depending on the
                 // configuration of the front end, this warning can cause compilation to fail (if the front end is
                 // configured to disallow compiler warnings).
+                return true;
+            }
+
+            // TODO: Implement more of the coercions being advertised in the XML docs. :)
+
+            int? sourceSize = SignedIntegerLengthByType.TryGetObjectValue(sourceType);
+            int? targetSize = SignedIntegerLengthByType.TryGetObjectValue(targetType);
+
+            if (sourceSize == null || targetSize == null)
+            {
+                // One or both of the values involved are non-numeric. The coercion is unsupported in this case.
+                return false;
+            }
+
+            // Expansions are fine; in other words, as long as the target type is wider (number of bits) than the source
+            // type, the conversion will always work.
+            if (targetSize > sourceSize)
+            {
                 return true;
             }
 

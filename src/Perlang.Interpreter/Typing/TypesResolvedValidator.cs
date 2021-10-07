@@ -25,8 +25,6 @@ namespace Perlang.Interpreter.Typing
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
         private readonly Action<CompilerWarning> compilerWarningCallback;
 
-        private readonly TypeCoercer typeCoercer;
-
         internal TypesResolvedValidator(
             Func<Expr, Binding> getVariableOrFunctionCallback,
             Action<TypeValidationError> typeValidationErrorCallback,
@@ -35,8 +33,6 @@ namespace Perlang.Interpreter.Typing
             this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
             this.compilerWarningCallback = compilerWarningCallback;
-
-            typeCoercer = new TypeCoercer(compilerWarningCallback);
         }
 
         internal void ReportErrors(IEnumerable<Stmt> statements)
@@ -110,7 +106,7 @@ namespace Perlang.Interpreter.Typing
                     // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
                     // on this if we could provide the token for the argument expression instead. However, the Expr type
                     // as used by 'argument' is a non-token-based expression so this is currently impossible.
-                    if (!typeCoercer.CanBeCoercedInto(call.Token, parameter.ParameterType, argument.TypeReference.ClrType))
+                    if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         typeValidationErrorCallback(new TypeValidationError(
@@ -147,7 +143,7 @@ namespace Perlang.Interpreter.Typing
                         }
 
                         // FIXME: The same caveat as above with call.Token applies here as well.
-                        if (!typeCoercer.CanBeCoercedInto(call.Token, parameter.ParameterType, argument.TypeReference.ClrType))
+                        if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
                         {
                             coercionsFailed = true;
                             break;
@@ -229,7 +225,7 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
-                if (!typeCoercer.CanBeCoercedInto(expr.Token, parameter.TypeReference, argument.TypeReference))
+                if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference, argument.TypeReference))
                 {
                     if (parameter.Name != null)
                     {
@@ -337,26 +333,14 @@ namespace Perlang.Interpreter.Typing
                 sanityCheckFailed = true;
             }
 
-            if (stmt.Initializer != null)
+            if (stmt.Initializer != null && !stmt.Initializer.TypeReference.IsResolved)
             {
-                if (stmt.Initializer.TypeReference == null)
-                {
-                    typeValidationErrorCallback(new TypeValidationError(
-                        stmt.Name,
-                        $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} missing a TypeReference"
-                    ));
+                typeValidationErrorCallback(new TypeValidationError(
+                    stmt.Name,
+                    $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"
+                ));
 
-                    sanityCheckFailed = true;
-                }
-                else if (!stmt.Initializer.TypeReference.IsResolved)
-                {
-                    typeValidationErrorCallback(new TypeValidationError(
-                        stmt.Name,
-                        $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"
-                    ));
-
-                    sanityCheckFailed = true;
-                }
+                sanityCheckFailed = true;
             }
 
             if (sanityCheckFailed)
@@ -376,7 +360,7 @@ namespace Perlang.Interpreter.Typing
                             "Cannot assign null to an implicitly typed local variable"
                         ));
                     }
-                    else if (!typeCoercer.CanBeCoercedInto(stmt.Name, stmt.TypeReference, stmt.Initializer.TypeReference))
+                    else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         typeValidationErrorCallback(new TypeValidationError(

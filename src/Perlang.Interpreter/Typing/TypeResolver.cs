@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using Humanizer;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
@@ -74,14 +75,14 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            if (!leftTypeReference.ClrType.IsAssignableTo(typeof(IComparable)))
+            if (!leftTypeReference.ClrType!.IsAssignableTo(typeof(IComparable)))
             {
                 throw new TypeValidationError(
                     expr.Operator,
                     $"{leftTypeReference} is not comparable and can therefore not be used with the ${expr.Operator} operator"
                 );
             }
-            else if (!rightTypeReference.ClrType.IsAssignableTo(typeof(IComparable)))
+            else if (!rightTypeReference.ClrType!.IsAssignableTo(typeof(IComparable)))
             {
                 throw new TypeValidationError(
                     expr.Operator,
@@ -97,7 +98,6 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.MINUS_EQUAL:
                 case TokenType.SLASH:
                 case TokenType.STAR:
-                case TokenType.STAR_STAR:
                 case TokenType.PERCENT:
                     if (expr.Operator.Type == TokenType.PLUS &&
                         (leftTypeReference.ClrType == typeof(string) ||
@@ -113,14 +113,29 @@ namespace Perlang.Interpreter.Typing
 
                     if (typeReference == null)
                     {
-                        throw new TypeValidationError(
-                            expr.Operator,
-                            $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified"
-                        );
+                        string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
+                                         $"{leftTypeReference.ClrType} and {rightTypeReference.ClrType}";
+
+                        throw new TypeValidationError(expr.Operator, message);
                     }
 
                     expr.TypeReference.ClrType = typeReference.ClrType;
 
+                    return VoidObject.Void;
+
+                case TokenType.STAR_STAR:
+                    double? leftMaxValue = GetApproximateMaxValue(leftTypeReference.ClrType);
+                    double? rightMaxValue = GetApproximateMaxValue(rightTypeReference.ClrType);
+
+                    if (leftMaxValue == null || rightMaxValue == null)
+                    {
+                        string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
+                                         $"{leftTypeReference.ClrType} and {rightTypeReference.ClrType}";
+
+                        throw new TypeValidationError(expr.Operator, message);
+                    }
+
+                    expr.TypeReference.ClrType = typeof(BigInteger);
                     return VoidObject.Void;
 
                 case TokenType.GREATER:
@@ -397,8 +412,10 @@ namespace Perlang.Interpreter.Typing
 
         private static ITypeReference GreaterType(ITypeReference leftTypeReference, ITypeReference rightTypeReference)
         {
-            var leftMaxValue = GetMaxValue(leftTypeReference.ClrType);
-            var rightMaxValue = GetMaxValue(rightTypeReference.ClrType);
+            // TODO: Return the number of bits here or something instead. Also, think about whether we need to special-case
+            // TODO: signed and unsigned integers.
+            var leftMaxValue = GetApproximateMaxValue(leftTypeReference.ClrType);
+            var rightMaxValue = GetApproximateMaxValue(rightTypeReference.ClrType);
 
             if (leftMaxValue == null || rightMaxValue == null)
             {
@@ -427,14 +444,13 @@ namespace Perlang.Interpreter.Typing
         /// <param name="type">A Type.</param>
         /// <returns>The approximate max value for the given type.</returns>
         /// <exception cref="ArgumentOutOfRangeException">The given type is not supported by this method.</exception>
-        private static double? GetMaxValue(Type type)
+        private static double? GetApproximateMaxValue(Type type)
         {
             var typeCode = Type.GetTypeCode(type);
 
             switch (typeCode)
             {
                 case TypeCode.Empty:
-                case TypeCode.Object:
                 case TypeCode.DBNull:
                 case TypeCode.Char:
                 case TypeCode.Boolean:
@@ -445,6 +461,19 @@ namespace Perlang.Interpreter.Typing
                     // However, after having used Ruby for a long time, our conclusion is that such constructs are
                     // rarely used and even though they add a bit of elegance/syntactic sugar to the expressiveness
                     // of the language, the cost in terms of added complexity might not be worth it.
+                    return null;
+
+                case TypeCode.Object:
+                    if (type == typeof(BigInteger))
+                    {
+                        // Note: this is insanely wrong. It means that Double, Decimal and BigInteger are currently
+                        // treated as "same size". The end result is that expressions like `5.0 ** 31` will return a
+                        // `double`, not a `BigInteger`. `10.0 ** 309` will return positive infinity, where `10 ** 309`
+                        // will return a large number. I'm not even sure what the "proper" semantics here would be
+                        // actually.
+                        return Convert.ToDouble(Decimal.MaxValue);
+                    }
+
                     return null;
 
                 case TypeCode.SByte:
@@ -498,6 +527,11 @@ namespace Perlang.Interpreter.Typing
                 case "int":
                 case "Int32":
                     typeReference.ClrType = typeof(int);
+                    break;
+
+                case "long":
+                case "Int64":
+                    typeReference.ClrType = typeof(long);
                     break;
 
                 case "string":

@@ -32,11 +32,12 @@ namespace Perlang.Interpreter.Extensions
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="key">The key.</param>
         /// <param name="defaultValue">The default value.</param>
-        /// <typeparam name="T">The type of values in the dictionary.</typeparam>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
         /// <returns>The value from the dictionary, or `defaultValue` if the key is not found.</returns>
-        internal static T TryGetObjectValue<T>(this IDictionary<string, T> dictionary, string key, T defaultValue = default)
+        internal static TValue TryGetObjectValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default)
         {
-            return dictionary.TryGetValue(key, out T value) ? value : defaultValue;
+            return dictionary.TryGetValue(key, out TValue value) ? value : defaultValue;
         }
     }
 }

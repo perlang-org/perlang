@@ -10,7 +10,7 @@ namespace Perlang.Tests.Interpreter.Resolution
 {
     public class NameResolverTest
     {
-        [Fact(Skip = "Known to be broken, will be fixed shortly on another branch")]
+        [Fact]
         public void VisitVarStmt_defines_variable_with_correct_TypeReference()
         {
             // Act
