@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
@@ -111,7 +112,7 @@ namespace Perlang.Interpreter.Typing
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         typeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
-                            $"Cannot pass {argument.TypeReference.ClrType} argument as {parameter.ParameterType} parameter to {methodName}()"));
+                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.ParameterType.ToTypeKeyword()} parameter to {methodName}()"));
                     }
                 }
             }
@@ -231,14 +232,14 @@ namespace Perlang.Interpreter.Typing
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
-                            $"Cannot pass {argument.TypeReference.ClrType} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType}' to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType.ToTypeKeyword()}' to {functionName}()"));
                     }
                     else
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         typeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
-                            $"Cannot pass {argument.TypeReference.ClrType} argument as {parameter.TypeReference.ClrType} parameter to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {functionName}()"));
                     }
                 }
             }
@@ -365,7 +366,7 @@ namespace Perlang.Interpreter.Typing
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         typeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
-                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.Name} value to {stmt.TypeReference.ClrType.Name}"
+                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.ToTypeKeyword()} to {stmt.TypeReference.ClrType.ToTypeKeyword()} variable"
                         ));
                     }
                     else if (stmt.Initializer.TypeReference.IsNullObject)

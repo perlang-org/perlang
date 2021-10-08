@@ -189,7 +189,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified: System.String and System.Int32", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified: string and int", exception.Message);
         }
 
         [Fact]
@@ -203,7 +203,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified: System.Int32 and System.String", exception.Message);
+            Assert.Equal("Invalid arguments to ** operator specified: int and string", exception.Message);
         }
 
         [Fact]

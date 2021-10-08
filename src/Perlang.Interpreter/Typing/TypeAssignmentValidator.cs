@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing
@@ -56,7 +57,7 @@ namespace Perlang.Interpreter.Typing
             {
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"Cannot assign {sourceTypeReference.ClrType} to variable defined as '{targetTypeReference.ClrType}'"
+                    $"Cannot assign {sourceTypeReference.ClrType.ToTypeKeyword()} to {targetTypeReference.ClrType.ToTypeKeyword()} variable"
                 ));
             }
 

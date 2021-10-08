@@ -49,7 +49,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign String value to Int32", exception.Message);
+            Assert.Equal("Cannot assign string to int variable", exception.Message);
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign System.String to variable defined as 'System.Int32'", exception.Message);
+            Assert.Matches("Cannot assign string to int variable", exception.Message);
         }
 
         [Fact]
@@ -259,7 +259,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign Perlang.NullObject to variable defined as 'System.Int32'", exception.Message);
+            Assert.Matches("Cannot assign null to int variable", exception.Message);
         }
 
         [Fact]
@@ -293,7 +293,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot pass System.Int32 argument as parameter 's: System.String'", exception.Message);
+            Assert.Matches("Cannot pass int argument as parameter 's: string'", exception.Message);
         }
 
         [Fact]
@@ -336,8 +336,8 @@ namespace Perlang.Tests.Integration.Typing
         public void function_parameter_detects_null_argument_for_value_type_parameter()
         {
             string source = @"
-                fun foo(s: int): void {
-                    print(s);
+                fun foo(i: int): void {
+                    print(i);
                 }
 
                 foo(null);
@@ -347,7 +347,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot pass Perlang.NullObject argument as parameter 's: System.Int32'", exception.Message);
+            Assert.Matches("Cannot pass null argument as parameter 'i: int'", exception.Message);
         }
 
         [Fact]
@@ -416,7 +416,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign String value to Int32", exception.Message);
+            Assert.Equal("Cannot assign string to int variable", exception.Message);
         }
     }
 }

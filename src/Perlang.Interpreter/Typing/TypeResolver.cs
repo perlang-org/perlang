@@ -114,7 +114,7 @@ namespace Perlang.Interpreter.Typing
                     if (typeReference == null)
                     {
                         string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
-                                         $"{leftTypeReference.ClrType} and {rightTypeReference.ClrType}";
+                                         $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
 
                         throw new TypeValidationError(expr.Operator, message);
                     }
@@ -130,7 +130,7 @@ namespace Perlang.Interpreter.Typing
                     if (leftMaxValue == null || rightMaxValue == null)
                     {
                         string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
-                                         $"{leftTypeReference.ClrType} and {rightTypeReference.ClrType}";
+                                         $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
 
                         throw new TypeValidationError(expr.Operator, message);
                     }
@@ -469,7 +469,7 @@ namespace Perlang.Interpreter.Typing
                         // Note: this is insanely wrong. It means that Double, Decimal and BigInteger are currently
                         // treated as "same size". The end result is that expressions like `5.0 ** 31` will return a
                         // `double`, not a `BigInteger`. `10.0 ** 309` will return positive infinity, where `10 ** 309`
-                        // will return a large number. I'm not even sure what the "proper" semantics here would be
+                        // will return a large number. I'm not even Sysure what the "proper" semantics here would be
                         // actually.
                         return Convert.ToDouble(Decimal.MaxValue);
                     }
