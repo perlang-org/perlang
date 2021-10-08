@@ -112,7 +112,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign Int64 value to Int32", exception.Message);
+            Assert.Matches("Cannot assign long to int variable", exception.Message);
         }
     }
 }
