@@ -7,7 +7,7 @@ SOLUTION_DIR = ARGV.pop or abort('Error: Solution directory must be provided')
 GIT_TAG_VERSION = `git describe --tags --abbrev=0 | sed s/-dev//`.rstrip
 
 GIT_DESCRIBE_VERSION = `git describe --tags | sed s/-g.*$// | sed s/dev-/dev./`.rstrip
-GIT_REVISION = `git describe --always`.rstrip
+GIT_COMMIT = `git describe --always`.rstrip
 
 common_constants = <<~EOF
 //
@@ -19,7 +19,7 @@ namespace Perlang
     {
         public const string GitTagVersion = "#{GIT_TAG_VERSION}";
         public const string GitDescribeVersion = "#{GIT_DESCRIBE_VERSION}";
-        public const string GitRevision = "#{GIT_REVISION}";
+        public const string GitCommit = "#{GIT_COMMIT}";
     }
 }
 EOF

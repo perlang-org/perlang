@@ -127,7 +127,7 @@ namespace Perlang.ConsoleApp
 
                     if (parseResult.HasOption(detailedVersionOption))
                     {
-                        console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} running on .NET {Environment.Version}");
+                        console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} (built from git commit {CommonConstants.GitCommit}) on .NET {Environment.Version}");
                         console.Out.WriteLine();
                         console.Out.WriteLine($"  Number of detected (v)CPUs: {Environment.ProcessorCount}");
                         console.Out.WriteLine($"  Running in 64-bit mode: {Environment.Is64BitProcess}");
@@ -368,7 +368,7 @@ namespace Perlang.ConsoleApp
 
         private void PrintBanner()
         {
-            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()}, built from {CommonConstants.GitRevision})");
+            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()}, built from git commit {CommonConstants.GitCommit})");
         }
 
         private void ScanError(ScanError scanError)
