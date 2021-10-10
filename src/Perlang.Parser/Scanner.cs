@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -324,7 +325,7 @@ namespace Perlang.Parser
                 // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
                 // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
                 // follows the same semantics as how C# does it, for simplicity.
-                ulong value = UInt64.Parse(source[start..current]);
+                BigInteger value = BigInteger.Parse(source[start..current]);
 
                 if (value < Int32.MaxValue)
                 {
@@ -338,7 +339,11 @@ namespace Perlang.Parser
                 {
                     AddToken(NUMBER, (long)value);
                 }
-                else // ulong
+                else if (value < UInt64.MaxValue)
+                {
+                    AddToken(NUMBER, (ulong)value);
+                }
+                else // Anything else gets implicitly treated as BigInteger
                 {
                     AddToken(NUMBER, value);
                 }

@@ -33,10 +33,9 @@ namespace Perlang.Tests.Integration.Typing
                 print(l);
             ";
 
-            var result = EvalWithValidationErrorCatch(source);
+            var result = EvalReturningOutputString(source);
 
-            Assert.Empty(result.Errors);
-            Assert.Equal("8589934592", result.OutputAsString);
+            Assert.Equal("8589934592", result);
         }
 
         [Fact]
@@ -51,6 +50,22 @@ namespace Perlang.Tests.Integration.Typing
             var output = EvalReturningOutputString(source);
 
             Assert.Equal("8589934592", output);
+        }
+
+        [Fact]
+        public void long_variable_throws_expected_exception_on_overflow()
+        {
+            string source = @"
+                var l: long = 1231231230912839019312831232;
+
+                print(l);
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Cannot assign BigInteger to long variable", exception.Message);
         }
 
         [Fact]
