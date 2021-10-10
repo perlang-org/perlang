@@ -106,5 +106,17 @@ namespace Perlang.Tests.Integration.Number
 
             Assert.Equal(-0.001, result);
         }
+
+        [Fact]
+        public void literal_hexadecimal()
+        {
+            string source = @"
+                0xC0CAC01A
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(3234512922, result);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using static Perlang.TokenType;
@@ -261,7 +262,9 @@ namespace Perlang.Parser
                     break;
 
                 default:
-                    if (IsDigit(c))
+                    // Even if the number is a number in a different base than 10 (binary, hexadecimal etc), it always
+                    // starts with a "normal" (decimal) digit because of the prefix characters - e.g. 0x1234.
+                    if (IsDigit(c, Base.DECIMAL))
                     {
                         Number();
                     }
@@ -295,21 +298,36 @@ namespace Perlang.Parser
         private void Number()
         {
             bool isFractional = false;
+            var numberStyles = NumberStyles.Any;
+            var numberBase = Base.DECIMAL;
+            int startOffset = 0;
 
-            while (IsDigit(Peek()))
+            if (Char.ToLower(Peek()) == 'x')
+            {
+                numberStyles = NumberStyles.HexNumber;
+                numberBase = Base.HEXADECIMAL;
+
+                // Moving the `start` pointer forward is important, since `BigInteger.Parse()` does not accept a prefix
+                // like 0x or 0X being present. Adding a `startOffset` here feels safer than mutating `start`,
+                // especially in case parsing fails somehow.
+                Advance();
+                startOffset = 2;
+            }
+
+            while (IsDigit(Peek(), numberBase))
             {
                 Advance();
             }
 
             // Look for a fractional part.
-            if (Peek() == '.' && IsDigit(PeekNext()))
+            if (Peek() == '.' && IsDigit(PeekNext(), numberBase))
             {
                 isFractional = true;
 
                 // Consume the "."
                 Advance();
 
-                while (IsDigit(Peek()))
+                while (IsDigit(Peek(), numberBase))
                 {
                     Advance();
                 }
@@ -325,7 +343,28 @@ namespace Perlang.Parser
                 // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
                 // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
                 // follows the same semantics as how C# does it, for simplicity.
-                BigInteger value = BigInteger.Parse(source[start..current]);
+                BigInteger value;
+
+                if (numberBase == Base.HEXADECIMAL)
+                {
+                    string numberCharacters = source[(start + startOffset)..current];
+
+                    // Quoting from
+                    //https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger.parse?view=net-5.0#System_Numerics_BigInteger_Parse_System_ReadOnlySpan_System_Char__System_Globalization_NumberStyles_System_IFormatProvider_
+                    //
+                    // If value is a hexadecimal string, the Parse(String, NumberStyles) method interprets value as a
+                    // negative number stored by using two's complement representation if its first two hexadecimal
+                    // digits are greater than or equal to 0x80. In other words, the method interprets the highest-order
+                    // bit of the first byte in value as the sign bit. To make sure that a hexadecimal string is
+                    // correctly interpreted as a positive number, the first digit in value must have a value of zero.
+                    //
+                    // We presume that all hexadecimals should be treated as positive numbers for now.
+                    value = BigInteger.Parse('0' + numberCharacters, numberStyles);
+                }
+                else
+                {
+                    value = BigInteger.Parse(source[(start + startOffset)..current], numberStyles);
+                }
 
                 if (value < Int32.MaxValue)
                 {
@@ -436,10 +475,17 @@ namespace Perlang.Parser
         }
 
         private static bool IsAlphaNumeric(char c) =>
-            IsAlpha(c) || IsDigit(c);
+            IsAlpha(c) || IsDigit(c, Base.DECIMAL);
 
-        private static bool IsDigit(char c) =>
-            c >= '0' && c <= '9';
+        private static bool IsDigit(char c, Base @base) =>
+            (int)@base switch
+            {
+                2 => c == '0' || c == '1',
+                8 => c >= '0' && c <= '7',
+                10 => c >= '0' && c <= '9',
+                16 => (c >= '0' && c <= '9') || (Char.ToUpper(c) >= 'A' && Char.ToUpper(c) <= 'F'),
+                _ => throw new ArgumentException($"Base {@base} is not supported")
+            };
 
         private bool IsAtEnd() =>
             current >= source.Length;
@@ -454,6 +500,12 @@ namespace Perlang.Parser
         {
             string text = source[start..current];
             tokens.Add(new Token(type, text, literal, line));
+        }
+
+        private enum Base
+        {
+            DECIMAL = 10,
+            HEXADECIMAL = 16
         }
     }
 }

@@ -9,7 +9,7 @@
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321" PrivateAssets="all" />
         <AdditionalFiles Include="$(SolutionDir)stylecop.json" Link="stylecop.json" />
 
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.17.0.26580" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.22.0.31243" />
     </ItemGroup>
 
     <!--
