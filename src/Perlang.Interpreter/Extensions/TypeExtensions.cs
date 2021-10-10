@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Perlang.Interpreter.Extensions
 {
@@ -14,6 +15,7 @@ namespace Perlang.Interpreter.Extensions
                 { } when type == typeof(Double) => "double",
                 { } when type == typeof(Int32) => "int",
                 { } when type == typeof(Int64) => "long",
+                { } when type == typeof(BigInteger) => "BigInteger", // TODO: Should we make this bigint and support it as a special type as the others?
                 { } when type == typeof(NullObject) => "null",
                 { } when type == typeof(String) => "string",
                 null => "null",
