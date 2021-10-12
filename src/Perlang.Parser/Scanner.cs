@@ -1,3 +1,6 @@
+// TODO: Remove once https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3392 has been resolved
+#pragma warning disable SA1515 // SingleLineCommentMustBePrecededByBlankLine
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -302,13 +305,24 @@ namespace Perlang.Parser
             var numberBase = Base.DECIMAL;
             int startOffset = 0;
 
-            if (Char.ToLower(Peek()) == 'x')
-            {
-                numberStyles = NumberStyles.HexNumber;
-                numberBase = Base.HEXADECIMAL;
+            char currentChar = Char.ToLower(Peek());
 
-                // Moving the `start` pointer forward is important, since `BigInteger.Parse()` does not accept a prefix
-                // like 0x or 0X being present. Adding a `startOffset` here feels safer than mutating `start`,
+            if (currentChar is 'b' or 'x')
+            {
+                switch (currentChar)
+                {
+                    case 'b':
+                        numberBase = Base.BINARY;
+                        break;
+
+                    case 'x':
+                        numberStyles = NumberStyles.HexNumber;
+                        numberBase = Base.HEXADECIMAL;
+                        break;
+                }
+
+                // Moving the `start` pointer forward is important, since the parsing methods do not accept a prefix
+                // like 0b or 0x being present. Adding a `startOffset` here feels safer than mutating `start`,
                 // especially in case parsing fails somehow.
                 Advance();
                 startOffset = 2;
@@ -326,7 +340,6 @@ namespace Perlang.Parser
 
                 // Consume the "."
                 Advance();
-
                 while (IsDigit(Peek(), numberBase))
                 {
                     Advance();
@@ -339,32 +352,37 @@ namespace Perlang.Parser
             }
             else
             {
+                string numberCharacters = source[(start + startOffset)..current];
+
                 // Any potential preceding '-' character has already been taken care of at this stage => we can treat
                 // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
                 // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
                 // follows the same semantics as how C# does it, for simplicity.
-                BigInteger value;
 
-                if (numberBase == Base.HEXADECIMAL)
+                BigInteger value = numberBase switch
                 {
-                    string numberCharacters = source[(start + startOffset)..current];
+                    Base.DECIMAL =>
+                        BigInteger.Parse(source[(start + startOffset)..current], numberStyles),
 
-                    // Quoting from
-                    //https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger.parse?view=net-5.0#System_Numerics_BigInteger_Parse_System_ReadOnlySpan_System_Char__System_Globalization_NumberStyles_System_IFormatProvider_
-                    //
-                    // If value is a hexadecimal string, the Parse(String, NumberStyles) method interprets value as a
-                    // negative number stored by using two's complement representation if its first two hexadecimal
-                    // digits are greater than or equal to 0x80. In other words, the method interprets the highest-order
-                    // bit of the first byte in value as the sign bit. To make sure that a hexadecimal string is
-                    // correctly interpreted as a positive number, the first digit in value must have a value of zero.
-                    //
-                    // We presume that all hexadecimals should be treated as positive numbers for now.
-                    value = BigInteger.Parse('0' + numberCharacters, numberStyles);
-                }
-                else
-                {
-                    value = BigInteger.Parse(source[(start + startOffset)..current], numberStyles);
-                }
+                    Base.BINARY =>
+                        Convert.ToUInt64(numberCharacters, 2),
+
+                    Base.HEXADECIMAL =>
+                        // Quoting from
+                        // https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger.parse?view=net-5.0#System_Numerics_BigInteger_Parse_System_ReadOnlySpan_System_Char__System_Globalization_NumberStyles_System_IFormatProvider_
+                        //
+                        // If value is a hexadecimal string, the Parse(String, NumberStyles) method interprets value as a
+                        // negative number stored by using two's complement representation if its first two hexadecimal
+                        // digits are greater than or equal to 0x80. In other words, the method interprets the highest-order
+                        // bit of the first byte in value as the sign bit. To make sure that a hexadecimal string is
+                        // correctly interpreted as a positive number, the first digit in value must have a value of zero.
+                        //
+                        // We presume that all hexadecimals should be treated as positive numbers for now.
+                        BigInteger.Parse('0' + numberCharacters, numberStyles),
+
+                    _ =>
+                        throw new InvalidOperationException($"Base {(int)numberBase} not supported")
+                };
 
                 if (value < Int32.MaxValue)
                 {
@@ -504,8 +522,9 @@ namespace Perlang.Parser
 
         private enum Base
         {
+            BINARY = 2,
             DECIMAL = 10,
-            HEXADECIMAL = 16
+            HEXADECIMAL = 16,
         }
     }
 }
