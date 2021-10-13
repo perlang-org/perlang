@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -332,7 +333,7 @@ namespace Perlang.Parser
                 startOffset = 2;
             }
 
-            while (IsDigit(Peek(), numberBase))
+            while (IsDigit(Peek(), numberBase) || Peek() == '_')
             {
                 Advance();
             }
@@ -357,6 +358,14 @@ namespace Perlang.Parser
             else
             {
                 string numberCharacters = source[(start + startOffset)..current];
+                var sb = new StringBuilder();
+
+                foreach (char c in numberCharacters.Where(c => c != '_'))
+                {
+                    sb.Append(c);
+                }
+
+                numberCharacters = sb.ToString();
 
                 // Any potential preceding '-' character has already been taken care of at this stage => we can treat
                 // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
@@ -366,7 +375,7 @@ namespace Perlang.Parser
                 BigInteger value = numberBase switch
                 {
                     Base.DECIMAL =>
-                        BigInteger.Parse(source[(start + startOffset)..current], numberStyles),
+                        BigInteger.Parse(numberCharacters, numberStyles),
 
                     Base.BINARY =>
                         Convert.ToUInt64(numberCharacters, 2),
