@@ -307,12 +307,16 @@ namespace Perlang.Parser
 
             char currentChar = Char.ToLower(Peek());
 
-            if (currentChar is 'b' or 'x')
+            if (currentChar is 'b' or 'o' or 'x')
             {
                 switch (currentChar)
                 {
                     case 'b':
                         numberBase = Base.BINARY;
+                        break;
+
+                    case 'o':
+                        numberBase = Base.OCTAL;
                         break;
 
                     case 'x':
@@ -366,6 +370,9 @@ namespace Perlang.Parser
 
                     Base.BINARY =>
                         Convert.ToUInt64(numberCharacters, 2),
+
+                    Base.OCTAL =>
+                        Convert.ToUInt64(numberCharacters, 8),
 
                     Base.HEXADECIMAL =>
                         // Quoting from
@@ -523,6 +530,7 @@ namespace Perlang.Parser
         private enum Base
         {
             BINARY = 2,
+            OCTAL = 8,
             DECIMAL = 10,
             HEXADECIMAL = 16,
         }

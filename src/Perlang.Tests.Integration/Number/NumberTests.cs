@@ -120,6 +120,18 @@ namespace Perlang.Tests.Integration.Number
         }
 
         [Fact]
+        public void literal_octal()
+        {
+            string source = @"
+                0o755
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(493, result);
+        }
+
+        [Fact]
         public void literal_hexadecimal()
         {
             string source = @"
