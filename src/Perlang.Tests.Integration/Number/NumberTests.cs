@@ -48,6 +48,18 @@ namespace Perlang.Tests.Integration.Number
         }
 
         [Fact]
+        public void literal_integer_with_underscores()
+        {
+            string source = @"
+                123_456
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(123456, result);
+        }
+
+        [Fact]
         public void literal_zero()
         {
             string source = @"
@@ -120,6 +132,18 @@ namespace Perlang.Tests.Integration.Number
         }
 
         [Fact]
+        public void literal_binary_with_underscores()
+        {
+            string source = @"
+                0b0010_1010
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(42, result);
+        }
+
+        [Fact]
         public void literal_octal()
         {
             string source = @"
@@ -136,6 +160,18 @@ namespace Perlang.Tests.Integration.Number
         {
             string source = @"
                 0xC0CAC01A
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(3234512922, result);
+        }
+
+        [Fact]
+        public void literal_hexadecimal_with_underscores()
+        {
+            string source = @"
+                0xC0_CA_C0_1A
             ";
 
             object result = Eval(source);
