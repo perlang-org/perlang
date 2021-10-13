@@ -42,6 +42,19 @@ namespace Perlang.Tests.Interpreter.Typing
         }
 
         [Fact]
+        public void Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_ClrType()
+        {
+            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
+                var v = 0o755;
+            ");
+
+            // Assert
+            Assert.IsType<Stmt.Var>(singleStatement);
+            Assert.True(resolver.Globals.ContainsKey("v"));
+            Assert.Equal(typeof(Int32), ((Stmt.Var)singleStatement).TypeReference.ClrType);
+        }
+
+        [Fact]
         public void Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_ClrType()
         {
             (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
