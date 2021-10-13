@@ -108,6 +108,18 @@ namespace Perlang.Tests.Integration.Number
         }
 
         [Fact]
+        public void literal_binary()
+        {
+            string source = @"
+                0b00101010
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(42, result);
+        }
+
+        [Fact]
         public void literal_hexadecimal()
         {
             string source = @"
