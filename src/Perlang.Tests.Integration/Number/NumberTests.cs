@@ -120,6 +120,30 @@ namespace Perlang.Tests.Integration.Number
         }
 
         [Fact]
+        public void literal_float_with_underscore_in_integer_part()
+        {
+            string source = @"
+                123_45.678
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(12345.678, result);
+        }
+
+        [Fact]
+        public void literal_float_with_underscore_in_fractional_part()
+        {
+            string source = @"
+                123.45_678
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(123.45678, result);
+        }
+
+        [Fact]
         public void literal_binary()
         {
             string source = @"
