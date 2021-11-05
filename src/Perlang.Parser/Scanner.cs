@@ -345,28 +345,21 @@ namespace Perlang.Parser
 
                 // Consume the "."
                 Advance();
-                while (IsDigit(Peek(), numberBase))
+
+                while (IsDigit(Peek(), numberBase) || Peek() == '_')
                 {
                     Advance();
                 }
             }
 
+            string numberCharacters = RemoveUnderscores(source[(start + startOffset)..current]);
+
             if (isFractional)
             {
-                AddToken(NUMBER, Double.Parse(source[start..current]));
+                AddToken(NUMBER, Double.Parse(numberCharacters));
             }
             else
             {
-                string numberCharacters = source[(start + startOffset)..current];
-                var sb = new StringBuilder();
-
-                foreach (char c in numberCharacters.Where(c => c != '_'))
-                {
-                    sb.Append(c);
-                }
-
-                numberCharacters = sb.ToString();
-
                 // Any potential preceding '-' character has already been taken care of at this stage => we can treat
                 // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
                 // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
@@ -421,6 +414,18 @@ namespace Perlang.Parser
                     AddToken(NUMBER, value);
                 }
             }
+        }
+
+        private static string RemoveUnderscores(string s)
+        {
+            var sb = new StringBuilder();
+
+            foreach (char c in s.Where(c => c != '_'))
+            {
+                sb.Append(c);
+            }
+
+            return sb.ToString();
         }
 
         private void String()
@@ -503,9 +508,9 @@ namespace Perlang.Parser
 
         private static bool IsAlpha(char c)
         {
-            return (c >= 'a' && c <= 'z') ||
-                   (c >= 'A' && c <= 'Z') ||
-                   c == '_';
+            return (c is >= 'a' and <= 'z') ||
+                   (c is >= 'A' and <= 'Z') ||
+                   c is '_';
         }
 
         private static bool IsAlphaNumeric(char c) =>
@@ -514,10 +519,10 @@ namespace Perlang.Parser
         private static bool IsDigit(char c, Base @base) =>
             (int)@base switch
             {
-                2 => c == '0' || c == '1',
-                8 => c >= '0' && c <= '7',
-                10 => c >= '0' && c <= '9',
-                16 => (c >= '0' && c <= '9') || (Char.ToUpper(c) >= 'A' && Char.ToUpper(c) <= 'F'),
+                2 => c is '0' or '1',
+                8 => c is >= '0' and <= '7',
+                10 => c is >= '0' and <= '9',
+                16 => c is >= '0' and <= '9' || (Char.ToUpper(c) >= 'A' && Char.ToUpper(c) <= 'F'),
                 _ => throw new ArgumentException($"Base {@base} is not supported")
             };
 
