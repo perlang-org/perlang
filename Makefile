@@ -35,7 +35,7 @@ docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
 docs-test-examples:
-	for e in docs/examples/*.per ; do echo == $$e ; src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish/perlang $$e ; echo ; done
+	for e in docs/examples/*.per ; do echo == $$e ; src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang $$e ; echo ; done
 
 docs-serve:
 	live-server _site
@@ -56,4 +56,4 @@ run: auto-generated
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
-	src/Perlang.ConsoleApp/bin/Debug/net5.0/perlang
+	src/Perlang.ConsoleApp/bin/Debug/net6.0/perlang

@@ -1080,7 +1080,10 @@ namespace Perlang.Interpreter
                     {
                         // Both values are some form of integers. The BigInteger implementation is more likely to yield
                         // a result that is useful for us in this case.
-                        return BigInteger.Pow(leftNumber, rightNumber);
+                        //
+                        // Because of "Perlang.NullObject is not comparable" checks in TypeResolver, we can assert that
+                        // neither one of these can be `null` at this point.
+                        return BigInteger.Pow((BigInteger)leftNumber!, (int)rightNumber!);
                     }
 
                 case PERCENT:

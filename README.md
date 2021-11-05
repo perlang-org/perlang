@@ -1,4 +1,4 @@
-![.NET Core build & test](https://github.com/perlang-org/perlang/workflows/.NET%20Core%20build%20&%20test/badge.svg)
+![.NET build & test](https://github.com/perlang-org/perlang/workflows/.NET%20Core%20build%20&%20test/badge.svg)
 ![perlang-install](https://github.com/perlang-org/perlang/workflows/perlang-install/badge.svg)
 
 # perlang
