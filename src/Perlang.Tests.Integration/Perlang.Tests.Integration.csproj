@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <!-- 1591: Public methods do not need documentation in a Test project -->
       <NoWarn>SA1116;SA1117;SA1300;S3881;1591;1701;1702</NoWarn>
       <DocumentationFile>bin\Release\Perlang.Tests.Integration.xml</DocumentationFile>
     </PropertyGroup>

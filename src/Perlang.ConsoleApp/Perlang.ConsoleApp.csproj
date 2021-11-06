@@ -12,12 +12,12 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <DocumentationFile>bin\Release\Perlang.ConsoleApp.xml</DocumentationFile>
-      <NoWarn>1591;1701;1702</NoWarn>
+      <NoWarn>1701;1702</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DocumentationFile>bin\Debug\Perlang.ConsoleApp.xml</DocumentationFile>
-      <NoWarn>1591;1701;1702</NoWarn>
+      <NoWarn>1701;1702</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

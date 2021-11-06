@@ -4,9 +4,18 @@ using System.CommandLine.Parsing;
 
 namespace Perlang.ConsoleApp
 {
-    // TODO: Remove this class if/when https://github.com/dotnet/command-line-api/pull/1272 gets merged.
+    /// <summary>
+    /// Extension methods for <see cref="CommandResult"/>.
+    /// </summary>
     public static class CommandResultExtensions
     {
+        /// <summary>
+        /// Determines if the given option is present in the provided <see cref="CommandResult"/>.
+        /// </summary>
+        /// <param name="commandResult"></param>
+        /// <param name="option"></param>
+        /// <returns>`true` if the option is present, `false` otherwise</returns>
+        /// <exception cref="ArgumentNullException">`commandResult` is null</exception>
         public static bool HasOption(
             this CommandResult commandResult,
             IOption option)

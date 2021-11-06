@@ -12,7 +12,7 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <DocumentationFile>bin\Release\Perlang.Parser.xml</DocumentationFile>
-      <NoWarn>1591;1701;1702</NoWarn>
+      <NoWarn>1701;1702</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
