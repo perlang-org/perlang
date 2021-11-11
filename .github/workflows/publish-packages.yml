@@ -1,4 +1,4 @@
-name: .NET Core publish packages
+name: .NET publish packages
 
 # Technically, this could be conditionalized on the following paths:
 #
@@ -24,10 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.0.102
+          dotnet-version: 6.0.x
 
       - name: Re-generate auto-generated files
         run: make auto-generated
@@ -49,18 +49,18 @@ jobs:
       #
       - name: Create linux-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish
 
       - name: Create osx-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-osx-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/osx-x64/publish
 
       - name: Create win-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-win-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net5.0/win-x64/publish
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/win-x64/publish
 
       - name: List .tar.gz files
-        run: ls -l src/Perlang.ConsoleApp/bin/Release/net5.0/*/*.tar.gz
+        run: ls -l src/Perlang.ConsoleApp/bin/Release/net6.0/*/*.tar.gz
 
       #
       # Upload files to releases server via rsync
@@ -70,7 +70,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/linux-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
@@ -81,7 +81,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/osx-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/osx-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
@@ -92,7 +92,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net5.0/win-x64/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/win-x64/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
