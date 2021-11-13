@@ -11,10 +11,10 @@ namespace Perlang.Tests.Integration.Operator
         //
 
         [Fact]
-        public void incrementing_defined_variable()
+        public void incrementing_int_variable()
         {
             string source = @"
-                var i = 0;
+                var i: int = 0;
                 i++;
                 print i;
             ";
@@ -22,6 +22,34 @@ namespace Perlang.Tests.Integration.Operator
             var output = EvalReturningOutputString(source);
 
             Assert.Equal("1", output);
+        }
+
+        [Fact]
+        public void incrementing_long_variable()
+        {
+            string source = @"
+                var l: long = 4294967296;
+                l++;
+                print l;
+            ";
+
+            var output = EvalReturningOutputString(source);
+
+            Assert.Equal("4294967297", output);
+        }
+
+        [Fact]
+        public void incrementing_double_variable()
+        {
+            string source = @"
+                var d = 4294967296.123;
+                d++;
+                print d;
+            ";
+
+            var output = EvalReturningOutputString(source);
+
+            Assert.Equal("4294967297.123", output);
         }
 
         [Fact]

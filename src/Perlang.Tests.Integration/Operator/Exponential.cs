@@ -219,7 +219,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Operands must be numbers, not PerlangFunction and Int32", exception.Message);
+            Assert.Matches("Operands must be numbers, not function and int", exception.Message);
         }
     }
 }

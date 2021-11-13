@@ -603,12 +603,60 @@ namespace Perlang.Interpreter
                     return !IsTruthy(right);
 
                 case MINUS:
-                    // Using 'dynamic' here is arguably a bit weird, but like in VisitBinaryExpr(), it simplifies things
-                    // significantly. The other option would be to handle all kind of numeric types here individually,
-                    // which is clearly doable but a bit more work. For now, the CheckNumberOperand() method is the
-                    // guarantee that the dynamic operation will succeed.
                     CheckNumberOperand(expr.Operator, right);
-                    return -(dynamic?)right;
+
+                    // This was previously done using the 'dynamic' keyword, but a major drawback of doing it like this
+                    // is that it makes it harder for the compiler to do a static analysis of the code. This particular
+                    // section was fine, but other parts broke as part of the .NET 6 upgrade. More details:
+                    // https://github.com/perlang-org/perlang/pull/223/files#r747380990
+                    //
+                    // The general conclusion was that it's safer and more predictable to move away from 'dynamic'
+                    // altogether.
+
+                    switch (right)
+                    {
+                        case SByte value:
+                            return -value;
+
+                        case Int16 value:
+                            return -value;
+
+                        case Int32 value:
+                            return -value;
+
+                        case Int64 value:
+                            return -value;
+
+                        case Byte value:
+                            return -value;
+
+                        case UInt16 value:
+                            return -value;
+
+                        case UInt32 value:
+                            return -value;
+
+                        case UInt64 value:
+                            // .NET will give an "ambiguous invocation" here, suggesting that we cast value to either a
+                            // `decimal`, `double` or `float`. However, making an integer-type of variable become a
+                            // floating point value all of a sudden seems like odd semantics here. Even though it is
+                            // less performant, we go with the BigInteger approach for now: negating a UInt64 will
+                            // inherently expand it to a BigInteger.
+                            return -new BigInteger(value);
+
+                        case Single value: // i.e. float
+                            return -value;
+
+                        case Double value:
+                            return -value;
+
+                        case BigInteger value:
+                            return -value;
+
+                        default:
+                            // TODO: Use TypeExtensions.ToTypeKeywordNew() instead. Just need to make it handle null objects
+                            throw new RuntimeError(expr.Operator, $"Internal runtime error: Unexpected type of object ${right?.GetType().FullName} encountered");
+                    }
             }
 
             // Unreachable.
@@ -636,23 +684,30 @@ namespace Perlang.Interpreter
             }
 
             // The nullability check has been taken care of by IsValidNumberType() for us.
-            dynamic previousValue = left!;
             var variable = (Expr.Identifier)expr.Left;
-            object value;
 
-            switch (expr.Operator.Type)
+            object value = left switch
             {
-                case PLUS_PLUS:
-                    value = previousValue + 1;
-                    break;
-
-                case MINUS_MINUS:
-                    value = previousValue - 1;
-                    break;
-
-                default:
-                    throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}");
-            }
+                int previousIntValue => expr.Operator.Type switch
+                {
+                    PLUS_PLUS => previousIntValue + 1,
+                    MINUS_MINUS => previousIntValue - 1,
+                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                },
+                long previousLongValue => expr.Operator.Type switch
+                {
+                    PLUS_PLUS => previousLongValue + 1,
+                    MINUS_MINUS => previousLongValue - 1,
+                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                },
+                double previousDoubleValue => expr.Operator.Type switch
+                {
+                    PLUS_PLUS => previousDoubleValue + 1,
+                    MINUS_MINUS => previousDoubleValue - 1,
+                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                },
+                _ => throw new RuntimeError(expr.Operator, $"Internal runtime: Unsupported type {StringifyType(left)} encountered with {expr.Operator.Type} operator")
+            };
 
             if (BindingHandler.GetLocalBinding(expr, out Binding? binding))
             {
@@ -670,7 +725,7 @@ namespace Perlang.Interpreter
                 globals.Assign(variable.Name, value);
             }
 
-            return previousValue;
+            return left!;
         }
 
         public object VisitIdentifierExpr(Expr.Identifier expr)
@@ -747,7 +802,7 @@ namespace Perlang.Interpreter
                 return;
             }
 
-            throw new RuntimeError(@operator, $"Operands must be numbers, not {left?.GetType().Name} and {right?.GetType().Name}");
+            throw new RuntimeError(@operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
         }
 
         private static bool IsValidNumberType(object? value)
@@ -988,6 +1043,8 @@ namespace Perlang.Interpreter
         {
             object? left = Evaluate(expr.Left);
             object? right = Evaluate(expr.Right);
+
+            // TODO: Convert this to not use `dynamic` as well.
 
             // Using 'dynamic' here to avoid excessive complexity, having to support all permutations of
             // comparisons (int16 to int32, int32 to int64, etc etc). Since we validate the numerability of the
