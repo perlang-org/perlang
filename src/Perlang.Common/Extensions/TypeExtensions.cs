@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 
-namespace Perlang.Interpreter.Extensions
+namespace Perlang.Extensions
 {
     /// <summary>
     /// Extension methods for <see cref="Type"/>.
     /// </summary>
-    internal static class TypeExtensions
+    public static class TypeExtensions
     {
         public static string ToTypeKeyword(this Type type)
         {
@@ -18,6 +18,9 @@ namespace Perlang.Interpreter.Extensions
                 { } when type == typeof(BigInteger) => "BigInteger", // TODO: Should we make this bigint and support it as a special type as the others?
                 { } when type == typeof(NullObject) => "null",
                 { } when type == typeof(String) => "string",
+
+                // TODO: How to handle this if/when moving this to Perlang.Common? It doesn't have any notion of PerlangFunction or other
+                { } when type.IsAssignableTo(typeof(IPerlangFunction)) => "function",
                 null => "null",
                 _ => type.ToString()
             };

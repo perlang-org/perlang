@@ -104,7 +104,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("can only be used to increment numbers, not String", exception.Message);
+            Assert.Matches("can only be used to increment numbers, not string", exception.Message);
         }
     }
 }
