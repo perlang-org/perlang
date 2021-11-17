@@ -1,3 +1,5 @@
+using Perlang.Extensions;
+
 namespace Perlang
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Perlang
                 return "null";
             }
 
-            return @object.GetType().Name;
+            return @object.GetType().ToTypeKeyword();
         }
     }
 }

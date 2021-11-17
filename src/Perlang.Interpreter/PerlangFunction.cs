@@ -5,7 +5,7 @@ namespace Perlang.Interpreter
     /// <summary>
     /// Callable implementation for user-defined functions.
     /// </summary>
-    internal class PerlangFunction : ICallable
+    internal class PerlangFunction : ICallable, IPerlangFunction
     {
         private readonly Stmt.Function declaration;
         private readonly IEnvironment closure;

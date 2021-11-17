@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Humanizer;
+using Perlang.Extensions;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
 

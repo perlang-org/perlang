@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Perlang.Interpreter.Extensions;
+using Perlang.Extensions;
 using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing
