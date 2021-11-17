@@ -25,23 +25,23 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
-        public void exponential_positive_and_negative_integer_literals()
+        public void exponential_positive_and_negative_integer_literals_throws_expected_error()
         {
-            // This is clearly a bit of a weird case, and I'm not sure this is semantics we want to keep in the language
-            // in the long run. BigInteger.Pow() only supports positive exponents, which is reasonable since negative
-            // exponents are likely to lead to fractional values.
-            //
-            // We avoid this by using the double-based Math.Pow() method under the hood instead. This does mean that the
-            // return value is _not_ an integer of any sort any more though; it silently becomes a double. I'm not sure
-            // whether this is a good idea or not, but let's try it and see how it feels.
+            // We thought about supporting this, returning a `double` instead of a `bigint` in this case, but returning
+            // _different types depending on exponent_ (positive or negative) seems far too dynamic for use. Perlang is
+            // a strongly typed language where we want our users to be able to expect few "surprises" in this regard.
+            // Hence, perhaps even a runtime exception is better in this case. If we want to make it even better at some
+            // point, we could make this a compile-time check for negative integer literals at least.
 
             string source = @"
                 10 ** -3
             ";
 
-            object result = Eval(source);
+            var result = EvalWithRuntimeErrorCatch(source);
+            var exception = result.Errors.First();
 
-            Assert.Equal(0.001, result);
+            Assert.Single(result.Errors);
+            Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
         }
 
         [Fact]
@@ -96,6 +96,19 @@ namespace Perlang.Tests.Integration.Operator
             object result = Eval(source);
 
             Assert.Equal(3162.2776601683795, result);
+        }
+
+        [Fact]
+        public void exponential_integer_and_float_literals_infers_to_expected_type()
+        {
+            string source = @"
+                var v = 10 ** 3.5;
+                print v.get_type();
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            Assert.Equal("System.Double", result);
         }
 
         [Fact]
@@ -160,6 +173,21 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("65536", result);
         }
 
+        [Theory]
+        [InlineData("2", "12", "4096")]
+        [InlineData("10", "3.5", "3162.2776601683795")]
+        public void exponential_integer_literals_as_variable_initializer(string left, string right, string expectedResult)
+        {
+            string source = $@"
+                var x = {left} ** {right};
+                print x;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            Assert.Equal(expectedResult, result);
+        }
+
         [Fact]
         public void exponential_function_return_value_and_int_literal()
         {
@@ -204,6 +232,36 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
+        public void exponential_bigint_and_negative_int_throws_expected_error()
+        {
+            string source = @"
+                1267650600228229401496703205376 ** -3
+            ";
+
+            var result = EvalWithRuntimeErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
+        }
+
+        [Theory]
+        [InlineData("1267650600228229401496703205376", "1267650600228229401496703205376", "bigint", "bigint")]
+        [InlineData("12345", "1267650600228229401496703205376", "int", "bigint")]
+        public void exponential_unsupported_numeric_types_throws_expected_error(string left, string right, string leftType, string rightType)
+        {
+            string source = $@"
+                {left} ** {right}
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+            Assert.Equal($"Unsupported ** operands specified: {leftType} and {rightType}", exception.Message);
+        }
+
+        [Fact]
         public void exponential_string_and_integer_throws_expected_error()
         {
             string source = @"
@@ -243,6 +301,8 @@ namespace Perlang.Tests.Integration.Operator
             var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.First();
 
+            // TODO: Should not be runtime error but rather a compile-time error from the TypeResolver class. See the
+            // TODO: comment in TypeResolver.VisitBinaryExpr() for more details about why this is not currently doable.
             Assert.Single(result.Errors);
             Assert.Matches("Operands must be numbers, not function and int", exception.Message);
         }

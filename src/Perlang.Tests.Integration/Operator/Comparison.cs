@@ -12,8 +12,17 @@ namespace Perlang.Tests.Integration.Operator
         {
             new object[] { "int", "int" },
             new object[] { "int", "long" },
+            new object[] { "int", "bigint" },
             new object[] { "long", "int" },
-            new object[] { "long", "long" }
+            new object[] { "long", "long" },
+            new object[] { "long", "bigint" },
+
+            // TODO: Make these work. They are dependent on constant expression values being available at compile-time,
+            // TODO: since we do `int`-to-`double` assignments in these tests. This is perfectly _fine_ for small,
+            // TODO: supported values but unsafe for non-constant values (since a loss of precision can occur).
+            //new object[] { "double", "double" },
+            //new object[] { "bigint", "double" },  // See #229
+            //new object[] { "double", "bigint" }   // See #229
         };
 
         //
