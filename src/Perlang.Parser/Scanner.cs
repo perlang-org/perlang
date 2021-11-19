@@ -23,6 +23,8 @@ namespace Perlang.Parser
     /// </remarks>
     public class Scanner
     {
+        // NOTE: When making changes here, remember to adjust highlightjs-perlang.js also to ensure syntax highlighting
+        // on the website matches the real set of keywords in the language.
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
