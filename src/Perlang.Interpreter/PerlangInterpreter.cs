@@ -889,13 +889,13 @@ namespace Perlang.Interpreter
                 // I guess it's best to take the unexpected into account and presume it can be null... :-)
                 string message = ex.InnerException?.Message ?? ex.Message;
 
-                throw new RuntimeError(token, message);
+                throw new RuntimeError(token, message, ex);
             }
             catch (SystemException ex)
             {
                 Token? token = (expr as ITokenAware)?.Token;
 
-                throw new RuntimeError(token, ex.Message);
+                throw new RuntimeError(token, ex.Message, ex);
             }
         }
 
