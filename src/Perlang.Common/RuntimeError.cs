@@ -8,10 +8,16 @@ namespace Perlang
     // some point anyway, at which point we should be able to completely get rid of this class altogether.
     public class RuntimeError : Exception
     {
-        public Token? Token { get; set; }
+        public Token? Token { get; }
 
         public RuntimeError(Token? token, string message)
             : base(message)
+        {
+            Token = token;
+        }
+
+        public RuntimeError(Token? token, string message, Exception innerException)
+            : base(message, innerException)
         {
             Token = token;
         }
