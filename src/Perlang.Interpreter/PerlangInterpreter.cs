@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Perlang.Attributes;
 using Perlang.Exceptions;
+using Perlang.Extensions;
 using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
@@ -1226,9 +1227,22 @@ namespace Perlang.Interpreter
                 {
                     return Convert.ToDouble(value);
                 }
+                else if (targetTypeReference.ClrType == typeof(BigInteger))
+                {
+                    return value switch
+                    {
+                        int intValue => new BigInteger(intValue),
+                        long longValue => new BigInteger(longValue),
+                        float floatValue => new BigInteger(floatValue),
+                        double doubleValue => new BigInteger(doubleValue),
+
+                        // TODO: Might need to revisit this to support more types as we implement #70.
+                        _ => throw new IllegalStateException($"Unsupported conversion from {value.GetType().ToTypeKeyword()} to {targetTypeReference.ClrType.ToTypeKeyword()}")
+                    };
+                }
                 else
                 {
-                    throw new IllegalStateException($"Unsupported target type {targetTypeReference.ClrType}");
+                    throw new IllegalStateException($"Unsupported target type {targetTypeReference.ClrType.ToTypeKeyword()}");
                 }
             }
 
