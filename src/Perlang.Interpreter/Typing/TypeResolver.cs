@@ -114,7 +114,7 @@ namespace Perlang.Interpreter.Typing
 
                     if (typeReference == null)
                     {
-                        string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
+                        string message = $"Unsupported {expr.Operator.Type.ToSourceString()} operands specified: " +
                                          $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
 
                         throw new TypeValidationError(expr.Operator, message);
@@ -130,7 +130,7 @@ namespace Perlang.Interpreter.Typing
 
                     if (leftMaxValue == null || rightMaxValue == null)
                     {
-                        string message = $"Invalid arguments to {expr.Operator.Type.ToSourceString()} operator specified: " +
+                        string message = $"Unsupported {expr.Operator.Type.ToSourceString()} operands specified: " +
                                          $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
 
                         throw new TypeValidationError(expr.Operator, message);

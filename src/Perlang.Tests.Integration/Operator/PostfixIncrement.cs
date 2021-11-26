@@ -10,46 +10,36 @@ namespace Perlang.Tests.Integration.Operator
         // "Positive" tests, testing for supported behavior
         //
 
-        [Fact]
-        public void incrementing_int_variable()
+        [Theory]
+        [InlineData("int", "0", "1")]
+        [InlineData("long", "4294967296", "4294967297")]
+        public void incrementing_variable_assigns_expected_value(string type, string before, string after)
         {
-            string source = @"
-                var i: int = 0;
+            string source = $@"
+                var i: {type} = {before};
                 i++;
                 print i;
             ";
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("1", output);
+            Assert.Equal(after, output);
         }
 
-        [Fact]
-        public void incrementing_long_variable()
+        [Theory]
+        [InlineData("int", "0", "System.Int32")]
+        [InlineData("long", "4294967296", "System.Int64")]
+        public void incrementing_variable_retains_expected_type(string type, string before, string expectedClrType)
         {
-            string source = @"
-                var l: long = 4294967296;
-                l++;
-                print l;
+            string source = $@"
+                var i: {type} = {before};
+                i++;
+                print i.get_type();
             ";
 
-            var output = EvalReturningOutputString(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("4294967297", output);
-        }
-
-        [Fact]
-        public void incrementing_double_variable()
-        {
-            string source = @"
-                var d = 4294967296.123;
-                d++;
-                print d;
-            ";
-
-            var output = EvalReturningOutputString(source);
-
-            Assert.Equal("4294967297.123", output);
+            Assert.Equal(expectedClrType, output);
         }
 
         [Fact]

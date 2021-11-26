@@ -123,6 +123,30 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
+        public void exponential_bigint_and_int()
+        {
+            string source = @"
+                1267650600228229401496703205376 ** 3
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
+        }
+
+        [Fact]
+        public void exponential_multiple_times()
+        {
+            string source = @"
+                (2 ** 100) ** 3
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
+        }
+
+        [Fact]
         public void exponential_integer_literal_and_function_return_value()
         {
             string source = @"
@@ -152,7 +176,7 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Fact]
-        public void exponential_function_return_value_and_integer_literal()
+        public void exponential_function_return_value_and_int_literal()
         {
             string source = @"
                 fun foo(): int { return 4; }
@@ -163,6 +187,20 @@ namespace Perlang.Tests.Integration.Operator
             string result = EvalReturningOutputString(source);
 
             Assert.Equal("65536", result);
+        }
+
+        [Fact]
+        public void exponential_int_variable_and_int_literal()
+        {
+            string source = @"
+                var left = 2;
+
+                print left ** 8;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            Assert.Equal("256", result);
         }
 
         [Fact]
@@ -191,7 +229,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified: string and int", exception.Message);
+            Assert.Equal("Unsupported ** operands specified: string and int", exception.Message);
         }
 
         [Fact]
@@ -205,7 +243,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to ** operator specified: int and string", exception.Message);
+            Assert.Equal("Unsupported ** operands specified: int and string", exception.Message);
         }
 
         [Fact]

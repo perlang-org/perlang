@@ -48,7 +48,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to / operator specified", exception.Message);
+            Assert.Matches("Unsupported / operands specified", exception.Message);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Invalid arguments to / operator specified", exception.Message);
+            Assert.Matches("Unsupported / operands specified", exception.Message);
         }
 
         [Fact]

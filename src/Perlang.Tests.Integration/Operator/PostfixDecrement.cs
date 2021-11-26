@@ -24,6 +24,22 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(new[] { "-1" }, output);
         }
 
+        [Theory]
+        [InlineData("int", "1", "System.Int32")]
+        [InlineData("long", "4294967296", "System.Int64")]
+        public void decrementing_variable_retains_expected_type(string type, string before, string expectedClrType)
+        {
+            string source = $@"
+                var i: {type} = {before};
+                i--;
+                print i.get_type();
+            ";
+
+            var output = EvalReturningOutputString(source);
+
+            Assert.Equal(expectedClrType, output);
+        }
+
         [Fact]
         public void decrement_can_be_used_in_for_loops()
         {
