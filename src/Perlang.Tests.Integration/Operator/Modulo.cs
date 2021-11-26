@@ -89,7 +89,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to % operator specified: string and int", exception.Message);
+            Assert.Equal("Unsupported % operands specified: string and int", exception.Message);
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Invalid arguments to % operator specified: int and string", exception.Message);
+            Assert.Equal("Unsupported % operands specified: int and string", exception.Message);
         }
     }
 }

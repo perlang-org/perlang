@@ -359,7 +359,7 @@ namespace Perlang.Parser
             if (isFractional)
             {
                 // TODO: This is a mess. We currently treat all floating point values as _double_, which is insane. We
-                // TODO: should probably have a "use smallest possible type" logic as below for integers, for flotaing point
+                // TODO: should probably have a "use smallest possible type" logic as below for integers, for floating point
                 // TODO: values as well. We could also consider supporting `decimal` while we're at it.
                 AddToken(NUMBER, Double.Parse(numberCharacters));
             }

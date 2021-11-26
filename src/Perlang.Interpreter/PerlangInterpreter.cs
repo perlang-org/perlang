@@ -687,28 +687,39 @@ namespace Perlang.Interpreter
             // The nullability check has been taken care of by IsValidNumberType() for us.
             var variable = (Expr.Identifier)expr.Left;
 
-            object value = left switch
+            // Note: this must NOT be converted to a switch expression, since it mangles the type of `int` and `long`
+            // values to `double`. This is because this is a type that all used types (`int`, `long`, `double`) can be
+            // implicitly converted to. More details: https://stackoverflow.com/a/70130076/227779
+            object value;
+            switch (left)
             {
-                int previousIntValue => expr.Operator.Type switch
-                {
-                    PLUS_PLUS => previousIntValue + 1,
-                    MINUS_MINUS => previousIntValue - 1,
-                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
-                },
-                long previousLongValue => expr.Operator.Type switch
-                {
-                    PLUS_PLUS => previousLongValue + 1,
-                    MINUS_MINUS => previousLongValue - 1,
-                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
-                },
-                double previousDoubleValue => expr.Operator.Type switch
-                {
-                    PLUS_PLUS => previousDoubleValue + 1,
-                    MINUS_MINUS => previousDoubleValue - 1,
-                    _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
-                },
-                _ => throw new RuntimeError(expr.Operator, $"Internal runtime: Unsupported type {StringifyType(left)} encountered with {expr.Operator.Type} operator")
-            };
+                case int previousIntValue:
+                    value = expr.Operator.Type switch
+                    {
+                        PLUS_PLUS => previousIntValue + 1,
+                        MINUS_MINUS => previousIntValue - 1,
+                        _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                    };
+                    break;
+                case long previousLongValue:
+                    value = expr.Operator.Type switch
+                    {
+                        PLUS_PLUS => previousLongValue + 1,
+                        MINUS_MINUS => previousLongValue - 1,
+                        _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                    };
+                    break;
+                case double previousDoubleValue:
+                    value = expr.Operator.Type switch
+                    {
+                        PLUS_PLUS => previousDoubleValue + 1,
+                        MINUS_MINUS => previousDoubleValue - 1,
+                        _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                    };
+                    break;
+                default:
+                    throw new RuntimeError(expr.Operator, $"Internal runtime: Unsupported type {StringifyType(left)} encountered with {expr.Operator.Type} operator");
+            }
 
             if (BindingHandler.GetLocalBinding(expr, out Binding? binding))
             {
