@@ -13,6 +13,7 @@ namespace Perlang.Tests.Integration.Operator
         [Theory]
         [InlineData("int", "0", "1")]
         [InlineData("long", "4294967296", "4294967297")]
+        [InlineData("double", "4294967296.123", "4294967297.123")]
         public void incrementing_variable_assigns_expected_value(string type, string before, string after)
         {
             string source = $@"
@@ -29,6 +30,7 @@ namespace Perlang.Tests.Integration.Operator
         [Theory]
         [InlineData("int", "0", "System.Int32")]
         [InlineData("long", "4294967296", "System.Int64")]
+        [InlineData("double", "4294967296.123", "System.Double")]
         public void incrementing_variable_retains_expected_type(string type, string before, string expectedClrType)
         {
             string source = $@"

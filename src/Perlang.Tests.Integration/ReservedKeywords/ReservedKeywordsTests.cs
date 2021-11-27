@@ -35,7 +35,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches($"Error at '{reservedWord}': Reserved word encountered", exception.ToString());
+            Assert.Matches($"Error at '{reservedWord}': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'public': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'public': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'private': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'private': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'protected': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'protected': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'internal': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'internal': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'static': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'static': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'volatile': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'volatile': Reserved keyword encountered", exception.ToString());
         }
 
         //
@@ -153,7 +153,22 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 
             Assert.Single(result.Errors);
 
-            Assert.Matches("Error at 'float': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'float': Reserved keyword encountered", exception.ToString());
+        }
+
+        [Fact]
+        public void reserved_keyword_double_cannot_be_used_as_variable_name()
+        {
+            string source = @"
+                var double = 123.45;
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.Errors.First();
+
+            Assert.Single(result.Errors);
+
+            Assert.Matches("Error at 'double': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -221,6 +236,21 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         }
 
         [Fact]
+        public void reserved_keyword_double_cannot_be_used_as_function_name()
+        {
+            string source = @"
+                fun double(): void {
+                }
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Error at 'double': Reserved keyword encountered", exception.ToString());
+        }
+
+        [Fact]
         public void reserved_keyword_string_cannot_be_used_as_function_name()
         {
             string source = @"
@@ -281,7 +311,22 @@ namespace Perlang.Tests.Integration.ReservedKeywords
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Error at 'float': Reserved word encountered", exception.ToString());
+            Assert.Matches("Error at 'float': Reserved keyword encountered", exception.ToString());
+        }
+
+        [Fact]
+        public void reserved_keyword_double_cannot_be_used_as_function_parameter_name()
+        {
+            string source = @"
+                fun foo(double: double): void {
+                }
+            ";
+
+            var result = EvalWithParseErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Error at 'double': Reserved keyword encountered", exception.ToString());
         }
 
         [Fact]
@@ -417,22 +462,6 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 
             Assert.Single(result.Errors);
             Assert.Matches("Error at 'float': Expecting type name", exception.ToString());
-        }
-
-        [Fact]
-        public void function_return_type_detects_reserved_keyword_double()
-        {
-            string source = @"
-                fun foo(): double {
-                    return 123.45;
-                }
-            ";
-
-            var result = EvalWithParseErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
-
-            Assert.Single(result.Errors);
-            Assert.Matches("Error at 'double': Expecting type name", exception.ToString());
         }
 
         [Fact]

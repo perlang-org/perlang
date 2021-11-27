@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -19,7 +20,7 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal class TypeResolver : VisitorBase
     {
-        private readonly Func<Expr, Binding> getIdentifierCallback;
+        private readonly Func<Expr, Binding?> getIdentifierCallback;
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace Perlang.Interpreter.Typing
         /// expression.</param>
         /// <param name="typeValidationErrorCallback">A callback which will receive type-validation errors, if they
         /// occur.</param>
-        public TypeResolver(Func<Expr, Binding> getIdentifierCallback, Action<TypeValidationError> typeValidationErrorCallback)
+        public TypeResolver(Func<Expr, Binding?> getIdentifierCallback, Action<TypeValidationError> typeValidationErrorCallback)
         {
             this.getIdentifierCallback = getIdentifierCallback;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
@@ -110,7 +111,7 @@ namespace Perlang.Interpreter.Typing
                         return VoidObject.Void;
                     }
 
-                    ITypeReference typeReference = GreaterType(leftTypeReference, rightTypeReference);
+                    ITypeReference? typeReference = GreaterType(leftTypeReference, rightTypeReference);
 
                     if (typeReference == null)
                     {
@@ -194,7 +195,7 @@ namespace Perlang.Interpreter.Typing
                 }
             }
 
-            ITypeReference typeReference = getIdentifierCallback(expr)?.TypeReference;
+            ITypeReference? typeReference = getIdentifierCallback(expr)?.TypeReference;
 
             if (typeReference == null)
             {
@@ -256,7 +257,7 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
-            Binding binding = getIdentifierCallback(expr);
+            Binding? binding = getIdentifierCallback(expr);
 
             if (binding is ClassBinding)
             {
@@ -264,7 +265,7 @@ namespace Perlang.Interpreter.Typing
             }
             else
             {
-                ITypeReference typeReference = binding?.TypeReference;
+                ITypeReference? typeReference = binding?.TypeReference;
 
                 if (typeReference == null)
                 {
@@ -286,7 +287,7 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitGetExpr(expr);
 
-            Binding binding = getIdentifierCallback(expr.Object);
+            Binding? binding = getIdentifierCallback(expr.Object);
 
             // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
             // It still feels somewhat better than allowing any kind of wild binding to pass through at this
@@ -297,7 +298,13 @@ namespace Perlang.Interpreter.Typing
                 binding is NativeObjectBinding ||
                 binding == null)
             {
-                Type type = expr.Object.TypeReference.ClrType;
+                Type? type = expr.Object.TypeReference.ClrType;
+
+                if (type == null)
+                {
+                    // TODO: Use a better exception type here
+                    throw new NameResolutionTypeValidationError(expr.Name, $"Internal compiler error: ClrType for '{expr.Object}' was unexpectedly null.");
+                }
 
                 // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
                 // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but I see
@@ -411,7 +418,7 @@ namespace Perlang.Interpreter.Typing
             return VoidObject.Void;
         }
 
-        private static ITypeReference GreaterType(ITypeReference leftTypeReference, ITypeReference rightTypeReference)
+        private static ITypeReference? GreaterType(ITypeReference leftTypeReference, ITypeReference rightTypeReference)
         {
             // TODO: Return the number of bits here or something instead. Also, think about whether we need to special-case
             // TODO: signed and unsigned integers.
@@ -445,7 +452,7 @@ namespace Perlang.Interpreter.Typing
         /// <param name="type">A Type.</param>
         /// <returns>The approximate max value for the given type.</returns>
         /// <exception cref="ArgumentOutOfRangeException">The given type is not supported by this method.</exception>
-        private static double? GetApproximateMaxValue(Type type)
+        private static double? GetApproximateMaxValue(Type? type)
         {
             var typeCode = Type.GetTypeCode(type);
 
@@ -470,7 +477,7 @@ namespace Perlang.Interpreter.Typing
                         // Note: this is insanely wrong. It means that Double, Decimal and BigInteger are currently
                         // treated as "same size". The end result is that expressions like `5.0 ** 31` will return a
                         // `double`, not a `BigInteger`. `10.0 ** 309` will return positive infinity, where `10 ** 309`
-                        // will return a large number. I'm not even Sysure what the "proper" semantics here would be
+                        // will return a large number. I'm not even sure what the "proper" semantics here would be
                         // actually.
                         return Convert.ToDouble(Decimal.MaxValue);
                     }
@@ -525,18 +532,19 @@ namespace Perlang.Interpreter.Typing
                 // Note that adding more supported types here also means the list of reserved identifiers in
                 // PerlangParser.BlockReservedIdentifiers() should be updated. (Adding unit tests for the new
                 // types in ReservedKeywordsTests is a good way to ensure this is not forgotten.)
-                case "int":
-                case "Int32":
+                case "int" or "Int32":
                     typeReference.ClrType = typeof(int);
                     break;
 
-                case "long":
-                case "Int64":
+                case "long" or "Int64":
                     typeReference.ClrType = typeof(long);
                     break;
 
-                case "string":
-                case "String":
+                case "double" or "Double":
+                    typeReference.ClrType = typeof(double);
+                    break;
+
+                case "string" or "String":
                     typeReference.ClrType = typeof(string);
                     break;
 
@@ -544,9 +552,8 @@ namespace Perlang.Interpreter.Typing
                     typeReference.ClrType = typeof(void);
                     break;
 
-                default:
-                    // TODO: Add error handling here, based on AggregateTypeDeterminator or something.
-                    break;
+                // Other types means ClrType will remain `null`; this is then handled elsewhere (in
+                // TypesResolvedValidator)
             }
         }
     }

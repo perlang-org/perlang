@@ -146,7 +146,7 @@ namespace Perlang.Tests.Interpreter.Typing
                 AssertFailValidationErrorHandler
             );
 
-            typeResolver.Resolve(scanAndParseResult.Statements);
+            typeResolver.Resolve(scanAndParseResult.Statements ?? new List<Stmt>());
 
             return (scanAndParseResult.Statements!, nameResolver);
         }

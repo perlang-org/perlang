@@ -258,7 +258,7 @@ namespace Perlang.Parser
             if (Check(RESERVED_WORD))
             {
                 // Special-case to provide a more helpful error message when e.g. 'byte' is being used as a variable name.
-                throw Error(Advance(), "Reserved word encountered");
+                throw Error(Advance(), "Reserved keyword encountered");
             }
 
             Token name = Consume(IDENTIFIER, "Expecting variable name.");
@@ -334,7 +334,7 @@ namespace Perlang.Parser
                     {
                         // Special-case to provide a more helpful error message when e.g. 'byte' is being used as
                         // parameter name.
-                        throw Error(Advance(), "Reserved word encountered");
+                        throw Error(Advance(), "Reserved keyword encountered");
                     }
 
                     Token parameterName = Consume(IDENTIFIER, "Expect parameter name.");
@@ -784,10 +784,10 @@ namespace Perlang.Parser
         }
 
         /// <summary>
-        /// Throws a ParseError if the given token represents a reserved keyword.
+        /// Throws an <see cref="Error"/> if the given token represents a reserved keyword.
         /// </summary>
         /// <param name="token">A token with the name of an identifier.</param>
-        /// <exception cref="InternalParseError">The given token represents a reserved keyword.</exception>
+        /// <exception cref="Error">The given token represents a reserved keyword.</exception>
         private void BlockReservedIdentifiers(Token token)
         {
             // "Reserved for future use". These are not currently supported in Perlang, but we reserve them for
@@ -809,6 +809,7 @@ namespace Perlang.Parser
             {
                 case "int":
                 case "long":
+                case "double":
                 case "string":
                     throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
             }
