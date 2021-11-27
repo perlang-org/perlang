@@ -709,6 +709,14 @@ namespace Perlang.Interpreter
                         _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
                     };
                     break;
+                case BigInteger previousBigIntegerValue:
+                    value = expr.Operator.Type switch
+                    {
+                        PLUS_PLUS => previousBigIntegerValue + 1,
+                        MINUS_MINUS => previousBigIntegerValue - 1,
+                        _ => throw new RuntimeError(expr.Operator, $"Unsupported operator encountered: {expr.Operator.Type}")
+                    };
+                    break;
                 case double previousDoubleValue:
                     value = expr.Operator.Type switch
                     {

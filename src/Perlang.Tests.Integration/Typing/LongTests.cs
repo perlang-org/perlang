@@ -65,7 +65,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign BigInteger to long variable", exception.Message);
+            Assert.Matches("Cannot assign bigint to long variable", exception.Message);
         }
 
         [Fact]
@@ -116,8 +116,8 @@ namespace Perlang.Tests.Integration.Typing
         [Fact]
         public void long_variable_with_32bit_value_emits_expected_error_when_initializer_assigned_to_int_variable()
         {
-            // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type,
-            // and attempting to initialize an integer with this value is expected to fail.
+            // Expansions are fine (103 to long), but the other way around is not supported with implicit conversions.
+            // Attempting to initialize an int variable with this value is expected to fail.
             string source = @"
                 var l: long = 103;
                 var i: int = l;

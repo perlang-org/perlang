@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Numerics;
 using Perlang.Interpreter.Extensions;
 
 namespace Perlang.Interpreter.Typing
@@ -13,7 +14,11 @@ namespace Perlang.Interpreter.Typing
         private static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
         {
             { typeof(Int32), 32 },
-            { typeof(Int64), 64 }
+            { typeof(Int64), 64 },
+
+            // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
+            // bigints in Perlang are limited to 2 billion digits. :)
+            { typeof(BigInteger), Int32.MaxValue }
         }.ToImmutableDictionary();
 
         /// <summary>

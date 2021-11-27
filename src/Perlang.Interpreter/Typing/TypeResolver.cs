@@ -540,6 +540,10 @@ namespace Perlang.Interpreter.Typing
                     typeReference.ClrType = typeof(long);
                     break;
 
+                case "bigint" or "BigInteger":
+                    typeReference.ClrType = typeof(BigInteger);
+                    break;
+
                 case "double" or "Double":
                     typeReference.ClrType = typeof(double);
                     break;
