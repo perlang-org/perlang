@@ -160,21 +160,6 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("65536", result);
         }
 
-        [Theory]
-        [InlineData("2", "12", "4096")]
-        [InlineData("10", "3.5", "3162")] // TODO: Fix this once the `dynamic` PR gets merged. This is incorrectly coerced to BigInteger in the current implementation.
-        public void exponential_integer_literals_as_variable_initializer(string left, string right, string expectedResult)
-        {
-            string source = $@"
-                var x = {left} ** {right};
-                print x;
-            ";
-
-            string result = EvalReturningOutputString(source);
-
-            Assert.Equal(expectedResult, result);
-        }
-
         [Fact]
         public void exponential_function_return_value_and_int_literal()
         {

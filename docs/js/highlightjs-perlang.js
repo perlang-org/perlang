@@ -7,7 +7,7 @@ hljs.registerLanguage('perlang', function(hljs) {
             'and else for fun if nil or print return super this var while ' +
 
             // Reserved keywords
-            'class byte sbyte short ushort uint ulong float double decimal ' +
+            'class byte sbyte short ushort uint ulong float decimal ' +
             'char public private protected internal static volatile printf switch ' +
             'break continue try catch finally async await lock synchronized new ' +
             'mut let const struct enum sizeof nameof typeof asm',
