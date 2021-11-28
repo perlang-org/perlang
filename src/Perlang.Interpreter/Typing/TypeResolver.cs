@@ -126,10 +126,41 @@ namespace Perlang.Interpreter.Typing
                     return VoidObject.Void;
 
                 case TokenType.STAR_STAR:
-                    double? leftMaxValue = GetApproximateMaxValue(leftTypeReference.ClrType);
-                    double? rightMaxValue = GetApproximateMaxValue(rightTypeReference.ClrType);
+                    // TODO: If expr.Left is an Expr.Identifier, it might refer to a variable (= supported left-hand
+                    // TODO: operand), a function call (also supported) _or_ a function/method reference. This is _not_
+                    // TODO: supported at this stage. I think we should somehow work on making it possible to
+                    // TODO: distinguish between `foo` and `foo()` - perhaps the inferred type of the former should be
+                    // TODO: something like `PerlangFunction` instead of the return type of the function? This is
+                    // TODO: probably a significant change so be prepared that it will take some time.
 
-                    if (leftMaxValue == null || rightMaxValue == null)
+                    // Only a certain set of type combinations are supported with this operator. We validate it here to
+                    // be able to provide "compile-time" error checking rather than runtime checking.
+
+                    if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                        rightTypeReference.ClrType == typeof(int))
+                    {
+                        // TODO: Once we have a possibility to evaluate constant expressions here (at compile-time), we
+                        // TODO: should use it to throw an exception in case `expr.Right` has a negative value (since such
+                        // TODO: values will otherwise throw a runtime error - see
+                        // TODO: `PerlangInterpreter.VisitBinaryExpr()` for details.
+                        expr.TypeReference.ClrType = typeof(BigInteger);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
+                        (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        expr.TypeReference.ClrType = typeof(double);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                             (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        expr.TypeReference.ClrType = typeof(double);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(BigInteger) &&
+                        rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(BigInteger);
+                    }
+                    else
                     {
                         string message = $"Unsupported {expr.Operator.Type.ToSourceString()} operands specified: " +
                                          $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
@@ -137,7 +168,6 @@ namespace Perlang.Interpreter.Typing
                         throw new TypeValidationError(expr.Operator, message);
                     }
 
-                    expr.TypeReference.ClrType = typeof(BigInteger);
                     return VoidObject.Void;
 
                 case TokenType.GREATER:

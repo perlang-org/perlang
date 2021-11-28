@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -638,11 +639,11 @@ namespace Perlang.Interpreter
                             return -value;
 
                         case UInt64 value:
-                            // .NET will give an "ambiguous invocation" here, suggesting that we cast value to either a
-                            // `decimal`, `double` or `float`. However, making an integer-type of variable become a
-                            // floating point value all of a sudden seems like odd semantics here. Even though it is
-                            // less performant, we go with the BigInteger approach for now: negating a UInt64 will
-                            // inherently expand it to a BigInteger.
+                            // .NET will give an "ambiguous invocation" here, suggesting that we cast `value` to either
+                            // a `decimal`, `double` or `float`. However, making an integer-type of variable become a
+                            // floating point value all of a sudden seems like very odd and unexpected semantics here.
+                            // Even though it is less performant, we go with the BigInteger approach for now: negating a
+                            // UInt64 will inherently expand it to a BigInteger.
                             return -new BigInteger(value);
 
                         case Single value: // i.e. float
@@ -1061,39 +1062,228 @@ namespace Perlang.Interpreter
 
         public object? VisitBinaryExpr(Expr.Binary expr)
         {
-            object? left = Evaluate(expr.Left);
-            object? right = Evaluate(expr.Right);
+            // Null checks have been taken care of by TypeResolver.VisitBinaryExpr().
+            object left = Evaluate(expr.Left)!;
+            object right = Evaluate(expr.Right)!;
 
-            // TODO: Convert this to not use `dynamic` as well.
-
-            // Using 'dynamic' here to avoid excessive complexity, having to support all permutations of
-            // comparisons (int16 to int32, int32 to int64, etc etc). Since we validate the numerability of the
-            // values first, these should be "safe" in that sense. Performance might not be great but let's live
-            // with that until we rewrite the whole Perlang interpreter as an on-demand, statically typed but
-            // dynamically compiled language.
-            dynamic? leftNumber = left;
-            dynamic? rightNumber = right;
+            var leftConvertible = left as IConvertible;
+            var rightConvertible = right as IConvertible;
 
             switch (expr.Operator.Type)
             {
                 //
                 // Comparison operators
                 //
-
+                // IComparable would be useful to reduce code duplication here, but it has one major problem: it only
+                // supports same-type comparisons (int+int, long+long etc). We do not want to limit our code like that.
+                //
                 case GREATER:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber > rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber > rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber > rightNumber;
+                    }
+                    else if (left is int or long && right is int or long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber > rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt > rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber > rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt > rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
                 case GREATER_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber >= rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber >= rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber >= rightNumber;
+                    }
+                    else if (left is int or long && right is int or long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber >= rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt >= rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber >= rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt >= rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
                 case LESS:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber < rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber < rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber < rightNumber;
+                    }
+                    else if (left is int or long && right is int or long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber < rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt < rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber < rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt < rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
                 case LESS_EQUAL:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber <= rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber <= rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber <= rightNumber;
+                    }
+                    else if (left is int or long && right is int or long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber <= rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt <= rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber <= rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt <= rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
                 case BANG_EQUAL:
                     return !IsEqual(left, right);
+
                 case EQUAL_EQUAL:
                     return IsEqual(left, right);
 
@@ -1102,17 +1292,68 @@ namespace Perlang.Interpreter
                 //
 
                 case MINUS:
+                case MINUS_EQUAL: // Actual reassignment is handled elsewhere.
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber - rightNumber;
-                case MINUS_EQUAL:
-                    CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber - rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt - rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber - rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt - rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
                 case PLUS:
                     string? leftString = left as string;
                     string? rightString = right as string;
 
-                    // Note: These operations rely on the semantics for 'dynamic' in .NET. It will likely be a
-                    // non-trivial task to rewrite this when we start doing bytecode compilation.
                     if (leftString != null)
                     {
                         if (rightString != null)
@@ -1131,41 +1372,338 @@ namespace Perlang.Interpreter
                     }
 
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber + rightNumber;
 
-                case PLUS_EQUAL:
-                    CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber + rightNumber;
-                case SLASH:
-                    CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber / rightNumber;
-                case STAR:
-                    CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber * rightNumber;
-                case STAR_STAR:
-                    CheckNumberOperands(expr.Operator, left, right);
-
-                    if (leftNumber is float or double || rightNumber is float or double)
+                    // Regular numeric operand implementation comes after string concatenation.
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
                     {
-                        return Math.Pow(leftNumber, rightNumber);
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
                     }
-                    else if (rightNumber < 0)
+                    else if (left is int or long && right is float or double)
                     {
-                        return Math.Pow(leftNumber, rightNumber);
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt + rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber + rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt + rightNumber;
                     }
                     else
                     {
-                        // Both values are some form of integers. The BigInteger implementation is more likely to yield
-                        // a result that is useful for us in this case.
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case PLUS_EQUAL:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    // The method returns the value to be assigned. The assignment takes place elsewhere.
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt + rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber + rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt + rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case SLASH:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt / rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber / rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt / rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case STAR:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt * rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber * rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt * rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case STAR_STAR:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    if (left is float or double || right is float or double)
+                    {
+                        double value = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double exponent = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return Math.Pow(value, exponent);
+                    }
+                    else if (left is int or long && right is int)
+                    {
+                        long value = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        // The right-hand operand cannot be 64-bit in this case because of limitations in
+                        // BigInteger.Pow()
                         //
-                        // Because of "Perlang.NullObject is not comparable" checks in TypeResolver, we can assert that
-                        // neither one of these can be `null` at this point.
-                        return BigInteger.Pow((BigInteger)leftNumber!, (int)rightNumber!);
+                        // Also note that this will throw a run-time exception on negative exponents, because this is
+                        // unsupported by `BigInteger.Pow()`. The alternative would be to use `Math.Pow()` with `double`
+                        // operands (which supports negative exponents, returning fractional results). _But_, doing so
+                        // for `int/long`+`int` operands means that we would have a nasty implicit conversion from
+                        // `long` to `double` which potentially loses precision. This is one of the cases where we do
+                        // not want to inherit the C# semantics but instead be more "strict" to avoid unpleasant
+                        // surprises to the user.
+                        int exponent = (int)right;
+
+                        return BigInteger.Pow(value, exponent);
+                    }
+                    else if (left is BigInteger value && right is int)
+                    {
+                        // The right-hand operand cannot be 64-bit in this case because of limitations in
+                        // BigInteger.Pow()
+                        int exponent = (int)right;
+
+                        return BigInteger.Pow(value, exponent);
+                    }
+                    else
+                    {
+                        // Should in practice never get here, since TypeResolver should catch it at compile-time. If it
+                        // ever happens, it is to be considered an ICE.
+                        throw new RuntimeError(expr.Operator, $"Internal compiler error: Unsupported ** operands specified: {StringifyType(left)} and {StringifyType(right)}");
                     }
 
                 case PERCENT:
                     CheckNumberOperands(expr.Operator, left, right);
-                    return leftNumber % rightNumber;
+
+                    // Bang operator (!) is safe because of the CheckNumberOperands() call above.
+                    if (left is float or double && right is float or double)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is int or long && right is float or double)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is int && right is int)
+                    {
+                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is long && right is long)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is BigInteger && right is BigInteger)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftBigInt % rightBigInt;
+                    }
+                    else if (left is int or long && right is BigInteger)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        var rightBigInt = (BigInteger)right;
+
+                        return leftNumber % rightBigInt;
+                    }
+                    else if (left is BigInteger && right is int or long)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftBigInt % rightNumber;
+                    }
+                    else
+                    {
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
 
                 default:
                     throw new RuntimeError(expr.Operator, $"Internal error: Unsupported operator {expr.Operator.Type} in binary expression.");
