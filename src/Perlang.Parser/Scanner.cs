@@ -420,7 +420,7 @@ namespace Perlang.Parser
                 {
                     AddToken(NUMBER, (ulong)value);
                 }
-                else // Anything else gets implicitly treated as BigInteger
+                else // Anything else remains a BigInteger
                 {
                     AddToken(NUMBER, value);
                 }

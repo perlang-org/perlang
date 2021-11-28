@@ -809,6 +809,7 @@ namespace Perlang.Parser
             {
                 case "int":
                 case "long":
+                case "bigint":
                 case "double":
                 case "string":
                     throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
