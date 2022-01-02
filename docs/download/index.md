@@ -2,7 +2,7 @@
 
 ## Released versions
 
-There are currently no "released" version of Perlang in that sense. We don't feel that the language & tooling is mature even to the point where it would make sense to call the version "0.1.0". Hopefully this will change in the future, but there is currently not timeframe available for when this will happen.
+There are currently no "released" version of Perlang in that sense. We don't feel that the language & tooling is mature even to the point where it would make sense to call the version "0.1.0". Hopefully this will change in the future, but there is currently no timeframe available for when this will happen.
 
 ## Automated snapshot builds
 
