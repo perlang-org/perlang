@@ -35,6 +35,9 @@ jobs:
       #
       # Build releases
       #
+      - name: Build linux-arm release
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-arm --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+
       - name: Build linux-x64 release
         run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
@@ -47,6 +50,10 @@ jobs:
       #
       # Create .tar.gz archives
       #
+      - name: Create linux-arm .tar.gz file
+        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-arm.tar.gz *
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm/publish
+
       - name: Create linux-x64 .tar.gz file
         run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-x64.tar.gz *
         working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish
@@ -65,6 +72,17 @@ jobs:
       #
       # Upload files to releases server via rsync
       #
+      - name: Upload linux-arm .tar.gz file to releases server
+        uses: easingthemes/ssh-deploy@v2.1.1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm/*.tar.gz"
+          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
+        if: github.ref == 'refs/heads/master'
+
       - name: Upload linux-x64 .tar.gz file to releases server
         uses: easingthemes/ssh-deploy@v2.1.1
         env:

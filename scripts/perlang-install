@@ -221,6 +221,12 @@ get_architecture() {
 
     case "$_cputype" in
 
+        # Raspberry Pi 2: armv7l
+        # Raspberry Pi 3: armv8l
+        armv7l | armv8l)
+            _cputype=arm
+            ;;
+
         x86_64 | x86-64 | x64 | amd64)
             _cputype=x64
             ;;
@@ -232,7 +238,11 @@ get_architecture() {
 
     # Detect 64-bit linux with 32-bit userland
     if [ "${_ostype}" = linux ] && [ "${_bitness}" -eq 32 ]; then
-        err "64-bit Linux with 32-bit userland unsupported"
+        case $_cputype in
+            x86_64)
+                err "64-bit Linux with 32-bit userland unsupported"
+                ;;
+        esac
     fi
 
     _arch="${_ostype}-${_cputype}"
