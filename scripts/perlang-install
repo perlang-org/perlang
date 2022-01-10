@@ -221,10 +221,15 @@ get_architecture() {
 
     case "$_cputype" in
 
-        # Raspberry Pi 2: armv7l
-        # Raspberry Pi 3: armv8l
+        # Raspberry Pi 2, 3 and 4 (the latter ones running in 32-bit mode) will
+        # be detected as armv7l; Raspbian uses the same (armv7l) kernel for all
+        # these models.
         armv7l | armv8l)
             _cputype=arm
+            ;;
+
+        aarch64 | arm64)
+            _cputype=arm64
             ;;
 
         x86_64 | x86-64 | x64 | amd64)

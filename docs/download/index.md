@@ -8,7 +8,7 @@ There are currently no "released" version of Perlang in that sense. We don't fee
 
 Each commit to the `master` branch triggers a build that gets published as a set of `.tar.gz` files at https://builds.perlang.org (CDN sponsored by [Fastly](https://www.fastly.com/) - thank you!). These builds are available for Linux, macOS and Windows.
 
-The easiest way to install the latest build is by using the [perlang-install](https://github.com/perlang-org/perlang/tree/master/scripts/perlang-install) script. It works on all supported platforms (Linux, macOS and Windows - the latter requires a POSIX shell like Git Bash to be available). Use it like this:
+The easiest way to install the latest build is by using the [perlang-install](https://github.com/perlang-org/perlang/tree/master/scripts/perlang-install) script. It works on all supported platforms (Linux (`arm`, `arm64` and `x64`), macOS (`x64`) and Windows (`x64`) - the latter requires a POSIX shell like Git Bash to be available). Use it like this:
 
 [//]: # (Manually create Highlight.js fragments to ensure the space after the dollar sign is not selectable)
 
