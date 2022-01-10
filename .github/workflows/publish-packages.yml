@@ -21,6 +21,15 @@ jobs:
   publish-packages:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        arch:
+          - linux-arm
+          - linux-arm64
+          - linux-x64
+          - osx-x64
+          - win-x64
+
     steps:
       - uses: actions/checkout@v1
 
@@ -35,43 +44,18 @@ jobs:
       #
       # Build releases
       #
-      - name: Build linux-arm release
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-arm --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+      - name: Build host-compatible release
+        run: dotnet build
 
-      - name: Build linux-arm-64 release
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-arm64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-
-      - name: Build linux-x64 release
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-
-      - name: Build osx-x64 release
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r osx-x64 --self-contained true /p:SolutionDir=$(pwd)/
-
-      - name: Build win-x64 release
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r win-x64 --self-contained true /p:SolutionDir=$(pwd)/
+      - name: Build ${{ matrix.arch }} release
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r ${{ matrix.arch }} --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
       #
       # Create .tar.gz archives
       #
-      - name: Create linux-arm .tar.gz file
-        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-arm.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm/publish
-
-      - name: Create linux-arm64 .tar.gz file
-        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-arm64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm64/publish
-
-      - name: Create linux-x64 .tar.gz file
-        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-linux-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish
-
-      - name: Create osx-x64 .tar.gz file
-        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-osx-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/osx-x64/publish
-
-      - name: Create win-x64 .tar.gz file
-        run: version=$(../../linux-x64/perlang -v) && tar cvzf ../perlang-$version-win-x64.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/win-x64/publish
+      - name: Create ${{ matrix.arch }} .tar.gz file
+        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net6.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/${{ matrix.arch }}/publish
 
       - name: List .tar.gz files
         run: ls -l src/Perlang.ConsoleApp/bin/Release/net6.0/*/*.tar.gz
@@ -79,61 +63,18 @@ jobs:
       #
       # Upload files to releases server via rsync
       #
-      - name: Upload linux-arm .tar.gz file to releases server
+      - name: Upload ${{ matrix.arch }} .tar.gz file to releases server
         uses: easingthemes/ssh-deploy@v2.1.1
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/${{ matrix.arch }}/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
         if: github.ref == 'refs/heads/master'
 
-      - name: Upload linux-arm64 .tar.gz file to releases server
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/linux-arm64/*.tar.gz"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
-        if: github.ref == 'refs/heads/master'
-
-      - name: Upload linux-x64 .tar.gz file to releases server
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/*.tar.gz"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
-        if: github.ref == 'refs/heads/master'
-
-      - name: Upload osx-x64 .tar.gz file to build cloud
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/osx-x64/*.tar.gz"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
-        if: github.ref == 'refs/heads/master'
-
-      - name: Upload win-x64 .tar.gz file to releases server
-        uses: easingthemes/ssh-deploy@v2.1.1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net6.0/win-x64/*.tar.gz"
-          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
-        if: github.ref == 'refs/heads/master'
-
+      # TODO: Would ideally run _after_ all jobs of the matrix...
       - name: Update latest build symlink
         uses: appleboy/ssh-action@v0.1.1
         with:
