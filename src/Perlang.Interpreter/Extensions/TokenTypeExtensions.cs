@@ -30,6 +30,10 @@ namespace Perlang.Interpreter.Extensions
                     "**",
                 TokenType.PERCENT =>
                     "%",
+                TokenType.LESS_LESS =>
+                    "<<",
+                TokenType.GREATER_GREATER =>
+                    ">>",
                 _ =>
                     throw new ArgumentOutOfRangeException(nameof(tokenType), tokenType, null)
             };

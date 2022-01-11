@@ -237,10 +237,34 @@ namespace Perlang.Parser
                     AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
                     break;
                 case '<':
-                    AddToken(Match('=') ? LESS_EQUAL : LESS);
+                    if (Match('='))
+                    {
+                        AddToken(LESS_EQUAL);
+                    }
+                    else if (Match('<'))
+                    {
+                        AddToken(LESS_LESS);
+                    }
+                    else
+                    {
+                        AddToken(LESS);
+                    }
+
                     break;
                 case '>':
-                    AddToken(Match('=') ? GREATER_EQUAL : GREATER);
+                    if (Match('='))
+                    {
+                        AddToken(GREATER_EQUAL);
+                    }
+                    else if (Match('>'))
+                    {
+                        AddToken(GREATER_GREATER);
+                    }
+                    else
+                    {
+                        AddToken(GREATER);
+                    }
+
                     break;
 
                 case '/':

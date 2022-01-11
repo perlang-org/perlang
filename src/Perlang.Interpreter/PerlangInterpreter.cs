@@ -1601,6 +1601,7 @@ namespace Perlang.Interpreter
                     }
                     else
                     {
+                        // TODO: "Operands must be numbers" isn't completely correct here.
                         throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
                     }
 
@@ -1702,6 +1703,67 @@ namespace Perlang.Interpreter
                     }
                     else
                     {
+                        // TODO: "Operands must be numbers" isn't completely correct here.
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case LESS_LESS:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    if (left is int && right is int)
+                    {
+                        int leftNumber = (int)left;
+                        int rightNumber = (int)right;
+
+                        return leftNumber << rightNumber;
+                    }
+                    else if (left is long && right is int)
+                    {
+                        long leftLong = (long)left;
+                        int rightInt = (int)right;
+
+                        return leftLong << rightInt;
+                    }
+                    else if (left is BigInteger && right is int)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightInt = (int)right;
+
+                        return leftBigInt << rightInt;
+                    }
+                    else
+                    {
+                        // TODO: "Operands must be numbers" isn't completely correct here.
+                        throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
+                    }
+
+                case GREATER_GREATER:
+                    CheckNumberOperands(expr.Operator, left, right);
+
+                    if (left is int && right is int)
+                    {
+                        int leftNumber = (int)left;
+                        int rightNumber = (int)right;
+
+                        return leftNumber >> rightNumber;
+                    }
+                    else if (left is long && right is int)
+                    {
+                        long leftLong = (long)left;
+                        int rightInt = (int)right;
+
+                        return leftLong >> rightInt;
+                    }
+                    else if (left is BigInteger && right is int)
+                    {
+                        var leftBigInt = (BigInteger)left;
+                        var rightInt = (int)right;
+
+                        return leftBigInt >> rightInt;
+                    }
+                    else
+                    {
+                        // TODO: "Operands must be numbers" isn't completely correct here.
                         throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
                     }
 
