@@ -82,6 +82,40 @@ namespace Perlang.Tests.Integration
         ///
         /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
         ///
+        /// This method will propagate all errors apart from  <see cref="ScanError"/> to the caller. Scan errors
+        /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
+        ///
+        /// If any warnings are emitted, they will be available in the returned <see
+        /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
+        /// </summary>
+        /// <param name="source">A valid Perlang program.</param>
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<ScanError> EvalWithScanErrorCatch(string source)
+        {
+            var result = new EvalResult<ScanError>();
+            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+
+            result.Value = interpreter.Eval(
+                source,
+                result.ErrorHandler,
+                AssertFailParseErrorHandler,
+                AssertFailNameResolutionErrorHandler,
+                AssertFailValidationErrorHandler,
+                AssertFailValidationErrorHandler,
+                result.WarningHandler
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
+        ///
+        /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
+        ///
         /// This method will propagate all errors apart from  <see cref="ParseError"/> to the caller. Parse errors
         /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         ///
@@ -268,32 +302,32 @@ namespace Perlang.Tests.Integration
 
         private static void AssertFailScanErrorHandler(ScanError scanError)
         {
-            throw scanError;
+            throw new Exception("ScanError occurred. See inner exception for details.", scanError);
         }
 
         private static void AssertFailParseErrorHandler(ParseError parseError)
         {
-            throw parseError;
+            throw new Exception("ParseError occurred. See inner exception for details.", parseError);
         }
 
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw nameResolutionError;
+            throw new Exception("NameResolutionError occurred. See inner exception for details.", nameResolutionError);
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
-            throw runtimeError;
+            throw new Exception("RuntimeError occurred. See inner exception for details.", runtimeError);
         }
 
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
-            throw validationError;
+            throw new Exception("ValidationError occurred. See inner exception for details.", validationError);
         }
 
         private static bool AssertFailCompilerWarningHandler(CompilerWarning compilerWarning)
         {
-            throw compilerWarning;
+            throw new Exception("CompilerWarning occurred. See inner exception for details.", compilerWarning);
         }
     }
 }

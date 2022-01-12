@@ -87,10 +87,9 @@ namespace Perlang.Tests.Integration.Operator
                 print ""hejhej"";
             ";
 
-            string result = null;
-            Assert.Throws<RuntimeError>(() => result = EvalReturningOutputString(source));
+            var result = EvalWithRuntimeErrorCatch(source);
 
-            Assert.DoesNotMatch("hejhej.", result);
+            Assert.Empty(result.OutputAsString);
         }
     }
 }
