@@ -1,5 +1,4 @@
 using System.Linq;
-using Perlang.Parser;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -29,7 +28,11 @@ namespace Perlang.Tests.Integration
                 var b = 10;
             ".Trim();
 
-            Assert.Throws<ScanError>(() => EvalReturningOutput(source).SingleOrDefault());
+            var result = EvalWithScanErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Matches("Unexpected character #", exception.Message);
         }
     }
 }
