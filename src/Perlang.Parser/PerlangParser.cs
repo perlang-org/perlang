@@ -548,7 +548,7 @@ namespace Perlang.Parser
         {
             Expr expr = UnaryPrefix();
 
-            while (Match(SLASH, STAR, STAR_STAR, PERCENT))
+            while (Match(SLASH, STAR, STAR_STAR, PERCENT, LESS_LESS, GREATER_GREATER))
             {
                 Token @operator = Previous();
                 Expr right = UnaryPrefix();

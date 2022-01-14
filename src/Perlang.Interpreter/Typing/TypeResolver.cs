@@ -101,6 +101,8 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.SLASH:
                 case TokenType.STAR:
                 case TokenType.PERCENT:
+                case TokenType.LESS_LESS:
+                case TokenType.GREATER_GREATER:
                     if (expr.Operator.Type == TokenType.PLUS &&
                         (leftTypeReference.ClrType == typeof(string) ||
                          rightTypeReference.ClrType == typeof(string)))
@@ -146,7 +148,7 @@ namespace Perlang.Interpreter.Typing
                         expr.TypeReference.ClrType = typeof(BigInteger);
                     }
                     else if ((leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
-                        (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                             (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
@@ -156,7 +158,7 @@ namespace Perlang.Interpreter.Typing
                         expr.TypeReference.ClrType = typeof(double);
                     }
                     else if (leftTypeReference.ClrType == typeof(BigInteger) &&
-                        rightTypeReference.ClrType == typeof(int))
+                             rightTypeReference.ClrType == typeof(int))
                     {
                         expr.TypeReference.ClrType = typeof(BigInteger);
                     }
