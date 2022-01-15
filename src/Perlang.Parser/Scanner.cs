@@ -168,40 +168,44 @@ namespace Perlang.Parser
         {
             char c = Advance();
 
+            // Note: case values are sorted in ASCII order, for predictability.
             switch (c)
             {
+                // Regular whitespace characters are ignored.
+                case '\t':
+                case '\r':
+                case ' ':
+                    break;
+
+                // LFs are tracked to increase the newline count.
+                case '\n':
+                    line++;
+                    break;
+
+                case '!':
+                    AddToken(Match('=') ? BANG_EQUAL : BANG);
+                    break;
+                case '"':
+                    String();
+                    break;
+
+                // # not supported yet, but might be added at some point to support macros/other fanciful constructs
+                // like in Rust.
+
+                case '%':
+                    AddToken(PERCENT);
+                    break;
+
+                // ' not supported yet; will likely be used for `char` like in C/C#/Java.
+
                 case '(':
                     AddToken(LEFT_PAREN);
                     break;
                 case ')':
                     AddToken(RIGHT_PAREN);
                     break;
-                case '{':
-                    AddToken(LEFT_BRACE);
-                    break;
-                case '}':
-                    AddToken(RIGHT_BRACE);
-                    break;
-                case ',':
-                    AddToken(COMMA);
-                    break;
-                case '.':
-                    AddToken(DOT);
-                    break;
-                case '-':
-                    if (Match('-'))
-                    {
-                        AddToken(MINUS_MINUS);
-                    }
-                    else if (Match('='))
-                    {
-                        AddToken(MINUS_EQUAL);
-                    }
-                    else
-                    {
-                        AddToken(MINUS);
-                    }
-
+                case '*':
+                    AddToken(Match('*') ? STAR_STAR : STAR);
                     break;
                 case '+':
                     if (Match('+'))
@@ -218,23 +222,50 @@ namespace Perlang.Parser
                     }
 
                     break;
+                case ',':
+                    AddToken(COMMA);
+                    break;
+                case '-':
+                    if (Match('-'))
+                    {
+                        AddToken(MINUS_MINUS);
+                    }
+                    else if (Match('='))
+                    {
+                        AddToken(MINUS_EQUAL);
+                    }
+                    else
+                    {
+                        AddToken(MINUS);
+                    }
+
+                    break;
+                case '.':
+                    AddToken(DOT);
+                    break;
+                case '/':
+                    if (Match('/'))
+                    {
+                        // A comment continues until the end of the line.
+                        while (Peek() != '\n' && !IsAtEnd())
+                        {
+                            Advance();
+                        }
+                    }
+                    else
+                    {
+                        AddToken(SLASH);
+                    }
+
+                    break;
+
+                // Digits handled in 'default' case.
+
                 case ':':
                     AddToken(COLON);
                     break;
                 case ';':
                     AddToken(SEMICOLON);
-                    break;
-                case '%':
-                    AddToken(PERCENT);
-                    break;
-                case '*':
-                    AddToken(Match('*') ? STAR_STAR : STAR);
-                    break;
-                case '!':
-                    AddToken(Match('=') ? BANG_EQUAL : BANG);
-                    break;
-                case '=':
-                    AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
                     break;
                 case '<':
                     if (Match('='))
@@ -250,6 +281,9 @@ namespace Perlang.Parser
                         AddToken(LESS);
                     }
 
+                    break;
+                case '=':
+                    AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
                     break;
                 case '>':
                     if (Match('='))
@@ -267,44 +301,43 @@ namespace Perlang.Parser
 
                     break;
 
-                case '/':
-                    if (Match('/'))
-                    {
-                        // A comment continues until the end of the line.
-                        while (Peek() != '\n' && !IsAtEnd())
-                        {
-                            Advance();
-                        }
-                    }
-                    else
-                    {
-                        AddToken(SLASH);
-                    }
+                // ? likely to be added at some point for ternary operator, maybe null coalesce etc.
+                // @ - unsure if this will ever be used. Java uses it for annotations.
 
+                // Uppercase letters handled by 'default' case
+
+                // [ and ] will be used for array/hash indexing.
+                // \ could be used for continuing multiline strings, will we need it?
+                // ^ could be used for bitwise XOR, as in other languages.
+
+                // _ is handled by 'default' case, to allow identifiers containing underscore.
+
+                // ` - unsure about this as well. F# uses it for "special function names", to make it possible to create
+                // functions e.g. containing spaces. Markdown uses it for "code blocks". The disadvantage with the
+                // backtick character is that in some non-US keyboard layouts, it is a "dead" key, requiring multiple
+                // keypresses to type it.
+
+                // 'a-z' are handled by 'default' case.
+
+                case '{':
+                    AddToken(LEFT_BRACE);
                     break;
 
-                case ' ':
-                case '\r':
-                case '\t':
-                    // Ignore whitespace.
+                // | will be used for bitwise and logical OR operations.
+
+                case '}':
+                    AddToken(RIGHT_BRACE);
                     break;
 
-                case '\n':
-                    line++;
-                    break;
-
-                case '"':
-                    String();
-                    break;
-
+                // All ASCII characters not handled above + all other non-ASCII (Unicode) characters
                 default:
-                    // Even if the number is a number in a different base than 10 (binary, hexadecimal etc), it always
-                    // starts with a "normal" (decimal) digit because of the prefix characters - e.g. 0x1234.
+                    // Even if a number is specified in a different base than 10 (e.g. binary, hexadecimal etc), it
+                    // always starts with a "normal" (decimal) digit because of the prefix characters - e.g. 0x1234.
                     if (IsDigit(c, Base.DECIMAL))
                     {
                         Number();
                     }
-                    else if (IsAlpha(c))
+                    else if (IsAlpha(c) || IsUnderscore(c))
                     {
                         Identifier();
                     }
@@ -544,12 +577,14 @@ namespace Perlang.Parser
         private static bool IsAlpha(char c)
         {
             return (c is >= 'a' and <= 'z') ||
-                   (c is >= 'A' and <= 'Z') ||
-                   c is '_';
+                   (c is >= 'A' and <= 'Z');
         }
 
+        private static bool IsUnderscore(char c) =>
+            c is '_';
+
         private static bool IsAlphaNumeric(char c) =>
-            IsAlpha(c) || IsDigit(c, Base.DECIMAL);
+            IsAlpha(c) || IsUnderscore(c) || IsDigit(c, Base.DECIMAL);
 
         private static bool IsDigit(char c, Base @base) =>
             (int)@base switch
