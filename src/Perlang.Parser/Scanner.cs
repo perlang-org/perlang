@@ -195,9 +195,12 @@ namespace Perlang.Parser
                 case '%':
                     AddToken(PERCENT);
                     break;
-
-                // ' not supported yet; will likely be used for `char` like in C/C#/Java.
-
+                case '&':
+                    AddToken(AMPERSAND);
+                    break;
+                case '\'':
+                    AddToken(SINGLE_QUOTE);
+                    break;
                 case '(':
                     AddToken(LEFT_PAREN);
                     break;
@@ -301,14 +304,26 @@ namespace Perlang.Parser
 
                     break;
 
-                // ? likely to be added at some point for ternary operator, maybe null coalesce etc.
+                case '?':
+                    AddToken(QUESTION_MARK);
+                    break;
+
                 // @ - unsure if this will ever be used. Java uses it for annotations.
 
                 // Uppercase letters handled by 'default' case
 
-                // [ and ] will be used for array/hash indexing.
+                case '[':
+                    AddToken(LEFT_SQUARE_BRACKET);
+                    break;
+
                 // \ could be used for continuing multiline strings, will we need it?
-                // ^ could be used for bitwise XOR, as in other languages.
+
+                case ']':
+                    AddToken(RIGHT_SQUARE_BRACKET);
+                    break;
+                case '^':
+                    AddToken(CARET);
+                    break;
 
                 // _ is handled by 'default' case, to allow identifiers containing underscore.
 
@@ -322,9 +337,9 @@ namespace Perlang.Parser
                 case '{':
                     AddToken(LEFT_BRACE);
                     break;
-
-                // | will be used for bitwise and logical OR operations.
-
+                case '|':
+                    AddToken(VERTICAL_BAR);
+                    break;
                 case '}':
                     AddToken(RIGHT_BRACE);
                     break;
