@@ -18,6 +18,8 @@ namespace Perlang.Extensions
                 { } when type == typeof(BigInteger) => "bigint",
                 { } when type == typeof(NullObject) => "null",
                 { } when type == typeof(String) => "string",
+
+                // TODO: add bool here
                 { } when type.IsAssignableTo(typeof(IPerlangFunction)) => "function",
                 null => "null",
                 _ => type.ToString()

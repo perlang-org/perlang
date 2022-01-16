@@ -5,15 +5,27 @@ using static Perlang.Tests.Integration.EvalHelper;
 namespace Perlang.Tests.Integration.LogicalOperator
 {
     // Tests based on Lox test suite:
-    // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/or.lox
-    // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/or_truth.lox
-    public class Or
+    // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/and.lox
+    // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/and_truth.lox
+    public class And
     {
         [Fact]
-        public void returns_the_first_true_argument_1_or_true()
+        public void returns_the_first_falsy_argument_false_and_1()
         {
             string source = @"
-                print 1 or true;
+                print false and 1;
+            ";
+
+            string output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("False", output);
+        }
+
+        [Fact]
+        public void returns_the_first_falsy_argument_true_and_1()
+        {
+            string source = @"
+                print true and 1;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -22,22 +34,22 @@ namespace Perlang.Tests.Integration.LogicalOperator
         }
 
         [Fact]
-        public void returns_the_first_true_argument_false_or_1()
+        public void returns_the_first_falsy_argument_1_and_2_and_false()
         {
             string source = @"
-                print false or 1;
+                print 1 and 2 and false;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("1", output);
+            Assert.Equal("False", output);
         }
 
         [Fact]
-        public void returns_the_first_true_argument_false_or_false_or_true()
+        public void returns_the_last_argument_if_all_are_truthy_1_and_true()
         {
             string source = @"
-                print false or false or true;
+                print 1 and true;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -46,40 +58,28 @@ namespace Perlang.Tests.Integration.LogicalOperator
         }
 
         [Fact]
-        public void returns_the_last_argument_if_all_are_false_false_or_false()
+        public void returns_the_last_argument_if_all_are_truthy_1_and_2_and_3()
         {
             string source = @"
-                print false or false;
+                print 1 and 2 and 3;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            Assert.Equal("3", output);
         }
 
         [Fact]
-        public void returns_the_last_argument_if_all_are_false_false_or_false_false()
+        public void short_circuits_at_the_first_falsy_argument()
         {
             string source = @"
-                print false or false or false;
-            ";
+                var a = false;
+                var b = true;
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+                (a = true) and
+                    (b = false) and
+                    (a = false);
 
-            Assert.Equal("False", output);
-        }
-
-        [Fact]
-        public void short_circuits_at_the_first_true_argument()
-        {
-            string source = @"
-                var a = true;
-                var b = false;
-
-                (a = false) or
-                    (b = true) or
-                    (a = true);
-                
                 print a;
                 print b;
             ";
@@ -88,8 +88,8 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             Assert.Equal(new[]
             {
-                "False", // The `a = true` assignment should never execute
-                "True"
+                "True",
+                "False" // The `a = "bad" assignment should never execute
             }, output);
         }
 
@@ -100,19 +100,31 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void false_is_falsy()
         {
             string source = @"
-                print false or ""ok"";
+                print false and ""bad"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("ok", output);
+            Assert.Equal("False", output);
         }
 
         [Fact]
         public void null_is_falsy()
         {
             string source = @"
-                print null or ""ok"";
+                print null and ""bad"";
+            ";
+
+            string output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("null", output);
+        }
+
+        [Fact]
+        public void true_is_truthy()
+        {
+            string source = @"
+                print true and ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -121,39 +133,27 @@ namespace Perlang.Tests.Integration.LogicalOperator
         }
 
         [Fact]
-        public void true_is_truthy()
-        {
-            string source = @"
-                print true or ""ok"";
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("True", output);
-        }
-
-        [Fact]
         public void zero_is_truthy()
         {
             string source = @"
-                print 0 or ""ok"";
+                print 0 and ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("0", output);
+            Assert.Equal("ok", output);
         }
 
         [Fact]
-        public void strings_are_truthy()
+        public void empty_string_is_truthy()
         {
             string source = @"
-                print ""s"" or ""ok"";
+                print """" and ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("s", output);
+            Assert.Equal("ok", output);
         }
     }
 }
