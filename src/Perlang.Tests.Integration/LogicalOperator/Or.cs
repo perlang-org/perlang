@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void returns_the_first_true_argument_1_or_true()
         {
             string source = @"
-                print 1 or true;
+                print 1 || true;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -25,7 +25,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void returns_the_first_true_argument_false_or_1()
         {
             string source = @"
-                print false or 1;
+                print false || 1;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -37,7 +37,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void returns_the_first_true_argument_false_or_false_or_true()
         {
             string source = @"
-                print false or false or true;
+                print false || false || true;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -49,7 +49,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void returns_the_last_argument_if_all_are_false_false_or_false()
         {
             string source = @"
-                print false or false;
+                print false || false;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -61,7 +61,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void returns_the_last_argument_if_all_are_false_false_or_false_false()
         {
             string source = @"
-                print false or false or false;
+                print false || false || false;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -76,8 +76,8 @@ namespace Perlang.Tests.Integration.LogicalOperator
                 var a = true;
                 var b = false;
 
-                (a = false) or
-                    (b = true) or
+                (a = false) ||
+                    (b = true) ||
                     (a = true);
                 
                 print a;
@@ -100,7 +100,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void false_is_falsy()
         {
             string source = @"
-                print false or ""ok"";
+                print false || ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -112,7 +112,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void null_is_falsy()
         {
             string source = @"
-                print null or ""ok"";
+                print null || ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -124,7 +124,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void true_is_truthy()
         {
             string source = @"
-                print true or ""ok"";
+                print true || ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -136,7 +136,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void zero_is_truthy()
         {
             string source = @"
-                print 0 or ""ok"";
+                print 0 || ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -148,7 +148,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
         public void strings_are_truthy()
         {
             string source = @"
-                print ""s"" or ""ok"";
+                print ""s"" || ""ok"";
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();

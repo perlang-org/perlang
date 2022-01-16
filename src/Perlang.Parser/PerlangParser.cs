@@ -478,7 +478,7 @@ namespace Perlang.Parser
         {
             Expr expr = And();
 
-            while (Match(OR))
+            while (Match(PIPE_PIPE))
             {
                 Token @operator = Previous();
                 Expr right = And();
@@ -492,7 +492,7 @@ namespace Perlang.Parser
         {
             Expr expr = Equality();
 
-            while (Match(AND))
+            while (Match(AMPERSAND_AMPERSAND))
             {
                 Token @operator = Previous();
                 Expr right = Equality();

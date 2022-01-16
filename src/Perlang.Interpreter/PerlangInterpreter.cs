@@ -573,14 +573,14 @@ namespace Perlang.Interpreter
         {
             object? left = Evaluate(expr.Left);
 
-            if (expr.Operator.Type == OR)
+            if (expr.Operator.Type == PIPE_PIPE)
             {
                 if (IsTruthy(left))
                 {
                     return left;
                 }
             }
-            else if (expr.Operator.Type == AND)
+            else if (expr.Operator.Type == AMPERSAND_AMPERSAND)
             {
                 if (!IsTruthy(left))
                 {
