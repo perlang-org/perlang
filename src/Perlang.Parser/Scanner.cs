@@ -28,14 +28,12 @@ namespace Perlang.Parser
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
-                { "and", AND },
                 { "else", ELSE },
                 { "false", FALSE },
                 { "for", FOR },
                 { "fun", FUN },
                 { "if", IF },
                 { "null", NULL },
-                { "or", OR },
                 { "print", PRINT },
                 { "return", RETURN },
                 { "super", SUPER },
@@ -169,6 +167,10 @@ namespace Perlang.Parser
             char c = Advance();
 
             // Note: case values are sorted in ASCII order, for predictability.
+            //
+            // (Hmm, I'm having second thoughts about this... It actually makes it harder to find things in the code,
+            // since things logically connected together like && and || end up being far apart. Might have to revisit
+            // this again.)
             switch (c)
             {
                 // Regular whitespace characters are ignored.
@@ -196,7 +198,7 @@ namespace Perlang.Parser
                     AddToken(PERCENT);
                     break;
                 case '&':
-                    AddToken(AMPERSAND);
+                    AddToken(Match('&') ? AMPERSAND_AMPERSAND : AMPERSAND);
                     break;
                 case '\'':
                     AddToken(SINGLE_QUOTE);
@@ -338,7 +340,7 @@ namespace Perlang.Parser
                     AddToken(LEFT_BRACE);
                     break;
                 case '|':
-                    AddToken(VERTICAL_BAR);
+                    AddToken(Match('|') ? PIPE_PIPE : PIPE);
                     break;
                 case '}':
                     AddToken(RIGHT_BRACE);

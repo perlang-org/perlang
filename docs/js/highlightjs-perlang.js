@@ -4,7 +4,7 @@ hljs.registerLanguage('perlang', function(hljs) {
     var KEYWORDS = {
         keyword:
             // Currently implemented
-            'and else for fun if nil or print return super this var while ' +
+            'else for fun if nil print return super this var while ' +
 
             // Reserved keywords
             'class byte sbyte short ushort uint ulong float decimal ' +

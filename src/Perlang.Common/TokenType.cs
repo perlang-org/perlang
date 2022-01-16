@@ -20,10 +20,8 @@ namespace Perlang
         SEMICOLON,
         COLON,
         SLASH,
-        AMPERSAND,
         QUESTION_MARK,
         CARET,
-        VERTICAL_BAR,
 
         // One or two character tokens.
         BANG,
@@ -36,6 +34,10 @@ namespace Perlang
         LESS,
         LESS_EQUAL,
         LESS_LESS,
+        AMPERSAND,
+        AMPERSAND_AMPERSAND,
+        PIPE,
+        PIPE_PIPE,
         PLUS_PLUS,
         MINUS_MINUS,
         PLUS_EQUAL,
@@ -49,14 +51,12 @@ namespace Perlang
         NUMBER,
 
         // Keywords.
-        AND,
         ELSE,
         FALSE,
         FUN,
         FOR,
         IF,
         NULL,
-        OR,
         PRINT,
         RETURN,
         SUPER,

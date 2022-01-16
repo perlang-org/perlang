@@ -24,9 +24,9 @@ namespace Perlang.Tests.Integration.ReservedTokens
         [Fact]
         public void ampersand_throws_expected_error()
         {
-            // Ampersands will be used for bitwise and boolean AND operators.
+            // Singe-ampersands will be used for bitwise AND operator.
             string source = @"
-                var c = true && false;
+                var c = 127 & 63;
             ";
 
             var result = EvalWithParseErrorCatch(source);
@@ -54,11 +54,11 @@ namespace Perlang.Tests.Integration.ReservedTokens
         }
 
         [Fact]
-        public void vertical_bar_throws_expected_error()
+        public void pipe_throws_expected_error()
         {
-            // The vertical bar (pipe) character wil be used for bitwise and boolean AND operators.
+            // The single-pipe (vertical bar) character will be used for bitwise OR operator.
             string source = @"
-                var c = 123 | 456;
+                var c = 127 | 255;
             ";
 
             var result = EvalWithParseErrorCatch(source);
