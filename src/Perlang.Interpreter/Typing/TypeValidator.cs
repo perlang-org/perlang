@@ -92,6 +92,16 @@ namespace Perlang.Interpreter.Typing
             // is expanded to a larger type (e.g. `long`).
             new TypeAssignmentValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
                 .ReportErrors(statements);
+
+            //
+            // Phase 4: Ensure that all expressions involving boolean operands have operands of `bool`.
+            //
+
+            // These expressions are things like `foo && bar`, `if (baz) { ... }` and `while (zot) { ... }`. All of
+            // these require proper, boolean operands and should trigger a compile-time error if used with any other
+            // types of operands.
+            new BooleanOperandsValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
+                .ReportErrors(statements);
         }
     }
 }

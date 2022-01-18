@@ -569,30 +569,43 @@ namespace Perlang.Interpreter
             return expr.Value;
         }
 
-        public object? VisitLogicalExpr(Expr.Logical expr)
+        public object VisitLogicalExpr(Expr.Logical expr)
         {
-            object? left = Evaluate(expr.Left);
+            // Note: ! operators in this method are considered "safe" since the type validation is expected to have
+            // validated that these operators are only called with `bool` operands.
+
+            object left = Evaluate(expr.Left)!;
 
             if (expr.Operator.Type == PIPE_PIPE)
             {
-                if (IsTruthy(left))
+                // Preserve the short-circuit semantics of || operations; the first `true` expression encountered in an
+                // expression like `false || true || false` will terminate the evaluation.
+                if ((bool)left)
                 {
-                    return left;
+                    return true;
                 }
+
+                bool right = (bool)Evaluate(expr.Right)!;
+
+                return (bool)left || right;
             }
             else if (expr.Operator.Type == AMPERSAND_AMPERSAND)
             {
-                if (!IsTruthy(left))
+                // Preserve the short-circuit semantics of &&| operations; the first `false` expression encountered in an
+                // expression like `true && false && true` will terminate the evaluation.
+                if (!(bool)left)
                 {
-                    return left;
+                    return false;
                 }
+
+                bool right = (bool)Evaluate(expr.Right)!;
+
+                return (bool)left && right;
             }
             else
             {
                 throw new RuntimeError(expr.Operator, $"Unsupported logical operator: {expr.Operator.Type}");
             }
-
-            return Evaluate(expr.Right);
         }
 
         public object? VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
@@ -602,7 +615,9 @@ namespace Perlang.Interpreter
             switch (expr.Operator.Type)
             {
                 case BANG:
-                    return !IsTruthy(right);
+                    // Note: bang operator considered "safe" since type validation is expected to have validated the
+                    // expression operands.
+                    return !(bool)right!;
 
                 case MINUS:
                     CheckNumberOperand(expr.Operator, right);
@@ -852,21 +867,6 @@ namespace Perlang.Interpreter
             return false;
         }
 
-        private static bool IsTruthy(object? @object)
-        {
-            if (@object == null)
-            {
-                return false;
-            }
-
-            if (@object is bool b)
-            {
-                return b;
-            }
-
-            return true;
-        }
-
         private static bool IsEqual(object? a, object? b)
         {
             // null is only equal to null.
@@ -976,7 +976,8 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitIfStmt(Stmt.If stmt)
         {
-            if (IsTruthy(Evaluate(stmt.Condition)))
+            // Bang operator should be safe, since types have been validated by TypeValidator.
+            if ((bool)Evaluate(stmt.Condition)!)
             {
                 Execute(stmt.ThenBranch);
             }
@@ -1024,7 +1025,8 @@ namespace Perlang.Interpreter
 
         public VoidObject VisitWhileStmt(Stmt.While stmt)
         {
-            while (IsTruthy(Evaluate(stmt.Condition)))
+            // Bang operator should be safe, since types have been validated by TypeValidator.
+            while ((bool)(Evaluate(stmt.Condition)!))
             {
                 Execute(stmt.Body);
             }
