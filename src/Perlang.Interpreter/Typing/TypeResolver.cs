@@ -269,6 +269,17 @@ namespace Perlang.Interpreter.Typing
             return VoidObject.Void;
         }
 
+        public override VoidObject VisitLogicalExpr(Expr.Logical expr)
+        {
+            base.VisitLogicalExpr(expr);
+
+            // All logical expressions return a `bool` value. The validation of the operands are handled by the
+            // BooleanOperandsValidator class.
+            expr.TypeReference.ClrType = typeof(bool);
+
+            return VoidObject.Void;
+        }
+
         public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             base.VisitUnaryPrefixExpr(expr);

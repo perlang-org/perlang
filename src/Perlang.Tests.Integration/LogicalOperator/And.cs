@@ -4,71 +4,15 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.LogicalOperator
 {
-    // Tests based on Lox test suite:
+    // Tests originally based on Lox test suite:
     // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/and.lox
     // https://github.com/munificent/craftinginterpreters/blob/master/test/logical_operator/and_truth.lox
+    //
+    // ...but eventually most of those tests were removed, as our semantics started to diverge from those of Lox. (no
+    // longer return the first falsy argument if false, the last truthy argument if true, etc. In general, provide a
+    // much more C#/Java:esque experience than Lox.)
     public class And
     {
-        [Fact]
-        public void returns_the_first_falsy_argument_false_and_1()
-        {
-            string source = @"
-                print false && 1;
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("False", output);
-        }
-
-        [Fact]
-        public void returns_the_first_falsy_argument_true_and_1()
-        {
-            string source = @"
-                print true && 1;
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("1", output);
-        }
-
-        [Fact]
-        public void returns_the_first_falsy_argument_1_and_2_and_false()
-        {
-            string source = @"
-                print 1 && 2 && false;
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("False", output);
-        }
-
-        [Fact]
-        public void returns_the_last_argument_if_all_are_truthy_1_and_true()
-        {
-            string source = @"
-                print 1 && true;
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("True", output);
-        }
-
-        [Fact]
-        public void returns_the_last_argument_if_all_are_truthy_1_and_2_and_3()
-        {
-            string source = @"
-                print 1 && 2 && 3;
-            ";
-
-            string output = EvalReturningOutput(source).SingleOrDefault();
-
-            Assert.Equal("3", output);
-        }
-
         [Fact]
         public void short_circuits_at_the_first_falsy_argument()
         {
@@ -93,14 +37,26 @@ namespace Perlang.Tests.Integration.LogicalOperator
             }, output);
         }
 
-        // Note: we might want to tighten the semantics here so that 'bool or non-bool' throws a compile-time error.
-        // These semantics were inherited from Lox, which is dynamically typed with no compile-time typechecking
-        // whatsoever.
+        [Fact]
+        public void true_is_truthy()
+        {
+            // In fact, true is the _only_ truthy value in Perlang. :-)
+            string source = @"
+                print true && true;
+            ";
+
+            string output = EvalReturningOutput(source).SingleOrDefault();
+
+            Assert.Equal("True", output);
+        }
+
         [Fact]
         public void false_is_falsy()
         {
+            // Just like with 'true', 'false' is the _only_ falsy value we accept. Anything else is a compile-time
+            // error, just like we believe it ought to be.
             string source = @"
-                print false && ""bad"";
+                print false && false;
             ";
 
             string output = EvalReturningOutput(source).SingleOrDefault();
@@ -109,51 +65,59 @@ namespace Perlang.Tests.Integration.LogicalOperator
         }
 
         [Fact]
-        public void null_is_falsy()
+        public void null_is_not_a_valid_and_operand()
         {
             string source = @"
-                print null && ""bad"";
+                print null && true;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
 
-            Assert.Equal("null", output);
+            Assert.Single(result.Errors);
+            Assert.Matches("'null' is not a valid && operand", exception.Message);
         }
 
         [Fact]
-        public void true_is_truthy()
+        public void integer_is_not_a_valid_and_operand()
         {
             string source = @"
-                print true && ""ok"";
+                print 0 && false;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
 
-            Assert.Equal("ok", output);
+            Assert.Single(result.Errors);
+            Assert.Matches("'int' is not a valid && operand", exception.Message);
         }
 
         [Fact]
-        public void zero_is_truthy()
+        public void string_is_not_a_valid_and_operand()
         {
             string source = @"
-                print 0 && ""ok"";
+                print """" && false;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.First();
 
-            Assert.Equal("ok", output);
+            Assert.Single(result.Errors);
+            Assert.Matches("'string' is not a valid && operand", exception.Message);
         }
 
         [Fact]
-        public void empty_string_is_truthy()
+        public void result_of_and_is_boolean()
         {
             string source = @"
-                print """" && ""ok"";
+                var v = true && false;
+
+                print(v.get_type());
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            var output = EvalReturningOutputString(source);
 
-            Assert.Equal("ok", output);
+            Assert.Equal("System.Boolean", output);
         }
     }
 }
