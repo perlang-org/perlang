@@ -20,38 +20,17 @@ namespace Perlang.Interpreter.Typing
     /// been inferred; in other words, <see cref="TypeResolver"/> have been visiting the expression tree(s) in
     /// question.
     /// </summary>
-    internal class TypesResolvedValidator : VisitorBase
+    internal class TypesResolvedValidator : Validator
     {
-        private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
-        private readonly Action<TypeValidationError> typeValidationErrorCallback;
         private readonly Action<CompilerWarning> compilerWarningCallback;
 
         internal TypesResolvedValidator(
             Func<Expr, Binding> getVariableOrFunctionCallback,
             Action<TypeValidationError> typeValidationErrorCallback,
             Action<CompilerWarning> compilerWarningCallback)
+            : base(getVariableOrFunctionCallback, typeValidationErrorCallback)
         {
-            this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
-            this.typeValidationErrorCallback = typeValidationErrorCallback;
             this.compilerWarningCallback = compilerWarningCallback;
-        }
-
-        internal void ReportErrors(IEnumerable<Stmt> statements)
-        {
-            foreach (Stmt statement in statements)
-            {
-                ReportErrors(statement);
-            }
-        }
-
-        internal void ReportErrors(Expr expr)
-        {
-            expr.Accept(this);
-        }
-
-        private void ReportErrors(Stmt stmt)
-        {
-            stmt.Accept(this);
         }
 
         //
@@ -85,7 +64,7 @@ namespace Perlang.Interpreter.Typing
                 // error messages to the caller than when calling an overloaded method.
                 if (parameters.Length != call.Arguments.Count)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(
+                    TypeValidationErrorCallback(new TypeValidationError(
                         call.Paren,
                         $"Method '{methodName}' has {parameters.Length} parameter(s) but was called with {call.Arguments.Count} argument(s)"
                     ));
@@ -110,7 +89,7 @@ namespace Perlang.Interpreter.Typing
                     if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
-                        typeValidationErrorCallback(new TypeValidationError(
+                        TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.ParameterType.ToTypeKeyword()} parameter to {methodName}()"));
                     }
@@ -159,7 +138,7 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
 
-                typeValidationErrorCallback(new NameResolutionTypeValidationError(
+                TypeValidationErrorCallback(new NameResolutionTypeValidationError(
                     call.Paren,
                     $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters."
                 ));
@@ -168,11 +147,11 @@ namespace Perlang.Interpreter.Typing
 
         private void VisitCallExprForOtherCallee(Expr.Call expr)
         {
-            Binding binding = getVariableOrFunctionCallback(expr);
+            Binding binding = GetVariableOrFunctionCallback(expr);
 
             if (binding == null)
             {
-                typeValidationErrorCallback(
+                TypeValidationErrorCallback(
                     new NameResolutionTypeValidationError(expr.Paren, $"Attempting to call undefined function '{expr.CalleeToString}'")
                 );
 
@@ -202,7 +181,7 @@ namespace Perlang.Interpreter.Typing
 
             if (parameters.Count != expr.Arguments.Count)
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     expr.Paren,
                     $"Function '{functionName}' has {parameters.Count} parameter(s) but was called with {expr.Arguments.Count} argument(s)")
                 );
@@ -230,14 +209,14 @@ namespace Perlang.Interpreter.Typing
                 {
                     if (parameter.Name != null)
                     {
-                        typeValidationErrorCallback(new TypeValidationError(
+                        TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType.ToTypeKeyword()}' to {functionName}()"));
                     }
                     else
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
-                        typeValidationErrorCallback(new TypeValidationError(
+                        TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {functionName}()"));
                     }
@@ -259,14 +238,14 @@ namespace Perlang.Interpreter.Typing
                 if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
                 {
                     // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
-                    typeValidationErrorCallback(new TypeValidationError(
+                    TypeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
                     );
                 }
                 else
                 {
-                    typeValidationErrorCallback(new TypeValidationError(
+                    TypeValidationErrorCallback(new TypeValidationError(
                         stmt.ReturnTypeReference.TypeSpecifier,
                         $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier.Lexeme}"
                     ));
@@ -278,7 +257,7 @@ namespace Perlang.Interpreter.Typing
                 if (parameter.TypeSpecifier == null)
                 {
                     // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
-                    typeValidationErrorCallback(new TypeValidationError(
+                    TypeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for parameter '{parameter.Name.Lexeme}' to function '{stmt.Name.Lexeme}'")
                     );
@@ -296,7 +275,7 @@ namespace Perlang.Interpreter.Typing
             {
                 if (!stmt.Value.TypeReference.IsResolved)
                 {
-                    typeValidationErrorCallback(new TypeValidationError(
+                    TypeValidationErrorCallback(new TypeValidationError(
                         stmt.Keyword,
                         $"Internal compiler error: return {stmt.Value} inference has not been attempted"
                     ));
@@ -326,7 +305,7 @@ namespace Perlang.Interpreter.Typing
             // Sanity check the input to ensure that we don't get NullReferenceExceptions later on
             if (stmt.TypeReference == null)
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     stmt.Name,
                     $"Internal compiler error: {stmt.Name.Lexeme} is missing a TypeReference"
                 ));
@@ -336,7 +315,7 @@ namespace Perlang.Interpreter.Typing
 
             if (stmt.Initializer != null && !stmt.Initializer.TypeReference.IsResolved)
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     stmt.Name,
                     $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"
                 ));
@@ -356,7 +335,7 @@ namespace Perlang.Interpreter.Typing
                     if (stmt.TypeReference.IsNullObject && stmt.Initializer.TypeReference.IsNullObject)
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
-                        typeValidationErrorCallback(new TypeValidationError(
+                        TypeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
                             "Cannot assign null to an implicitly typed local variable"
                         ));
@@ -364,7 +343,7 @@ namespace Perlang.Interpreter.Typing
                     else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
-                        typeValidationErrorCallback(new TypeValidationError(
+                        TypeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
                             $"Cannot assign {stmt.Initializer.TypeReference.ClrType.ToTypeKeyword()} to {stmt.TypeReference.ClrType.ToTypeKeyword()} variable"
                         ));
@@ -378,7 +357,7 @@ namespace Perlang.Interpreter.Typing
             }
             else if (stmt.Initializer == null)
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     null,
                     $"Type inference for variable '{stmt.Name.Lexeme}' cannot be performed when initializer is not specified. " +
                     "Either provide an initializer, or specify the type explicitly."
@@ -388,14 +367,14 @@ namespace Perlang.Interpreter.Typing
             {
                 // FIXME: Let's see if we'll ever go into this branch. If we don't have a test that reproduces
                 // this once all tests are green, we should consider wiping it from the face off the earth.
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     null,
                     $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."
                 ));
             }
             else
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     stmt.TypeReference.TypeSpecifier,
                     $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"
                 ));
