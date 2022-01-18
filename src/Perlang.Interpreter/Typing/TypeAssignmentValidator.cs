@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Perlang.Extensions;
 using Perlang.Interpreter.NameResolution;
 
@@ -9,32 +8,20 @@ namespace Perlang.Interpreter.Typing
     /// Visitor which ensures that all assignments in the given list of statements use values which can be coerced to
     /// the variable type in question.
     /// </summary>
-    internal class TypeAssignmentValidator : VisitorBase
+    internal class TypeAssignmentValidator : Validator
     {
-        private readonly Func<Expr, Binding> getVariableOrFunctionCallback;
-        private readonly Action<TypeValidationError> typeValidationErrorCallback;
-
         public TypeAssignmentValidator(
             Func<Expr, Binding> getVariableOrFunctionCallback,
             Action<TypeValidationError> typeValidationErrorCallback)
+            : base(getVariableOrFunctionCallback, typeValidationErrorCallback)
         {
-            this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
-            this.typeValidationErrorCallback = typeValidationErrorCallback;
-        }
-
-        public void ReportErrors(IList<Stmt> statements)
-        {
-            foreach (Stmt stmt in statements)
-            {
-                stmt.Accept(this);
-            }
         }
 
         public override VoidObject VisitAssignExpr(Expr.Assign expr)
         {
             base.VisitAssignExpr(expr);
 
-            Binding variableBinding = getVariableOrFunctionCallback(expr);
+            Binding variableBinding = GetVariableOrFunctionCallback(expr);
 
             if (variableBinding == null)
             {
@@ -55,7 +42,7 @@ namespace Perlang.Interpreter.Typing
 
             if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference))
             {
-                typeValidationErrorCallback(new TypeValidationError(
+                TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
                     $"Cannot assign {sourceTypeReference.ClrType.ToTypeKeyword()} to {targetTypeReference.ClrType.ToTypeKeyword()} variable"
                 ));

@@ -86,6 +86,17 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        /// <summary>
+        /// Visits a logical expression. This method visits the <see cref="Expr.Logical.Left"/> and <see
+        /// cref="Expr.Logical.Right"/> expressions; child classes can choose to call the base class _before_ or _after_
+        /// their own processing, depending on whether NLR (pre-order) or LRN (post-order) characteristics are
+        /// preferred.
+        ///
+        /// In some cases (like validation of trees which have already been traversed by another visitor), the exact
+        /// order is not important; in such cases, call the base method first for consistency.
+        /// </summary>
+        /// <param name="expr">The logical expression.</param>
+        /// <returns>This method does not return a meaningful return value.</returns>
         public virtual VoidObject VisitLogicalExpr(Expr.Logical expr)
         {
             Visit(expr.Left);
@@ -158,6 +169,17 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        /// <summary>
+        /// Visits an if statement. This method visits the <see cref="Stmt.If.Condition"/>, <see
+        /// cref="Stmt.If.ThenBranch"/> and optionally (if non-`null`) the <see cref="Stmt.If.ElseBranch"/> expressions;
+        /// child classes can choose to call the base class _before_ or _after_ their own processing, depending on
+        /// whether NLR (pre-order) or LRN (post-order) characteristics are preferred.
+        ///
+        /// In some cases (like validation of trees which have already been traversed by another visitor), the exact
+        /// order is not important; in such cases, call the base method first for consistency.
+        /// </summary>
+        /// <param name="stmt">The `if` statement.</param>
+        /// <returns>This method does not return a meaningful return value.</returns>
         public virtual VoidObject VisitIfStmt(Stmt.If stmt)
         {
             Visit(stmt.Condition);
@@ -198,6 +220,17 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        /// <summary>
+        /// Visits an if statement. This method visits the <see cref="Stmt.While.Condition"/> and <see
+        /// cref="Stmt.While.Body"/> expressions; child classes can choose to call the base class _before_ or _after_
+        /// their own processing, depending on whether NLR (pre-order) or LRN (post-order) characteristics are
+        /// preferred.
+        ///
+        /// In some cases (like validation of trees which have already been traversed by another visitor), the exact
+        /// order is not important; in such cases, call the base method first for consistency.
+        /// </summary>
+        /// <param name="stmt">The `if` statement.</param>
+        /// <returns>This method does not return a meaningful return value.</returns>
         public virtual VoidObject VisitWhileStmt(Stmt.While stmt)
         {
             Visit(stmt.Condition);
