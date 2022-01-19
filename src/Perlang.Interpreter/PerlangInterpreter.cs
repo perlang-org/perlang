@@ -10,6 +10,7 @@ using System.Text;
 using Perlang.Attributes;
 using Perlang.Exceptions;
 using Perlang.Extensions;
+using Perlang.Interpreter.CodeAnalysis;
 using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
@@ -269,6 +270,30 @@ namespace Perlang.Interpreter
                     return null;
                 }
 
+                //
+                // "Code analysis" validation
+                //
+
+                bool codeAnalysisValidationFailed = false;
+
+                CodeAnalysisValidator.Validate(
+                    previousAndNewStatements,
+                    compilerWarning =>
+                    {
+                        bool result = compilerWarningHandler(compilerWarning);
+
+                        if (result)
+                        {
+                            codeAnalysisValidationFailed = true;
+                        }
+                    }
+                );
+
+                if (codeAnalysisValidationFailed)
+                {
+                    return null;
+                }
+
                 // All validation was successful => add these statements to the list of "previous statements". Recording
                 // them like this is necessary to be able to declare a variable in one REPL line and refer to it in
                 // another.
@@ -358,6 +383,30 @@ namespace Perlang.Interpreter
                     },
                     BindingHandler.GetVariableOrFunctionBinding
                 );
+
+                //
+                // "Code analysis" validation
+                //
+
+                bool codeAnalysisValidationFailed = false;
+
+                CodeAnalysisValidator.Validate(
+                    previousAndNewStatements,
+                    compilerWarning =>
+                    {
+                        bool result = compilerWarningHandler(compilerWarning);
+
+                        if (result)
+                        {
+                            codeAnalysisValidationFailed = true;
+                        }
+                    }
+                );
+
+                if (codeAnalysisValidationFailed)
+                {
+                    return null;
+                }
 
                 // All validation was successful, but unlike for statements, there is no need to mutate the
                 // previousStatements field in this case. Think about it for a moment. We know that the line being
