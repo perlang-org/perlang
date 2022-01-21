@@ -220,7 +220,8 @@ namespace Perlang.Tests.Integration
         ///
         /// This method will propagate all kinds of errors to the caller, throwing an exception on the first error
         /// encountered. If any warnings are emitted, they will be available in the returned <see
-        /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
+        /// cref="EvalResult{T}.CompilerWarnings"/> property. This can be seen as "warnings as errors" is disabled
+        /// for all warnings; the caller need to explicitly check for warnings and fail if appropriate.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">Zero or more arguments to be passed to the program.</param>

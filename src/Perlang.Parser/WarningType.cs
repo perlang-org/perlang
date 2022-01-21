@@ -21,6 +21,15 @@ namespace Perlang.Parser
         /// </summary>
         public static readonly WarningType NULL_USAGE = new("null-usage");
 
+        /// <summary>
+        /// An ambiguous combination of boolean operators was encountered. This can be things like `false &amp;&amp;
+        /// false || true`. An expression like this is valid in most languages, and in many of them the `&amp;&amp;`
+        /// operator has a higher precedence than `||`. However, remembering the operator precedence rules by heart is
+        /// not always easy. We want to help people write code which is unambiguous to the reader, which is why we are
+        /// strongly encouraging the use of grouping parentheses in expressions like the above.
+        /// </summary>
+        public static readonly WarningType AMBIGUOUS_COMBINATION_OF_BOOLEAN_OPERATORS = new("ambigous-combination-of-boolean-operators");
+
         private static readonly IReadOnlyDictionary<string, WarningType> AllWarnings = new[]
         {
             NULL_USAGE
