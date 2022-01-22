@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.Linq;
+using FluentAssertions;
 using Perlang.ConsoleApp;
 using Perlang.Parser;
 using Xunit;
@@ -36,7 +37,7 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject.Run("var a = 42; print a;", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "42" }, output);
+                output.Should().Equal("42");
             }
 
             [Fact]
@@ -44,7 +45,7 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject.Run("print 10", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "10" }, output);
+                output.Should().Equal("10");
             }
 
             [Fact]
@@ -52,7 +53,7 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject.Run("var a = 43; print a", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "43" }, output);
+                output.Should().Equal("43");
             }
 
             [Fact]
@@ -61,7 +62,7 @@ namespace Perlang.Tests.ConsoleApp
                 subject.Run("var a = 44;", FatalWarningsHandler);
                 subject.Run("print a;", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "44" }, output);
+                output.Should().Equal("44");
             }
 
             [Fact]
@@ -70,7 +71,7 @@ namespace Perlang.Tests.ConsoleApp
                 subject.Run("fun hello(): void { print 1; }", FatalWarningsHandler);
                 subject.Run("hello();", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "1" }, output);
+                output.Should().Equal("1");
             }
 
             // This illustrates the bug described in #124; the example there used to throw an exception like this:
@@ -81,7 +82,7 @@ namespace Perlang.Tests.ConsoleApp
                 subject.Run("fun hello(): void { print 1; }", FatalWarningsHandler);
                 subject.Run("hello()", FatalWarningsHandler);
 
-                Assert.Equal(new List<string> { "1" }, output);
+                output.Should().Equal("1");
             }
 
             [Fact]
@@ -103,10 +104,10 @@ namespace Perlang.Tests.ConsoleApp
                 subject.Run("print b;", FatalWarningsHandler);
                 subject.Run("print c;", FatalWarningsHandler);
 
-                Assert.Equal(3, output.Count);
-                Assert.Matches("Undefined identifier 'x'", output[0]);
-                Assert.Matches("Undefined identifier 'b'", output[1]);
-                Assert.Matches("Undefined identifier 'c'", output[2]);
+                output.Count.Should().Be(3);
+                output[0].Should().Match("* Undefined identifier 'x'");
+                output[1].Should().Match("* Undefined identifier 'b'");
+                output[2].Should().Match("* Undefined identifier 'c'");
             }
 
             [Fact]
@@ -116,8 +117,9 @@ namespace Perlang.Tests.ConsoleApp
                 subject.Run("var a = 42;", FatalWarningsHandler);
 
                 // Assert
-                var exception = Assert.Throws<RuntimeError>(() => subject.Run("var a = 44;", FatalWarningsHandler));
-                Assert.Matches("Variable with this name already declared in this scope", exception.Message);
+                subject.Invoking(y => y.Run("var a = 44;", FatalWarningsHandler))
+                    .Should().Throw<RuntimeError>()
+                    .WithMessage("Variable with this name already declared in this scope.");
             }
 
             // Test added to assert the bug fix for #117. Interestingly enough, the NRE described there did not occur when
@@ -129,10 +131,9 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject.Run("Time.now().tickz()", FatalWarningsHandler);
 
-                Assert.Equal(new List<string>
-                {
+                output.Should().Equal(
                     "[line 1] Error at 'tickz': Failed to locate method 'tickz' in class 'DateTime'"
-                }, output);
+                );
             }
 
             [Fact]
@@ -140,10 +141,9 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject.Run("var s = null;", FatalWarningsHandler);
 
-                Assert.Equal(new List<string>
-                {
+                output.Should().Equal(
                     "[line 1] Error at 's': Cannot assign null to an implicitly typed local variable"
-                }, output);
+                );
             }
 
             private static bool FatalWarningsHandler(CompilerWarning compilerWarning)
@@ -158,8 +158,17 @@ namespace Perlang.Tests.ConsoleApp
 
             /// <summary>
             /// Gets the content printed to the standard output stream during test execution.
+            ///
+            /// This property returns the output as one, long string.
             /// </summary>
             private string StdoutContent => testConsole.Out.ToString() ?? String.Empty;
+
+            /// <summary>
+            /// Gets the content printed to the standard output stream during test execution.
+            ///
+            /// This property returns the output split by newline separators.
+            /// </summary>
+            private IEnumerable<string> StdoutLines => StdoutContent.Split(Environment.NewLine);
 
             /// <summary>
             /// Gets the content printed to the standard output stream during test execution.
@@ -172,15 +181,26 @@ namespace Perlang.Tests.ConsoleApp
 
                 /// <summary>
                 /// Gets the content printed to the standard output stream during test execution.
+                ///
+                /// This property returns the output as one, long string.
                 /// </summary>
                 private string StdoutContent => testConsole.Out.ToString() ?? String.Empty;
+
+                /// <summary>
+                /// Gets the content printed to the standard output stream during test execution.
+                ///
+                /// This property returns the output split by newline separators.
+                /// </summary>
+                private IEnumerable<string> StdoutLines => StdoutContent.Split(Environment.NewLine);
 
                 [Fact]
                 public void assignment_and_increment()
                 {
                     CallWithPrintParameter("i = i + 1");
 
-                    Assert.Equal("(i (+ i 1))\n", StdoutContent);
+                    StdoutLines.Should().Equal(
+                        "(i (+ i 1))", String.Empty
+                    );
                 }
 
                 [Fact]
@@ -188,7 +208,9 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("i += 1");
 
-                    Assert.Equal("(i (+= i 1))\n", StdoutContent);
+                    StdoutLines.Should().Equal(
+                        "(i (+= i 1))", String.Empty
+                    );
                 }
 
                 [Fact]
@@ -196,7 +218,9 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("print hej");
 
-                    Assert.Equal("(print hej)\n", StdoutContent);
+                    StdoutLines.Should().Equal(
+                        "(print hej)", String.Empty
+                    );
                 }
 
                 // This was previously broken, before #161. The incomplete expression was not properly detected by the
@@ -206,7 +230,10 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("hej hej");
 
-                    Assert.Contains("Error at 'hej': Expect ';' after expression.", StdoutContent);
+                    // TODO: Hmm, I wonder why this prints an extra linebreak?
+                    StdoutLines.Should().Equal(
+                        "[line 1] Error at 'hej': Expect ';' after expression.", String.Empty, String.Empty
+                    );
                 }
 
                 private void CallWithPrintParameter(string script)
@@ -222,7 +249,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "--version" }, testConsole);
 
                 // Assert
-                Assert.Equal(CommonConstants.InformationalVersion + "\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    CommonConstants.InformationalVersion, String.Empty
+                );
             }
 
             [Fact]
@@ -232,7 +261,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "-e", "print 10" }, testConsole);
 
                 // Assert
-                Assert.Equal("10" + "\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "10", String.Empty
+                );
             }
 
             [Fact]
@@ -242,7 +273,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/hello_world.per" }, testConsole);
 
                 // Assert
-                Assert.Equal("Hello, World\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "Hello, World", String.Empty
+                );
             }
 
             [Fact]
@@ -252,7 +285,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Equal("foo\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "foo", String.Empty
+                );
             }
 
             [Fact]
@@ -262,7 +297,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per" }, testConsole);
 
                 // Assert
-                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "[line 1] No arguments left", String.Empty
+                );
             }
 
             [Fact]
@@ -272,7 +309,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "[line 3] Error at end: Expect ';' after value.", String.Empty
+                );
             }
 
             [Fact]
@@ -282,7 +321,9 @@ namespace Perlang.Tests.ConsoleApp
                 int result = Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Equal((int)Program.ExitCodes.ERROR, result);
+                result.Should().Be(
+                    (int)Program.ExitCodes.ERROR
+                );
             }
 
             [Fact]
@@ -292,7 +333,9 @@ namespace Perlang.Tests.ConsoleApp
                 Program.MainWithCustomConsole(new[] { "test/fixtures/invalid.per", "foo" }, testConsole);
 
                 // Assert
-                Assert.Contains("Error at end: Expect ';' after value", StdoutContent);
+                StdoutContent.Should().Contain(
+                    "Error at end: Expect ';' after value"
+                );
             }
 
             // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
@@ -302,7 +345,9 @@ namespace Perlang.Tests.ConsoleApp
                 // Note that the trailing ; makes this a complete statement.
                 Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop()" }, testConsole);
 
-                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "[line 1] No arguments left", String.Empty
+                );
             }
 
             [Fact]
@@ -311,7 +356,9 @@ namespace Perlang.Tests.ConsoleApp
                 // Note that the trailing ; makes this a complete statement.
                 Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop();" }, testConsole);
 
-                Assert.Equal("[line 1] No arguments left\n", StdoutContent);
+                StdoutLines.Should().Equal(
+                    "[line 1] No arguments left", String.Empty
+                );
             }
 
             [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning on null assignment")]
@@ -319,8 +366,11 @@ namespace Perlang.Tests.ConsoleApp
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string; s = null;" }, testConsole);
 
-                Assert.Contains("Warning at 's': Null assignment detected", StdoutContent);
-                Assert.Equal(String.Empty, StderrContent);
+                StdoutContent.Should().Contain(
+                    "Warning at 's': Null assignment detected"
+                );
+
+                StderrContent.Should().BeEmpty();
             }
 
             [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning when initializing to null")]
@@ -328,8 +378,11 @@ namespace Perlang.Tests.ConsoleApp
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string = null;" }, testConsole);
 
-                Assert.Contains("Warning at 's': Initializing variable to null detected", StdoutContent);
-                Assert.Equal(String.Empty, StderrContent);
+                StdoutContent.Should().Contain(
+                    "Warning at 's': Initializing variable to null detected"
+                );
+
+                StderrContent.Should().BeEmpty();
             }
 
             [Fact]
@@ -337,13 +390,15 @@ namespace Perlang.Tests.ConsoleApp
             {
                 Program.MainWithCustomConsole(new[] { "-e", "var s: string; s = null; print 10;" }, testConsole);
 
-                Assert.Contains("Error at 's': Null assignment detected", StdoutContent);
+                StdoutContent.Should().Contain(
+                    "Error at 's': Null assignment detected"
+                );
 
                 // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, the
                 // program should not be executed.
-                Assert.DoesNotContain("10", StdoutContent);
+                StdoutContent.Should().NotContain("10");
 
-                Assert.Equal(String.Empty, StderrContent);
+                StderrContent.Should().BeEmpty();
             }
 
             [Fact]
@@ -351,13 +406,15 @@ namespace Perlang.Tests.ConsoleApp
             {
                 Program.MainWithCustomConsole(new[] { "-e", "var s: string = null; print 10;" }, testConsole);
 
-                Assert.Contains("Error at 's': Initializing variable to null detected", StdoutContent);
+                StdoutContent.Should().Contain(
+                    "Error at 's': Initializing variable to null detected"
+                );
 
                 // This test ensures that the 'print 10' never gets executed. When a compiler _error_ occurs, program
                 // execution should be aborted.
-                Assert.DoesNotContain("10", StdoutContent);
+                StdoutContent.Should().NotContain("10");
 
-                Assert.Equal(String.Empty, StderrContent);
+                StderrContent.Should().BeEmpty();
             }
         }
     }
