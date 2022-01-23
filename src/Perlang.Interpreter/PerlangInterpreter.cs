@@ -311,7 +311,7 @@ namespace Perlang.Interpreter
                     return VoidObject.Void;
                 }
 
-                return null;
+                return VoidObject.Void;
             }
             else if (result.HasExpr)
             {

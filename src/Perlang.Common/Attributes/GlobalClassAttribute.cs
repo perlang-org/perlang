@@ -18,6 +18,7 @@ namespace Perlang.Attributes
     /// they are private, Perlang will produce a compile-time error if an attempt is made to call the method.
     /// </summary>
     [MeansImplicitUse(ImplicitUseTargetFlags.Members)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class GlobalClassAttribute : Attribute
     {
         /// <summary>
