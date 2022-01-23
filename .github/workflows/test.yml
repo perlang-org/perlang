@@ -1,27 +1,17 @@
-name: .NET Core build & test
+name: .NET run tests
 
 on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.x
-
-      - name: Re-generate auto-generated files
-        run: make auto-generated
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      matrix:
+        runner:
+          - windows-2022
+          - ubuntu-20.04
+          - macos-11
 
     steps:
       - uses: actions/checkout@v1
