@@ -303,32 +303,34 @@ namespace Perlang.Tests.Integration
 
         private static void AssertFailScanErrorHandler(ScanError scanError)
         {
-            throw new Exception("ScanError occurred. See inner exception for details.", scanError);
+            // Note: does not contain stack trace, so no point in wrapping in Exception() at this point.
+            throw scanError;
         }
 
         private static void AssertFailParseErrorHandler(ParseError parseError)
         {
-            throw new Exception("ParseError occurred. See inner exception for details.", parseError);
+            // Note: does not contain stack trace, so no point in wrapping in Exception() at this point.
+            throw parseError;
         }
 
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw new Exception("NameResolutionError occurred. See inner exception for details.", nameResolutionError);
+            throw new Exception($"NameResolutionError occurred: {nameResolutionError.Message}", nameResolutionError);
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
-            throw new Exception("RuntimeError occurred. See inner exception for details.", runtimeError);
+            throw new Exception($"RuntimeError occurred: {runtimeError.Message}", runtimeError);
         }
 
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
-            throw new Exception("ValidationError occurred. See inner exception for details.", validationError);
+            throw new Exception($"ValidationError occurred: {validationError.Message}", validationError);
         }
 
         private static bool AssertFailCompilerWarningHandler(CompilerWarning compilerWarning)
         {
-            throw new Exception("CompilerWarning occurred. See inner exception for details.", compilerWarning);
+            throw new Exception($"CompilerWarning occurred: {compilerWarning.Message}", compilerWarning);
         }
     }
 }
