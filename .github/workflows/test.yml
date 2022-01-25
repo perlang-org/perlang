@@ -6,12 +6,31 @@ jobs:
   test:
     runs-on: ${{ matrix.runner }}
 
+    env:
+      LANG: ${{ matrix.lang }}
+
     strategy:
       matrix:
         runner:
           - windows-2022
           - ubuntu-20.04
           - macos-11
+        # Ensure that the tests run cleanly on both default (US) and non-US
+        # locales; e.g. double.ToString() behaves different on different
+        # locales and there have been cases where our tests failed on the
+        # non-US locales.
+        #
+        # We only run these on Linux for now to keep complexity down; if we
+        # ever end up with a non-US-locale bug which is manifested only on
+        # Windows or macOS, we can reconsider this decision. :-)
+        lang:
+          - C
+          - sv_SE
+        exclude:
+          - runner: windows-2022
+            lang: sv_SE
+          - runner: macos-11
+            lang: sv_SE
 
     steps:
       - uses: actions/checkout@v1
