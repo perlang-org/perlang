@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using Perlang.Extensions;
 
 namespace Perlang
@@ -12,6 +14,12 @@ namespace Perlang
             if (@object == null)
             {
                 return "null";
+            }
+            else if (@object is IConvertible convertible)
+            {
+                // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of
+                // host OS language/region settings. See #263 for more details.
+                return convertible.ToString(CultureInfo.InvariantCulture);
             }
 
             return @object.ToString();

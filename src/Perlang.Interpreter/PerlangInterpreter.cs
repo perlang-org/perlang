@@ -1413,13 +1413,31 @@ namespace Perlang.Interpreter
                         }
                         else if (IsValidNumberType(right))
                         {
-                            return leftString + right;
+                            if (rightConvertible != null)
+                            {
+                                // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless
+                                // of host OS language/region settings. See #263 for more details.
+                                return leftString + rightConvertible.ToString(CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                return leftString + right;
+                            }
                         }
                     }
 
                     if (IsValidNumberType(left) && rightString != null)
                     {
-                        return left + rightString;
+                        if (leftConvertible != null)
+                        {
+                            // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of
+                            // host OS language/region settings. See #263 for more details.
+                            return leftConvertible.ToString(CultureInfo.InvariantCulture) + rightString;
+                        }
+                        else
+                        {
+                            return left + rightString;
+                        }
                     }
 
                     CheckNumberOperands(expr.Operator, left, right);
