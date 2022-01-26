@@ -2,7 +2,7 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	install release run src/Perlang.Common/CommonConstants.Generated.cs
+	install release run test src/Perlang.Common/CommonConstants.Generated.cs
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -57,3 +57,6 @@ run: auto-generated
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
 	src/Perlang.ConsoleApp/bin/Debug/net6.0/perlang
+
+test:
+	dotnet test --configuration Release
