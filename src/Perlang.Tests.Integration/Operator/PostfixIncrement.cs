@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -11,12 +13,18 @@ namespace Perlang.Tests.Integration.Operator
         //
 
         [Theory]
-        [InlineData("int", "0", "1")]
-        [InlineData("long", "4294967296", "4294967297")]
-        [InlineData("bigint", "1267650600228229401496703205376", "1267650600228229401496703205377")]
-        [InlineData("double", "4294967296.123", "4294967297.123")]
-        public void incrementing_variable_assigns_expected_value(string type, string before, string after)
+        [InlineData("int", "0", "1", "en-US")]
+        [InlineData("int", "0", "1", "sv-SE")]
+        [InlineData("long", "4294967296", "4294967297", "en-US")]
+        [InlineData("long", "4294967296", "4294967297", "sv-SE")]
+        [InlineData("bigint", "1267650600228229401496703205376", "1267650600228229401496703205377", "en-US")]
+        [InlineData("bigint", "1267650600228229401496703205376", "1267650600228229401496703205377", "sv-SE")]
+        [InlineData("double", "4294967296.123", "4294967297.123", "en-US")]
+        [InlineData("double", "4294967296.123", "4294967297.123", "sv-SE")]
+        public async Task incrementing_variable_assigns_expected_value(string type, string before, string after, string cultureName)
         {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+
             string source = $@"
                 var i: {type} = {before};
                 i++;
@@ -29,12 +37,18 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Theory]
-        [InlineData("int", "0", "System.Int32")]
-        [InlineData("long", "4294967296", "System.Int64")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger")]
-        [InlineData("double", "4294967296.123", "System.Double")]
-        public void incrementing_variable_retains_expected_type(string type, string before, string expectedClrType)
+        [InlineData("int", "0", "System.Int32", "en-US")]
+        [InlineData("int", "0", "System.Int32", "sv-SE")]
+        [InlineData("long", "4294967296", "System.Int64", "en-US")]
+        [InlineData("long", "4294967296", "System.Int64", "sv-SE")]
+        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "en-US")]
+        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "sv-SE")]
+        [InlineData("double", "4294967296.123", "System.Double", "en-US")]
+        [InlineData("double", "4294967296.123", "System.Double", "sv-SE")]
+        public async Task incrementing_variable_retains_expected_type(string type, string before, string expectedClrType, string cultureName)
         {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+
             string source = $@"
                 var i: {type} = {before};
                 i++;

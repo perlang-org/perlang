@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -95,9 +97,12 @@ namespace Perlang.Tests.Integration.Number
             Assert.Equal(-123, result);
         }
 
-        [Fact]
-        public void literal_float()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_float(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 123.456
             ";
@@ -107,9 +112,12 @@ namespace Perlang.Tests.Integration.Number
             Assert.Equal(123.456, result);
         }
 
-        [Fact]
-        public void literal_negative_float()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_negative_float(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 -0.001
             ";
@@ -119,9 +127,12 @@ namespace Perlang.Tests.Integration.Number
             Assert.Equal(-0.001, result);
         }
 
-        [Fact]
-        public void literal_float_with_underscore_in_integer_part()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_float_with_underscore_in_integer_part(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 123_45.678
             ";
@@ -131,9 +142,12 @@ namespace Perlang.Tests.Integration.Number
             Assert.Equal(12345.678, result);
         }
 
-        [Fact]
-        public void literal_float_with_underscore_in_fractional_part()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_float_with_underscore_in_fractional_part(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 123.45_678
             ";

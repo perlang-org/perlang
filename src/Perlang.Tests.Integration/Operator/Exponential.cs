@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -86,9 +88,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(new BigInteger(59049), result);
         }
 
-        [Fact]
-        public void exponential_integer_and_float_literals()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task exponential_integer_and_float_literals(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 10 ** 3.5
             ";
@@ -98,9 +103,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(3162.2776601683795, result);
         }
 
-        [Fact]
-        public void exponential_integer_and_float_literals_infers_to_expected_type()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task exponential_integer_and_float_literals_infers_to_expected_type(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 var v = 10 ** 3.5;
                 print v.get_type();
@@ -111,9 +119,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("System.Double", result);
         }
 
-        [Fact]
-        public void exponential_integer_and_negative_float_literals()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task exponential_integer_and_negative_float_literals(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 10 ** -3.5
             ";
@@ -174,10 +185,14 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Theory]
-        [InlineData("2", "12", "4096")]
-        [InlineData("10", "3.5", "3162.2776601683795")]
-        public void exponential_integer_literals_as_variable_initializer(string left, string right, string expectedResult)
+        [InlineData("2", "12", "4096", "sv-SE")]
+        [InlineData("2", "12", "4096", "en-US")]
+        [InlineData("10", "3.5", "3162.2776601683795", "sv-SE")]
+        [InlineData("10", "3.5", "3162.2776601683795", "en-US")]
+        public async Task exponential_integer_literals_as_variable_initializer(string left, string right, string expectedResult, string cultureName)
         {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+
             string source = $@"
                 var x = {left} ** {right};
                 print x;

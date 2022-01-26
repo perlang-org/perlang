@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -25,9 +27,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(4, result);
         }
 
-        [Fact]
-        public void dividing_doubles_returns_double()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task dividing_doubles_returns_double(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 24.68 / 12.34
             ";

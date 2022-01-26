@@ -1,3 +1,7 @@
+#pragma warning disable CS1998
+
+using System.Globalization;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -69,9 +73,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("abc123", result);
         }
 
-        [Fact]
-        public void addition_of_float_and_string_coerces_number_to_string()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 var i = 123.45;
                 var s = ""abc"";
@@ -83,9 +90,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal("123.45abc", result);
         }
 
-        [Fact]
-        public void addition_of_string_and_float_coerces_number_to_string()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 var s = ""abc"";
                 var i = 123.45;
