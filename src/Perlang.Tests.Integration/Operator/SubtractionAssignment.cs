@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -8,9 +10,12 @@ namespace Perlang.Tests.Integration.Operator
     {
         // "Positive" tests, testing for supported behavior
 
-        [Fact]
-        public void subtraction_assignment_defined_variable()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task subtraction_assignment_defined_variable(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 var i = 0;
                 i -= 1;

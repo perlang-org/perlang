@@ -145,7 +145,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         public void reserved_keyword_float_cannot_be_used_as_variable_name()
         {
             string source = @"
-                var float = 123.45;
+                var float = 123;
             ";
 
             var result = EvalWithParseErrorCatch(source);
@@ -160,7 +160,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         public void reserved_keyword_double_cannot_be_used_as_variable_name()
         {
             string source = @"
-                var double = 123.45;
+                var double = 123;
             ";
 
             var result = EvalWithParseErrorCatch(source);
@@ -357,7 +357,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): byte {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -373,7 +373,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): sbyte {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -389,7 +389,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): short {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -405,7 +405,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): ushort {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -421,7 +421,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): uint {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -437,7 +437,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): ulong {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -453,7 +453,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): float {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -469,7 +469,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): decimal {
-                    return 123.45;
+                    return 123;
                 }
             ";
 
@@ -485,7 +485,7 @@ namespace Perlang.Tests.Integration.ReservedKeywords
         {
             string source = @"
                 fun foo(): char {
-                    return 123.45;
+                    return 123;
                 }
             ";
 

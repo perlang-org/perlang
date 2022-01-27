@@ -39,12 +39,12 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void Base64_decode_with_a_numeric_argument_throws_the_expected_exception()
         {
-            var result = EvalWithValidationErrorCatch("Base64.decode(123.45)");
+            var result = EvalWithValidationErrorCatch("Base64.decode(123)");
             var runtimeError = result.Errors.First();
 
             Assert.Single(result.Errors);
 
-            Assert.Equal("Cannot pass double argument as string parameter to decode()", runtimeError.Message);
+            Assert.Equal("Cannot pass int argument as string parameter to decode()", runtimeError.Message);
         }
     }
 }

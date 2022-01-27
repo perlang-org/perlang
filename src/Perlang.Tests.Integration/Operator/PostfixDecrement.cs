@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -10,9 +12,12 @@ namespace Perlang.Tests.Integration.Operator
         // "Positive" tests, testing for supported behavior
         //
 
-        [Fact]
-        public void decrementing_defined_variable()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task decrementing_defined_variable(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 var i = 0;
                 i--;
@@ -25,12 +30,18 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [Theory]
-        [InlineData("int", "1", "System.Int32")]
-        [InlineData("long", "4294967296", "System.Int64")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger")]
-        [InlineData("double", "4294967296.123", "System.Double")]
-        public void decrementing_variable_retains_expected_type(string type, string before, string expectedClrType)
+        [InlineData("int", "1", "System.Int32", "en-US")]
+        [InlineData("int", "1", "System.Int32", "sv-SE")]
+        [InlineData("long", "4294967296", "System.Int64", "en-US")]
+        [InlineData("long", "4294967296", "System.Int64", "sv-SE")]
+        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "en-US")]
+        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "sv-SE")]
+        [InlineData("double", "4294967296.123", "System.Double", "en-US")]
+        [InlineData("double", "4294967296.123", "System.Double", "sv-SE")]
+        public async Task decrementing_variable_retains_expected_type(string type, string before, string expectedClrType, string cultureName)
         {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+
             string source = $@"
                 var i: {type} = {before};
                 i--;

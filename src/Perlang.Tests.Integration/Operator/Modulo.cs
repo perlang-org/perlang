@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -25,9 +27,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(2, result);
         }
 
-        [Fact]
-        public void modulo_operation_on_doubles_returns_double()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task modulo_operation_on_doubles_returns_double(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 12.34 % 0.3
             ";
@@ -38,9 +43,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(0.04000000000000031, result);
         }
 
-        [Fact]
-        public void modulo_operation_combined_with_others_without_grouping()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task modulo_operation_combined_with_others_without_grouping(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 2 * 5 / 10 * 4 % 2.1
             ";
@@ -50,9 +58,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(1.9, result);
         }
 
-        [Fact]
-        public void modulo_operation_combined_with_others_with_grouping_first_operators()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task modulo_operation_combined_with_others_with_grouping_first_operators(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 (2 * 5 / 10 * 4) % 2.1
             ";
@@ -62,9 +73,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(1.9, result);
         }
 
-        [Fact]
-        public void modulo_operation_combined_with_others_with_grouping_last_operators()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task modulo_operation_combined_with_others_with_grouping_last_operators(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 2 * 5 / 10 * (4 % 2.1)
             ";

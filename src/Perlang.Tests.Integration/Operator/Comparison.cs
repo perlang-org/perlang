@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -261,9 +263,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(false, output);
         }
 
-        [Fact]
-        public void zero_less_than_negative_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task zero_less_than_negative_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 0.0 < -0.0
             ";
@@ -273,9 +278,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(false, output);
         }
 
-        [Fact]
-        public void negative_zero_less_than_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task negative_zero_less_than_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 -0.0 < 0.0
             ";
@@ -285,9 +293,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(false, output);
         }
 
-        [Fact]
-        public void zero_greater_than_negative_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task zero_greater_than_negative_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 0.0 > -0.0
             ";
@@ -297,9 +308,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(false, output);
         }
 
-        [Fact]
-        public void negative_zero_greater_than_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task negative_zero_greater_than_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 -0.0 > 0.0
             ";
@@ -309,9 +323,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(false, output);
         }
 
-        [Fact]
-        public void zero_less_than_or_equals_negative_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task zero_less_than_or_equals_negative_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 0.0 <= -0.0
             ";
@@ -321,9 +338,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(true, output);
         }
 
-        [Fact]
-        public void negative_zero_less_than_or_equals_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task negative_zero_less_than_or_equals_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 -0.0 <= 0.0
             ";
@@ -333,9 +353,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(true, output);
         }
 
-        [Fact]
-        public void zero_greater_than_or_equals_negative_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task zero_greater_than_or_equals_negative_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 0.0 >= -0.0
             ";
@@ -345,9 +368,12 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(true, output);
         }
 
-        [Fact]
-        public void negative_zero_greater_than_or_equals_zero_is_false()
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task negative_zero_greater_than_or_equals_zero_is_false(CultureInfo cultureInfo)
         {
+            CultureInfo.CurrentCulture = cultureInfo;
+
             string source = @"
                 -0.0 >= 0.0
             ";
