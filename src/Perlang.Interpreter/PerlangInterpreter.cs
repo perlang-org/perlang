@@ -124,7 +124,9 @@ namespace Perlang.Interpreter
                     Type = t,
                     ClassAttribute = t.GetCustomAttribute<GlobalClassAttribute>()
                 })
-                .Where(t => t.ClassAttribute != null);
+                .Where(t => t.ClassAttribute != null && (
+                    !t.ClassAttribute.Platforms.Any() || t.ClassAttribute.Platforms.Contains(Environment.OSVersion.Platform)
+                ));
 
             foreach (var globalClass in globalClassesQueryable)
             {

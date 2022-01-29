@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Perlang.Attributes
@@ -23,5 +24,22 @@ namespace Perlang.Attributes
         /// Gets or sets an optional custom name for the class. If not provided, the short-name of the class will be used.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets a collection of all the platforms on which the class should be registered. If empty, the class should
+        /// be registered on all platforms.
+        /// </summary>
+        public IEnumerable<PlatformID> Platforms { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlobalClassAttribute"/> class.
+        /// </summary>
+        /// <param name="platforms">An optional list of platform IDs for which the given global class should be
+        /// registered. If no platform IDs are provided, the global class is presumed to be platform-agnostic and
+        /// registered on all supported platforms.</param>
+        public GlobalClassAttribute(params PlatformID[] platforms)
+        {
+            Platforms = platforms;
+        }
     }
 }
