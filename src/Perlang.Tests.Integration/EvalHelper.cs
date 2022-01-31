@@ -11,8 +11,8 @@ namespace Perlang.Tests.Integration
         /// <summary>
         /// Evaluates the provided expression or list of statements, returning the evaluated value.
         ///
-        /// This method will propagate both scanner, parser, resolver and runtime errors to the caller. If multiple
-        /// errors are encountered, only the first will be thrown.
+        /// This method will propagate all types of errors to the caller. If multiple errors are encountered, only the
+        /// first will be thrown.
         ///
         /// Output printed to the standard output stream will be silently discarded by this method. For tests which need
         /// to make assertions based on the output printed, see e.g. the <see cref="EvalReturningOutput"/> method.
