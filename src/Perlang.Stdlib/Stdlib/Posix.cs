@@ -1,62 +1,37 @@
 #pragma warning disable SA1300
 #pragma warning disable S3218
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Perlang.Attributes;
 
 namespace Perlang.Stdlib
 {
     /// <summary>
-    /// Provides support for calling standard POSIX methods.
+    /// Provides support for calling standard POSIX functions.
     ///
     /// The method names are deliberately using "POSIX-style", i.e. short, C-oriented names for methods like `getuid`,
     /// `getpid` and so forth. This is to make it simple for people with experience from POSIX-based systems to find the
     /// method they are looking for.
+    ///
+    /// This class only contains POSIX-specific functions, i.e. functions available on POSIX-compliant systems like BSD,
+    /// GNU/Linux and macOS, but not available on Windows. For C functions available on all supported platforms, see the
+    /// <see cref="Libc"/> class.
     /// </summary>
     /// <remarks>
     /// The XML method descriptions are based on [the NetBSD source code](https://github.com/NetBSD/src). The full
-    /// license of these man pages can be found below.
+    /// license of these man pages can be found at https://github.com/perlang-org/perlang/blob/master/NOTICE.md
     ///
-    /// There might be subtle differences between systems on some of these methods. For information on how these work on
-    /// e.g. Linux, use a command like `man 2 getgid` (replace `getgid` with the name of the function you are interested
-    /// in).
-    ///
-    ///
-    /// Copyright (c) 1980, 1991, 1993
-    /// The Regents of the University of California.  All rights reserved.
-    ///
-    /// Redistribution and use in source and binary forms, with or without
-    /// modification, are permitted provided that the following conditions
-    /// are met:
-    /// 1. Redistributions of source code must retain the above copyright
-    ///    notice, this list of conditions and the following disclaimer.
-    /// 2. Redistributions in binary form must reproduce the above copyright
-    ///    notice, this list of conditions and the following disclaimer in the
-    ///    documentation and/or other materials provided with the distribution.
-    /// 3. Neither the name of the University nor the names of its contributors
-    ///    may be used to endorse or promote products derived from this software
-    ///    without specific prior written permission.
-    ///
-    /// THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-    /// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    /// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    /// ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-    /// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    /// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-    /// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    /// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    /// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-    /// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    /// SUCH DAMAGE.
-    /// </remarks>
-    /// <footer>
-    /// For more details on Linux-specific aspects regarding these methods, please consult the Linux man pages project:
+    /// There might be subtle differences between systems on some of these functions. For information on how these work
+    /// on e.g. GNU/Linux, use a command like `man 2 getgid` (replace `getgid` with the name of the function you are
+    /// interested in). You can also consult the Linux man pages project:
     /// https://man7.org/linux/man-pages/dir_all_alphabetic.html/.
-    /// </footer>
+    /// </remarks>
     [GlobalClass(PlatformID.Unix, PlatformID.MacOSX)]
     public static class Posix
     {
         // Internal class which contains the P/Invoke definitions, to avoid exposing them directly to our callers.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         private static class Internal
         {
             [DllImport("libc")]
