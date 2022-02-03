@@ -13,7 +13,10 @@
             ],
             "dest": "api",
             "filter": "filter-config.yml",
-            "disableDefaultFilter": true
+
+            // We need the default filter to be able to filter out EditorBrowsableState.Never-flagged types. I tried
+            // copying this rule to filter-config.yml with no success.
+            "disableDefaultFilter": false
         }
     ],
 
