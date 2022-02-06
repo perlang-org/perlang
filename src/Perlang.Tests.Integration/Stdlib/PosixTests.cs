@@ -4,6 +4,9 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Stdlib
 {
+    /// <summary>
+    /// Integration test for the <see cref="Perlang.Stdlib.Posix"/> class.
+    /// </summary>
     public class PosixTests
     {
 #if _WINDOWS
@@ -42,20 +45,6 @@ namespace Perlang.Tests.Integration.Stdlib
         public void getgid_returns_positive_integer()
         {
             var result = Eval("Posix.getgid()");
-
-            result.Should()
-                .BeOfType<int>().Which.Should()
-                .BeGreaterThanOrEqualTo(0);
-        }
-
-#if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
-#else
-        [Fact]
-#endif
-        public void getpid_returns_positive_integer()
-        {
-            var result = Eval("Posix.getpid()");
 
             result.Should()
                 .BeOfType<int>().Which.Should()
