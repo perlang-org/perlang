@@ -47,16 +47,6 @@ main() {
 
     ansi_escapes_are_valid=false
 
-    get_architecture || return 1
-    local _arch="$RETVAL"
-    assert_nz "$_arch" "arch"
-
-    local _dir
-    _dir="$(mktemp -d 2>/dev/null || ensure mktemp -d -t perlang-install)"
-    local _file="${_dir}/perlang-build.tar.gz"
-
-    local _is_tty=false
-
     if [ -t 2 ]; then
         _is_tty=true
 
@@ -68,6 +58,16 @@ main() {
             esac
         fi
     fi
+
+    get_architecture || return 1
+    local _arch="$RETVAL"
+    assert_nz "$_arch" "arch"
+
+    local _dir
+    _dir="$(mktemp -d 2>/dev/null || ensure mktemp -d -t perlang-install)"
+    local _file="${_dir}/perlang-build.tar.gz"
+
+    local _is_tty=false
 
     local _force=false
     local _toolchain=nightly
@@ -211,6 +211,23 @@ get_architecture() {
 
         MINGW* | MSYS* | CYGWIN*)
             _ostype=win
+            ;;
+
+        FreeBSD)
+            if $ansi_escapes_are_valid; then
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: FreeBSD" 1>&2
+            else
+                printf 'error: %s\n' "Unsupported OS type: FreeBSD" 1>&2
+            fi
+
+            echo
+            echo 'FreeBSD is unfortunately not yet supported by Perlang. This is dependent on'
+            echo 'upstream support in the .NET platform. See this issue for more details:'
+            echo 'https://github.com/perlang-org/perlang/issues/272'
+            echo
+
+            exit 1
+
             ;;
 
         *)
