@@ -49,6 +49,10 @@
       <Content Include="test\fixtures\argv_pop.per">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Remove="test\fixtures\null_usage.per" />
+      <Content Include="test\fixtures\null_usage.per">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
