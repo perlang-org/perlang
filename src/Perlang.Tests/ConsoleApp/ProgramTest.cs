@@ -361,7 +361,7 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning on null assignment")]
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning on null assignment")]
             public void with_Wno_error_null_usage_parameter_emits_warning_on_null_assignment()
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string; s = null;" }, testConsole);
@@ -373,7 +373,7 @@ namespace Perlang.Tests.ConsoleApp
                 StderrContent.Should().BeEmpty();
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits no warning when initializing to null")]
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning when initializing to null")]
             public void with_Wno_error_null_usage_parameter_emits_warning_when_initializing_to_null()
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string = null;" }, testConsole);
@@ -383,6 +383,34 @@ namespace Perlang.Tests.ConsoleApp
                 );
 
                 StderrContent.Should().BeEmpty();
+            }
+
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning for usage of null")]
+            public void with_no_error_null_usage_parameter_emits_warning_for_usage_of_null()
+            {
+                int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/null_usage.per" }, testConsole);
+
+                StderrContent.Should().BeEmpty();
+
+                StdoutContent.Should().Contain(
+                    "Initializing variable to null detected"
+                );
+
+                exitCode.Should().Be(0);
+            }
+
+            [Fact(DisplayName = "with -Wno-error=null-usage parameter: can be combined with script argument")]
+            public void with_no_error_null_usage_parameter_can_be_combined_with_script_argument()
+            {
+                int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/argv_pop.per", "hello, world" }, testConsole);
+
+                StderrContent.Should().BeEmpty();
+
+                StdoutContent.Should().Contain(
+                    "hello, world"
+                );
+
+                exitCode.Should().Be(0);
             }
 
             [Fact]

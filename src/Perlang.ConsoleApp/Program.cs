@@ -113,6 +113,24 @@ namespace Perlang.ConsoleApp
                 noWarnAsErrorOption
             };
 
+            var scriptNameArgument = new Argument<string>
+            {
+                Name = "script-name",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+
+            scriptNameArgument.AddValidator(result =>
+            {
+                var tokens = result.Parent!.Tokens;
+
+                if (tokens.Any(t => t.Type == System.CommandLine.Parsing.TokenType.Option && t.Value == evalOption.Name))
+                {
+                    return "<script-name> positional argument cannot be used together with the -e option";
+                }
+
+                return null;
+            });
+
             var rootCommand = new RootCommand
             {
                 Description = "The Perlang Interpreter",
@@ -141,6 +159,7 @@ namespace Perlang.ConsoleApp
                     {
                         // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
                         OptionResult optionResult = parseResult.FindResultFor(evalOption);
+
                         string source = optionResult.Children
                             .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
                             .Cast<ArgumentResult>()
@@ -161,6 +180,7 @@ namespace Perlang.ConsoleApp
                     {
                         // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
                         OptionResult optionResult = parseResult.FindResultFor(printOption);
+
                         string source = optionResult.Children
                             .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
                             .Cast<ArgumentResult>()
@@ -187,7 +207,7 @@ namespace Perlang.ConsoleApp
                     }
                     else
                     {
-                        string scriptName = parseResult.Tokens[0].Value;
+                        string scriptName = parseResult.ValueForArgument(scriptNameArgument);
                         int result;
 
                         if (parseResult.Tokens.Count == 1)
@@ -202,9 +222,10 @@ namespace Perlang.ConsoleApp
                         }
                         else
                         {
-                            // More than 1 argument. The remaining arguments are passed to the program, which can use
-                            // ARGV.pop() to retrieve them.
-                            var remainingArguments = parseResult.Tokens.Skip(1)
+                            // The first token available in RootCommandResult.Tokens at this point is the script name.
+                            // All remaining arguments are passed to the program, which can use methods on the ARGV
+                            // object to retrieve them.
+                            var remainingArguments = parseResult.RootCommandResult.Tokens.Skip(1)
                                 .Take(parseResult.Tokens.Count - 1)
                                 .Select(r => r.Value);
 
@@ -222,24 +243,6 @@ namespace Perlang.ConsoleApp
                     }
                 })
             };
-
-            var scriptNameArgument = new Argument<string>
-            {
-                Name = "script-name",
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-
-            scriptNameArgument.AddValidator(result =>
-            {
-                var tokens = result.Parent!.Tokens;
-
-                if (tokens.Any(t => t.Type == System.CommandLine.Parsing.TokenType.Option && t.Value == evalOption.Name))
-                {
-                    return "<script-name> positional argument cannot be used together with the -e option";
-                }
-
-                return null;
-            });
 
             rootCommand.AddArgument(scriptNameArgument);
 
@@ -303,7 +306,7 @@ namespace Perlang.ConsoleApp
         {
             if (!File.Exists(path))
             {
-                Console.Error.WriteLine($"Error: File {path} not found");
+                standardErrorHandler($"Error: File {path} not found");
                 return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
