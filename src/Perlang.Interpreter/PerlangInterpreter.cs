@@ -1834,7 +1834,8 @@ namespace Perlang.Interpreter
                     }
                     else
                     {
-                        // TODO: "Operands must be numbers" isn't completely correct here.
+                        // TODO: "Operands must be numbers" isn't completely correct here. The operands may very well
+                        // _be_ valid numbers, but just not an accepted combination of number types.
                         throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
                     }
 
@@ -1868,6 +1869,12 @@ namespace Perlang.Interpreter
                     try
                     {
                         return callable.Call(this, arguments);
+                    }
+                    catch (RuntimeError)
+                    {
+                        // This kind of exception already has the most-adjacent token available in it already, to
+                        // provide the approximate source location in the error message.
+                        throw;
                     }
                     catch (Exception e)
                     {

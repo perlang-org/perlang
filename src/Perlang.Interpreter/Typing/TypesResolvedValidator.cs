@@ -201,7 +201,7 @@ namespace Perlang.Interpreter.Typing
 
                 if (argument.TypeReference.IsNullObject)
                 {
-                    compilerWarningCallback(new CompilerWarning("Null parameter detected", parameter.Name, WarningType.NULL_USAGE));
+                    compilerWarningCallback(new CompilerWarning($"Null parameter detected for '{parameter.Name.Lexeme}'", expr.TokenAwareCallee.Token, WarningType.NULL_USAGE));
                 }
 
                 // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
