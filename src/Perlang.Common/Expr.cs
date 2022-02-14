@@ -112,6 +112,7 @@ namespace Perlang
         public class Call : Expr, ITokenAware
         {
             public Expr Callee { get; }
+            public ITokenAware TokenAwareCallee => (ITokenAware)Callee;
             public Token Paren { get; }
             public List<Expr> Arguments { get; }
 
@@ -136,6 +137,15 @@ namespace Perlang
 
             public Call(Expr callee, Token paren, List<Expr> arguments)
             {
+                // TODO: This would much more rightfully be a compile-time check. This is hard to achieve though, but we
+                // might be able to make it somewhat better by introducing a TokenAwareExpr of some form (see also
+                // #189). What is challenging here though is that the PerlangParser.Call() method is inherently dynamic
+                // in nature (given that Primary() can return any kind of Expr). #189 will remove the need for this.
+                if (callee is not ITokenAware)
+                {
+                    throw new ArgumentException("callee must be ITokenAware");
+                }
+
                 Callee = callee;
                 Paren = paren;
                 Arguments = arguments;

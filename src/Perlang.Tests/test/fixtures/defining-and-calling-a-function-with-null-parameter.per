@@ -1,0 +1,6 @@
+fun greet(name: string, age: int): void {
+  print "Hello " + name + ". Your age is " + age;
+}
+
+// Expected warning: [line 6] Warning at 'name': Null parameter detected
+greet(null, 42);

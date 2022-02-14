@@ -399,6 +399,24 @@ namespace Perlang.Tests.ConsoleApp
                 exitCode.Should().Be(0);
             }
 
+            [Fact]
+            public void with_no_error_null_usage_parameter_includes_correct_line_numbers_in_errors()
+            {
+                int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/defining-and-calling-a-function-with-null-parameter.per" }, testConsole);
+
+                StderrContent.Should().BeEmpty();
+
+                // There used to be a bug with the reporting of both of these warnings and errors, where the line number
+                // was messed up (#276)
+                StdoutLines.Should().Contain(
+                        "[line 6] Warning at 'greet': Null parameter detected for 'name'")
+                    .And.Contain(
+                        "[line 2] Operands must be numbers, not string and null"
+                    );
+
+                exitCode.Should().Be((int)Program.ExitCodes.RUNTIME_ERROR);
+            }
+
             [Fact(DisplayName = "with -Wno-error=null-usage parameter: can be combined with script argument")]
             public void with_no_error_null_usage_parameter_can_be_combined_with_script_argument()
             {
