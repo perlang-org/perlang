@@ -335,18 +335,20 @@ namespace Perlang.Interpreter.Typing
             // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
             // It still feels somewhat better than allowing any kind of wild binding to pass through at this
             // point.
-            if (binding is ClassBinding ||
-                binding is VariableBinding ||
-                binding is NativeClassBinding ||
-                binding is NativeObjectBinding ||
-                binding == null)
+            if (binding is ClassBinding or
+                VariableBinding or
+                NativeClassBinding or
+                NativeObjectBinding or
+                null)
             {
                 Type? type = expr.Object.TypeReference.ClrType;
 
                 if (type == null)
                 {
-                    // TODO: Use a better exception type here
-                    throw new NameResolutionTypeValidationError(expr.Name, $"Internal compiler error: ClrType for '{expr.Object}' was unexpectedly null.");
+                    // This is a legitimate code path in cases where a method call is attempted on an unknown type, like
+                    // `var f: Foo; f.some_method()`. In this case, the ClrType will be null for the given `expr.Object`
+                    // type reference.
+                    return VoidObject.Void;
                 }
 
                 // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased

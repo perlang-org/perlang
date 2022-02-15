@@ -1,3 +1,4 @@
+#nullable enable
 #pragma warning disable S907
 #pragma warning disable S3218
 #pragma warning disable SA1118
@@ -55,7 +56,29 @@ namespace Perlang.Interpreter.Typing
         {
             string methodName = get.Name.Lexeme;
 
-            if (get.Methods.Length == 1)
+            if (get.Methods.Length == 0)
+            {
+                if (!get.Object.TypeReference.IsResolved)
+                {
+                    // This is a bit of an oddball, but... We get here when an attempt is made to call a method on some
+                    // undefined type. (`Foo.do_stuff`)
+                    //
+                    // Now, this is a compile-time error, but the problem is that it's handled by this class itself;
+                    // encountering this error will not abort the tree traversal so we must avoid breaking it.
+                }
+                else
+                {
+                    // This is even more odd, but we must ensure that we have well-defined semantics in the weird case
+                    // where this would happen.
+                    TypeValidationErrorCallback(new TypeValidationError(
+                        call.Paren,
+                        $"Internal compiler error: no methods with name '{methodName}' could be found. This is a critical " +
+                        $"error that should have aborted the compilation before the {nameof(TypesResolvedValidator)} " +
+                        "validation is started. "
+                    ));
+                }
+            }
+            else if (get.Methods.Length == 1)
             {
                 MethodInfo method = get.Methods.Single();
                 var parameters = method.GetParameters();
@@ -90,7 +113,7 @@ namespace Perlang.Interpreter.Typing
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
-                            argument.TypeReference.TypeSpecifier,
+                            argument.TypeReference.TypeSpecifier!,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.ParameterType.ToTypeKeyword()} parameter to {methodName}()"));
                     }
                 }
@@ -210,14 +233,14 @@ namespace Perlang.Interpreter.Typing
                     if (parameter.Name != null)
                     {
                         TypeValidationErrorCallback(new TypeValidationError(
-                            argument.TypeReference.TypeSpecifier,
+                            argument.TypeReference.TypeSpecifier!,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType.ToTypeKeyword()}' to {functionName}()"));
                     }
                     else
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
-                            argument.TypeReference.TypeSpecifier,
+                            argument.TypeReference.TypeSpecifier!,
                             $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {functionName}()"));
                     }
                 }
@@ -246,8 +269,8 @@ namespace Perlang.Interpreter.Typing
                 else
                 {
                     TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.ReturnTypeReference.TypeSpecifier,
-                        $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier.Lexeme}"
+                        stmt.ReturnTypeReference.TypeSpecifier!,
+                        $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier!.Lexeme}"
                     ));
                 }
             }
@@ -328,7 +351,7 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            if (stmt.TypeReference.IsResolved)
+            if (stmt.TypeReference!.IsResolved)
             {
                 if (stmt.Initializer != null)
                 {
@@ -355,28 +378,19 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
             }
-            else if (stmt.Initializer == null)
+            else if (!stmt.TypeReference.ExplicitTypeSpecified && stmt.Initializer == null)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
-                    null,
+                    stmt.Name,
                     $"Type inference for variable '{stmt.Name.Lexeme}' cannot be performed when initializer is not specified. " +
                     "Either provide an initializer, or specify the type explicitly."
-                ));
-            }
-            else if (!stmt.TypeReference.ExplicitTypeSpecified)
-            {
-                // FIXME: Let's see if we'll ever go into this branch. If we don't have a test that reproduces
-                // this once all tests are green, we should consider wiping it from the face off the earth.
-                TypeValidationErrorCallback(new TypeValidationError(
-                    null,
-                    $"Failed to infer type for variable '{stmt.Name.Lexeme}' from usage. Try specifying the type explicitly."
                 ));
             }
             else
             {
                 TypeValidationErrorCallback(new TypeValidationError(
-                    stmt.TypeReference.TypeSpecifier,
-                    $"Type not found: {stmt.TypeReference.TypeSpecifier.Lexeme}"
+                    stmt.TypeReference.TypeSpecifier!,
+                    $"Type not found: {stmt.TypeReference.TypeSpecifier!.Lexeme}"
                 ));
             }
 

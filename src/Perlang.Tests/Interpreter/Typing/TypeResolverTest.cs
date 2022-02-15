@@ -86,7 +86,8 @@ namespace Perlang.Tests.Interpreter.Typing
             Assert.True(resolver.Globals.ContainsKey("l"));
             Assert.True(resolver.Globals.ContainsKey("m"));
 
-            // Both of these are expected to have been resolved this way; the first because of the explicit type specifier and the second because of type inference.
+            // Both of these are expected to have been resolved this way; the first because of the explicit type
+            // specifier and the second because of type inference.
             Assert.Equal(typeof(Int64), ((Stmt.Var)firstStmt).TypeReference.ClrType);
             Assert.Equal(typeof(Int64), ((Stmt.Var)secondStmt).TypeReference.ClrType);
         }
