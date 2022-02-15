@@ -14,6 +14,10 @@ using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
 
+#if _WINDOWS
+using System.Diagnostics;
+#endif
+
 namespace Perlang.ConsoleApp
 {
     public class Program
@@ -201,7 +205,7 @@ namespace Perlang.ConsoleApp
                             replMode: true,
                             standardOutputHandler: console.Out.WriteLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList
-                        ).RunPrompt();
+                        ).RunPrompt(args);
 
                         return Task.FromResult(0);
                     }
@@ -328,8 +332,20 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private void RunPrompt()
+#pragma warning disable S1172 // Remove this unused method parameter 'args'.
+        private void RunPrompt(string[] args)
         {
+#if _WINDOWS
+            if (Console.IsInputRedirected)
+            {
+                Console.WriteLine("Input redirection detected, relaunching with winpty");
+                var process = Process.Start("winpty", Environment.ProcessPath! + String.Join(' ', args));
+                process!.WaitForExit();
+
+                return;
+            }
+#endif
+
             PrintBanner();
             ReadLine.HistoryEnabled = true;
             ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
@@ -349,6 +365,7 @@ namespace Perlang.ConsoleApp
                 Run(command, CompilerWarningAsWarning);
             }
         }
+#pragma warning restore S1172
 
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
