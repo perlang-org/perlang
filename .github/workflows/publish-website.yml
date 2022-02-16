@@ -16,8 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: Install SASS
+        run: sudo npm install -g sass
+
       - name: Rebuild website
-        run: make docs
+        run: make -j docs
 
       - name: Deploy to perlang.org repo
         uses: jamesives/github-pages-deploy-action@4.1.0
