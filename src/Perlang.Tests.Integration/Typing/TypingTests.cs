@@ -208,7 +208,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign string to int variable", exception.Message);
+            Assert.Matches("Cannot assign string to int variable", exception!.Message);
         }
 
         [Fact]
@@ -259,7 +259,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign null to int variable", exception.Message);
+            Assert.Matches("Cannot assign null to int variable", exception!.Message);
         }
 
         [Fact]
@@ -293,7 +293,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot pass int argument as parameter 's: string'", exception.Message);
+            Assert.Matches("Cannot pass int argument as parameter 's: string'", exception!.Message);
         }
 
         [Fact]
@@ -347,7 +347,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot pass null argument as parameter 'i: int'", exception.Message);
+            Assert.Matches("Cannot pass null argument as parameter 'i: int'", exception!.Message);
         }
 
         [Fact]
@@ -396,7 +396,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+            Assert.Matches("Type not found: SomeUnknownType", exception!.Message);
         }
 
         [Fact]
@@ -416,7 +416,38 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Cannot assign string to int variable", exception.Message);
+            Assert.Equal("Cannot assign string to int variable", exception!.Message);
+        }
+
+        [Fact]
+        public void var_of_non_existent_type_with_initializer_emits_expected_error()
+        {
+            // TODO: I have a feeling that this somehow incorrectly infers the type from the 1 integer to some parts of
+            // the parsed syntax tree (since NonexistentType does not exist). Investigate this someday, since it could
+            // lead to subtle, very hard-to-track bugs.
+            string source = @"
+                var i: NonexistentType = 1; i++; print i.get_type();
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Equal("Type not found: NonexistentType", exception!.Message);
+        }
+
+        [Fact]
+        public void var_of_non_existent_type_without_initializer_emits_expected_error()
+        {
+            string source = @"
+                var f: Foo; f.do_stuff();
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+            var exception = result.Errors.FirstOrDefault();
+
+            Assert.Single(result.Errors);
+            Assert.Equal("Type not found: Foo", exception!.Message);
         }
     }
 }
