@@ -1,8 +1,8 @@
-# Learn Perlang
+# Quick Start
 
 ## Prerequisites
 
-This section presumes that you have installed the Perlang tooling using the instructions on our [download page](/download), and added it to your `$PATH`.
+This section presumes that you have installed the Perlang tooling using the instructions on our [download page](../../download/index.md), and added it to your `$PATH`.
 
 There are basically two ways in which you can use Perlang:
 
@@ -13,7 +13,7 @@ In _REPL mode_, each line you type is interpreted as you press Enter. This mode 
 
 In _scripting mode_, you type your program in a file and execute `perlang <filename>` (without the angle brackets). Perlang scripts conventionally follows the  `filename.per` convention, although this is no way enforced by the interpreter.
 
-> In the future, we hope to add a _compiled mode_ as well, where Perlang programs are precompiled to bytecode before they are executed. It is anticipated that this will provide magnitudes better performance than the current, interpreted mode.
+> In the future, we hope to add a _compiled mode_ as well, where Perlang programs are precompiled to MSIL bytecode before they are executed. It is anticipated that this will provide magnitudes better performance than the current, interpreted mode.
 
 Some of the examples below illustrate both ways of running a Perlang program, but the longer examples are only really practical to run in scripting mode. As we move along through this guide, we introduce various concepts in how the Perlang interpreter and language works as well, so this section aims to provide the reader with more than just the bare essentials.
 
@@ -43,11 +43,11 @@ Here's an example of a REPL session in action:
 
 <asciinema-player cols="126" rows="30" speed="2" src="/casts/repl.cast"></asciinema-player>
 
-Worth mentioning is that normally in Perlang, each complete _statement_ (like `print "Hello World"`) must be terminated by a semicolon, much like in languages in the C-family. In the REPL however, it's permissible to skip the semicolon. A newline can be considered to be interpreted as a "semicolon and newline", for convenience.
+Worth mentioning is that normally in Perlang, each complete _statement_ (like `print "Hello World"`) must be terminated by a semicolon, much like in the C family of languages (C, C++, C#, Java etc). In the REPL however, it's permissible to skip the semicolon. A newline can be considered to be interpreted as a "semicolon and newline", for convenience.
 
 #### Scripting mode
 
-[!code-perlang[hello_world](../../examples/hello_world.per)]
+[!code-perlang[hello_world](../../examples/quickstart/hello_world.per)]
 
 The comment on the first line is strictly speaking not a required part in this script. It is only there to help you understand that this program should be saved to disk using the suggested file name given there. (Feel free to disobey this suggestion if you are a little rebellious, just like me.)
 
@@ -64,7 +64,7 @@ Many programming language tutorials are kind of boring (_feel like calculating F
 
 (Given the size of this, there is little reason to show the REPL version; some of this would also have to be typed on a single line in the REPL at the moment, making it even more inconvenient.)
 
-[!code-perlang[pi](../../examples/pi.per)]
+[!code-perlang[pi](../../examples/quickstart/pi.per)]
 
 [1]: http://ajennings.net/blog/a-million-digits-of-pi-in-9-lines-of-javascript.html
 
@@ -97,3 +97,9 @@ sys	0m0.005s
 ```
 
 So, we are running about 60% slower than the JavaScript counterpart. For many applications, this could be tolerable but it's quite obvious that there's a lot of work that needs to be done in this area before Perlang is anywhere near "production quality".
+
+### Further reading
+
+This guide only takes some initial steps in teaching the user how to use Perlang. For example, _functions_ aren't covered at all.
+
+For a more in-depth guide which aims to cover all parts of Perlang which are currently implemented, see the page about [the Perlang language](../the-language/index.md).

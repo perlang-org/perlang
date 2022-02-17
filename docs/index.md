@@ -22,9 +22,9 @@ Similarly, we refuse to prematurely force the user to decide whether to use one 
 
 Often you know what kind of program you are writing when you start out, but really, why should you be forced to learn at least _three different languages_ (one scripting-based, one general-purpose and one system programming language) for this? Wouldn't it be much better if we could make a language that can excel in _all_ of these domains?
 
-Perlang aims to be just that. Welcome to [join our journey](contribute/).
+Perlang aims to be just that. Welcome to [join our journey](contribute/index.md).
 
-(If you like to, you can read some more about how the project started on the [Perlang History](perlang/history/) page.)
+(If you like to, you can read some more about how the project started on the [Perlang History](about/history/index.md) page.)
 
 ## License
 

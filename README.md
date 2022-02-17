@@ -68,7 +68,9 @@ $ make docs
 $ make docs-serve
 ```
 
-If you want continuously rebuilt documentation, `make docs-autobuild` in a separate terminal window.
+When you make changes to the documentation, run `make docs` to regenerate them (and make your browser auto-reload the changes).
+
+If you want to continuously rebuild documentation, run `make docs-autobuild` in a separate terminal window. This does not currently work flawlessly, so the `make docs` approach is preferable.
 
 ## License
 
