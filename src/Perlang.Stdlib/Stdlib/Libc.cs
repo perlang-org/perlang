@@ -64,6 +64,17 @@ namespace Perlang.Stdlib
         /// <see cref="ImmutableDictionary"/>. Note that this dictionary is **case-sensitive** when looking up items
         /// based on the key, even on Windows.
         ///
+        /// ### On Linux and macOS systems
+        ///
+        /// On Linux and macOS, the <see cref="environ"/> method retrieves the name and value of all environment
+        /// variables that are inherited from the parent process that launched the `dotnet` process or that are defined
+        /// within the scope of the `dotnet` process itself. Once the `dotnet` process ends, these latter environment
+        /// variables cease to exist.
+        ///
+        /// .NET running on Unix-based systems does not support per-machine or per-user environment variables.
+        ///
+        /// ### On Windows systems
+        ///
         /// On Windows systems, the <see cref="environ"/> method returns the following environment variables:
         ///
         /// - All per-machine environment variables that are defined at the time the process is created, along with
@@ -73,15 +84,6 @@ namespace Perlang.Stdlib
         ///   values.
         ///
         /// - Any variables inherited from the parent process from which the application was launched.
-        ///
-        /// ### On macOS and Linux systems
-        ///
-        /// On MacOS and Linux, the <see cref="environ"/> method retrieves the name and value of all environment
-        /// variables that are inherited from the parent process that launched the `dotnet` process or that are defined
-        /// within the scope of the `dotnet` process itself. Once the `dotnet` process ends, these latter environment
-        /// variables cease to exist.
-        ///
-        /// .NET running on Unix-based systems does not support per-machine or per-user environment variables.
         ///
         /// ### Standard environment variables
         ///
@@ -124,6 +126,16 @@ namespace Perlang.Stdlib
         ///
         /// Environment variable names are case-sensitive on Linux and macOS and case-insensitive on Windows.
         ///
+        /// ### On Linux and macOS systems
+        ///
+        /// On Linux and macOS, the environment block of the current process includes the following environment
+        /// variables:
+        ///
+        /// - All environment variables that are provided to it by the parent process that created it. For .NET
+        ///   applications launched from a shell, this includes all environment variables defined in the shell.
+        ///
+        /// .NET on Linux and macOS does not support per-machine or per-user environment variables.
+        ///
         /// ### On Windows systems
         ///
         /// On Windows systems, the environment block of the current process includes:
@@ -135,16 +147,6 @@ namespace Perlang.Stdlib
         ///       If there is no parent process, per-machine and per-user environment variables are used instead. For
         ///       example, a new console window has all per-machine and per-user environment variables defined at the
         ///       time it was launched.
-        ///
-        /// ### On macOS and Linux systems
-        ///
-        /// On macOS and Linux, the environment block of the current process includes the following environment
-        /// variables:
-        ///
-        /// - All environment variables that are provided to it by the parent process that created it. For .NET
-        ///   applications launched from a shell, this includes all environment variables defined in the shell.
-        ///
-        /// .NET on macOS and Linux does not support per-machine or per-user environment variables.
         ///
         /// ### Standard environment variables
         ///
