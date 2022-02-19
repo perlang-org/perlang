@@ -2,11 +2,11 @@
 
 SOLUTION_DIR = ARGV.pop or abort('Error: Solution directory must be provided')
 
-# Need to take -dev part out of e.g. 1.0.0-dev, since assembly versions must
-# adhere to the following format: major[.minor[.build[.revision]]]
-GIT_TAG_VERSION = `git describe --tags --abbrev=0 | sed s/-dev//`.rstrip
+# Need to take the v and -dev part out of e.g. v1.0.0-dev, since assembly
+# versions must adhere to the following format: major[.minor[.build[.revision]]]
+GIT_TAG_VERSION = `git describe --tags --abbrev=0 | sed s/v// | sed s/-dev//`.rstrip
 
-GIT_DESCRIBE_VERSION = `git describe --tags | sed s/-g.*$// | sed s/dev-/dev./`.rstrip
+GIT_DESCRIBE_VERSION = `git describe --tags | sed s/-g.*$// | sed s/v// | sed s/dev-/dev./`.rstrip
 GIT_COMMIT = `git describe --always`.rstrip
 
 common_constants = <<~EOF

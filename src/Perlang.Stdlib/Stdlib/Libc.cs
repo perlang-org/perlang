@@ -168,7 +168,7 @@ namespace Perlang.Stdlib
         /// to use it for constructing temporary file names. However, this is _NOT_ recommended since it is not secure.
         /// In C, `mkstemp` can be used for this purpose. `mkstemp` is not yet available to use from Perlang, though.
         ///
-        /// <see cref="getpid">getpid()</see> conform to ISO/IEC 9945-1:1990 (`POSIX.1`).
+        /// <see cref="getpid">getpid()</see> conforms to ISO/IEC 9945-1:1990 (`POSIX.1`).
         /// </summary>
         /// <returns>The process ID of the calling process.</returns>
         /// <seealso cref="Posix.getppid"/>
