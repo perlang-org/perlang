@@ -354,9 +354,14 @@ namespace Perlang.ConsoleApp
             {
                 string command = ReadLine.Read("> ");
 
-                if (command == "quit" || command == "exit")
+                if (command.ToLowerInvariant() == "/quit" || command.ToLowerInvariant() == "/exit")
                 {
                     break;
+                }
+                else if (command.ToLowerInvariant() == "/help")
+                {
+                    ShowHelp();
+                    continue;
                 }
 
                 // REPL mode is more relaxed: -Wno-error is enabled for all warnings by default. It simply makes sense
@@ -366,6 +371,29 @@ namespace Perlang.ConsoleApp
             }
         }
 #pragma warning restore S1172
+
+        private void ShowHelp()
+        {
+            standardOutputHandler(
+                "\n" +
+                "This is the Perlang interactive console (commonly called REPL, short for\n" +
+                "Read-Evaluate-Print-Loop). Any valid Perlang expression or statement can be\n" +
+                "entered here, and will be evaluated dynamically. For example, 10 + 5, 2 ** 32,\n" +
+                "or `print \"Hello, World\"`"
+            );
+            standardOutputHandler(String.Empty);
+
+            standardOutputHandler("The following special commands are also available:");
+            standardOutputHandler("\x1B[36;1m/quit\x1B[0m or \x1B[36;1m/exit\x1B[0m to quit the program.");
+            standardOutputHandler("\x1B[36;1m/help\x1B[0m to display this help.");
+            standardOutputHandler(String.Empty);
+
+            standardOutputHandler(
+                "For more information on the Perlang language, please consult this web page:\n" +
+                "https://perlang.org/learn. Thanks for your interest in the project! 🙏"
+            );
+            standardOutputHandler(String.Empty);
+        }
 
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
@@ -388,7 +416,9 @@ namespace Perlang.ConsoleApp
 
         private void PrintBanner()
         {
-            standardOutputHandler($"Perlang Interactive REPL Console ({CommonConstants.GetFullVersion()}, built from git commit {CommonConstants.GitCommit})");
+            standardOutputHandler($"Perlang Interactive REPL Console (\x1B[1m{CommonConstants.GetFullVersion()}\x1B[0m, built from git commit {CommonConstants.GitCommit})");
+            standardOutputHandler("Type \x1B[36;1m/help\x1B[0m for more information or \x1B[36;1m/quit\x1B[0m to quit the program.");
+            standardOutputHandler(String.Empty);
         }
 
         private void ScanError(ScanError scanError)
@@ -487,6 +517,7 @@ namespace Perlang.ConsoleApp
             {
                 var matchingKeywords = Scanner.ReservedKeywords
                     .Where(keyword => keyword.Key.StartsWith(text))
+                    .Where(keyword => keyword.Value != TokenType.RESERVED_WORD)
                     .Select(keyword => keyword.Key)
                     .ToList();
 
