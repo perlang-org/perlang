@@ -1,0 +1,94 @@
+name: .NET publish release packages
+
+# Only run when a tag is pushed
+on:
+ push:
+   tags:
+     - "v*.*.*"
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -eo pipefail -O inherit_errexit {0}
+
+jobs:
+  publish-release-packages:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch:
+          # Note: make sure to keep this list in sync with the list in
+          # publish-snapshot-packages.yml
+          - linux-arm
+          - linux-arm64
+          - linux-x64
+          - osx-arm64
+          - osx-x64
+          - win-x64
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Get version from tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create CommonConstants file
+        run: scripts/update_common_constants.rb $(echo ${{ steps.get_version.outputs.VERSION }} | sed s/^v//)
+
+      #
+      # Build releases
+      #
+      - name: Build host-compatible release
+        run: dotnet build
+
+      - name: Build ${{ matrix.arch }} release
+        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r ${{ matrix.arch }} --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+
+      #
+      # Create .tar.gz archives
+      #
+      - name: Create ${{ matrix.arch }} .tar.gz file
+        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net6.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net6.0/${{ matrix.arch }}/publish
+
+      - name: List .tar.gz files
+        run: ls -l src/Perlang.ConsoleApp/bin/Release/net6.0/*/*.tar.gz
+
+      #
+      # Upload archive to GitHub artifacts
+      #
+      - name: Upload ${{ matrix.arch }} .tar.gz file
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.arch }}-release
+          path: src/Perlang.ConsoleApp/bin/Release/net6.0/${{ matrix.arch }}/*.tar.gz
+
+  create-release:
+    needs: publish-release-packages
+    runs-on: ubuntu-latest
+
+    steps:
+      # Needed for release notes
+      - uses: actions/checkout@v1
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Get version from tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          draft: true # TODO: remove when done
+          prerelease: true
+          body_path: release-notes/${{ steps.get_version.outputs.VERSION }}.md
+          files: "*-release/*.tar.gz"
