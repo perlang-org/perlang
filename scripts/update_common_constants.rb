@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-SOLUTION_DIR = ARGV.pop or abort('Error: Solution directory must be provided')
-
 # Need to take the dev/ part out of e.g. dev/0.1.0, since assembly versions must
 # adhere to the following format: major[.minor[.build[.revision]]]
 GIT_TAG_VERSION = `git describe --tags --abbrev=0 | sed s%^dev/%%`.rstrip
@@ -28,7 +26,7 @@ namespace Perlang
 }
 EOF
 
-path = File.join(SOLUTION_DIR, 'src', 'Perlang.Common', 'CommonConstants.Generated.cs')
+path = File.join('src', 'Perlang.Common', 'CommonConstants.Generated.cs')
 File.write(path, common_constants)
 
 puts("#{path} updated")
