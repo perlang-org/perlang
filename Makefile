@@ -17,8 +17,8 @@ release:
 
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 
-src/Perlang.Common/CommonConstants.Generated.cs: ./scripts/update_common_constants.rb
-	./scripts/update_common_constants.rb `pwd`
+src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants.rb
+	scripts/update_common_constants.rb
 
 clean:
 	dotnet clean
