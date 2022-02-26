@@ -1,4 +1,4 @@
-name: .NET publish packages
+name: .NET publish snapshot packages
 
 # Technically, this could be conditionalized on the following paths:
 #
@@ -18,12 +18,14 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail -O inherit_errexit {0}
 
 jobs:
-  publish-packages:
+  publish-snapshot-packages:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         arch:
+          # Note: make sure to keep this list in sync with the list in
+          # publish-release-packages.yml
           - linux-arm
           - linux-arm64
           - linux-x64
