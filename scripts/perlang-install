@@ -17,6 +17,8 @@ set -u
 # If PERLANG_BUILDS_ROOT is unset or empty, use a default
 PERLANG_BUILDS_ROOT="${PERLANG_BUILDS_ROOT:-https://builds.perlang.org}"
 
+PERLANG_RELEASES_ROOT=https://github.com/perlang-org/perlang/releases/download
+
 usage() {
     cat 1>&2 <<EOF
 perlang-install (e55e0e0 2020-10-18)
@@ -29,7 +31,10 @@ FLAGS:
     -h, --help              Prints help information
 OPTIONS:
         --default-toolchain <default-toolchain>    Choose a default toolchain to install.
-                                                   Currently supported: nightly (default).
+                                                   Currently supported:
+                                                     * nightly (default)
+                                                     * release (more stable but will not
+                                                       include the latest improvements)
 
 Issues with this installer can be reported at the following address:
 https://github.com/perlang-org/perlang/issues
@@ -100,6 +105,8 @@ main() {
         nightly)
             _toolchain_slug=latest
             ;;
+        release)
+            ;;
         *)
             err "Unsupported toolchain: $_toolchain"
             ;;
@@ -107,7 +114,21 @@ main() {
 
     info "downloading toolchain '$_toolchain' for ${_arch}"
 
-    local _url="${PERLANG_BUILDS_ROOT}/perlang-${_toolchain_slug}-${_arch}.tar.gz"
+    if [ "$_toolchain" = "release" ]; then
+        local _metadata_url="https://raw.githubusercontent.com/perlang-org/perlang/master/.metadata/latest-release.txt"
+
+        # mktemp is not POSIX, but exists on at least Linux and FreeBSD. (How about Git Bash on Windows?)
+        local _temp_file=$(mktemp)
+
+        ensure downloader "$_metadata_url" "$_temp_file" "$_arch"
+
+        local _tag=$(cat $_temp_file)
+        local _version=$(echo $_tag | sed s/^v//)
+
+        local _url="${PERLANG_RELEASES_ROOT}/${_tag}/perlang-${_version}-${_arch}.tar.gz"
+    else
+        local _url="${PERLANG_BUILDS_ROOT}/perlang-${_toolchain_slug}-${_arch}.tar.gz"
+    fi
 
     ensure mkdir -p "$_dir"
     ensure downloader "$_url" "$_file" "$_arch"
