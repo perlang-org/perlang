@@ -7,11 +7,13 @@ CUSTOM_VERSION = ARGV.pop
 # Need to take the dev/ part out of e.g. dev/0.1.0, since assembly versions must
 # adhere to the following format: major[.minor[.build[.revision]]]
 GIT_TAG_VERSION = CUSTOM_VERSION || `git describe --tags --abbrev=0 | sed s%^dev/%%`.rstrip
+GIT_TAG_VERSION.sub!(%r{^v}, '')
 
 # The input to these sed operations is something like `dev/0.1.0-224-g09f4704`.
 # The output is expected to produce a SemVer-compliant version number. For
 # snapshots, it will be something like 0.1.0-dev.224
 GIT_DESCRIBE_VERSION = CUSTOM_VERSION || `git describe --tags | sed s%^dev/%% | sed s/-g.*$// | sed -E "s/-([0-9]*)$/-dev.\\1/"`.rstrip
+GIT_DESCRIBE_VERSION.sub!(%r{^v}, '')
 
 GIT_COMMIT = `git describe --always`.rstrip
 

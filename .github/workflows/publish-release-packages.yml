@@ -34,12 +34,8 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - name: Get version from tag
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Create CommonConstants file
-        run: scripts/update_common_constants.rb $(echo ${{ steps.get_version.outputs.VERSION }} | sed s/^v//)
+      - name: Re-generate auto-generated files
+        run: make auto-generated
 
       #
       # Build releases
@@ -88,7 +84,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          draft: true # TODO: remove when done
           prerelease: true
           body_path: release-notes/${{ steps.get_version.outputs.VERSION }}.md
           files: "*-release/*.tar.gz"
