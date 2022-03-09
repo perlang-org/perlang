@@ -15,7 +15,7 @@ GIT_TAG_VERSION.sub!(%r{^v}, '')
 GIT_DESCRIBE_VERSION = CUSTOM_VERSION || `git describe --tags | sed s%^dev/%% | sed s/-g.*$// | sed -E "s/-([0-9]*)$/-dev.\\1/"`.rstrip
 GIT_DESCRIBE_VERSION.sub!(%r{^v}, '')
 
-GIT_COMMIT = `git describe --always`.rstrip
+GIT_COMMIT = `git rev-parse --short HEAD`.rstrip
 
 common_constants = <<~EOF
 //
