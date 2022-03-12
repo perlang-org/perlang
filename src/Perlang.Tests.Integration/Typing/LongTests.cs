@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -53,7 +54,7 @@ namespace Perlang.Tests.Integration.Typing
         }
 
         [Fact]
-        public void long_variable_throws_expected_exception_on_overflow()
+        public void long_variable_throws_expected_exception_on_constant_overflow()
         {
             string source = @"
                 var l: long = 1231231230912839019312831232;

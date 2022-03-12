@@ -377,7 +377,7 @@ namespace Perlang.ConsoleApp
 
             standardOutputHandler(
                 "For more information on the Perlang language, please consult this web page:\n" +
-                "https://perlang.org/learn. Thanks for your interest in the project! 🙏"
+                "https://perlang.org/learn. Thank you for your interest in the project! 🙏"
             );
             standardOutputHandler(String.Empty);
         }

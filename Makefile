@@ -76,6 +76,7 @@ NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
 
 prepare-new-dev-version:
 	git tag dev/$(NEXT_RELEASE_VERSION) && git push origin dev/$(NEXT_RELEASE_VERSION)
+	touch release-notes/$(NEXT_RELEASE_TAG).md
 
 publish-release:
 	echo $(NEXT_RELEASE_TAG) > .metadata/latest-release.txt
