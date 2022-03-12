@@ -78,4 +78,5 @@ prepare-new-dev-version:
 	git tag dev/$(NEXT_RELEASE_VERSION) && git push origin dev/$(NEXT_RELEASE_VERSION)
 
 publish-release:
+	echo $(NEXT_RELEASE_TAG) > .metadata/latest-release.txt
 	git release $(NEXT_RELEASE_TAG)
