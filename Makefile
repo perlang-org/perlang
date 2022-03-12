@@ -69,7 +69,13 @@ run: auto-generated
 test:
 	dotnet test --configuration Release
 
-NEXT_RELEASE_TAG=v0.1.1
+# Note: run `make prepare-new-dev-version` when updating this, to ensure that
+# snapshot releases have the correct -V info.
+NEXT_RELEASE_VERSION=0.2.0
+NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
+
+prepare-new-dev-version:
+	git tag dev/$(NEXT_RELEASE_VERSION) && git push origin dev/$(NEXT_RELEASE_VERSION)
 
 publish-release:
 	git release $(NEXT_RELEASE_TAG)
