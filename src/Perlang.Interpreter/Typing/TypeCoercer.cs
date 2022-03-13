@@ -16,6 +16,9 @@ namespace Perlang.Interpreter.Typing
             { typeof(Int32), 32 },
             { typeof(Int64), 64 },
 
+            // Double-precision values are 64-bit but can only save 53-bit integers with exact precision
+            { typeof(Double), 32 },
+
             // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
             // bigints in Perlang are limited to 2 billion digits. :)
             { typeof(BigInteger), Int32.MaxValue }
@@ -81,9 +84,9 @@ namespace Perlang.Interpreter.Typing
                 return false;
             }
 
-            // Expansions are fine; in other words, as long as the target type is wider (number of bits) than the source
-            // type, the conversion will always work.
-            if (targetSize > sourceSize)
+            // Expansions are fine; in other words, as long as the target type is wider (number of bits) or than or
+            // equal to the source type, the conversion will always work.
+            if (targetSize >= sourceSize)
             {
                 return true;
             }
