@@ -8,6 +8,7 @@ using Humanizer;
 using Perlang.Extensions;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
+using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -263,7 +264,14 @@ namespace Perlang.Interpreter.Typing
             }
             else
             {
-                expr.TypeReference.ClrType = expr.Value.GetType();
+                if (expr.Value is INumericLiteral parsedNumber)
+                {
+                    expr.TypeReference.ClrType = parsedNumber.Value.GetType();
+                }
+                else
+                {
+                    expr.TypeReference.ClrType = expr.Value.GetType();
+                }
             }
 
             return VoidObject.Void;

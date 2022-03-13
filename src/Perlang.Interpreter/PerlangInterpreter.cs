@@ -610,6 +610,7 @@ namespace Perlang.Interpreter
                 }
                 catch (SystemException ex)
                 {
+                    // TODO: Include the original stack trace in the exception being thrown here, to simplify debugging.
                     throw new RuntimeError(null, ex.Message);
                 }
             }
@@ -617,7 +618,14 @@ namespace Perlang.Interpreter
 
         public object? VisitLiteralExpr(Expr.Literal expr)
         {
-            return expr.Value;
+            if (expr.Value is INumericLiteral parsedNumber)
+            {
+                return parsedNumber.Value;
+            }
+            else
+            {
+                return expr.Value;
+            }
         }
 
         public object VisitLogicalExpr(Expr.Logical expr)

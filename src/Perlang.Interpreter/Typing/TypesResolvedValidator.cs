@@ -109,7 +109,8 @@ namespace Perlang.Interpreter.Typing
                     // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
                     // on this if we could provide the token for the argument expression instead. However, the Expr type
                     // as used by 'argument' is a non-token-based expression so this is currently impossible.
-                    if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                    // FIXME: `null` here has disadvantages as described elsewhere.
+                    if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType, null))
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
@@ -146,7 +147,7 @@ namespace Perlang.Interpreter.Typing
                         }
 
                         // FIXME: The same caveat as above with call.Token applies here as well.
-                        if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType))
+                        if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType, null))
                         {
                             coercionsFailed = true;
                             break;
@@ -228,7 +229,8 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 // FIXME: expr.Token is an approximation here as well (see other similar comments in this file)
-                if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference, argument.TypeReference))
+                // FIXME: `null` here means that small-constants of e.g. `long` will not be able to be passed as `int` parameters.
+                if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference, argument.TypeReference, null))
                 {
                     if (parameter.Name != null)
                     {
@@ -363,7 +365,7 @@ namespace Perlang.Interpreter.Typing
                             "Cannot assign null to an implicitly typed local variable"
                         ));
                     }
-                    else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference))
+                    else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference, ((stmt.Initializer as Expr.Literal)?.Value as INumericLiteral)?.BitsUsed))
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         TypeValidationErrorCallback(new TypeValidationError(
@@ -388,6 +390,8 @@ namespace Perlang.Interpreter.Typing
             }
             else
             {
+                // Note: you will get this exception when working on adding a new built-in type. This can happen when
+                // the type is not present in TypeResolver.
                 TypeValidationErrorCallback(new TypeValidationError(
                     stmt.TypeReference.TypeSpecifier!,
                     $"Type not found: {stmt.TypeReference.TypeSpecifier!.Lexeme}"

@@ -8,7 +8,7 @@ namespace Perlang.Parser;
 
 internal static class NumberParser
 {
-    public static object Parse(NumericToken numericToken)
+    public static INumericLiteral Parse(NumericToken numericToken)
     {
         string numberCharacters = (string)numericToken.Literal!;
 
@@ -20,7 +20,7 @@ internal static class NumberParser
 
             // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
             // language/region settings. See #263 for more details.
-            return Double.Parse(numberCharacters, CultureInfo.InvariantCulture);
+            return new FloatingPointLiteral<double>(Double.Parse(numberCharacters, CultureInfo.InvariantCulture));
         }
         else
         {
@@ -60,77 +60,84 @@ internal static class NumberParser
 
             if (value <= Int32.MaxValue)
             {
-                return (int)value;
+                return new IntegerLiteral<int>((int)value);
             }
             else if (value <= UInt32.MaxValue)
             {
-                return (uint)value;
+                return new IntegerLiteral<uint>((uint)value);
             }
             else if (value <= Int64.MaxValue)
             {
-                return (long)value;
+                return new IntegerLiteral<long>((long)value);
             }
             else if (value <= UInt64.MaxValue)
             {
-                return (ulong)value;
+                return new IntegerLiteral<ulong>((ulong)value);
             }
             else // Anything else remains a BigInteger
             {
-                return value;
+                return new IntegerLiteral<BigInteger>(value);
             }
         }
     }
 
     public static object MakeNegative(object value)
     {
-        if (value is double doubleValue)
+        if (value is INumericLiteral numericLiteral)
         {
-            return -doubleValue;
-        }
-        else if (value is int doubleInt)
-        {
-            return -doubleInt;
-        }
-        else if (value is uint doubleUint)
-        {
-            long negativeValue = -doubleUint;
-
-            // This is a special hack to ensure that the value -2147483648 gets returned as an `int` and not a `long`.
-            // Some details available in #302, summarized here in brief:
-            //
-            // The value 2147483648 is too large for an `int` => gets parsed into a `ulong` where it will fit. Once it
-            // has been made negative, the value -2147483648 is again small enough to fit in an `int` => the code below
-            // will narrow it down to comply with the "smallest type possible" design principle.
-            //
-            // Rationale: Two's complement: https://en.wikipedia.org/wiki/Two%27s_complement
-            if (negativeValue >= Int32.MinValue)
+            if (numericLiteral.Value is double doubleValue)
             {
-                return (int)negativeValue;
+                return new FloatingPointLiteral<double>(-doubleValue);
+            }
+            else if (numericLiteral.Value is int intValue)
+            {
+                return new IntegerLiteral<int>(-intValue);
+            }
+            else if (numericLiteral.Value is uint uintValue)
+            {
+                long negativeValue = -uintValue;
+
+                // This is a special hack to ensure that the value -2147483648 gets returned as an `int` and not a `long`.
+                // Some details available in #302, summarized here in brief:
+                //
+                // The value 2147483648 is too large for an `int` => gets parsed into a `ulong` where it will fit. Once it
+                // has been made negative, the value -2147483648 is again small enough to fit in an `int` => the code below
+                // will narrow it down to comply with the "smallest type possible" design principle.
+                //
+                // Rationale: Two's complement: https://en.wikipedia.org/wiki/Two%27s_complement
+                if (negativeValue >= Int32.MinValue)
+                {
+                    return new IntegerLiteral<int>((int)negativeValue);
+                }
+                else
+                {
+                    return new IntegerLiteral<long>(negativeValue);
+                }
+            }
+            else if (numericLiteral.Value is long longValue)
+            {
+                return new IntegerLiteral<long>(-longValue);
+            }
+            else if (numericLiteral.Value is ulong ulongValue)
+            {
+                // Again, this needs to be handled specially to ensure that numbers that fit in a `long` doesn't use
+                // BigInteger unnecessarily.
+                BigInteger negativeValue = -new BigInteger(ulongValue);
+
+                if (negativeValue >= Int64.MinValue)
+                {
+                    return new IntegerLiteral<long>((long)negativeValue);
+                }
+                else
+                {
+                    // All negative numbers that are too big to fit in any of the smaller signed integer types will go
+                    // through this code path.
+                    return new IntegerLiteral<BigInteger>(negativeValue);
+                }
             }
             else
             {
-                return negativeValue;
-            }
-        }
-        else if (value is long longValue)
-        {
-            return -longValue;
-        }
-        else if (value is ulong ulongValue)
-        {
-            // Again, this needs to be handled specially to ensure that numbers that fit in a `long` doesn't use
-            // BigInteger unnecessarily.
-            BigInteger negativeValue = -new BigInteger(ulongValue);
-
-            if (negativeValue >= Int64.MinValue)
-            {
-                return (long)negativeValue;
-            }
-            else
-            {
-                // All negative numbers that are too big to fit in any of the smaller signed integer types will go
-                // through this code path.
-                return negativeValue;
+                throw new ArgumentException($"Type {numericLiteral.Value.GetType().ToTypeKeyword()} not supported");
             }
         }
         else
