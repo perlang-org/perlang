@@ -36,13 +36,29 @@ public class DoubleTests
     }
 
     [Fact]
-    public void double_variable_throws_expected_exception_on_constant_overflow()
+    public void double_variable_throws_expected_exception_when_initialized_from_long_constant()
     {
-        // 64-bit integers cannot be reliably stored in a double, since IEEE 754 double-precision floating point only
-        // represent exactly the range -2^53 to 2^53. More details:
+        // 64-bit integers cannot be reliably stored in a double, since IEEE 754 double-precision floating point can
+        // only represent without data loss integers in the range -2^53 to 2^53. More details:
         // https://en.wikipedia.org/wiki/Double-precision_floating-point_format#Precision_limitations_on_integer_values
+
+        // TODO: Consider changing these semantics. .NET (and Java) both supports this kind of implicit conversion.
         string source = @"
-                var d: double = 1231231230912839019312831232;
+                var d: double = 9223372036854775807;
+            ";
+
+        var result = EvalWithValidationErrorCatch(source);
+        var exception = result.Errors.First();
+
+        Assert.Single(result.Errors);
+        Assert.Matches("Cannot assign long to double variable", exception.Message);
+    }
+
+    [Fact]
+    public void double_variable_throws_expected_exception_when_initialized_from_bigint_constant()
+    {
+        string source = @"
+                var d: double = 18446744073709551616;
             ";
 
         var result = EvalWithValidationErrorCatch(source);

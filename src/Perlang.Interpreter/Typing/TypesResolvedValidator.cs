@@ -365,7 +365,7 @@ namespace Perlang.Interpreter.Typing
                             "Cannot assign null to an implicitly typed local variable"
                         ));
                     }
-                    else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference, ((stmt.Initializer as Expr.Literal)?.Value as INumericLiteral)?.BitsUsed))
+                    else if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference, (stmt.Initializer as Expr.Literal)?.Value as INumericLiteral))
                     {
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         TypeValidationErrorCallback(new TypeValidationError(

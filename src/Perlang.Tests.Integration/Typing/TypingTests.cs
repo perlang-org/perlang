@@ -108,6 +108,7 @@ namespace Perlang.Tests.Integration.Typing
         [Theory]
         [InlineData("2147483647", "System.Int32")]              // Int32.MaxValue
         [InlineData("-2147483648", "System.Int32")]             // Int32.MinValue
+        [InlineData("4294967295", "System.UInt32")]             // UInt32.MaxValue
         [InlineData("4294967296", "System.Int64")]              // UInt32.MaxValue + 1 => must be parsed as a `long` to avoid data loss.
         [InlineData("-4294967296", "System.Int64")]             // -(UInt32.MaxValue + 1) => must be parsed as a `long` to avoid data loss.
         [InlineData("9223372036854775807", "System.Int64")]     // Int64.MaxValue

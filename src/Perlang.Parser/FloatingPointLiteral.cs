@@ -11,6 +11,8 @@ internal readonly struct FloatingPointLiteral<T> : INumericLiteral
     /// <inheritdoc cref="INumericLiteral.BitsUsed"/>
     public long BitsUsed { get; }
 
+    public bool IsPositive { get; }
+
     object INumericLiteral.Value => Value;
 
     public FloatingPointLiteral(T value)
@@ -19,7 +21,13 @@ internal readonly struct FloatingPointLiteral<T> : INumericLiteral
 
         BitsUsed = value switch
         {
-            double doubleValue => Math.ILogB(doubleValue),
+            double doubleValue => (int)Math.Ceiling(Math.Log2(doubleValue)),
+            _ => throw new ArgumentException($"Unsupported numeric type encountered: {value.GetType().Name}")
+        };
+
+        IsPositive = value switch
+        {
+            double doubleValue => doubleValue >= 0,
             _ => throw new ArgumentException($"Unsupported numeric type encountered: {value.GetType().Name}")
         };
     }

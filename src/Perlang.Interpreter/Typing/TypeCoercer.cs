@@ -1,8 +1,10 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Numerics;
 using Perlang.Interpreter.Extensions;
+using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -13,7 +15,7 @@ namespace Perlang.Interpreter.Typing
     {
         internal static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
         {
-            { typeof(Int32), 32 },
+            { typeof(Int32), 31 }, // 32:nd bit is signed/unsigned.
             { typeof(Int64), 64 },
 
             // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
@@ -51,12 +53,12 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         /// <param name="targetTypeReference">A reference to the target type.</param>
         /// <param name="sourceTypeReference">A reference to the source type.</param>
-        /// <param name="sourceConstantValueSize">If the source is a constant value (e.g. integer literal), this
-        /// parameter will contain the size of the constant (in bits).</param>
+        /// <param name="numericLiteral">If the source is a numeric literal, this parameter holds data about it. If not,
+        ///                              this will be `null`.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference, long? sourceConstantValueSize)
+        public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference, INumericLiteral? numericLiteral)
         {
-            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType, sourceConstantValueSize);
+            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType, numericLiteral);
         }
 
         /// <summary>
@@ -71,10 +73,10 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         /// <param name="targetType">The target type.</param>
         /// <param name="sourceType">The source type.</param>
-        /// <param name="sourceConstantValueSize">If the source is a constant value (e.g. integer literal), this
-        /// parameter will contain the size of the constant (in bits).</param>
+        /// <param name="numericLiteral">If the source is a numeric literal, this parameter holds data about it. If not,
+        ///                              this will be `null`.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public static bool CanBeCoercedInto(Type targetType, Type sourceType, long? sourceConstantValueSize)
+        public static bool CanBeCoercedInto(Type? targetType, Type? sourceType, INumericLiteral? numericLiteral)
         {
             if (targetType == sourceType)
             {
@@ -94,10 +96,10 @@ namespace Perlang.Interpreter.Typing
                 return true;
             }
 
-            // TODO: Implement more of the coercions being advertised in the XML docs. :)
-
-            long? sourceSize = sourceConstantValueSize ?? SignedIntegerLengthByType.TryGetObjectValue(sourceType);
-            int? targetSize = SignedIntegerLengthByType.TryGetObjectValue(targetType) ?? FloatIntegerLengthByType.TryGetObjectValue(targetType);
+            long? sourceSize = numericLiteral?.BitsUsed ?? SignedIntegerLengthByType.TryGetObjectValue(sourceType!);
+            int? targetSize = (numericLiteral is { IsPositive: true } ? UnsignedIntegerLengthByType.TryGetObjectValue(targetType!) : null) ??
+                              SignedIntegerLengthByType.TryGetObjectValue(targetType!) ??
+                              FloatIntegerLengthByType.TryGetObjectValue(targetType!);
 
             if (sourceSize == null || targetSize == null)
             {
