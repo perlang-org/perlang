@@ -2,7 +2,7 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	install install-latest-snapshot publish-release release run \
+	install install-latest-snapshot publish-release release run test \
 	src/Perlang.Common/CommonConstants.Generated.cs
 
 RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang
