@@ -1,12 +1,29 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Perlang.Tests.Integration.Typing;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Number
 {
-    // Based on https://github.com/munificent/craftinginterpreters/blob/master/test/number
+    /// <summary>
+    /// Based on https://github.com/munificent/craftinginterpreters/blob/master/test/number
+    ///
+    /// Note that not all number-related tests are located in this class. See the other related classes for more
+    /// specific tests for particular data types:
+    ///
+    /// <list type="bullet">
+    /// <item><description><see cref="BigintTests"/></description></item>
+    /// <item><description><see cref="DoubleTests"/></description></item>
+    /// <item><description><see cref="IntTests"/></description></item>
+    /// <item><description><see cref="LongTests"/></description></item>
+    /// </list>
+    ///
+    /// The rationale is basically this: Tests which specify explicit variable tests belong in the "specific" test
+    /// classes for that data type. Tests which exercise the "find the smallest suitable integer/floating-point type"
+    /// fit better in <see cref="NumberTests"/>.
+    /// </summary>
     public class NumberTests
     {
         [Fact]
@@ -95,6 +112,18 @@ namespace Perlang.Tests.Integration.Number
             object result = Eval(source);
 
             Assert.Equal(-123, result);
+        }
+
+        [Fact]
+        public void literal_negative_larger_integer()
+        {
+            string source = @"
+                -2147483648
+            ";
+
+            object result = Eval(source);
+
+            Assert.Equal(-2147483648, result);
         }
 
         [Theory]

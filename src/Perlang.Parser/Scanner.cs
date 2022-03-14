@@ -1,4 +1,5 @@
 // TODO: Remove once https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3392 has been resolved
+
 #pragma warning disable SA1515 // SingleLineCommentMustBePrecededByBlankLine
 
 using System;
@@ -6,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using static Perlang.TokenType;
 
@@ -350,7 +350,7 @@ namespace Perlang.Parser
                 default:
                     // Even if a number is specified in a different base than 10 (e.g. binary, hexadecimal etc), it
                     // always starts with a "normal" (decimal) digit because of the prefix characters - e.g. 0x1234.
-                    if (IsDigit(c, Base.DECIMAL))
+                    if (IsDigit(c, NumericToken.Base.DECIMAL))
                     {
                         Number();
                     }
@@ -385,7 +385,7 @@ namespace Perlang.Parser
         {
             bool isFractional = false;
             var numberStyles = NumberStyles.Any;
-            var numberBase = Base.DECIMAL;
+            var numberBase = NumericToken.Base.DECIMAL;
             int startOffset = 0;
 
             char currentChar = Char.ToLower(Peek());
@@ -395,16 +395,16 @@ namespace Perlang.Parser
                 switch (currentChar)
                 {
                     case 'b':
-                        numberBase = Base.BINARY;
+                        numberBase = NumericToken.Base.BINARY;
                         break;
 
                     case 'o':
-                        numberBase = Base.OCTAL;
+                        numberBase = NumericToken.Base.OCTAL;
                         break;
 
                     case 'x':
                         numberStyles = NumberStyles.HexNumber;
-                        numberBase = Base.HEXADECIMAL;
+                        numberBase = NumericToken.Base.HEXADECIMAL;
                         break;
                 }
 
@@ -436,72 +436,11 @@ namespace Perlang.Parser
 
             string numberCharacters = RemoveUnderscores(source[(start + startOffset)..current]);
 
-            if (isFractional)
-            {
-                // TODO: This is a mess. We currently treat all floating point values as _double_, which is insane. We
-                // TODO: should probably have a "use smallest possible type" logic as below for integers, for floating point
-                // TODO: values as well. We could also consider supporting `decimal` while we're at it.
-
-                // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
-                // language/region settings. See #263 for more details.
-                AddToken(NUMBER, Double.Parse(numberCharacters, CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                // Any potential preceding '-' character has already been taken care of at this stage => we can treat
-                // the number as an unsigned value. However, we still try to coerce it to the smallest signed or
-                // unsigned integer type in which it will fit (but never smaller than 32-bit). This coincidentally
-                // follows the same semantics as how C# does it, for simplicity.
-
-                BigInteger value = numberBase switch
-                {
-                    Base.DECIMAL =>
-                        BigInteger.Parse(numberCharacters, numberStyles),
-
-                    Base.BINARY =>
-                        Convert.ToUInt64(numberCharacters, 2),
-
-                    Base.OCTAL =>
-                        Convert.ToUInt64(numberCharacters, 8),
-
-                    Base.HEXADECIMAL =>
-                        // Quoting from
-                        // https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger.parse?view=net-5.0#System_Numerics_BigInteger_Parse_System_ReadOnlySpan_System_Char__System_Globalization_NumberStyles_System_IFormatProvider_
-                        //
-                        // If value is a hexadecimal string, the Parse(String, NumberStyles) method interprets value as a
-                        // negative number stored by using two's complement representation if its first two hexadecimal
-                        // digits are greater than or equal to 0x80. In other words, the method interprets the highest-order
-                        // bit of the first byte in value as the sign bit. To make sure that a hexadecimal string is
-                        // correctly interpreted as a positive number, the first digit in value must have a value of zero.
-                        //
-                        // We presume that all hexadecimals should be treated as positive numbers for now.
-                        BigInteger.Parse('0' + numberCharacters, numberStyles),
-
-                    _ =>
-                        throw new InvalidOperationException($"Base {(int)numberBase} not supported")
-                };
-
-                if (value < Int32.MaxValue)
-                {
-                    AddToken(NUMBER, (int)value);
-                }
-                else if (value < UInt32.MaxValue)
-                {
-                    AddToken(NUMBER, (uint)value);
-                }
-                else if (value < Int64.MaxValue)
-                {
-                    AddToken(NUMBER, (long)value);
-                }
-                else if (value < UInt64.MaxValue)
-                {
-                    AddToken(NUMBER, (ulong)value);
-                }
-                else // Anything else remains a BigInteger
-                {
-                    AddToken(NUMBER, value);
-                }
-            }
+            // Note that numbers are not parsed at this stage. We deliberately postpone it to the parsing stage, to be
+            // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
+            // from Lox) worked poorly with our idea of "narrowing down" constants to smallest possible integer. See
+            // #302 for some more details.
+            AddToken(new NumericToken(source[start..current], line, numberCharacters, isFractional, numberBase, numberStyles));
         }
 
         private static string RemoveUnderscores(string s)
@@ -604,9 +543,9 @@ namespace Perlang.Parser
             c is '_';
 
         private static bool IsAlphaNumeric(char c) =>
-            IsAlpha(c) || IsUnderscore(c) || IsDigit(c, Base.DECIMAL);
+            IsAlpha(c) || IsUnderscore(c) || IsDigit(c, NumericToken.Base.DECIMAL);
 
-        private static bool IsDigit(char c, Base @base) =>
+        private static bool IsDigit(char c, NumericToken.Base @base) =>
             (int)@base switch
             {
                 2 => c is '0' or '1',
@@ -631,12 +570,9 @@ namespace Perlang.Parser
             tokens.Add(new Token(type, text, literal, line));
         }
 
-        private enum Base
+        private void AddToken(Token token)
         {
-            BINARY = 2,
-            OCTAL = 8,
-            DECIMAL = 10,
-            HEXADECIMAL = 16,
+            tokens.Add(token);
         }
     }
 }

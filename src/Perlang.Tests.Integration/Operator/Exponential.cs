@@ -7,13 +7,13 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator
 {
+    /// <summary>
+    /// Tests for the ** (exponential) operator. The operator works pretty much like in Ruby.
+    ///
+    /// The type of the returned value is varies depending on the input types.
+    /// </summary>
     public class Exponential
     {
-        //
-        // Tests for the ** (exponential) operator. The operator works pretty much like in Ruby. An interesting detail
-        // about it is that the returned value is a BigInteger, regardless of the size of the input operands. This
-        // may sometimes be impractical, but for simple/REPL scenarios it is still basically useful.
-        //
         [Fact]
         public void exponential_integer_literals()
         {
