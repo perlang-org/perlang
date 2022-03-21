@@ -1,3 +1,4 @@
+#pragma warning disable SA1025
 using System;
 using System.Linq;
 using Xunit;
@@ -100,6 +101,29 @@ namespace Perlang.Tests.Integration.Typing
 
             Assert.Single(result.Errors);
             Assert.Matches("Type not found: SomeUnknownType", exception.Message);
+        }
+
+        // These tests deliberately test the edge cases (minimum/maximum values), to prevent off-by-one errors.
+
+        [Theory]
+        [InlineData("2147483647", "System.Int32")]              // Int32.MaxValue
+        [InlineData("-2147483648", "System.Int32")]             // Int32.MinValue
+        [InlineData("4294967296", "System.Int64")]              // UInt32.MaxValue + 1 => must be parsed as a `long` to avoid data loss.
+        [InlineData("-4294967296", "System.Int64")]             // -(UInt32.MaxValue + 1) => must be parsed as a `long` to avoid data loss.
+        [InlineData("9223372036854775807", "System.Int64")]     // Int64.MaxValue
+        [InlineData("-9223372036854775808", "System.Int64")]    // Int64.MinValue
+        [InlineData("18446744073709551616", "System.Numerics.BigInteger")] // UInt64.MaxValue + 1 => should be parsed as a `bigint` to avoid data loss.
+        [InlineData("-9223372036854775809", "System.Numerics.BigInteger")] // Int64.MinValue - 1 => should be parsed as a `bigint` to avoid data loss.
+        public void var_declaration_infers_type_from_initializer(string value, string expectedType)
+        {
+            string source = $@"
+                var i = {value};
+
+                print i.get_type();
+            ";
+
+            string result = EvalReturningOutputString(source);
+            Assert.Equal(expectedType, result);
         }
 
         [Fact]

@@ -564,7 +564,18 @@ namespace Perlang.Parser
             {
                 Token @operator = Previous();
                 Expr right = UnaryPrefix();
-                return new Expr.UnaryPrefix(@operator, right);
+
+                // We detect MINUS + NUMBER here and convert it to a single Expr.Literal() (with constant value) instead
+                // of retaining it as a unary prefix expression. See #302 for some more details about why this was
+                // changed.
+                if (@operator.Type == MINUS && right is Expr.Literal rightLiteral)
+                {
+                    return new Expr.Literal(NumberParser.MakeNegative(rightLiteral.Value!));
+                }
+                else
+                {
+                    return new Expr.UnaryPrefix(@operator, right);
+                }
             }
 
             return Call();
@@ -623,7 +634,15 @@ namespace Perlang.Parser
             if (Match(TRUE)) return new Expr.Literal(true);
             if (Match(NULL)) return new Expr.Literal(null);
 
-            if (Match(NUMBER, STRING))
+            if (Match(NUMBER))
+            {
+                // Numbers are retained as strings in the scanning phase, to properly be able to parse negative numbers
+                // in the parsing stage (where we can more easily join the MINUS and NUMBER token together). See #302
+                // for details.
+                return new Expr.Literal(NumberParser.Parse((NumericToken)Previous()));
+            }
+
+            if (Match(STRING))
             {
                 return new Expr.Literal(Previous().Literal);
             }
