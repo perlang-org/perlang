@@ -16,12 +16,16 @@ namespace Perlang.Interpreter.Typing
             { typeof(Int32), 32 },
             { typeof(Int64), 64 },
 
-            // Double-precision values are 64-bit but can only save 53-bit integers with exact precision
-            { typeof(Double), 32 },
-
             // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
             // bigints in Perlang are limited to 2 billion digits. :)
             { typeof(BigInteger), Int32.MaxValue }
+        }.ToImmutableDictionary();
+
+        private static ImmutableDictionary<Type, int?> FloatIntegerLengthByType => new Dictionary<Type, int?>
+        {
+            // Double-precision values are 64-bit but can only save 53-bit integers with exact precision. Since there
+            // are no "53-bit" types, we just make this the "next smaller available" bit length.
+            { typeof(Double), 32 }
         }.ToImmutableDictionary();
 
         /// <summary>
@@ -76,7 +80,7 @@ namespace Perlang.Interpreter.Typing
             // TODO: Implement more of the coercions being advertised in the XML docs. :)
 
             int? sourceSize = SignedIntegerLengthByType.TryGetObjectValue(sourceType);
-            int? targetSize = SignedIntegerLengthByType.TryGetObjectValue(targetType);
+            int? targetSize = SignedIntegerLengthByType.TryGetObjectValue(targetType) ?? FloatIntegerLengthByType.TryGetObjectValue(targetType);
 
             if (sourceSize == null || targetSize == null)
             {

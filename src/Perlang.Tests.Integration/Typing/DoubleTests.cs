@@ -53,6 +53,21 @@ public class DoubleTests
     }
 
     [Fact]
+    public void double_variable_throws_expected_exception_when_assigned_to_long_variable()
+    {
+        string source = @"
+                var d: double = 8589934592.1;
+                var l: long = d;
+            ";
+
+        var result = EvalWithValidationErrorCatch(source);
+        var exception = result.Errors.First();
+
+        Assert.Single(result.Errors);
+        Assert.Matches("Cannot assign double to long variable", exception.Message);
+    }
+
+    [Fact]
     public void double_variable_has_expected_type_when_initialized_to_8bit_value()
     {
         // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type.
