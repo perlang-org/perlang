@@ -639,7 +639,8 @@ namespace Perlang.Parser
                 // Numbers are retained as strings in the scanning phase, to properly be able to parse negative numbers
                 // in the parsing stage (where we can more easily join the MINUS and NUMBER token together). See #302
                 // for details.
-                return new Expr.Literal(NumberParser.Parse((NumericToken)Previous()));
+                INumericLiteral numericLiteral = NumberParser.Parse((NumericToken)Previous());
+                return new Expr.Literal(numericLiteral);
             }
 
             if (Match(STRING))

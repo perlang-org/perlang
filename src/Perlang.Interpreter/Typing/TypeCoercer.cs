@@ -40,10 +40,12 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         /// <param name="targetTypeReference">A reference to the target type.</param>
         /// <param name="sourceTypeReference">A reference to the source type.</param>
+        /// <param name="sourceConstantValueSize">If the source is a constant value (e.g. integer literal), this
+        /// parameter will contain the size of the constant (in bits).</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference)
+        public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference, long? sourceConstantValueSize)
         {
-            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType);
+            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType, sourceConstantValueSize);
         }
 
         /// <summary>
@@ -58,13 +60,17 @@ namespace Perlang.Interpreter.Typing
         /// </summary>
         /// <param name="targetType">The target type.</param>
         /// <param name="sourceType">The source type.</param>
+        /// <param name="sourceConstantValueSize">If the source is a constant value (e.g. integer literal), this
+        /// parameter will contain the size of the constant (in bits).</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public static bool CanBeCoercedInto(Type targetType, Type sourceType)
+        public static bool CanBeCoercedInto(Type targetType, Type sourceType, long? sourceConstantValueSize)
         {
             if (targetType == sourceType)
             {
                 return true;
             }
+
+            // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric types.
 
             if (sourceType == typeof(NullObject) &&
                 targetType != typeof(int) &&
@@ -79,7 +85,7 @@ namespace Perlang.Interpreter.Typing
 
             // TODO: Implement more of the coercions being advertised in the XML docs. :)
 
-            int? sourceSize = SignedIntegerLengthByType.TryGetObjectValue(sourceType);
+            long? sourceSize = sourceConstantValueSize ?? SignedIntegerLengthByType.TryGetObjectValue(sourceType);
             int? targetSize = SignedIntegerLengthByType.TryGetObjectValue(targetType) ?? FloatIntegerLengthByType.TryGetObjectValue(targetType);
 
             if (sourceSize == null || targetSize == null)

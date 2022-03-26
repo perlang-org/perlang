@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -117,8 +116,9 @@ namespace Perlang.Tests.Integration.Typing
         [Fact]
         public void long_variable_with_32bit_value_emits_expected_error_when_initializer_assigned_to_int_variable()
         {
-            // Expansions are fine (103 to long), but the other way around is not supported with implicit conversions.
-            // Attempting to initialize an int variable with this value is expected to fail.
+            // Expansions are fine (103 to `long`), but assignments to a smaller-sized integer, potentially losing data,
+            // is not supported with implicit conversions. Attempting to initialize an `int` variable from a `long` is
+            // expected to fail.
             string source = @"
                 var l: long = 103;
                 var i: int = l;

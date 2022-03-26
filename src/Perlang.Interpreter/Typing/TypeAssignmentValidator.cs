@@ -1,6 +1,7 @@
 using System;
 using Perlang.Extensions;
 using Perlang.Interpreter.NameResolution;
+using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -39,8 +40,14 @@ namespace Perlang.Interpreter.Typing
 
             var targetTypeReference = variableBinding.TypeReference;
             var sourceTypeReference = expr.Value.TypeReference;
+            long? sourceConstantValueSize = null;
 
-            if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference))
+            if (expr.Value is Expr.Literal { Value: INumericLiteral parsedNumber })
+            {
+                sourceConstantValueSize = parsedNumber.BitsUsed;
+            }
+
+            if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference, sourceConstantValueSize))
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
