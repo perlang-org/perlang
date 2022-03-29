@@ -1,0 +1,160 @@
+// Needed to be able to set CultureInfo.CurrentCulture without leaking the change to other test methods.
+
+#pragma warning disable CS1998
+
+using System.Globalization;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Xunit;
+using static Perlang.Tests.Integration.EvalHelper;
+
+namespace Perlang.Tests.Integration.Operator.Binary
+{
+    public class Addition
+    {
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Plus_result), MemberType = typeof(BinaryOperatorData))]
+        void performs_addition(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                var i1 = {i};
+                var i2 = {j};
+
+                print i1 + i2;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be(expectedResult);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Plus_type), MemberType = typeof(BinaryOperatorData))]
+        void with_supported_types_returns_expected_type(string i, string j, string expectedType)
+        {
+            string source = $@"
+                var i1 = {i};
+                var i2 = {j};
+
+                print (i1 + i2).get_type();
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be(expectedType);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Plus_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                print {i} + {j};
+            ";
+
+            // TODO: Should be validation errors, not runtime errors. The shift-left operator does it right, use the same
+            // TODO: approach here.
+            var result = EvalWithRuntimeErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle().Which
+                .Message.Should().Match(expectedResult);
+        }
+
+        [Fact]
+        void addition_of_strings_performs_concatenation()
+        {
+            string source = @"
+                var s1 = ""foo"";
+                var s2 = ""bar"";
+
+                print s1 + s2;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("foobar");
+        }
+
+        [Fact]
+        void addition_of_integer_and_string_coerces_number_to_string()
+        {
+            // Some interesting notes on how other languages deal with this:
+            //
+            // Ruby 2.6: Not supported. TypeError (no implicit conversion of Integer into String)
+            // Python 2.7: Not supported. TypeError: cannot concatenate 'str' and 'int' objects
+            // Java 11: String + int works fine. Int + string also coerces the integer to a string.
+            // C#: Likewise.
+            // Javascript: Likewise.
+
+            string source = @"
+                var i = 123;
+                var s = ""abc"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("123abc");
+        }
+
+        [Fact]
+        void addition_of_string_and_integer_coerces_number_to_string()
+        {
+            string source = @"
+                var s = ""abc"";
+                var i = 123;
+
+                print s + i;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc123");
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                var i = 123.45;
+                var s = ""abc"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("123.45abc");
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                var s = ""abc"";
+                var i = 123.45;
+
+                print s + i;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc123.45");
+        }
+    }
+}
