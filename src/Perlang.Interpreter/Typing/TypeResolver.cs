@@ -114,6 +114,11 @@ namespace Perlang.Interpreter.Typing
                         return VoidObject.Void;
                     }
 
+                    // TODO: This does not make sense for all binary operators. For example, LESS_LESS and
+                    // GREATER_GREATER only works with certain combinations of integer types. We should move them to a
+                    // separate `case` arm and try to handle them here => becomes a compile-time error instead of a
+                    // runtime error.
+
                     ITypeReference? typeReference = GreaterType(leftTypeReference, rightTypeReference);
 
                     if (typeReference == null)
@@ -153,8 +158,13 @@ namespace Perlang.Interpreter.Typing
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
-                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                    else if (leftTypeReference.ClrType == typeof(int) &&
                              (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        expr.TypeReference.ClrType = typeof(double);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
+                             (rightTypeReference.ClrType == typeof(int)))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }

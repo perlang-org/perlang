@@ -890,6 +890,13 @@ namespace Perlang.Interpreter
             throw new RuntimeError(@operator, "Operand must be a number.");
         }
 
+        /// <summary>
+        /// Ensures that the given operands to a binary expression are numeric.
+        /// </summary>
+        /// <param name="operator">The operator for the given operand. Only used for error handling.</param>
+        /// <param name="left">The left-hand operand (evaluated value).</param>
+        /// <param name="right">The right-hand operand (evaluated value).</param>
+        /// <exception cref="RuntimeError">When one or both of the given operands are non-numeric.</exception>
         private static void CheckNumberOperands(Token @operator, object? left, object? right)
         {
             if (IsValidNumberType(left) && IsValidNumberType(right))
@@ -1138,6 +1145,10 @@ namespace Perlang.Interpreter
                 // IComparable would be useful to reduce code duplication here, but it has one major problem: it only
                 // supports same-type comparisons (int+int, long+long etc). We do not want to limit our code like that.
                 //
+
+                // Note: do **NOT** add new operators here without adding corresponding tests. (in the future, try to
+                // enforce this via e.g. ArchUnit.NET or a unit test)
+
                 case GREATER:
                     CheckNumberOperands(expr.Operator, left, right);
 
@@ -1146,6 +1157,13 @@ namespace Perlang.Interpreter
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber > rightNumber;
+                    }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber > rightNumber;
                     }
@@ -1200,6 +1218,13 @@ namespace Perlang.Interpreter
 
                         return leftNumber >= rightNumber;
                     }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber >= rightNumber;
+                    }
                     else if (left is int or long && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1251,6 +1276,13 @@ namespace Perlang.Interpreter
 
                         return leftNumber < rightNumber;
                     }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber < rightNumber;
+                    }
                     else if (left is int or long && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1299,6 +1331,13 @@ namespace Perlang.Interpreter
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber <= rightNumber;
+                    }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber <= rightNumber;
                     }
@@ -1361,6 +1400,13 @@ namespace Perlang.Interpreter
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
@@ -1468,6 +1514,13 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
                     else if (left is int && right is int)
                     {
                         int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
@@ -1527,6 +1580,13 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
                     else if (left is int && right is int)
                     {
                         int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
@@ -1575,6 +1635,13 @@ namespace Perlang.Interpreter
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
@@ -1636,6 +1703,13 @@ namespace Perlang.Interpreter
 
                         return leftNumber * rightNumber;
                     }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
                     else if (left is int or long && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1687,7 +1761,9 @@ namespace Perlang.Interpreter
                 case STAR_STAR:
                     CheckNumberOperands(expr.Operator, left, right);
 
-                    if (left is float or double || right is float or double)
+                    if ((left is float or double && right is float or double) ||
+                        (left is float or double && right is int) ||
+                        (left is int && right is float or double))
                     {
                         double value = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double exponent = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1710,6 +1786,10 @@ namespace Perlang.Interpreter
                         // surprises to the user.
                         int exponent = (int)right;
 
+                        // TODO: If we start doing compile-time evaluation of constant expressions, we should use
+                        // TODO: Expr.TypeReference here to check if the result should be narrowed down. For example,
+                        // TODO: `2 ** 10` can be stored without precision loss in both an `int` or a `uint`. We
+                        // TODO: shouldn't enforce the usage of BigInteger when we don't have to.
                         return BigInteger.Pow(value, exponent);
                     }
                     else if (left is BigInteger value && right is int)
@@ -1742,6 +1822,13 @@ namespace Perlang.Interpreter
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is float or double && right is int or long)
+                    {
+                        double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
@@ -1812,7 +1899,9 @@ namespace Perlang.Interpreter
                     }
                     else
                     {
-                        // TODO: "Operands must be numbers" isn't completely correct here.
+                        // TODO: "Operands must be numbers" isn't completely correct here. It should be fine once we
+                        // TODO: have gotten rid of these and made all such errors (compile-time) validation errors instead.
+                        // TODO: That way, this will just be a "fallback", an escape hatch if you will.
                         throw new RuntimeError(expr.Operator, $"Operands must be numbers, not {StringifyType(left)} and {StringifyType(right)}");
                     }
 
