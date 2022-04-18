@@ -2,10 +2,11 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
-namespace Perlang.Tests.Integration.Operator
+namespace Perlang.Tests.Integration.Operator.Binary
 {
     /// <summary>
     /// Tests for the ** (exponential) operator. The operator works pretty much like in Ruby.
@@ -14,24 +15,55 @@ namespace Perlang.Tests.Integration.Operator
     /// </summary>
     public class Exponential
     {
-        [Fact]
-        public void exponential_integer_literals()
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Exponential_result), MemberType = typeof(BinaryOperatorData))]
+        public void performs_exponential_calculation(string i, string j, string expectedResult)
         {
-            string source = @"
-                2 ** 10
-            ";
+            string source = $@"
+                    print {i} ** {j};
+                ";
 
-            object result = Eval(source);
+            string result = EvalReturningOutputString(source);
 
-            Assert.Equal(new BigInteger(1024), result);
+            result.Should()
+                .Be(expectedResult);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Exponential_type), MemberType = typeof(BinaryOperatorData))]
+        public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                    print ({i} ** {j}).get_type();
+                ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be(expectedResult);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Exponential_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                    print {i} ** {j};
+                ";
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle().Which
+                .Message.Should().Match(expectedResult);
         }
 
         [Fact]
         public void exponential_positive_and_negative_integer_literals_throws_expected_error()
         {
             // We thought about supporting this, returning a `double` instead of a `bigint` in this case, but returning
-            // _different types depending on exponent_ (positive or negative) seems far too dynamic for use. Perlang is
-            // a strongly typed language where we want our users to be able to expect few "surprises" in this regard.
+            // _different types depending on exponent sign_ (positive or negative) seems far too dynamic for us. Perlang
+            // is a strongly typed language where we want our users to be able to expect few "surprises" in this regard.
             // Hence, perhaps even a runtime exception is better in this case. If we want to make it even better at some
             // point, we could make this a compile-time check for negative integer literals at least.
 
@@ -90,7 +122,7 @@ namespace Perlang.Tests.Integration.Operator
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        public async Task exponential_integer_and_float_literals(CultureInfo cultureInfo)
+        public async Task exponential_operator_works_on_different_cultures(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -102,6 +134,8 @@ namespace Perlang.Tests.Integration.Operator
 
             Assert.Equal(3162.2776601683795, result);
         }
+
+        // TODO: Use BinaryOperatorData-method for getting test data to this test.
 
         [Theory]
         [ClassData(typeof(TestCultures))]

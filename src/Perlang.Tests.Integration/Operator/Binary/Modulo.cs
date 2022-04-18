@@ -1,35 +1,64 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
-namespace Perlang.Tests.Integration.Operator
+namespace Perlang.Tests.Integration.Operator.Binary
 {
     /// <summary>
     /// Tests for the % (modulo) operator.
     /// </summary>
     public class Modulo
     {
-        //
-        // "Positive" tests, testing for supported behavior
-        //
-
-        [Fact]
-        public void modulo_operation_on_integers_returns_integer()
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Percent_result), MemberType = typeof(BinaryOperatorData))]
+        public void returns_remainder_of_division(string i, string j, string expectedResult)
         {
-            string source = @"
-                5 % 3
+            string source = $@"
+                print {i} % {j};
             ";
 
-            object result = Eval(source);
+            string result = EvalReturningOutputString(source);
 
-            Assert.Equal(2, result);
+            result.Should()
+                .Be(expectedResult);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Percent_type), MemberType = typeof(BinaryOperatorData))]
+        public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                    print ({i} % {j}).get_type();
+                ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be(expectedResult);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Percent_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
+        {
+            string source = $@"
+                    print {i} % {j};
+                ";
+
+            // TODO: Should be validation errors, not runtime errors.
+            var result = EvalWithRuntimeErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle().Which
+                .Message.Should().Match(expectedResult);
         }
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        public async Task modulo_operation_on_doubles_returns_double(CultureInfo cultureInfo)
+        public async Task modulo_operation_works_on_different_cultures(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -87,10 +116,6 @@ namespace Perlang.Tests.Integration.Operator
 
             Assert.Equal(1.9, result);
         }
-
-        //
-        // "Negative tests", ensuring that unsupported operations fail in the expected way.
-        //
 
         [Fact]
         public void modulo_operation_on_non_number_with_number_throws_expected_error()

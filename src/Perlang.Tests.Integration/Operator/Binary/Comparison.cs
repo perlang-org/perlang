@@ -5,8 +5,12 @@ using System.Threading.Tasks;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
-namespace Perlang.Tests.Integration.Operator
+namespace Perlang.Tests.Integration.Operator.Binary
 {
+    // TODO: There is a certain overlap with these tests and the Less/LessEqual/Greater/GreaterEqual ones. We can
+    // TODO: probably do away with these tests at some point, and let the unique tests in this be absorbed into the
+    // TODO: specific tests.
+
     // Tests based on https://github.com/munificent/craftinginterpreters/blob/master/test/operator/comparison.lox
     public class Comparison
     {
