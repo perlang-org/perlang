@@ -10,10 +10,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
     /// <summary>
     /// Tests for the % (modulo) operator.
     /// </summary>
-    public class Modulo
+    public class ModuloTests
     {
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Percent_result), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Modulo_result), MemberType = typeof(BinaryOperatorData))]
         public void returns_remainder_of_division(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -41,7 +41,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Percent_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Modulo_unsupported_types), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
         {
             string source = $@"

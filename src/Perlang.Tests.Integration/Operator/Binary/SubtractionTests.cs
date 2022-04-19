@@ -4,10 +4,10 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary;
 
-public class Subtraction
+public class SubtractionTests
 {
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.Minus_result), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.Subtraction_result), MemberType = typeof(BinaryOperatorData))]
     void performs_subtraction(string i, string j, string expectedResult)
     {
         string source = $@"
@@ -41,7 +41,7 @@ public class Subtraction
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.Minus_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.Subtraction_unsupported_types), MemberType = typeof(BinaryOperatorData))]
     public void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
     {
         string source = $@"

@@ -4,10 +4,10 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary
 {
-    public class AdditionAssignment
+    public class AdditionAssignmentTests
     {
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.PlusEqual_result), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_addition_assignment(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -38,7 +38,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.PlusEqual_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_runtime_error(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -56,7 +56,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.PlusEqual_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_validation_error(string i, string j, string expectedResult)
         {
             string source = $@"

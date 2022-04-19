@@ -5,10 +5,10 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary;
 
-public class SubtractionAssignment
+public class SubtractionAssignmentTests
 {
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.MinusEqual_result), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_result), MemberType = typeof(BinaryOperatorData))]
     public void performs_subtraction_assignment(string i, string j, string expectedResult)
     {
         string source = $@"
@@ -40,7 +40,7 @@ public class SubtractionAssignment
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.MinusEqual_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
     public void with_unsupported_types_emits_expected_runtime_error(string i, string j, string expectedError)
     {
         string source = $@"
@@ -57,7 +57,7 @@ public class SubtractionAssignment
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.MinusEqual_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
     public void with_unsupported_types_emits_expected_validation_error(string i, string j, string expectedError)
     {
         string source = $@"

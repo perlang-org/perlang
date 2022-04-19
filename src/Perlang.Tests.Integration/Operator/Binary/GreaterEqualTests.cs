@@ -4,7 +4,7 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary;
 
-public class GreaterEqual
+public class GreaterEqualTests
 {
     [Theory]
     [MemberData(nameof(BinaryOperatorData.GreaterEqual), MemberType = typeof(BinaryOperatorData))]
