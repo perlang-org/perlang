@@ -5,3 +5,4 @@ using Perlang;
 [assembly: AssemblyVersion(CommonConstants.Version)]
 [assembly: AssemblyInformationalVersion(CommonConstants.InformationalVersion)]
 [assembly: InternalsVisibleTo("Perlang.Tests")]
+[assembly: InternalsVisibleTo("Perlang.Tests.Integration")]
