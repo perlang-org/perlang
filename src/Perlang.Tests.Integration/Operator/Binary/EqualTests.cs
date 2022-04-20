@@ -4,17 +4,17 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary;
 
-public class NotEqual
+public class EqualTests
 {
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.BangEqual), MemberType = typeof(BinaryOperatorData))]
-    void performs_non_equality_comparison(string i, string j, string expectedResult)
+    [MemberData(nameof(BinaryOperatorData.Equal), MemberType = typeof(BinaryOperatorData))]
+    void performs_equality_comparison(string i, string j, string expectedResult)
     {
         string source = $@"
                 var i1 = {i};
                 var i2 = {j};
 
-                print i1 != i2;
+                print i1 == i2;
             ";
 
         string result = EvalReturningOutputString(source);
@@ -24,16 +24,16 @@ public class NotEqual
     }
 
     [Theory]
-    [InlineData("Foo", "Bar", "True")]
-    [InlineData("Foo", "foo", "True")] // Comparison is case sensitive
-    [InlineData("foo", "foo", "False")]
+    [InlineData("Foo", "Bar", "False")]
+    [InlineData("Foo", "foo", "False")] // Comparison is case sensitive
+    [InlineData("foo", "foo", "True")]
     void strings_can_be_compared_for_equality(string i, string j, string expectedResult)
     {
         string source = $@"
                 var i1 = ""{i}"";
                 var i2 = ""{j}"";
 
-                print i1 != i2;
+                print i1 == i2;
             ";
 
         string result = EvalReturningOutputString(source);
@@ -41,6 +41,4 @@ public class NotEqual
         result.Should()
             .Be(expectedResult);
     }
-
-    // TODO: unsupported_types_emits_expected_errors
 }

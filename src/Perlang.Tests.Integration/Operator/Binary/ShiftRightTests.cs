@@ -5,14 +5,14 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary;
 
-public class ShiftLeftOperator
+public class ShiftRightTests
 {
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.LessLess_result), MemberType = typeof(BinaryOperatorData))]
-    public void performs_left_shifting(string i, string j, string expectedResult)
+    [MemberData(nameof(BinaryOperatorData.ShiftRight_result), MemberType = typeof(BinaryOperatorData))]
+    public void performs_right_shifting(string i, string j, string expectedResult)
     {
         string source = $@"
-                    print {i} << {j};
+                    print {i} >> {j};
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -22,11 +22,11 @@ public class ShiftLeftOperator
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.LessLess_type), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.GreaterGreater_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
         string source = $@"
-                    print ({i} << {j}).get_type();
+                    print ({i} >> {j}).get_type();
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -36,11 +36,11 @@ public class ShiftLeftOperator
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.LessLess_unsupported_types), MemberType = typeof(BinaryOperatorData))]
-    public void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
+    [MemberData(nameof(BinaryOperatorData.ShiftRight_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+    public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
     {
         string source = $@"
-                    print {i} << {j};
+                    print {i} >> {j};
                 ";
 
         // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
@@ -48,14 +48,14 @@ public class ShiftLeftOperator
 
         result.Errors.Should()
             .ContainSingle().Which
-            .Message.Should().Match(expectedError);
+            .Message.Should().Match(expectedResult);
     }
 
     [Fact]
     public void takes_precedence_over_multiplication()
     {
         string source = @"
-                    print 1 << 10 * 3;
+                    print 65536 >> 6 * 3;
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -66,7 +66,7 @@ public class ShiftLeftOperator
     public void takes_precedence_over_division()
     {
         string source = @"
-                    print 1 << 10 / 3;
+                    print 65536 >> 6 / 3;
                 ";
 
         // Since the operands are integers, the division is expected to be truncated to its integer portion.
@@ -79,7 +79,7 @@ public class ShiftLeftOperator
     public void takes_precedence_over_addition()
     {
         string source = @"
-                    print 1 << 10 + 3;
+                    print 65536 >> 6 + 3;
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -90,7 +90,7 @@ public class ShiftLeftOperator
     public void takes_precedence_over_subtraction()
     {
         string source = @"
-                    print 1 << 10 - 3;
+                    print 65536 >> 6 - 3;
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -101,7 +101,7 @@ public class ShiftLeftOperator
     public void takes_precedence_over_modulo_operator()
     {
         string source = @"
-                    print 1 << 10 % 1000;
+                    print 65536 >> 6 % 1000;
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -112,7 +112,7 @@ public class ShiftLeftOperator
     public void takes_precedence_over_power_operator()
     {
         string source = @"
-                    print 1 << 2 ** 10;
+                    print 1024 >> 8 ** 10;
                 ";
 
         string result = EvalReturningOutputString(source);
@@ -123,13 +123,13 @@ public class ShiftLeftOperator
     public void with_integer_and_string_throws_expected_error()
     {
         string source = @"
-                    print 1 << ""foo"";
+                    print 1 >> ""foo"";
                 ";
 
         var result = EvalWithValidationErrorCatch(source);
         var exception = result.Errors.FirstOrDefault();
 
         Assert.Single(result.Errors);
-        Assert.Matches("Unsupported << operands specified: int and string", exception.Message);
+        Assert.Matches("Unsupported >> operands specified: int and string", exception.Message);
     }
 }

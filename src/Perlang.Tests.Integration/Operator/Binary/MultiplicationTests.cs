@@ -11,13 +11,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
     // https://github.com/munificent/craftinginterpreters/blob/adfb64d00d04e389ddc086d16cc29ac49fc6c21e/test/operator/multiply.lox
     // https://github.com/munificent/craftinginterpreters/blob/adfb64d00d04e389ddc086d16cc29ac49fc6c21e/test/operator/multiply_nonnum_num.lox
     // https://github.com/munificent/craftinginterpreters/blob/adfb64d00d04e389ddc086d16cc29ac49fc6c21e/test/operator/multiply_num_nonnum.lox
-    public class Multiplication
+    public class MultiplicationTests
     {
         //
         // Tests for the * (multiplication) operator
         //
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Star_result), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Multiplication_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_multiplication(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -45,7 +45,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Star_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Multiplication_unsupported_types), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
         {
             string source = $@"

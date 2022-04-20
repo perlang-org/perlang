@@ -11,10 +11,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
     // https://github.com/munificent/craftinginterpreters/blob/c6da0e61e6072271de404464c34b51c2fdc39e59/test/operator/divide.lox
     // https://github.com/munificent/craftinginterpreters/blob/c6da0e61e6072271de404464c34b51c2fdc39e59/test/operator/divide_nonnum_num.lox
     // https://github.com/munificent/craftinginterpreters/blob/c6da0e61e6072271de404464c34b51c2fdc39e59/test/operator/divide_num_nonnum.lox
-    public class Division
+    public class DivisionTests
     {
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Slash_result), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Division_result), MemberType = typeof(BinaryOperatorData))]
         void performs_division(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -45,7 +45,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Slash_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Division_unsupported_types), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
         {
             string source = $@"

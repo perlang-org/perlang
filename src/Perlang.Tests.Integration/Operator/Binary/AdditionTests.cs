@@ -10,10 +10,10 @@ using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Operator.Binary
 {
-    public class Addition
+    public class AdditionTests
     {
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Plus_result), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Addition_result), MemberType = typeof(BinaryOperatorData))]
         void performs_addition(string i, string j, string expectedResult)
         {
             string source = $@"
@@ -47,7 +47,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Plus_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Addition_unsupported_types), MemberType = typeof(BinaryOperatorData))]
         public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
         {
             string source = $@"

@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     ///
     /// The type of the returned value is varies depending on the input types.
     /// </summary>
-    public class Exponential
+    public class ExponentialTests
     {
         [Theory]
         [MemberData(nameof(BinaryOperatorData.Exponential_result), MemberType = typeof(BinaryOperatorData))]

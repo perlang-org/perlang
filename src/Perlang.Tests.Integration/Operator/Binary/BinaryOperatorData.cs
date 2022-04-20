@@ -18,7 +18,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 /// </summary>
 public static class BinaryOperatorData
 {
-    public static IEnumerable<object[]> Greater() =>
+    public static IEnumerable<object[]> Greater =>
         new List<object[]>
         {
             new object[] { "2147483646", "2147483647", "False" },
@@ -39,7 +39,7 @@ public static class BinaryOperatorData
             new object[] { "33", "4294967295", "Operands must be numbers, not int and System.UInt32" },
         };
 
-    public static IEnumerable<object[]> GreaterEqual() =>
+    public static IEnumerable<object[]> GreaterEqual =>
         new List<object[]>
         {
             new object[] { "2147483646", "2147483647", "False" },
@@ -60,7 +60,7 @@ public static class BinaryOperatorData
             new object[] { "33", "4294967295", "Operands must be numbers, not int and System.UInt32" }
         };
 
-    public static IEnumerable<object[]> Less() =>
+    public static IEnumerable<object[]> Less =>
         new List<object[]>
         {
             new object[] { "2147483646", "2147483647", "True" },
@@ -72,7 +72,7 @@ public static class BinaryOperatorData
             new object[] { "34.0", "33.0", "False" },
         };
 
-    public static IEnumerable<object[]> Less_unsupported_types() =>
+    public static IEnumerable<object[]> Less_unsupported_types =>
         new List<object[]>
         {
             new object[] { "12.0", "34", "Operands must be numbers, not double and int" },
@@ -102,7 +102,7 @@ public static class BinaryOperatorData
             new object[] { "33", "4294967295", "Operands must be numbers, not int and System.UInt32" }
         };
 
-    public static IEnumerable<object[]> BangEqual =>
+    public static IEnumerable<object[]> NotEqual =>
         new List<object[]>
         {
             new object[] { "12", "34", "True" },
@@ -113,7 +113,7 @@ public static class BinaryOperatorData
             new object[] { "12.345", "67.890", "True" }
         };
 
-    public static IEnumerable<object[]> EqualEqual =>
+    public static IEnumerable<object[]> Equal =>
         new List<object[]>
         {
             new object[] { "12", "34", "False" },
@@ -124,7 +124,7 @@ public static class BinaryOperatorData
             new object[] { "12.345", "67.890", "False" }
         };
 
-    public static IEnumerable<object[]> Minus_result =>
+    public static IEnumerable<object[]> Subtraction_result =>
         new List<object[]>
         {
             new object[] { "12", "34", "-22" },
@@ -160,7 +160,7 @@ public static class BinaryOperatorData
             new object[] { "18446744073709551616", "18446744073709551617", "System.Numerics.BigInteger" }
         };
 
-    public static IEnumerable<object[]> Minus_unsupported_types =>
+    public static IEnumerable<object[]> Subtraction_unsupported_types =>
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
@@ -192,7 +192,7 @@ public static class BinaryOperatorData
             new object[] { "-12.0", "18446744073709551616", "Operands must be numbers, not double and bigint" },
         };
 
-    public static IEnumerable<object[]> MinusEqual_result =>
+    public static IEnumerable<object[]> SubtractionAssignment_result =>
         new List<object[]>
         {
             new object[] { "12", "34", "-22" },
@@ -224,7 +224,7 @@ public static class BinaryOperatorData
             new object[] { "18446744073709551616", "18446744073709551617", "System.Numerics.BigInteger" }
         };
 
-    public static IEnumerable<object[]> MinusEqual_unsupported_types_runtime =>
+    public static IEnumerable<object[]> SubtractionAssignment_unsupported_types_runtime =>
         new List<object[]>
         {
             new object[] { "4294967295", "33", "Operands must be numbers, not System.UInt32 and int" },
@@ -244,7 +244,7 @@ public static class BinaryOperatorData
             new object[] { "-12.0", "18446744073709551616", "Operands must be numbers, not double and bigint" },
         };
 
-    public static IEnumerable<object[]> MinusEqual_unsupported_types_validation =>
+    public static IEnumerable<object[]> SubtractionAssignment_unsupported_types_validation =>
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Cannot assign System.UInt32 to int variable" },
@@ -258,7 +258,7 @@ public static class BinaryOperatorData
             new object[] { "18446744073709551616", "12.0", "Cannot assign double to bigint variable" },
         };
 
-    public static IEnumerable<object[]> Plus_result =>
+    public static IEnumerable<object[]> Addition_result =>
         new List<object[]>
         {
             new object[] { "12", "34", "46" },
@@ -295,7 +295,7 @@ public static class BinaryOperatorData
         new object[] { "12.1", "34.2", "System.Double" },
     };
 
-    public static IEnumerable<object[]> Plus_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> Addition_unsupported_types => new List<object[]>
     {
         new object[] { "12.0", "34", "Operands must be numbers, not double and int" },
         new object[] { "9.0", "2", "Operands must be numbers, not double and int" },
@@ -306,7 +306,7 @@ public static class BinaryOperatorData
         // TODO: add unsupported errors from subtraction
     };
 
-    public static IEnumerable<object[]> PlusEqual_result =>
+    public static IEnumerable<object[]> AdditionAssignment_result =>
         new List<object[]>
         {
             new object[] { "12", "34", "46" },
@@ -339,7 +339,7 @@ public static class BinaryOperatorData
         new object[] { "12.1", "34.2", "System.Double" },
     };
 
-    public static IEnumerable<object[]> PlusEqual_unsupported_types_runtime => new List<object[]>
+    public static IEnumerable<object[]> AdditionAssignment_unsupported_types_runtime => new List<object[]>
     {
         new object[] { "12.0", "34", "Operands must be numbers, not double and int" },
         new object[] { "9.0", "2", "Operands must be numbers, not double and int" },
@@ -350,13 +350,13 @@ public static class BinaryOperatorData
         // TODO: add unsupported errors from subtraction
     };
 
-    public static IEnumerable<object[]> PlusEqual_unsupported_types_validation => new List<object[]>
+    public static IEnumerable<object[]> AdditionAssignment_unsupported_types_validation => new List<object[]>
     {
         new object[] { "-12", "-34.0", "Cannot assign double to int variable" },
         new object[] { "9223372036854775807", "12.0", "Cannot assign double to long variable" },
     };
 
-    public static IEnumerable<object[]> Slash_result => new List<object[]>
+    public static IEnumerable<object[]> Division_result => new List<object[]>
     {
         new object[] { "35", "5", "7" },
         new object[] { "34", "5", "6" }, // `int` division => expecting to be truncated.
@@ -372,12 +372,12 @@ public static class BinaryOperatorData
         new object[] { "34", "5.0", "System.Double" }
     };
 
-    public static IEnumerable<object[]> Slash_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> Division_unsupported_types => new List<object[]>
     {
         new object[] { "34.0", "5", "Operands must be numbers, not double and int" },
     };
 
-    public static IEnumerable<object[]> Star_result => new List<object[]>
+    public static IEnumerable<object[]> Multiplication_result => new List<object[]>
     {
         new object[] { "5", "3", "15" },
         new object[] { "12", "34.0", "408" },
@@ -393,7 +393,7 @@ public static class BinaryOperatorData
         new object[] { "1073741824", "2", "System.Int32" }
     };
 
-    public static IEnumerable<object[]> Star_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> Multiplication_unsupported_types => new List<object[]>
     {
         new object[] { "13.0", "35", "Operands must be numbers, not double and int" },
     };
@@ -426,7 +426,7 @@ public static class BinaryOperatorData
         new object[] { "18446744073709551616", "18446744073709551616", "Unsupported ** operands specified: bigint and bigint" }
     };
 
-    public static IEnumerable<object[]> Percent_result => new List<object[]>
+    public static IEnumerable<object[]> Modulo_result => new List<object[]>
     {
         new object[] { "5", "3", "2" },
         new object[] { "9", "2.0", "1" },
@@ -446,7 +446,7 @@ public static class BinaryOperatorData
         new object[] { "18446744073709551616", "3", "System.Numerics.BigInteger" }
     };
 
-    public static IEnumerable<object[]> Percent_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> Modulo_unsupported_types => new List<object[]>
     {
         new object[] { "9.0", "2", "Operands must be numbers, not double and int" },
         new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
@@ -454,7 +454,7 @@ public static class BinaryOperatorData
         new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
     };
 
-    public static IEnumerable<object[]> LessLess_result => new List<object[]>
+    public static IEnumerable<object[]> ShiftLeft_result => new List<object[]>
     {
         new object[] { "1", "10", "1024" },
         new object[] { "1073741824", "1", "-2147483648" }, // Integer overflow => becomes negative
@@ -469,13 +469,13 @@ public static class BinaryOperatorData
         new object[] { "18446744073709551616", "1", "System.Numerics.BigInteger" }
     };
 
-    public static IEnumerable<object[]> LessLess_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> ShiftLeft_unsupported_types => new List<object[]>
     {
         new object[] { "2147483648", "1", "Operands must be numbers, not System.UInt32 and int" },
         new object[] { "9223372036854775808", "1", "Operands must be numbers, not System.UInt64 and int" }
     };
 
-    public static IEnumerable<object[]> GreaterGreater_result => new List<object[]>
+    public static IEnumerable<object[]> ShiftRight_result => new List<object[]>
     {
         new object[] { "65536", "6", "1024" },
         new object[] { "1073741824", "1", "536870912" },
@@ -489,7 +489,7 @@ public static class BinaryOperatorData
         new object[] { "4611686018427387904", "1", "System.Int64" },
     };
 
-    public static IEnumerable<object[]> GreaterGreater_unsupported_types => new List<object[]>
+    public static IEnumerable<object[]> ShiftRight_unsupported_types => new List<object[]>
     {
         new object[] { "2147483648", "1", "Operands must be numbers, not System.UInt32 and int" },
         new object[] { "9223372036854775808", "1", "Operands must be numbers, not System.UInt64 and int" }
