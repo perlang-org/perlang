@@ -131,9 +131,11 @@ public static class BinaryOperatorData
             new object[] { "12", "-34", "46" },
             new object[] { "-12", "34", "-46" },
             new object[] { "-12", "-34", "22" },
+            new object[] { "2", "18446744073709551616", "-18446744073709551614" },
             new object[] { "-12", "-34.0", "22" },
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808511" },
             new object[] { "9223372036854775807", "9223372036854775807", "0" },
+            new object[] { "9223372036854775807", "18446744073709551616", "-9223372036854775809" },
             new object[] { "9223372036854775807", "12.0", "9.223372036854776E+18" }, // TODO: We should make this unsupported. As can be seen in the exponential expression, the operation loses precision.
             new object[] { "18446744073709551616", "2", "18446744073709551614" },
             new object[] { "18446744073709551616", "4294967296", "18446744069414584320" },
@@ -142,7 +144,7 @@ public static class BinaryOperatorData
             new object[] { "12.0", "34.0", "-22" }, // Doubles with fraction part zero => fraction part excluded in string representation.
         };
 
-    public static IEnumerable<object[]> Minus_type =>
+    public static IEnumerable<object[]> Subtraction_type =>
         new List<object[]>
         {
             new object[] { "12", "34", "System.Int32" },
@@ -170,6 +172,7 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
             new object[] { "4294967295", "9223372036854775807", "Operands must be numbers, not System.UInt32 and long" },
             new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
+            new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
             new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
@@ -266,7 +269,9 @@ public static class BinaryOperatorData
             new object[] { "-12", "34", "22" },
             new object[] { "-12", "-34", "-46" },
             new object[] { "-12", "-34.0", "-46" },
+            new object[] { "2", "18446744073709551616", "18446744073709551618" },
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808513" }, // Probably becomes negative because of integer overflow.
+            new object[] { "4294967296", "18446744073709551616", "18446744078004518912" },
             new object[] { "9223372036854775807", "9223372036854775807", "-2" },
             new object[] { "9223372036854775807", "12.0", "9.223372036854776E+18" }, // TODO: We should make this unsupported. As can be seen in the exponential expression, the operation loses precision.
             new object[] { "18446744073709551616", "2", "18446744073709551618" },
@@ -277,7 +282,7 @@ public static class BinaryOperatorData
             new object[] { "12.1", "34.2", "46.300000000000004" }, // IEEE-754... :-)
         };
 
-    public static IEnumerable<object[]> Plus_type => new List<object[]>
+    public static IEnumerable<object[]> Addition_type => new List<object[]>
     {
         new object[] { "12", "34", "System.Int32" },
         new object[] { "12", "-34", "System.Int32" },
@@ -297,13 +302,32 @@ public static class BinaryOperatorData
 
     public static IEnumerable<object[]> Addition_unsupported_types => new List<object[]>
     {
+        new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
+        new object[] { "2", "4294967296", "Operands must be numbers, not int and long" },
+        new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
         new object[] { "12.0", "34", "Operands must be numbers, not double and int" },
-        new object[] { "9.0", "2", "Operands must be numbers, not double and int" },
+        new object[] { "12.0", "4294967295", "Operands must be numbers, not double and System.UInt32" },
+        new object[] { "12.0", "9223372036854775807", "Operands must be numbers, not double and long" },
+        new object[] { "12.0", "18446744073709551615", "Operands must be numbers, not double and System.UInt64" },
+        new object[] { "12.0", "18446744073709551616", "Operands must be numbers, not double and bigint" },
         new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
+        new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
+        new object[] { "4294967295", "9223372036854775807", "Operands must be numbers, not System.UInt32 and long" },
+        new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
+        new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
+        new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
+        new object[] { "4294967296", "4294967295", "Operands must be numbers, not long and System.UInt32" },
+        new object[] { "4294967296", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
         new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
-        new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" }
-
-        // TODO: add unsupported errors from subtraction
+        new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
+        new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
+        new object[] { "18446744073709551615", "9223372036854775807", "Operands must be numbers, not System.UInt64 and long" },
+        new object[] { "18446744073709551615", "18446744073709551615", "Operands must be numbers, not System.UInt64 and System.UInt64" },
+        new object[] { "18446744073709551615", "18446744073709551616", "Operands must be numbers, not System.UInt64 and bigint" },
+        new object[] { "18446744073709551615", "12.0", "Operands must be numbers, not System.UInt64 and double" },
+        new object[] { "18446744073709551616", "4294967295", "Operands must be numbers, not bigint and System.UInt32" },
+        new object[] { "18446744073709551616", "18446744073709551615", "Operands must be numbers, not bigint and System.UInt64" },
+        new object[] { "18446744073709551616", "12.0", "Operands must be numbers, not bigint and double" },
     };
 
     public static IEnumerable<object[]> AdditionAssignment_result =>
