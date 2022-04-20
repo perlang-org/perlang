@@ -30,7 +30,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Plus_type), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
         void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
             string source = $@"
