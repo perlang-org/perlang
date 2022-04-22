@@ -23,7 +23,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.PlusEqual_type), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
             string source = $@"
