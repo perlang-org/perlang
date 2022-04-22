@@ -384,11 +384,18 @@ public static class BinaryOperatorData
     {
         new object[] { "35", "5", "7" },
         new object[] { "34", "5", "6" }, // `int` division => expecting to be truncated.
+        new object[] { "2", "18446744073709551616", "0" },
+        new object[] { "9223372036854775807", "9223372036854775807", "1" },
+        new object[] { "9223372036854775807", "18446744073709551616", "0" },
+        new object[] { "9223372036854775807", "12.0", "7.686143364045646E+17" }, // TODO: We should make this unsupported
+        new object[] { "18446744073709551616", "2", "9223372036854775808" },
+        new object[] { "18446744073709551616", "9223372036854775807", "2" },
+        new object[] { "18446744073709551616", "18446744073709551616", "1" },
         new object[] { "34.0", "5.0", "6.8" },
         new object[] { "34", "5.0", "6.8" }
     };
 
-    public static IEnumerable<object[]> Slash_type => new List<object[]>
+    public static IEnumerable<object[]> Division_type => new List<object[]>
     {
         new object[] { "35", "5", "System.Int32" },
         new object[] { "34", "5", "System.Int32" },
@@ -398,18 +405,50 @@ public static class BinaryOperatorData
 
     public static IEnumerable<object[]> Division_unsupported_types => new List<object[]>
     {
-        new object[] { "34.0", "5", "Operands must be numbers, not double and int" },
+        new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
+        new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
+        new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
+        new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
+        new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
+        new object[] { "4294967295", "9223372036854775807", "Operands must be numbers, not System.UInt32 and long" },
+        new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
+        new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
+        new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
+        new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
+        new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
+        new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
+        new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
+        new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
+        new object[] { "18446744073709551615", "9223372036854775807", "Operands must be numbers, not System.UInt64 and long" },
+        new object[] { "18446744073709551615", "18446744073709551615", "Operands must be numbers, not System.UInt64 and System.UInt64" },
+        new object[] { "18446744073709551615", "18446744073709551616", "Operands must be numbers, not System.UInt64 and bigint" },
+        new object[] { "18446744073709551615", "12.0", "Operands must be numbers, not System.UInt64 and double" },
+        new object[] { "18446744073709551616", "18446744073709551615", "Operands must be numbers, not bigint and System.UInt64" },
+        new object[] { "18446744073709551616", "4294967295", "Operands must be numbers, not bigint and System.UInt32" },
+        new object[] { "18446744073709551616", "12.0", "Operands must be numbers, not bigint and double" },
+        new object[] { "12.0", "5", "Operands must be numbers, not double and int" },
+        new object[] { "12.0", "4294967295", "Operands must be numbers, not double and System.UInt32" },
+        new object[] { "12.0", "9223372036854775807", "Operands must be numbers, not double and long" },
+        new object[] { "12.0", "18446744073709551615", "Operands must be numbers, not double and System.UInt64" },
+        new object[] { "12.0", "18446744073709551616", "Operands must be numbers, not double and bigint" },
     };
 
     public static IEnumerable<object[]> Multiplication_result => new List<object[]>
     {
         new object[] { "5", "3", "15" },
+        new object[] { "2", "18446744073709551616", "36893488147419103232" },
         new object[] { "12", "34.0", "408" },
-        new object[] { "12.34", "0.3", "3.702" },
         new object[] { "1073741824", "2", "-2147483648" }, // Becomes negative because of signed `int` overflow.
+        new object[] { "9223372036854775807", "9223372036854775807", "1" },
+        new object[] { "9223372036854775807", "18446744073709551616", "170141183460469231713240559642174554112" },
+        new object[] { "9223372036854775807", "12.0", "1.1068046444225731E+20" }, // TODO: We should make this unsupported, since it's likely to lose precision
+        new object[] { "18446744073709551616", "2", "36893488147419103232" },
+        new object[] { "18446744073709551616", "9223372036854775807", "170141183460469231713240559642174554112" },
+        new object[] { "18446744073709551616", "18446744073709551616", "340282366920938463463374607431768211456" },
+        new object[] { "12.34", "0.3", "3.702" }
     };
 
-    public static IEnumerable<object[]> Star_type => new List<object[]>
+    public static IEnumerable<object[]> Multiplication_type => new List<object[]>
     {
         new object[] { "5", "3", "System.Int32" },
         new object[] { "12", "34.0", "System.Double" },
@@ -419,7 +458,32 @@ public static class BinaryOperatorData
 
     public static IEnumerable<object[]> Multiplication_unsupported_types => new List<object[]>
     {
-        new object[] { "13.0", "35", "Operands must be numbers, not double and int" },
+        new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
+        new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
+        new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
+        new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
+        new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
+        new object[] { "4294967295", "9223372036854775807", "Operands must be numbers, not System.UInt32 and long" },
+        new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
+        new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
+        new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
+        new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
+        new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
+        new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
+        new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
+        new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
+        new object[] { "18446744073709551615", "9223372036854775807", "Operands must be numbers, not System.UInt64 and long" },
+        new object[] { "18446744073709551615", "18446744073709551615", "Operands must be numbers, not System.UInt64 and System.UInt64" },
+        new object[] { "18446744073709551615", "18446744073709551616", "Operands must be numbers, not System.UInt64 and bigint" },
+        new object[] { "18446744073709551615", "12.0", "Operands must be numbers, not System.UInt64 and double" },
+        new object[] { "18446744073709551616", "18446744073709551615", "Operands must be numbers, not bigint and System.UInt64" },
+        new object[] { "18446744073709551616", "4294967295", "Operands must be numbers, not bigint and System.UInt32" },
+        new object[] { "18446744073709551616", "12.0", "Operands must be numbers, not bigint and double" },
+        new object[] { "12.0", "5", "Operands must be numbers, not double and int" },
+        new object[] { "12.0", "4294967295", "Operands must be numbers, not double and System.UInt32" },
+        new object[] { "12.0", "9223372036854775807", "Operands must be numbers, not double and long" },
+        new object[] { "12.0", "18446744073709551615", "Operands must be numbers, not double and System.UInt64" },
+        new object[] { "12.0", "18446744073709551616", "Operands must be numbers, not double and bigint" },
     };
 
     public static IEnumerable<object[]> Exponential_result => new List<object[]>
