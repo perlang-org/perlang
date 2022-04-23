@@ -24,7 +24,7 @@ public class SubtractionAssignmentTests
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.MinusEqual_type), MemberType = typeof(BinaryOperatorData))]
+    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_type), MemberType = typeof(BinaryOperatorData))]
     void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
         string source = $@"
