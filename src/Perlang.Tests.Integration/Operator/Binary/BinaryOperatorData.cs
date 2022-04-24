@@ -110,7 +110,40 @@ public static class BinaryOperatorData
             new object[] { "12", "12.0", "True" }, // Same value but different types. Note: this is truthy in C# AND Java.
             new object[] { "12.0", "12", "True" }, // Same value but different types. Note: this is truthy in C# AND Java.
             new object[] { "12.345", "12.345", "False" },
-            new object[] { "12.345", "67.890", "True" }
+            new object[] { "12.345", "67.890", "True" },
+
+            new object[] { "2", "4294967295", "True" },
+            new object[] { "2", "9223372036854775807", "True" },
+            new object[] { "2", "18446744073709551615", "True" },
+            new object[] { "2", "18446744073709551616", "True" },
+            new object[] { "4294967295", "33", "True" },
+            new object[] { "4294967295", "4294967295", "False" },
+            new object[] { "4294967295", "9223372036854775807", "True" },
+            new object[] { "4294967295", "18446744073709551615", "True" },
+            new object[] { "4294967295", "18446744073709551616", "True" },
+            new object[] { "4294967295", "12.0", "True" },
+            new object[] { "9223372036854775807", "2", "True" },
+            new object[] { "9223372036854775807", "4294967295", "True" },
+            new object[] { "9223372036854775807", "9223372036854775807", "False" },
+            new object[] { "9223372036854775807", "18446744073709551615", "True" },
+            new object[] { "9223372036854775807", "18446744073709551616", "True" },
+            new object[] { "9223372036854775807", "12.0", "True" },
+            new object[] { "18446744073709551615", "2", "True" },
+            new object[] { "18446744073709551615", "4294967295", "True" },
+            new object[] { "18446744073709551615", "9223372036854775807", "True" },
+            new object[] { "18446744073709551615", "18446744073709551615", "False" },
+            new object[] { "18446744073709551615", "18446744073709551616", "True" },
+            new object[] { "18446744073709551615", "12.0", "True" },
+            new object[] { "18446744073709551616", "2", "True" },
+            new object[] { "18446744073709551616", "4294967295", "True" },
+            new object[] { "18446744073709551616", "9223372036854775807", "True" },
+            new object[] { "18446744073709551616", "18446744073709551615", "True" },
+            new object[] { "18446744073709551616", "18446744073709551616", "False" },
+            new object[] { "18446744073709551616", "12.0", "True" },
+            new object[] { "-12.0", "4294967295", "True" },
+            new object[] { "-12.0", "9223372036854775807", "True" },
+            new object[] { "-12.0", "18446744073709551615", "True" },
+            new object[] { "-12.0", "18446744073709551616", "True" },
         };
 
     public static IEnumerable<object[]> Equal =>
@@ -121,7 +154,40 @@ public static class BinaryOperatorData
             new object[] { "12", "12.0", "False" }, // Same value but different types. Note: this is truthy in C# AND Java.
             new object[] { "12.0", "12", "False" }, // Same value but different types. Note: this is truthy in C# AND Java.
             new object[] { "12.345", "12.345", "True" },
-            new object[] { "12.345", "67.890", "False" }
+            new object[] { "12.345", "67.890", "False" },
+
+            new object[] { "2", "4294967295", "False" },
+            new object[] { "2", "9223372036854775807", "False" },
+            new object[] { "2", "18446744073709551615", "False" },
+            new object[] { "2", "18446744073709551616", "False" },
+            new object[] { "4294967295", "33", "False" },
+            new object[] { "4294967295", "4294967295", "True" },
+            new object[] { "4294967295", "9223372036854775807", "False" },
+            new object[] { "4294967295", "18446744073709551615", "False" },
+            new object[] { "4294967295", "18446744073709551616", "False" },
+            new object[] { "4294967295", "12.0", "False" },
+            new object[] { "9223372036854775807", "2", "False" },
+            new object[] { "9223372036854775807", "4294967295", "False" },
+            new object[] { "9223372036854775807", "9223372036854775807", "True" },
+            new object[] { "9223372036854775807", "18446744073709551615", "False" },
+            new object[] { "9223372036854775807", "18446744073709551616", "False" },
+            new object[] { "9223372036854775807", "12.0", "False" },
+            new object[] { "18446744073709551615", "2", "False" },
+            new object[] { "18446744073709551615", "4294967295", "False" },
+            new object[] { "18446744073709551615", "9223372036854775807", "False" },
+            new object[] { "18446744073709551615", "18446744073709551615", "True" },
+            new object[] { "18446744073709551615", "18446744073709551616", "False" },
+            new object[] { "18446744073709551615", "12.0", "False" },
+            new object[] { "18446744073709551616", "2", "False" },
+            new object[] { "18446744073709551616", "4294967295", "False" },
+            new object[] { "18446744073709551616", "9223372036854775807", "False" },
+            new object[] { "18446744073709551616", "18446744073709551615", "False" },
+            new object[] { "18446744073709551616", "18446744073709551616", "True" },
+            new object[] { "18446744073709551616", "12.0", "False" },
+            new object[] { "-12.0", "4294967295", "False" },
+            new object[] { "-12.0", "9223372036854775807", "False" },
+            new object[] { "-12.0", "18446744073709551615", "False" },
+            new object[] { "-12.0", "18446744073709551616", "False" },
         };
 
     public static IEnumerable<object[]> Subtraction_result =>
