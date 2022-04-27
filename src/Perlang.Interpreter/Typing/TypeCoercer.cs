@@ -11,7 +11,7 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     public static class TypeCoercer
     {
-        private static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
+        internal static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
         {
             { typeof(Int32), 32 },
             { typeof(Int64), 64 },
@@ -21,7 +21,18 @@ namespace Perlang.Interpreter.Typing
             { typeof(BigInteger), Int32.MaxValue }
         }.ToImmutableDictionary();
 
-        private static ImmutableDictionary<Type, int?> FloatIntegerLengthByType => new Dictionary<Type, int?>
+        // Not supported by explicit type definitions yet, but can be used implicitly because of type inference.
+        internal static ImmutableDictionary<Type, int?> UnsignedIntegerLengthByType => new Dictionary<Type, int?>
+        {
+            { typeof(UInt32), 32 },
+            { typeof(UInt64), 64 },
+
+            // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
+            // bigints in Perlang are limited to 2 billion digits. :)
+            { typeof(BigInteger), Int32.MaxValue }
+        }.ToImmutableDictionary();
+
+        internal static ImmutableDictionary<Type, int?> FloatIntegerLengthByType => new Dictionary<Type, int?>
         {
             // Double-precision values are 64-bit but can only save 53-bit integers with exact precision. Since there
             // are no "53-bit" types, we just make this the "next smaller available" bit length.
