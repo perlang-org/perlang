@@ -27,7 +27,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.Percent_type), MemberType = typeof(BinaryOperatorData))]
+        [MemberData(nameof(BinaryOperatorData.Modulo_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
             string source = $@"
