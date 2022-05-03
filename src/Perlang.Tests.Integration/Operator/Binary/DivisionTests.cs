@@ -52,9 +52,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                     print {i} / {j};
                 ";
 
-            // TODO: Should be validation errors, not runtime errors. The shift-left operator does it right, use the same
-            // TODO: approach here.
-            var result = EvalWithRuntimeErrorCatch(source);
+            var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
                 .ContainSingle().Which
@@ -87,7 +85,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Unsupported / operands specified", exception.Message);
+            Assert.Matches("Unsupported / operand types: 'string' and 'int'", exception.Message);
         }
 
         [Fact]
@@ -101,7 +99,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Unsupported / operands specified", exception.Message);
+            Assert.Matches("Unsupported / operand types: 'int' and 'string'", exception.Message);
         }
 
         // TODO: This should definitely be a compile-time error (constant division by zero). We should aim for

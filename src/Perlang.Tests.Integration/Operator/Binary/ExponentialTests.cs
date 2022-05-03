@@ -135,8 +135,6 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(3162.2776601683795, result);
         }
 
-        // TODO: Use BinaryOperatorData-method for getting test data to this test.
-
         [Theory]
         [ClassData(typeof(TestCultures))]
         public async Task exponential_integer_and_float_literals_infers_to_expected_type(CultureInfo cultureInfo)
@@ -281,7 +279,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        public void exponential_bigint_and_negative_int_throws_expected_error()
+        public void exponential_bigint_and_negative_int_throws_expected_runtime_error()
         {
             string source = @"
                 1267650600228229401496703205376 ** -3
@@ -292,22 +290,6 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             Assert.Single(result.Errors);
             Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
-        }
-
-        [Theory]
-        [InlineData("1267650600228229401496703205376", "1267650600228229401496703205376", "bigint", "bigint")]
-        [InlineData("12345", "1267650600228229401496703205376", "int", "bigint")]
-        public void exponential_unsupported_numeric_types_throws_expected_error(string left, string right, string leftType, string rightType)
-        {
-            string source = $@"
-                {left} ** {right}
-            ";
-
-            var result = EvalWithValidationErrorCatch(source);
-            var exception = result.Errors.First();
-
-            Assert.Single(result.Errors);
-            Assert.Equal($"Unsupported ** operands specified: {leftType} and {rightType}", exception.Message);
         }
 
         [Fact]
@@ -321,7 +303,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported ** operands specified: string and int", exception.Message);
+            Assert.Equal("Unsupported ** operand types: 'string' and 'int'", exception.Message);
         }
 
         [Fact]
@@ -335,7 +317,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported ** operands specified: int and string", exception.Message);
+            Assert.Equal("Unsupported ** operand types: 'int' and 'string'", exception.Message);
         }
 
         [Fact]
@@ -347,11 +329,11 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print base ** 8;
             ";
 
+            // TODO: Should not be runtime error but rather a compile-time error from the TypeResolver class. See the
+            // TODO: comment in TypeResolver.VisitBinaryExpr() for more details about why this is not currently doable.
             var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.First();
 
-            // TODO: Should not be runtime error but rather a compile-time error from the TypeResolver class. See the
-            // TODO: comment in TypeResolver.VisitBinaryExpr() for more details about why this is not currently doable.
             Assert.Single(result.Errors);
             Assert.Matches("Operands must be numbers, not function and int", exception.Message);
         }

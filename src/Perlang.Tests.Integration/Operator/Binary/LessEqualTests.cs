@@ -34,8 +34,7 @@ public class LessEqualTests
                 print i1 <= i2;
             ";
 
-        // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
-        var result = EvalWithRuntimeErrorCatch(source);
+        var result = EvalWithValidationErrorCatch(source);
 
         result.Errors.Should()
             .ContainSingle().Which

@@ -52,8 +52,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                     print {i} * {j};
                 ";
 
-            // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
-            var result = EvalWithRuntimeErrorCatch(source);
+            var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
                 .ContainSingle().Which
@@ -86,7 +85,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported * operands specified: string and int", exception.Message);
+            Assert.Equal("Unsupported * operand types: 'string' and 'int'", exception.Message);
         }
 
         [Fact]
@@ -100,7 +99,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported * operands specified: int and string", exception.Message);
+            Assert.Equal("Unsupported * operand types: 'int' and 'string'", exception.Message);
         }
     }
 }

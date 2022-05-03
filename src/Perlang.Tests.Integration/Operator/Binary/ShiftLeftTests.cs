@@ -43,8 +43,7 @@ public class ShiftLeftTests
                     print {i} << {j};
                 ";
 
-        // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
-        var result = EvalWithRuntimeErrorCatch(source);
+        var result = EvalWithValidationErrorCatch(source);
 
         result.Errors.Should()
             .ContainSingle().Which
@@ -130,6 +129,6 @@ public class ShiftLeftTests
         var exception = result.Errors.FirstOrDefault();
 
         Assert.Single(result.Errors);
-        Assert.Matches("Unsupported << operands specified: int and string", exception.Message);
+        Assert.Matches("Unsupported << operand types: 'int' and 'string'", exception.Message);
     }
 }

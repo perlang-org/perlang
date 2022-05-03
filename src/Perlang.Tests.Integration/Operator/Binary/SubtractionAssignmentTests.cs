@@ -40,25 +40,8 @@ public class SubtractionAssignmentTests
     }
 
     [Theory]
-    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
-    public void with_unsupported_types_emits_expected_runtime_error(string i, string j, string expectedError)
-    {
-        string source = $@"
-            var i = {i};
-            print i -= {j};
-        ";
-
-        // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
-        var result = EvalWithRuntimeErrorCatch(source);
-
-        result.Errors.Should()
-            .ContainSingle().Which
-            .Message.Should().Match(expectedError);
-    }
-
-    [Theory]
-    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
-    public void with_unsupported_types_emits_expected_validation_error(string i, string j, string expectedError)
+    [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+    public void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
     {
         string source = $@"
             var i = {i};
@@ -157,6 +140,6 @@ public class SubtractionAssignmentTests
         var exception = result.Errors.First();
 
         Assert.Single(result.Errors);
-        Assert.Equal("Unsupported -= operands specified: string and int", exception.Message);
+        Assert.Equal("Cannot assign int to string variable", exception.Message);
     }
 }

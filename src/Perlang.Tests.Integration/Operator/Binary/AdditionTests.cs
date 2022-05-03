@@ -54,9 +54,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print {i} + {j};
             ";
 
-            // TODO: Should be validation errors, not runtime errors. The shift-left operator does it right, use the same
-            // TODO: approach here.
-            var result = EvalWithRuntimeErrorCatch(source);
+            var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
                 .ContainSingle().Which

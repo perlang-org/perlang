@@ -66,10 +66,7 @@ public class BinaryOperatorDataTests
     [Fact]
     void SubtractionAssignment_has_test_data_for_all_supported_types()
     {
-        EnsureAllTypesAreHandled(
-            SubtractionAssignment_result,
-            SubtractionAssignment_unsupported_types_runtime.Concat(SubtractionAssignment_unsupported_types_validation), "SubtractionAssignment"
-        );
+        EnsureAllTypesAreHandled(SubtractionAssignment_result, SubtractionAssignment_unsupported_types, "SubtractionAssignment");
     }
 
     [Fact]
@@ -81,7 +78,7 @@ public class BinaryOperatorDataTests
     [Fact]
     void AdditionAssignment_has_test_data_for_all_supported_types()
     {
-        EnsureAllTypesAreHandled(AdditionAssignment_result, AdditionAssignment_unsupported_types_runtime.Concat(AdditionAssignment_unsupported_types_validation), "AdditionAssignment");
+        EnsureAllTypesAreHandled(AdditionAssignment_result, AdditionAssignment_unsupported_types, "AdditionAssignment");
     }
 
     [Fact]
@@ -160,7 +157,7 @@ public class BinaryOperatorDataTests
     /// <summary>
     /// Custom formatter which emits newlines after each element, which is helpful when the output contains many lines.
     /// </summary>
-    private class HashSetFormatter : IValueFormatter
+    private sealed class HashSetFormatter : IValueFormatter
     {
         /// <summary>
         /// Indicates whether the current <see cref="IValueFormatter"/> can handle the specified <paramref name="value"/>.
@@ -169,7 +166,7 @@ public class BinaryOperatorDataTests
         /// <returns>
         /// <c>true</c> if the current <see cref="IValueFormatter"/> can handle the specified value; otherwise, <c>false</c>.
         /// </returns>
-        public virtual bool CanHandle(object value)
+        public bool CanHandle(object value)
         {
             return value is HashSet<(Type, Type)>;
         }

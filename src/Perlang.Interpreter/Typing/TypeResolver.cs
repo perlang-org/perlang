@@ -6,7 +6,6 @@ using System.Linq;
 using System.Numerics;
 using Humanizer;
 using Perlang.Extensions;
-using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
@@ -93,17 +92,16 @@ namespace Perlang.Interpreter.Typing
                 );
             }
 
+            // Only a certain set of type combinations are supported with these operators. We validate the operands here
+            // to be able to provide "compile-time" error checking rather than runtime checking.
+
             switch (expr.Operator.Type)
             {
                 case TokenType.PLUS:
-                case TokenType.PLUS_EQUAL:
                 case TokenType.MINUS:
-                case TokenType.MINUS_EQUAL:
                 case TokenType.SLASH:
                 case TokenType.STAR:
                 case TokenType.PERCENT:
-                case TokenType.LESS_LESS:
-                case TokenType.GREATER_GREATER:
                     if (expr.Operator.Type == TokenType.PLUS &&
                         (leftTypeReference.ClrType == typeof(string) ||
                          rightTypeReference.ClrType == typeof(string)))
@@ -113,23 +111,86 @@ namespace Perlang.Interpreter.Typing
 
                         return VoidObject.Void;
                     }
-
-                    // TODO: This does not make sense for all binary operators. For example, LESS_LESS and
-                    // GREATER_GREATER only works with certain combinations of integer types. We should move them to a
-                    // separate `case` arm and try to handle them here => becomes a compile-time error instead of a
-                    // runtime error.
-
-                    ITypeReference? typeReference = GreaterType(leftTypeReference, rightTypeReference);
-
-                    if (typeReference == null)
+                    else
                     {
-                        string message = $"Unsupported {expr.Operator.Type.ToSourceString()} operands specified: " +
-                                         $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
+                        if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
+                        {
+                            expr.TypeReference.ClrType = typeof(int);
+                        }
+                        else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                                 (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long)))
+                        {
+                            expr.TypeReference.ClrType = typeof(long);
+                        }
+                        else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
+                                 (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                        {
+                            expr.TypeReference.ClrType = typeof(double);
+                        }
+                        else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(BigInteger)) &&
+                                 (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(BigInteger)))
+                        {
+                            expr.TypeReference.ClrType = typeof(BigInteger);
+                        }
+                        else
+                        {
+                            string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
+                            throw new TypeValidationError(expr.Operator, message);
+                        }
+
+                        return VoidObject.Void;
+                    }
+
+                case TokenType.PLUS_EQUAL:
+                case TokenType.MINUS_EQUAL:
+                    if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(int);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long)))
+                    {
+                        expr.TypeReference.ClrType = typeof(long);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        expr.TypeReference.ClrType = typeof(double);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(BigInteger)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(BigInteger)))
+                    {
+                        expr.TypeReference.ClrType = typeof(BigInteger);
+                    }
+                    else
+                    {
+                        string message = $"Cannot assign {rightTypeReference.ClrType.ToTypeKeyword()} to {leftTypeReference.ClrType.ToTypeKeyword()} variable";
 
                         throw new TypeValidationError(expr.Operator, message);
                     }
 
-                    expr.TypeReference.ClrType = typeReference.ClrType;
+                    return VoidObject.Void;
+
+                case TokenType.LESS_LESS:
+                case TokenType.GREATER_GREATER:
+
+                    if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(int);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(long) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(long);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(BigInteger) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(BigInteger);
+                    }
+                    else
+                    {
+                        string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
+                        throw new TypeValidationError(expr.Operator, message);
+                    }
 
                     return VoidObject.Void;
 
@@ -141,13 +202,10 @@ namespace Perlang.Interpreter.Typing
                     // TODO: something like `PerlangFunction` instead of the return type of the function? This is
                     // TODO: probably a significant change so be prepared that it will take some time.
 
-                    // Only a certain set of type combinations are supported with this operator. We validate it here to
-                    // be able to provide "compile-time" error checking rather than runtime checking.
-
                     if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
                         rightTypeReference.ClrType == typeof(int))
                     {
-                        // TODO: Once we have a possibility to evaluate constant expressions here (at compile-time), we
+                        // TODO: Once we have a possibility to do compile-time evaluation of constant expressions, we
                         // TODO: should use it to throw an exception in case `expr.Right` has a negative value (since such
                         // TODO: values will otherwise throw a runtime error - see
                         // TODO: `PerlangInterpreter.VisitBinaryExpr()` for details.
@@ -175,9 +233,7 @@ namespace Perlang.Interpreter.Typing
                     }
                     else
                     {
-                        string message = $"Unsupported {expr.Operator.Type.ToSourceString()} operands specified: " +
-                                         $"{leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}";
-
+                        string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
                         throw new TypeValidationError(expr.Operator, message);
                     }
 
@@ -187,9 +243,39 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.GREATER_EQUAL:
                 case TokenType.LESS:
                 case TokenType.LESS_EQUAL:
+                    if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(bool);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long)))
+                    {
+                        expr.TypeReference.ClrType = typeof(bool);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        expr.TypeReference.ClrType = typeof(bool);
+                    }
+                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(BigInteger)) &&
+                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long) || rightTypeReference.ClrType == typeof(BigInteger)))
+                    {
+                        expr.TypeReference.ClrType = typeof(bool);
+                    }
+                    else
+                    {
+                        string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
+                        throw new TypeValidationError(expr.Operator, message);
+                    }
+
+                    expr.TypeReference.ClrType = typeof(bool);
+                    return VoidObject.Void;
+
+                // Equality and non-equality can always be checked, regardless of the combination of types; they will
+                // just return `false` and `true` in case the types are incoercible.
                 case TokenType.BANG_EQUAL:
                 case TokenType.EQUAL_EQUAL:
-                    expr.TypeReference.ClrType = TypeReference.Bool.ClrType;
+                    expr.TypeReference.ClrType = typeof(bool);
                     return VoidObject.Void;
 
                 default:
