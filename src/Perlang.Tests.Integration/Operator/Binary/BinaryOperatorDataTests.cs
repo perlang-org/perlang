@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Formatting;
@@ -20,7 +18,7 @@ public class BinaryOperatorDataTests
 {
     public BinaryOperatorDataTests()
     {
-        FluentAssertions.Formatting.Formatter.AddFormatter(new HashSetFormatter());
+        Formatter.AddFormatter(new HashSetFormatter());
     }
 
     [Fact]
