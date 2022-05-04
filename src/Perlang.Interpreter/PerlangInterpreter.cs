@@ -1424,7 +1424,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1528,7 +1528,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1594,7 +1594,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1659,7 +1659,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1724,7 +1724,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1839,7 +1839,7 @@ namespace Perlang.Interpreter
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is long && right is long)
+                    else if (left is int or long && right is int or long)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);

@@ -344,9 +344,11 @@ public static class BinaryOperatorData
             new object[] { "12", "-34", "46", typeof(int) },
             new object[] { "-12", "34", "-46", typeof(int) },
             new object[] { "-12", "-34", "22", typeof(int) },
+            new object[] { "2", "9223372036854775807", "-9223372036854775805", typeof(long) },
             new object[] { "2", "18446744073709551616", "-18446744073709551614", typeof(BigInteger) },
             new object[] { "-12", "-34.0", "22", typeof(double) }, // TODO: Should we really support this? What does other languages do?
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808511", typeof(long) },
+            new object[] { "9223372036854775807", "2", "9223372036854775805", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
             new object[] { "9223372036854775807", "18446744073709551616", "-9223372036854775809", typeof(BigInteger) },
             new object[] { "9223372036854775807", "12.0", "9.223372036854776E+18", typeof(double) }, // TODO: We should make this unsupported. As can be seen in the exponential expression, the operation loses precision.
@@ -363,7 +365,6 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
-            new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
             new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
             new object[] { "4294967295", "33", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
@@ -371,7 +372,6 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
             new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
@@ -402,6 +402,7 @@ public static class BinaryOperatorData
             new object[] { "-12", "34", "-46", typeof(int) },
             new object[] { "-12", "-34", "22", typeof(int) },
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808511", typeof(long) },
+            new object[] { "9223372036854775807", "2", "9223372036854775805", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
             new object[] { "18446744073709551616", "2", "18446744073709551614", typeof(BigInteger) },
             new object[] { "18446744073709551616", "4294967296", "18446744069414584320", typeof(BigInteger) },
@@ -417,7 +418,6 @@ public static class BinaryOperatorData
         {
             new object[] { "4294967295", "33", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
             new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
@@ -463,11 +463,12 @@ public static class BinaryOperatorData
             new object[] { "12", "-34", "-22", typeof(int) },
             new object[] { "-12", "34", "22", typeof(int) },
             new object[] { "-12", "-34", "-46", typeof(int) },
+            new object[] { "2", "9223372036854775807", "-9223372036854775807", typeof(long) }, // Wraparound because of integer overflow
+            new object[] { "9223372036854775807", "2", "-9223372036854775807", typeof(long) }, // Wraparound because of integer overflow
             new object[] { "-12", "-34.0", "-46", typeof(double) },
             new object[] { "2", "18446744073709551616", "18446744073709551618", typeof(BigInteger) },
-            new object[] { "4294967296", "9223372036854775807", "-9223372032559808513", typeof(long) }, // Probably becomes negative because of integer overflow.
             new object[] { "4294967296", "18446744073709551616", "18446744078004518912", typeof(BigInteger) },
-            new object[] { "9223372036854775807", "9223372036854775807", "-2", typeof(long) },
+            new object[] { "9223372036854775807", "9223372036854775807", "-2", typeof(long) }, // Wraparound because of integer overflow
             new object[] { "9223372036854775807", "12.0", "9.223372036854776E+18", typeof(double) }, // TODO: We should make this unsupported. As can be seen in the exponential expression, the operation loses precision.
             new object[] { "18446744073709551616", "2", "18446744073709551618", typeof(BigInteger) },
             new object[] { "18446744073709551616", "4294967296", "18446744078004518912", typeof(BigInteger) },
@@ -483,7 +484,6 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
-            new object[] { "2", "4294967296", "Operands must be numbers, not int and long" },
             new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
             new object[] { "12.0", "4294967295", "Operands must be numbers, not double and System.UInt32" },
             new object[] { "12.0", "18446744073709551615", "Operands must be numbers, not double and System.UInt64" },
@@ -496,7 +496,6 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
             new object[] { "4294967296", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "4294967296", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
             new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
             new object[] { "18446744073709551615", "9223372036854775807", "Operands must be numbers, not System.UInt64 and long" },
@@ -523,6 +522,7 @@ public static class BinaryOperatorData
             new object[] { "-12", "-34", "-46", typeof(int) },
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808513", typeof(long) }, // Probably becomes negative because of integer overflow.
             new object[] { "9223372036854775807", "9223372036854775807", "-2", typeof(long) },
+            new object[] { "9223372036854775807", "2", "-9223372036854775807", typeof(long) },
             new object[] { "18446744073709551616", "2", "18446744073709551618", typeof(BigInteger) },
             new object[] { "18446744073709551616", "4294967296", "18446744078004518912", typeof(BigInteger) },
             new object[] { "18446744073709551616", "9223372036854775807", "27670116110564327423", typeof(BigInteger) },
@@ -538,7 +538,6 @@ public static class BinaryOperatorData
         {
             new object[] { "4294967295", "33", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
             new object[] { "18446744073709551615", "4294967295", "Operands must be numbers, not System.UInt64 and System.UInt32" },
@@ -582,7 +581,9 @@ public static class BinaryOperatorData
         {
             new object[] { "35", "5", "7", typeof(int) },
             new object[] { "34", "5", "6", typeof(int) }, // `int` division => expecting to be truncated.
+            new object[] { "2", "9223372036854775807", "0", typeof(long) },
             new object[] { "2", "18446744073709551616", "0", typeof(BigInteger) },
+            new object[] { "9223372036854775807", "2", "4611686018427387903", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "1", typeof(long) },
             new object[] { "9223372036854775807", "18446744073709551616", "0", typeof(BigInteger) },
             new object[] { "9223372036854775807", "12.0", "7.686143364045646E+17", typeof(double) }, // TODO: We should make this unsupported
@@ -599,7 +600,6 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
-            new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
             new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
             new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
@@ -607,7 +607,6 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
             new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
@@ -634,9 +633,11 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "5", "3", "15", typeof(int) },
+            new object[] { "2", "9223372036854775807", "-2", typeof(long) },
             new object[] { "2", "18446744073709551616", "36893488147419103232", typeof(BigInteger) },
             new object[] { "12", "34.0", "408", typeof(double) },
             new object[] { "1073741824", "2", "-2147483648", typeof(int) }, // Becomes negative because of signed `int` overflow.
+            new object[] { "9223372036854775807", "2", "-2", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "1", typeof(long) },
             new object[] { "9223372036854775807", "18446744073709551616", "170141183460469231713240559642174554112", typeof(BigInteger) },
             new object[] { "9223372036854775807", "12.0", "1.1068046444225731E+20", typeof(double) }, // TODO: We should make this unsupported, since it's likely to lose precision
@@ -652,7 +653,6 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
-            new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
             new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
             new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
@@ -660,7 +660,6 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
             new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
@@ -741,10 +740,12 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "5", "3", "2", typeof(int) },
+            new object[] { "2", "9223372036854775807", "2", typeof(long) },
             new object[] { "2", "18446744073709551616", "2", typeof(BigInteger) },
             new object[] { "9", "2.0", "1", typeof(double) },
             new object[] { "2147483647", "2", "1", typeof(int) },
             new object[] { "-2147483648", "2", "0", typeof(int) },
+            new object[] { "9223372036854775807", "2", "1", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
             new object[] { "9223372036854775807", "18446744073709551616", "9223372036854775807", typeof(BigInteger) },
             new object[] { "9223372036854775807", "12.0", "8", typeof(double) }, // TODO: We should consider making this unsupported, since it may cause loss of precision.
@@ -760,7 +761,6 @@ public static class BinaryOperatorData
         new List<object[]>
         {
             new object[] { "2", "4294967295", "Operands must be numbers, not int and System.UInt32" },
-            new object[] { "2", "9223372036854775807", "Operands must be numbers, not int and long" },
             new object[] { "2", "18446744073709551615", "Operands must be numbers, not int and System.UInt64" },
             new object[] { "4294967295", "2", "Operands must be numbers, not System.UInt32 and int" },
             new object[] { "4294967295", "4294967295", "Operands must be numbers, not System.UInt32 and System.UInt32" },
@@ -768,7 +768,6 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "18446744073709551615", "Operands must be numbers, not System.UInt32 and System.UInt64" },
             new object[] { "4294967295", "18446744073709551616", "Operands must be numbers, not System.UInt32 and bigint" },
             new object[] { "4294967295", "12.0", "Operands must be numbers, not System.UInt32 and double" },
-            new object[] { "9223372036854775807", "2", "Operands must be numbers, not long and int" },
             new object[] { "9223372036854775807", "4294967295", "Operands must be numbers, not long and System.UInt32" },
             new object[] { "9223372036854775807", "18446744073709551615", "Operands must be numbers, not long and System.UInt64" },
             new object[] { "18446744073709551615", "2", "Operands must be numbers, not System.UInt64 and int" },
