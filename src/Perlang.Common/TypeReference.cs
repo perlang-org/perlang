@@ -10,8 +10,6 @@ namespace Perlang
     /// </summary>
     public class TypeReference : ITypeReference
     {
-        public static TypeReference Bool { get; } = new TypeReference(typeof(bool));
-
         private Type? clrType;
         public Token? TypeSpecifier { get; }
 

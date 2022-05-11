@@ -48,8 +48,7 @@ public class SubtractionTests
             print {i} - {j};
         ";
 
-        // TODO: Should definitely not be a runtime-error, but rather caught in the validation phase.
-        var result = EvalWithRuntimeErrorCatch(source);
+        var result = EvalWithValidationErrorCatch(source);
 
         result.Errors.Should()
             .ContainSingle().Which
@@ -70,6 +69,6 @@ public class SubtractionTests
 
         result.Errors.Should()
             .ContainSingle().Which
-            .Message.Should().Match("Unsupported - operands specified: string and string");
+            .Message.Should().Match("Unsupported - operand types: 'string' and 'string'");
     }
 }

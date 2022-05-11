@@ -38,26 +38,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Theory]
-        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_unsupported_types_runtime), MemberType = typeof(BinaryOperatorData))]
-        public void with_unsupported_types_emits_expected_runtime_error(string i, string j, string expectedResult)
-        {
-            string source = $@"
-                var i = {i};
-                print (i += {j});
-            ";
-
-            // TODO: Should be validation errors, not runtime errors. The shift-left operator does it right, use the same
-            // TODO: approach here.
-            var result = EvalWithRuntimeErrorCatch(source);
-
-            result.Errors.Should()
-                .ContainSingle().Which
-                .Message.Should().Match(expectedResult);
-        }
-
-        [Theory]
-        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_unsupported_types_validation), MemberType = typeof(BinaryOperatorData))]
-        public void with_unsupported_types_emits_expected_validation_error(string i, string j, string expectedResult)
+        [MemberData(nameof(BinaryOperatorData.AdditionAssignment_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+        public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
         {
             string source = $@"
                 var i = {i};
@@ -156,7 +138,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Unsupported += operands specified: string and int");
+                .Message.Should().Match("Cannot assign int to string variable");
         }
     }
 }
