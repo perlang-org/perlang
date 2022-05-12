@@ -821,19 +821,6 @@ namespace Perlang.Parser
             {
                 throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
             }
-
-            // Some type-related keywords are actually not marked as reserved words in the Scanner class, since they
-            // are defined in Perlang.Interpreter.Typing.TypeResolver.ResolveExplicitTypes. We special-case them here to
-            // make it easier to make these be proper reserved words sometime in the future.
-            switch (token.Lexeme)
-            {
-                case "int":
-                case "long":
-                case "bigint":
-                case "double":
-                case "string":
-                    throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
-            }
         }
     }
 }
