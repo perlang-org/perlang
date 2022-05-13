@@ -110,20 +110,40 @@ namespace Perlang.Parser
                 { "asm", RESERVED_WORD }
             }.ToImmutableDictionary();
 
-        private static ISet<string> reservedKeywordStrings;
+        public static IEnumerable<string> ReservedTypeKeywordStrings =>
+            new List<string>
+            {
+                // Some type-related keywords are actually not marked as reserved words in ReservedKeywords,
+                // since they are defined in Perlang.Interpreter.Typing.TypeResolver.ResolveExplicitTypes. We
+                // special-case them here to make it easier to make these be proper reserved words sometime in
+                // the future.
+                "int",
+                "long",
+                "bigint",
+                "double",
+                "string"
+            }.ToImmutableHashSet();
 
-        public static ISet<string> ReservedKeywordStrings
+        private static ISet<string> reservedKeywordOnlyStrings;
+
+        // Returns only the "proper" reserved keywords, not include the "reserved type keywords" listed above.
+        public static ISet<string> ReservedKeywordOnlyStrings
         {
             get
             {
-                reservedKeywordStrings ??= ReservedKeywords
+                reservedKeywordOnlyStrings ??= ReservedKeywords
                     .Where(kvp => kvp.Value == RESERVED_WORD)
                     .Select(kvp => kvp.Key)
-                    .ToHashSet();
+                    .ToImmutableHashSet();
 
-                return reservedKeywordStrings;
+                return reservedKeywordOnlyStrings;
             }
         }
+
+        public static IEnumerable<string> ReservedKeywordStrings =>
+            ReservedKeywordOnlyStrings
+                .Concat(ReservedTypeKeywordStrings)
+                .ToImmutableHashSet();
 
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;
