@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -117,6 +118,8 @@ public class BinaryOperatorDataTests
         EnsureAllTypesAreHandled(ShiftRight_result, ShiftRight_unsupported_types, "ShiftRight");
     }
 
+    private static readonly ConcurrentDictionary<string, Type> TypesForEvaluatedValues = new();
+
     private static void EnsureAllTypesAreHandled(IEnumerable<object[]> supportedResults, IEnumerable<object[]> unsupportedTypes, string operatorName)
     {
         var data = supportedResults.Concat(unsupportedTypes);
@@ -129,8 +132,21 @@ public class BinaryOperatorDataTests
 
         foreach (object[] objects in data)
         {
-            Type leftType = EvalHelper.Eval((string)objects[0]).GetType();
-            Type rightType = EvalHelper.Eval((string)objects[1]).GetType();
+            string o1 = (string)objects[0];
+            string o2 = (string)objects[1];
+
+            if (!TypesForEvaluatedValues.ContainsKey(o1))
+            {
+                TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+            }
+
+            if (!TypesForEvaluatedValues.ContainsKey(o2))
+            {
+                TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+            }
+
+            Type leftType = TypesForEvaluatedValues[o1];
+            Type rightType = TypesForEvaluatedValues[o2];
 
             seenTypeCombinations.Add((leftType, rightType));
         }
