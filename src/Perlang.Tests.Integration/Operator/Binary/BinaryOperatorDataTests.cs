@@ -23,110 +23,194 @@ public class BinaryOperatorDataTests
     }
 
     [Fact]
-    void Greater_has_test_data_for_all_supported_types()
+    void Greater_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Greater, Greater_unsupported_types, "Greater");
+        EnsureAllPrimitiveTypesAreHandled(Greater, Greater_unsupported_types, "Greater");
     }
 
     [Fact]
-    void GreaterEqual_has_test_data_for_all_supported_types()
+    void Greater_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(GreaterEqual, GreaterEqual_unsupported_types, "GreaterEqual");
+        EnsureAllPrimitiveTypePairsAreHandled(Greater, "Greater");
     }
 
     [Fact]
-    void Less_has_test_data_for_all_supported_types()
+    void GreaterEqual_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Less, Less_unsupported_types, "Less");
+        EnsureAllPrimitiveTypesAreHandled(GreaterEqual, GreaterEqual_unsupported_types, "GreaterEqual");
     }
 
     [Fact]
-    void LessEqual_has_test_data_for_all_supported_types()
+    void GreaterEqual_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(LessEqual, LessEqual_unsupported_types, "LessEqual");
+        EnsureAllPrimitiveTypePairsAreHandled(GreaterEqual, "GreaterEqual");
     }
 
     [Fact]
-    void NotEqual_has_test_data_for_all_supported_types()
+    void Less_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(NotEqual, ImmutableList<object[]>.Empty, "NotEqual");
+        EnsureAllPrimitiveTypesAreHandled(Less, Less_unsupported_types, "Less");
     }
 
     [Fact]
-    void Equal_has_test_data_for_all_supported_types()
+    void Less_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(Equal, ImmutableList<object[]>.Empty, "Equal");
+        EnsureAllPrimitiveTypePairsAreHandled(Less, "Less");
     }
 
     [Fact]
-    void Subtraction_has_test_data_for_all_supported_types()
+    void LessEqual_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Subtraction_result, Subtraction_unsupported_types, "Subtraction");
+        EnsureAllPrimitiveTypesAreHandled(LessEqual, LessEqual_unsupported_types, "LessEqual");
     }
 
     [Fact]
-    void SubtractionAssignment_has_test_data_for_all_supported_types()
+    void LessEqual_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(SubtractionAssignment_result, SubtractionAssignment_unsupported_types, "SubtractionAssignment");
+        EnsureAllPrimitiveTypePairsAreHandled(LessEqual, "LessEqual");
     }
 
     [Fact]
-    void Addition_has_test_data_for_all_supported_types()
+    void NotEqual_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Addition_result, Addition_unsupported_types, "Addition");
+        EnsureAllPrimitiveTypesAreHandled(NotEqual, ImmutableList<object[]>.Empty, "NotEqual");
     }
 
     [Fact]
-    void AdditionAssignment_has_test_data_for_all_supported_types()
+    void NotEqual_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(AdditionAssignment_result, AdditionAssignment_unsupported_types, "AdditionAssignment");
+        EnsureAllPrimitiveTypePairsAreHandled(NotEqual, "NotEqual");
     }
 
     [Fact]
-    void Division_has_test_data_for_all_supported_types()
+    void Equal_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Division_result, Division_unsupported_types, "Division");
+        EnsureAllPrimitiveTypesAreHandled(Equal, ImmutableList<object[]>.Empty, "Equal");
     }
 
     [Fact]
-    void Multiplication_has_test_data_for_all_supported_types()
+    void Equal_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(Multiplication_result, Multiplication_unsupported_types, "Multiplication");
+        EnsureAllPrimitiveTypePairsAreHandled(Equal, "Equal");
     }
 
     [Fact]
-    void Exponential_has_test_data_for_all_supported_types()
+    void Subtraction_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(Exponential_result, Exponential_unsupported_types, "Exponential");
+        EnsureAllPrimitiveTypesAreHandled(Subtraction_result, Subtraction_unsupported_types, "Subtraction");
     }
 
     [Fact]
-    void Modulo_has_test_data_for_all_supported_types()
+    void Subtraction_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(Modulo_result, Modulo_unsupported_types, "Modulo");
+        EnsureAllPrimitiveTypePairsAreHandled(Subtraction_result, "Subtraction");
     }
 
     [Fact]
-    void ShiftLeft_has_test_data_for_all_supported_types()
+    void SubtractionAssignment_has_test_data_for_all_supported_primitive_types()
     {
-        EnsureAllTypesAreHandled(ShiftLeft_result, ShiftLeft_unsupported_types, "ShiftLeft");
+        EnsureAllPrimitiveTypesAreHandled(SubtractionAssignment_result, SubtractionAssignment_unsupported_types, "SubtractionAssignment");
     }
 
     [Fact]
-    void ShiftRight_has_test_data_for_all_supported_types()
+    void SubtractionAssignment_has_test_data_for_all_primitive_type_pairs()
     {
-        EnsureAllTypesAreHandled(ShiftRight_result, ShiftRight_unsupported_types, "ShiftRight");
+        EnsureAllPrimitiveTypePairsAreHandled(SubtractionAssignment_result, "SubtractionAssignment");
     }
+
+    [Fact]
+    void Addition_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(Addition_result, Addition_unsupported_types, "Addition");
+    }
+
+    [Fact]
+    void Addition_has_test_data_for_all_primitive_type_pairs()
+    {
+        EnsureAllPrimitiveTypePairsAreHandled(Addition_result, "Addition");
+    }
+
+    [Fact]
+    void AdditionAssignment_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(AdditionAssignment_result, AdditionAssignment_unsupported_types, "AdditionAssignment");
+    }
+
+    [Fact]
+    void AdditionAssignment_has_test_data_for_all_primitive_type_pairs()
+    {
+        EnsureAllPrimitiveTypePairsAreHandled(AdditionAssignment_result, "AdditionAssignment");
+    }
+
+    [Fact]
+    void Division_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(Division_result, Division_unsupported_types, "Division");
+    }
+
+    [Fact]
+    void Division_has_test_data_for_all_primitive_type_pairs()
+    {
+        EnsureAllPrimitiveTypePairsAreHandled(Division_result, "Division");
+    }
+
+    [Fact]
+    void Multiplication_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(Multiplication_result, Multiplication_unsupported_types, "Multiplication");
+    }
+
+    [Fact]
+    void Multiplication_has_test_data_for_all_primitive_type_pairs()
+    {
+        EnsureAllPrimitiveTypePairsAreHandled(Multiplication_result, "Multiplication");
+    }
+
+    [Fact]
+    void Exponential_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(Exponential_result, Exponential_unsupported_types, "Exponential");
+    }
+
+    // EnsureAllPrimitiveTypePairsAreHandled deliberately not tests for the exponential operator, since it only supports
+    // a limited subset of operand types.
+
+    [Fact]
+    void Modulo_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(Modulo_result, Modulo_unsupported_types, "Modulo");
+    }
+
+    [Fact]
+    void Modulo_has_test_data_for_all_primitive_type_pairs()
+    {
+        EnsureAllPrimitiveTypePairsAreHandled(Modulo_result, "Modulo");
+    }
+
+    [Fact]
+    void ShiftLeft_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(ShiftLeft_result, ShiftLeft_unsupported_types, "ShiftLeft");
+    }
+
+    [Fact]
+    void ShiftRight_has_test_data_for_all_supported_primitive_types()
+    {
+        EnsureAllPrimitiveTypesAreHandled(ShiftRight_result, ShiftRight_unsupported_types, "ShiftRight");
+    }
+
+    // ShiftLeft and ShiftRight deliberately not tested with EnsureAllPrimitiveTypePairsAreHandled
 
     private static readonly ConcurrentDictionary<string, Type> TypesForEvaluatedValues = new();
 
-    private static void EnsureAllTypesAreHandled(IEnumerable<object[]> supportedResults, IEnumerable<object[]> unsupportedTypes, string operatorName)
+    private static void EnsureAllPrimitiveTypesAreHandled(IEnumerable<object[]> supportedResults, IEnumerable<object[]> unsupportedTypes, string operatorName)
     {
-        var data = supportedResults.Concat(unsupportedTypes);
-
-        var knownTypes = TypeCoercer.SignedIntegerLengthByType.Keys
+        var knownPrimitiveTypes = TypeCoercer.SignedIntegerLengthByType.Keys
             .Concat(TypeCoercer.UnsignedIntegerLengthByType.Keys)
-            .Concat(TypeCoercer.FloatIntegerLengthByType.Keys).ToList();
+            .Concat(TypeCoercer.FloatIntegerLengthByType.Keys)
+            .ToImmutableList();
+
+        var data = supportedResults.Concat(unsupportedTypes);
 
         var seenTypeCombinations = new HashSet<(Type, Type)>();
 
@@ -153,9 +237,9 @@ public class BinaryOperatorDataTests
 
         var unhandledTypeCombinations = new HashSet<(Type LeftType, Type RightType)>();
 
-        foreach (Type knownLeftType in knownTypes)
+        foreach (Type knownLeftType in knownPrimitiveTypes)
         {
-            foreach (Type knownRightType in knownTypes)
+            foreach (Type knownRightType in knownPrimitiveTypes)
             {
                 (Type, Type) knownTypesTuple = (knownLeftType, knownRightType);
 
@@ -167,7 +251,58 @@ public class BinaryOperatorDataTests
         }
 
         unhandledTypeCombinations.Should()
-            .BeEmpty($"'{operatorName}' operator test data contains all possible type combinations");
+            .BeEmpty($"'{operatorName}' operator test data contains all possible primitive type combinations");
+    }
+
+    private static void EnsureAllPrimitiveTypePairsAreHandled(IEnumerable<object[]> supportedResults, string operatorName)
+    {
+        // "Type pair" is to be interpreted in this context as `int + int`, `long + long` etc.
+
+        var knownPrimitiveTypes = TypeCoercer.SignedIntegerLengthByType.Keys
+            .Concat(TypeCoercer.UnsignedIntegerLengthByType.Keys)
+            .Concat(TypeCoercer.FloatIntegerLengthByType.Keys)
+            .ToImmutableList();
+
+        var supportedTypeCombinations = new HashSet<(Type, Type)>();
+
+        foreach (object[] objects in supportedResults)
+        {
+            string o1 = (string)objects[0];
+            string o2 = (string)objects[1];
+
+            if (!TypesForEvaluatedValues.ContainsKey(o1))
+            {
+                TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+            }
+
+            if (!TypesForEvaluatedValues.ContainsKey(o2))
+            {
+                TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+            }
+
+            Type leftType = TypesForEvaluatedValues[o1];
+            Type rightType = TypesForEvaluatedValues[o2];
+
+            supportedTypeCombinations.Add((leftType, rightType));
+        }
+
+        // This check ensures that all supported builtin types (as defined by knownTypes) where left+right operands are
+        // the same are present in `supportedResults`, i.e. that `int + int`, `uint * uint`. This serves as a bit of a
+        // "safety net" to ensure that we have not forgot to implement a particular binary operator when adding a new
+        // type.
+        //
+        // If this assertion fails, make sure to go through ALL the test data for the binary operator in question, to
+        // ensure that other type combinations which are "expected to work" have the expected semantics!
+        foreach (Type knownType in knownPrimitiveTypes)
+        {
+            // TODO: Remove this exception once #70 is resolved
+            if (knownType == typeof(uint) || knownType == typeof(ulong))
+            {
+                continue;
+            }
+
+            supportedTypeCombinations.Should().Contain((knownType, knownType), $"'{operatorName}' handles all primitive types (e.g. `int + int`)");
+        }
     }
 
     /// <summary>
