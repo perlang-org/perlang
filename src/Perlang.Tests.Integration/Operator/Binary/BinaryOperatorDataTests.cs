@@ -296,12 +296,12 @@ public class BinaryOperatorDataTests
         foreach (Type knownType in knownPrimitiveTypes)
         {
             // TODO: Remove this exception once #70 is resolved
-            if (knownType == typeof(uint) || knownType == typeof(ulong))
+            if (knownType == typeof(ulong))
             {
                 continue;
             }
 
-            supportedTypeCombinations.Should().Contain((knownType, knownType), $"'{operatorName}' handles all primitive types (e.g. `int + int`)");
+            supportedTypeCombinations.Should().Contain((knownType, knownType), $"'{operatorName}' should handle all primitive type pairs (e.g. `int + int`)");
         }
     }
 

@@ -62,7 +62,6 @@ namespace Perlang.Parser
                 { "sbyte", RESERVED_WORD },
                 { "short", RESERVED_WORD },
                 { "ushort", RESERVED_WORD },
-                { "uint", RESERVED_WORD },
                 { "ulong", RESERVED_WORD },
                 { "float", RESERVED_WORD },
                 { "decimal", RESERVED_WORD },
@@ -119,6 +118,7 @@ namespace Perlang.Parser
                 // the future.
                 "int",
                 "long",
+                "uint",
                 "bigint",
                 "double",
                 "string"

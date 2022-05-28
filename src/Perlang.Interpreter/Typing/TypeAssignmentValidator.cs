@@ -40,14 +40,14 @@ namespace Perlang.Interpreter.Typing
 
             var targetTypeReference = variableBinding.TypeReference;
             var sourceTypeReference = expr.Value.TypeReference;
-            long? sourceConstantValueSize = null;
+            INumericLiteral numericLiteral = null;
 
-            if (expr.Value is Expr.Literal { Value: INumericLiteral parsedNumber })
+            if (expr.Value is Expr.Literal { Value: INumericLiteral valueNumericLiteral })
             {
-                sourceConstantValueSize = parsedNumber.BitsUsed;
+                numericLiteral = valueNumericLiteral;
             }
 
-            if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference, sourceConstantValueSize))
+            if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference, numericLiteral))
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,

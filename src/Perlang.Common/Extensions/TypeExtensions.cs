@@ -12,10 +12,11 @@ namespace Perlang.Extensions
         {
             return type switch
             {
-                { } when type == typeof(Double) => "double",
                 { } when type == typeof(Int32) => "int",
                 { } when type == typeof(Int64) => "long",
                 { } when type == typeof(BigInteger) => "bigint",
+                { } when type == typeof(UInt32) => "uint",
+                { } when type == typeof(Double) => "double",
                 { } when type == typeof(NullObject) => "null",
                 { } when type == typeof(String) => "string",
 

@@ -34,10 +34,23 @@ namespace Perlang.Tests.Integration.Operator.Binary
         void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
             string source = $@"
-                var i1 = {i};
-                var i2 = {j};
+                print ({i} + {j}).get_type();
+            ";
 
-                print (i1 + i2).get_type();
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be(expectedType);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
+        void local_variable_inference_returns_expected_type(string i, string j, string expectedType)
+        {
+            string source = $@"
+                var i = {i} + {j};
+
+                print i.get_type();
             ";
 
             string result = EvalReturningOutputString(source);

@@ -1162,21 +1162,21 @@ namespace Perlang.Interpreter
 
                         return leftNumber > rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber > rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber > rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1190,14 +1190,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt > rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber > rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1223,21 +1223,21 @@ namespace Perlang.Interpreter
 
                         return leftNumber >= rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber >= rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber >= rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1251,14 +1251,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt >= rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber >= rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1284,21 +1284,21 @@ namespace Perlang.Interpreter
 
                         return leftNumber < rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber < rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber < rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1312,14 +1312,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt < rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber < rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1345,21 +1345,21 @@ namespace Perlang.Interpreter
 
                         return leftNumber <= rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber <= rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber <= rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1373,14 +1373,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt <= rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber <= rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1417,14 +1417,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1438,7 +1438,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
+                    {
+                        uint leftNumber = leftConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+                        uint rightNumber = rightConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1452,14 +1459,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt - rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber - rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1524,14 +1531,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1540,17 +1547,24 @@ namespace Perlang.Interpreter
                     }
                     else if (left is int && right is int)
                     {
-                        int leftNumber = leftConvertible!.ToInt32(CultureInfo.InvariantCulture);
-                        int rightNumber = rightConvertible!.ToInt32(CultureInfo.InvariantCulture);
+                        int leftInt = (int)left;
+                        int rightInt = (int)right;
 
-                        return leftNumber + rightNumber;
+                        return leftInt + rightInt;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
                     {
-                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
-                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        uint leftUint = (uint)left;
+                        uint rightUint = (uint)right;
 
-                        return leftNumber + rightNumber;
+                        return leftUint + rightUint;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
+                    {
+                        long leftLong = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        long rightLong = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftLong + rightLong;
                     }
                     else if (left is BigInteger && right is BigInteger)
                     {
@@ -1559,14 +1573,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt + rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber + rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1593,14 +1607,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1614,7 +1628,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
+                    {
+                        uint leftNumber = leftConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+                        uint rightNumber = rightConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1628,14 +1649,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt + rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber + rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1661,14 +1682,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1682,7 +1703,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
+                    {
+                        uint leftNumber = leftConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+                        uint rightNumber = rightConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1696,14 +1724,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt / rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber / rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1729,14 +1757,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1750,7 +1778,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
+                    {
+                        uint leftNumber = leftConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+                        uint rightNumber = rightConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1764,14 +1799,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt * rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber * rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1790,15 +1825,17 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     if ((left is float or double && right is float or double) ||
-                        (left is float or double && right is int) ||
-                        (left is int && right is float or double))
+                        (left is float or double && right is int or uint) ||
+                        (left is int or uint && right is float or double))
                     {
+                        // TODO: `long` can be safely cast to `double` in .NET. We could consider supporting it here
+                        // TODO: also; it loses no precision for all integers between 2^53 and -2^53 and people working with numbers larger than th
                         double value = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double exponent = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return Math.Pow(value, exponent);
                     }
-                    else if (left is int or long && right is int)
+                    else if (left is int or long or uint && right is int)
                     {
                         long value = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
@@ -1847,14 +1884,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long or uint && right is float or double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float or double && right is int or long or uint)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1868,7 +1905,14 @@ namespace Perlang.Interpreter
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is int or long && right is int or long)
+                    else if (left is uint && right is uint)
+                    {
+                        uint leftNumber = leftConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+                        uint rightNumber = rightConvertible!.ToUInt32(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is int or long or uint && right is int or long or uint)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1882,14 +1926,14 @@ namespace Perlang.Interpreter
 
                         return leftBigInt % rightBigInt;
                     }
-                    else if (left is int or long && right is BigInteger)
+                    else if (left is int or long or uint && right is BigInteger)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         var rightBigInt = (BigInteger)right;
 
                         return leftNumber % rightBigInt;
                     }
-                    else if (left is BigInteger && right is int or long)
+                    else if (left is BigInteger && right is int or long or uint)
                     {
                         var leftBigInt = (BigInteger)left;
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
@@ -1913,6 +1957,13 @@ namespace Perlang.Interpreter
                         int rightNumber = (int)right;
 
                         return leftNumber << rightNumber;
+                    }
+                    else if (left is uint && right is int)
+                    {
+                        uint leftUint = (uint)left;
+                        int rightInt = (int)right;
+
+                        return leftUint << rightInt;
                     }
                     else if (left is long && right is int)
                     {
@@ -1945,6 +1996,13 @@ namespace Perlang.Interpreter
                         int rightNumber = (int)right;
 
                         return leftNumber >> rightNumber;
+                    }
+                    else if (left is uint && right is int)
+                    {
+                        uint leftUint = (uint)left;
+                        int rightInt = (int)right;
+
+                        return leftUint >> rightInt;
                     }
                     else if (left is long && right is int)
                     {
@@ -2047,6 +2105,10 @@ namespace Perlang.Interpreter
                 else if (targetTypeReference.ClrType == typeof(Int32))
                 {
                     return Convert.ToInt32(value);
+                }
+                else if (targetTypeReference.ClrType == typeof(UInt32))
+                {
+                    return Convert.ToUInt32(value);
                 }
                 else if (targetTypeReference.ClrType == typeof(Int64))
                 {

@@ -10,4 +10,6 @@ public interface INumericLiteral
     /// things like "implicit casting" from `int` to `uint`, which is perfectly safe for positive integers.
     /// </summary>
     public long BitsUsed { get; }
+
+    public bool IsPositive { get; }
 }
