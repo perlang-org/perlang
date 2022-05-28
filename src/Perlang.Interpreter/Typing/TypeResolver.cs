@@ -228,18 +228,13 @@ namespace Perlang.Interpreter.Typing
                         // TODO: `PerlangInterpreter.VisitBinaryExpr()` for details.
                         expr.TypeReference.ClrType = typeof(BigInteger);
                     }
-                    else if ((leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
-                             (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
-                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(uint)) &&
-                             (rightTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(double)))
-                    {
-                        expr.TypeReference.ClrType = typeof(double);
-                    }
-                    else if ((leftTypeReference.ClrType == typeof(float) || leftTypeReference.ClrType == typeof(double)) &&
-                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(uint)))
+                    else if (new[] { typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }

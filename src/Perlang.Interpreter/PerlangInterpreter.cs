@@ -1825,11 +1825,9 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     if ((left is float or double && right is float or double) ||
-                        (left is float or double && right is int or uint) ||
-                        (left is int or uint && right is float or double))
+                        (left is float or double && right is int or long or uint) ||
+                        (left is int or long or uint && right is float or double))
                     {
-                        // TODO: `long` can be safely cast to `double` in .NET. We could consider supporting it here
-                        // TODO: also; it loses no precision for all integers between 2^53 and -2^53 and people working with numbers larger than th
                         double value = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double exponent = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 

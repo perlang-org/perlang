@@ -36,22 +36,25 @@ public class DoubleTests
     }
 
     [Fact]
-    public void double_variable_throws_expected_exception_when_initialized_from_long_constant()
+    public void double_variable_can_be_initialized_from_long_constant()
     {
         // 64-bit integers cannot be reliably stored in a double, since IEEE 754 double-precision floating point can
         // only represent without data loss integers in the range -2^53 to 2^53. More details:
         // https://en.wikipedia.org/wiki/Double-precision_floating-point_format#Precision_limitations_on_integer_values
+        //
+        // _However_, since other well-respected languages like Java and C# allow this implicit conversion, we decided
+        // to allow it in Perlang alike, to reduce end-user confusion.
 
-        // TODO: Consider changing these semantics. .NET (and Java) both supports this kind of implicit conversion.
         string source = @"
                 var d: double = 9223372036854775807;
+
+                print(d);
             ";
 
-        var result = EvalWithValidationErrorCatch(source);
-        var exception = result.Errors.First();
+        var result = EvalReturningOutputString(source);
 
-        Assert.Single(result.Errors);
-        Assert.Matches("Cannot assign long to double variable", exception.Message);
+        // Note how this is less exact than the source value
+        Assert.Equal("9.223372036854776E+18", result);
     }
 
     [Fact]

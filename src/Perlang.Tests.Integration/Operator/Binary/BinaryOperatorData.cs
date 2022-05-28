@@ -662,8 +662,10 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "2", "18446744065119617025", typeof(BigInteger) },
             new object[] { "4294967295", "12.0", "3.9402006086306546E+115", typeof(double) },
             new object[] { "9223372036854775807", "2", "85070591730234615847396907784232501249", typeof(BigInteger) },
+            new object[] { "9223372036854775807", "2.0", "8.507059173023462E+37", typeof(double) },
             new object[] { "18446744073709551616", "2", "340282366920938463463374607431768211456", typeof(BigInteger) },
-            new object[] { "12.0", "4294967295", "Infinity", typeof(double) },
+            new object[] { "2.0", "4294967295", "Infinity", typeof(double) },
+            new object[] { "2.0", "9223372036854775807", "Infinity", typeof(double) },
         };
 
     public static IEnumerable<object[]> Exponential_unsupported_types =>
@@ -681,7 +683,6 @@ public static class BinaryOperatorData
             new object[] { "9223372036854775807", "9223372036854775807", "Unsupported ** operand types: 'long' and 'long'" },
             new object[] { "9223372036854775807", "18446744073709551615", "Unsupported ** operand types: 'long' and 'System.UInt64'" },
             new object[] { "9223372036854775807", "18446744073709551616", "Unsupported ** operand types: 'long' and 'bigint'" },
-            new object[] { "9223372036854775807", "10.0", "Unsupported ** operand types: 'long' and 'double'" },
             new object[] { "18446744073709551615", "2", "Unsupported ** operand types: 'System.UInt64' and 'int'" },
             new object[] { "18446744073709551615", "4294967295", "Unsupported ** operand types: 'System.UInt64' and 'uint'" },
             new object[] { "18446744073709551615", "9223372036854775807", "Unsupported ** operand types: 'System.UInt64' and 'long'" },
@@ -693,7 +694,6 @@ public static class BinaryOperatorData
             new object[] { "18446744073709551616", "18446744073709551615", "Unsupported ** operand types: 'bigint' and 'System.UInt64'" },
             new object[] { "18446744073709551616", "18446744073709551616", "Unsupported ** operand types: 'bigint' and 'bigint'" },
             new object[] { "18446744073709551616", "12.0", "Unsupported ** operand types: 'bigint' and 'double'" },
-            new object[] { "-12.0", "9223372036854775807", "Unsupported ** operand types: 'double' and 'long'" },
             new object[] { "-12.0", "18446744073709551615", "Unsupported ** operand types: 'double' and 'System.UInt64'" },
             new object[] { "-12.0", "18446744073709551616", "Unsupported ** operand types: 'double' and 'bigint'" },
         };
