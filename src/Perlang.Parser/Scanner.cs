@@ -51,18 +51,17 @@ namespace Perlang.Parser
                 // should not be listed here. Otherwise, we make it impossible to use them for variable declarations,
                 // return types etc.
                 //
-                // When adding types to that method, there is also a list in
-                // Perlang.Parser.PerlangParser.BlockReservedIdentifiers() that needs to be maintained. (This is indeed
-                // a rather unpleasant mess. It is done this way to allow `int`, `long` and similar to be used as
-                // variable/parameter types, but forbid their usage as identifier names. One way to fix this would by by
-                // defining INT, LONG etc as dedicated token types. Another way would be to add some other flag here in
-                // addition to TokenType, to be able to more elegantly special-case it elsewhere.)
+                // When adding types to that method, the list below in `ReservedTypeKeywordStrings` also need to be
+                // maintained. (This is indeed a rather unpleasant mess. It is done this way to allow `int`, `long` and
+                // similar to be used as variable/parameter types, but forbid their usage as identifier names. One way
+                // to fix this would by by defining INT, LONG etc as dedicated token types. Another way would be to add
+                // some other flag here in addition to TokenType, to be able to more elegantly special-case it
+                // elsewhere.)
                 //
                 { "byte", RESERVED_WORD },
                 { "sbyte", RESERVED_WORD },
                 { "short", RESERVED_WORD },
                 { "ushort", RESERVED_WORD },
-                { "ulong", RESERVED_WORD },
                 { "float", RESERVED_WORD },
                 { "decimal", RESERVED_WORD },
                 { "char", RESERVED_WORD },
@@ -119,6 +118,7 @@ namespace Perlang.Parser
                 "int",
                 "long",
                 "uint",
+                "ulong",
                 "bigint",
                 "double",
                 "string"

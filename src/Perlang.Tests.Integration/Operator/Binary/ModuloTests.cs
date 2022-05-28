@@ -48,7 +48,6 @@ namespace Perlang.Tests.Integration.Operator.Binary
                     print {i} % {j};
                 ";
 
-            // TODO: Should be validation errors, not runtime errors.
             var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
