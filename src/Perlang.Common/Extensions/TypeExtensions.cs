@@ -16,6 +16,7 @@ namespace Perlang.Extensions
                 { } when type == typeof(Int64) => "long",
                 { } when type == typeof(BigInteger) => "bigint",
                 { } when type == typeof(UInt32) => "uint",
+                { } when type == typeof(UInt64) => "ulong",
                 { } when type == typeof(Double) => "double",
                 { } when type == typeof(NullObject) => "null",
                 { } when type == typeof(String) => "string",

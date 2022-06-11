@@ -295,12 +295,6 @@ public class BinaryOperatorDataTests
         // ensure that other type combinations which are "expected to work" have the expected semantics!
         foreach (Type knownType in knownPrimitiveTypes)
         {
-            // TODO: Remove this exception once #70 is resolved
-            if (knownType == typeof(ulong))
-            {
-                continue;
-            }
-
             supportedTypeCombinations.Should().Contain((knownType, knownType), $"'{operatorName}' should handle all primitive type pairs (e.g. `int + int`)");
         }
     }

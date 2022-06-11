@@ -121,18 +121,29 @@ namespace Perlang.Interpreter.Typing
                         {
                             expr.TypeReference.ClrType = typeof(uint);
                         }
+                        else if (leftTypeReference.ClrType == typeof(ulong) && rightTypeReference.ClrType == typeof(ulong))
+                        {
+                            expr.TypeReference.ClrType = typeof(ulong);
+                        }
+                        else if (new[] { typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
+                                 new[] { typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))
+                        {
+                            expr.TypeReference.ClrType = typeof(ulong);
+                        }
                         else if (new[] { typeof(int), typeof(long), typeof(uint) }.Contains(leftTypeReference.ClrType) &&
                                  new[] { typeof(int), typeof(long), typeof(uint) }.Contains(rightTypeReference.ClrType))
                         {
                             expr.TypeReference.ClrType = typeof(long);
                         }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
+                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                                 (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
                         {
                             expr.TypeReference.ClrType = typeof(double);
                         }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(rightTypeReference.ClrType))
+                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
+                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
+                                 (leftTypeReference.ClrType == typeof(BigInteger) || rightTypeReference.ClrType == typeof(BigInteger)))
                         {
                             expr.TypeReference.ClrType = typeof(BigInteger);
                         }
@@ -155,23 +166,25 @@ namespace Perlang.Interpreter.Typing
                     {
                         expr.TypeReference.ClrType = typeof(uint);
                     }
-                    else if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
-                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long)))
+                    else if (new[] { typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))
                     {
-                        expr.TypeReference.ClrType = typeof(long);
+                        expr.TypeReference.ClrType = typeof(ulong);
                     }
                     else if (new[] { typeof(int), typeof(long), typeof(uint) }.Contains(leftTypeReference.ClrType) &&
                              new[] { typeof(int), typeof(long), typeof(uint) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(long);
                     }
-                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
+                    else if (new[] { typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
-                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(rightTypeReference.ClrType))
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(BigInteger) || rightTypeReference.ClrType == typeof(BigInteger)))
                     {
                         expr.TypeReference.ClrType = typeof(BigInteger);
                     }
@@ -199,6 +212,10 @@ namespace Perlang.Interpreter.Typing
                     {
                         expr.TypeReference.ClrType = typeof(uint);
                     }
+                    else if (leftTypeReference.ClrType == typeof(ulong) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(ulong);
+                    }
                     else if (leftTypeReference.ClrType == typeof(BigInteger) && rightTypeReference.ClrType == typeof(int))
                     {
                         expr.TypeReference.ClrType = typeof(BigInteger);
@@ -219,7 +236,7 @@ namespace Perlang.Interpreter.Typing
                     // TODO: something like `PerlangFunction` instead of the return type of the function? This is
                     // TODO: probably a significant change so be prepared that it will take some time.
 
-                    if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long) || leftTypeReference.ClrType == typeof(uint)) &&
+                    if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
                         rightTypeReference.ClrType == typeof(int))
                     {
                         // TODO: Once we have a possibility to do compile-time evaluation of constant expressions, we
@@ -228,20 +245,15 @@ namespace Perlang.Interpreter.Typing
                         // TODO: `PerlangInterpreter.VisitBinaryExpr()` for details.
                         expr.TypeReference.ClrType = typeof(BigInteger);
                     }
-                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
                              new[] { typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
                     else if (new[] { typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(double);
-                    }
-                    else if (leftTypeReference.ClrType == typeof(BigInteger) &&
-                             rightTypeReference.ClrType == typeof(int))
-                    {
-                        expr.TypeReference.ClrType = typeof(BigInteger);
                     }
                     else
                     {
@@ -255,22 +267,25 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.GREATER_EQUAL:
                 case TokenType.LESS:
                 case TokenType.LESS_EQUAL:
-                    if ((leftTypeReference.ClrType == typeof(int) || leftTypeReference.ClrType == typeof(long)) &&
-                             (rightTypeReference.ClrType == typeof(int) || rightTypeReference.ClrType == typeof(long)))
+                    if (new[] { typeof(int), typeof(long), typeof(uint) }.Contains(leftTypeReference.ClrType) &&
+                        new[] { typeof(int), typeof(long), typeof(uint) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(bool);
                     }
-                    else if (leftTypeReference.ClrType == typeof(uint) && rightTypeReference.ClrType == typeof(uint))
+                    else if (new[] { typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(bool);
                     }
-                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
                     {
                         expr.TypeReference.ClrType = typeof(bool);
                     }
-                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(BigInteger) }.Contains(rightTypeReference.ClrType))
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(BigInteger) || rightTypeReference.ClrType == typeof(BigInteger)))
                     {
                         expr.TypeReference.ClrType = typeof(bool);
                     }
@@ -691,7 +706,7 @@ namespace Perlang.Interpreter.Typing
                 // TODO: This is not really a scalable approach. :)
                 //
                 // Note that adding more supported types here also means the list of reserved identifiers in
-                // PerlangParser.BlockReservedIdentifiers() should be updated. (Adding unit tests for the new
+                // `Scanner.ReservedKeywordStrings` should be updated. (Adding unit tests for the new
                 // types in ReservedKeywordsTests is a good way to ensure this is not forgotten.)
                 case "int" or "Int32":
                     typeReference.ClrType = typeof(int);
@@ -707,6 +722,10 @@ namespace Perlang.Interpreter.Typing
 
                 case "uint" or "UInt32":
                     typeReference.ClrType = typeof(uint);
+                    break;
+
+                case "ulong" or "UInt64":
+                    typeReference.ClrType = typeof(ulong);
                     break;
 
                 case "double" or "Double":
