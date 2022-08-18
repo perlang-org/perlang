@@ -1551,35 +1551,70 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is float or double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long && right is float)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is int or long && right is double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber - rightNumber;
                     }
-                    else if (left is uint or ulong && right is float or double)
+                    else if (left is uint or ulong && right is float)
+                    {
+                        ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber - rightNumber;
+                    }
+                    else if (left is uint or ulong && right is double)
                     {
                         ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1700,35 +1735,70 @@ namespace Perlang.Interpreter
 
                     // Regular numeric operand implementation comes after string concatenation.
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is float or double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is int or long or uint && right is float or double)
+                    else if (left is int or long && right is float)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is uint or ulong && right is float)
+                    {
+                        ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is int or long && right is double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is uint or ulong && right is float or double)
+                    else if (left is uint or ulong && right is double)
                     {
                         ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
@@ -1811,7 +1881,16 @@ namespace Perlang.Interpreter
 
                     // The method returns the value to be assigned. The assignment takes place elsewhere.
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float or double)
+                    {
+                        // Note: `rightNumber` might loose precision here because of conversion from `double` to
+                        // `single`. This is all fine and matches the semantics of other languages perfectly. :-)
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -1820,14 +1899,28 @@ namespace Perlang.Interpreter
                     }
                     /* left is int or long && right is float or double -- deliberately unsupported, since it would lose fractional part */
                     /* left is uint or ulong && right is float or double -- likewise */
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber + rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber + rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
@@ -1909,35 +2002,70 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is float or double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long && right is float)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is int or long && right is double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber / rightNumber;
                     }
-                    else if (left is uint or ulong && right is float or double)
+                    else if (left is uint or ulong && right is float)
+                    {
+                        ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber / rightNumber;
+                    }
+                    else if (left is uint or ulong && right is double)
                     {
                         ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -2019,35 +2147,70 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is float or double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long && right is float)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is int or long && right is double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber * rightNumber;
                     }
-                    else if (left is uint or ulong && right is float or double)
+                    else if (left is uint or ulong && right is float)
+                    {
+                        ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber * rightNumber;
+                    }
+                    else if (left is uint or ulong && right is double)
                     {
                         ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
@@ -2186,35 +2349,70 @@ namespace Perlang.Interpreter
                     CheckNumberOperands(expr.Operator, left, right);
 
                     // Bang operator (!) is safe because of the CheckNumberOperands() call above.
-                    if (left is float or double && right is float or double)
+                    if (left is float && right is float)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is float or double && right is float or double)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is int or long && right is float or double)
+                    else if (left is int or long && right is float)
+                    {
+                        long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is int or long && right is double)
                     {
                         long leftNumber = leftConvertible!.ToInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is uint or ulong && right is float or double)
+                    else if (left is uint or ulong && right is float)
+                    {
+                        ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+                        float rightNumber = rightConvertible!.ToSingle(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is uint or ulong && right is double)
                     {
                         ulong leftNumber = leftConvertible!.ToUInt64(CultureInfo.InvariantCulture);
                         double rightNumber = rightConvertible!.ToDouble(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is float or double && right is int or long)
+                    else if (left is float && right is int or long)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is double && right is int or long)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         long rightNumber = rightConvertible!.ToInt64(CultureInfo.InvariantCulture);
 
                         return leftNumber % rightNumber;
                     }
-                    else if (left is float or double && right is uint or ulong)
+                    else if (left is float && right is uint or ulong)
+                    {
+                        float leftNumber = leftConvertible!.ToSingle(CultureInfo.InvariantCulture);
+                        ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
+
+                        return leftNumber % rightNumber;
+                    }
+                    else if (left is double && right is uint or ulong)
                     {
                         double leftNumber = leftConvertible!.ToDouble(CultureInfo.InvariantCulture);
                         ulong rightNumber = rightConvertible!.ToUInt64(CultureInfo.InvariantCulture);
@@ -2471,6 +2669,10 @@ namespace Perlang.Interpreter
                 else if (targetTypeReference.ClrType == typeof(Int64))
                 {
                     return Convert.ToInt64(value);
+                }
+                else if (targetTypeReference.ClrType == typeof(Single))
+                {
+                    return Convert.ToSingle(value);
                 }
                 else if (targetTypeReference.ClrType == typeof(Double))
                 {

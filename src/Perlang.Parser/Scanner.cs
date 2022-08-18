@@ -62,7 +62,6 @@ namespace Perlang.Parser
                 { "sbyte", RESERVED_WORD },
                 { "short", RESERVED_WORD },
                 { "ushort", RESERVED_WORD },
-                { "float", RESERVED_WORD },
                 { "decimal", RESERVED_WORD },
                 { "char", RESERVED_WORD },
 
@@ -120,6 +119,7 @@ namespace Perlang.Parser
                 "uint",
                 "ulong",
                 "bigint",
+                "float",
                 "double",
                 "string"
             }.ToImmutableHashSet();
@@ -455,12 +455,18 @@ namespace Perlang.Parser
             }
 
             string numberCharacters = RemoveUnderscores(source[(start + startOffset)..current]);
+            char? suffix = null;
+
+            if (IsAlpha(Peek()))
+            {
+                suffix = Advance();
+            }
 
             // Note that numbers are not parsed at this stage. We deliberately postpone it to the parsing stage, to be
             // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
             // from Lox) worked poorly with our idea of "narrowing down" constants to smallest possible integer. See
             // #302 for some more details.
-            AddToken(new NumericToken(source[start..current], line, numberCharacters, isFractional, numberBase, numberStyles));
+            AddToken(new NumericToken(source[start..current], line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
         }
 
         private static string RemoveUnderscores(string s)
@@ -578,6 +584,10 @@ namespace Perlang.Parser
         private bool IsAtEnd() =>
             current >= source.Length;
 
+        /// <summary>
+        /// Moves the cursor one step forward and returns the element which was previously current.
+        /// </summary>
+        /// <returns>The current element, before advancing the cursor.</returns>
         private char Advance()
         {
             current++;
