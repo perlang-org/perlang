@@ -138,7 +138,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Cannot assign int to string variable");
+                .Message.Should().Match("Cannot assign 'int' to 'string' variable");
         }
     }
 }

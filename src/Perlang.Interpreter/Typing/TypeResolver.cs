@@ -190,7 +190,7 @@ namespace Perlang.Interpreter.Typing
                     }
                     else
                     {
-                        string message = $"Cannot assign {rightTypeReference.ClrType.ToTypeKeyword()} to {leftTypeReference.ClrType.ToTypeKeyword()} variable";
+                        string message = $"Cannot assign {rightTypeReference.ClrType.ToQuotedTypeKeyword()} to '{leftTypeReference.ClrType.ToTypeKeyword()}' variable";
 
                         throw new TypeValidationError(expr.Operator, message);
                     }

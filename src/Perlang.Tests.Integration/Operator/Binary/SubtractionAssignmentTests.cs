@@ -140,6 +140,6 @@ public class SubtractionAssignmentTests
         var exception = result.Errors.First();
 
         Assert.Single(result.Errors);
-        Assert.Equal("Cannot assign int to string variable", exception.Message);
+        Assert.Equal("Cannot assign 'int' to 'string' variable", exception.Message);
     }
 }

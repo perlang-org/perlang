@@ -233,7 +233,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign string to int variable", exception!.Message);
+            Assert.Matches("Cannot assign 'string' to 'int' variable", exception!.Message);
         }
 
         [Fact]
@@ -284,7 +284,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign null to int variable", exception!.Message);
+            Assert.Matches("Cannot assign null to 'int' variable", exception!.Message);
         }
 
         [Fact]

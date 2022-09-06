@@ -49,9 +49,10 @@ namespace Perlang.Interpreter.Typing
 
             if (!TypeCoercer.CanBeCoercedInto(targetTypeReference, sourceTypeReference, numericLiteral))
             {
+                // TODO: When is this actually triggered? We really need to look into #341 at some point.
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"Cannot assign {sourceTypeReference.ClrType.ToTypeKeyword()} to {targetTypeReference.ClrType.ToTypeKeyword()} variable"
+                    $"Cannot assign {sourceTypeReference.ClrType.ToQuotedTypeKeyword()} to '{targetTypeReference.ClrType.ToTypeKeyword()}' variable"
                 ));
             }
 
