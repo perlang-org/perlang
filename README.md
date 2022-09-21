@@ -40,7 +40,7 @@ At the moment, there isn't much documentation about what you can do with Perlang
 
 ```shell
 $ sudo apt-get install \
-      dotnet-sdk-5.0 \
+      dotnet-sdk-6.0 \
       make \
       ruby
 ```
@@ -61,6 +61,8 @@ You should now have a `perlang` executable. Run `make run` to run it. If you are
 - [docs](docs): The source code to the https://perlang.org web site. Built using [docfx](https://dotnet.github.io/docfx)
 
 ## Building the docs
+
+Install the [DocFX prerequisites](https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html#2-use-docfx-as-a-command-line-tool), including the Mono runtime. You should then be able to run the following:
 
 ```shell
 $ npm install -g live-server
