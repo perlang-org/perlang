@@ -2,8 +2,8 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	install install-latest-snapshot publish-release release run test \
-	src/Perlang.Common/CommonConstants.Generated.cs
+	docs-validate-api-docs install install-latest-snapshot publish-release \
+	release run test src/Perlang.Common/CommonConstants.Generated.cs
 
 RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang
 
@@ -43,6 +43,14 @@ docs-test-examples:
 
 docs-serve:
 	live-server _site
+
+# See #344 for the background of why this was added.
+docs-validate-api-docs:
+	@api_files=$$(find _site/api | wc -l); \
+	if [ $$api_files -lt 5 ]; then \
+		echo -e "\e[31;1mERROR:\e[0m _site/api contains an unxpectedly low number of files ($$api_files). Is DocFX API doc generation broken?"; \
+		exit 1; \
+	fi
 
 docfx/docfx.exe:
 	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip | busybox unzip - -d docfx
