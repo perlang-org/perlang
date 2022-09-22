@@ -51,3 +51,6 @@ jobs:
 
       - name: Rebuild website
         run: make -j docs
+
+      - name: Ensure API docs have expected content
+        run: make docs-validate-api-docs
