@@ -45,7 +45,7 @@ docs-serve:
 	live-server _site
 
 docfx/docfx.exe:
-	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.57.2/docfx.zip | busybox unzip - -d docfx
+	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip | busybox unzip - -d docfx
 	chmod +x docfx/docfx.exe
 
 # Pushes local changes to the darkerfx theme to the darkerfx repo. Presumes that
