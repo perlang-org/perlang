@@ -4,6 +4,7 @@
         <OutputType>Exe</OutputType>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>partial</TrimMode>
 
         <!-- PublishReadyToRun is set on command line since it cannot
              run in cross-compilation scenarios -->
