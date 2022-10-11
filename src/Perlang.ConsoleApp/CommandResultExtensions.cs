@@ -4,12 +4,11 @@ using System.CommandLine.Parsing;
 
 namespace Perlang.ConsoleApp
 {
-    // TODO: Remove this class if/when https://github.com/dotnet/command-line-api/pull/1272 gets merged.
     public static class CommandResultExtensions
     {
         public static bool HasOption(
             this CommandResult commandResult,
-            IOption option)
+            Option option)
         {
             if (commandResult is null)
             {
@@ -21,7 +20,7 @@ namespace Perlang.ConsoleApp
 
         public static bool HasArgument(
             this CommandResult commandResult,
-            IArgument argument)
+            Argument argument)
         {
             if (commandResult is null)
             {

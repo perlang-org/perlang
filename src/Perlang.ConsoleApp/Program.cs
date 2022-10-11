@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
@@ -85,8 +85,8 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int MainWithCustomConsole(string[] args, IConsole console)
         {
-            var versionOption = new Option(new[] { "--version", "-v" }, "Show version information");
-            var detailedVersionOption = new Option("-V", "Show detailed version information");
+            var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
+            var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
             var evalOption = new Option<string>("-e", "Executes a single-line script") { AllowMultipleArgumentsPerToken = false, ArgumentHelpName = "script" };
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
@@ -99,16 +99,14 @@ namespace Perlang.ConsoleApp
 
                 if (!WarningType.KnownWarning(warningName))
                 {
-                    return $"Unknown warning: {warningName}";
+                    result.ErrorMessage = $"Unknown warning: {warningName}";
                 }
 
                 disabledWarningsAsErrorsList.Add(WarningType.Get(warningName));
-
-                return null;
             });
 
             // Note: options must be present in this list to be valid for the RootCommand.
-            var options = new[]
+            var options = new Option[]
             {
                 versionOption,
                 detailedVersionOption,
@@ -129,11 +127,15 @@ namespace Perlang.ConsoleApp
 
                 if (tokens.Any(t => t.Type == System.CommandLine.Parsing.TokenType.Option && t.Value == evalOption.Name))
                 {
-                    return "<script-name> positional argument cannot be used together with the -e option";
+                    result.ErrorMessage = "<script-name> positional argument cannot be used together with the -e option";
                 }
-
-                return null;
             });
+
+            var scriptArguments = new Argument<IEnumerable<string>>
+            {
+                Name = "args",
+                Arity = ArgumentArity.ZeroOrMore
+            };
 
             var rootCommand = new RootCommand
             {
@@ -161,14 +163,7 @@ namespace Perlang.ConsoleApp
 
                     if (parseResult.HasOption(evalOption))
                     {
-                        // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
-                        OptionResult optionResult = parseResult.FindResultFor(evalOption);
-
-                        string source = optionResult.Children
-                            .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
-                            .Cast<ArgumentResult>()
-                            .First()
-                            .GetValueOrDefault<string>();
+                        string source = parseResult.GetValueForOption(evalOption);
 
                         var program = new Program(
                             replMode: true,
@@ -182,14 +177,7 @@ namespace Perlang.ConsoleApp
                     }
                     else if (parseResult.HasOption(printOption))
                     {
-                        // TODO: Workaround until we have a command-line-api package with https://github.com/dotnet/command-line-api/pull/1271 included.
-                        OptionResult optionResult = parseResult.FindResultFor(printOption);
-
-                        string source = optionResult.Children
-                            .Where(c => c.Symbol.Name == evalOption.ArgumentHelpName)
-                            .Cast<ArgumentResult>()
-                            .First()
-                            .GetValueOrDefault<string>();
+                        string source = parseResult.GetValueForOption(printOption);
 
                         new Program(
                             replMode: true,
@@ -211,7 +199,7 @@ namespace Perlang.ConsoleApp
                     }
                     else
                     {
-                        string scriptName = parseResult.ValueForArgument(scriptNameArgument);
+                        string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
                         int result;
 
                         if (parseResult.Tokens.Count == 1)
@@ -226,12 +214,7 @@ namespace Perlang.ConsoleApp
                         }
                         else
                         {
-                            // The first token available in RootCommandResult.Tokens at this point is the script name.
-                            // All remaining arguments are passed to the program, which can use methods on the ARGV
-                            // object to retrieve them.
-                            var remainingArguments = parseResult.RootCommandResult.Tokens.Skip(1)
-                                .Take(parseResult.Tokens.Count - 1)
-                                .Select(r => r.Value);
+                            var remainingArguments = parseResult.GetValueForArgument(scriptArguments);
 
                             var program = new Program(
                                 replMode: false,
@@ -248,29 +231,20 @@ namespace Perlang.ConsoleApp
                 })
             };
 
-            rootCommand.AddArgument(scriptNameArgument);
-
             rootCommand.AddValidator(result =>
             {
                 if (result.HasOption(evalOption) && result.HasOption(printOption))
                 {
-                    return "Error: the -e and -p options are mutually exclusive";
+                    result.ErrorMessage = "Error: the -e and -p options are mutually exclusive";
                 }
 
                 if (result.HasOption(evalOption) && result.HasArgument(scriptNameArgument))
                 {
-                    return "Error: the -e option cannot be combined with the <script-name> argument";
+                    result.ErrorMessage = "Error: the -e option cannot be combined with the <script-name> argument";
                 }
-
-                return null;
             });
 
-            var scriptArguments = new Argument<string>
-            {
-                Name = "args",
-                Arity = ArgumentArity.ZeroOrMore
-            };
-
+            rootCommand.AddArgument(scriptNameArgument);
             rootCommand.AddArgument(scriptArguments);
 
             foreach (Option option in options)
@@ -279,7 +253,7 @@ namespace Perlang.ConsoleApp
             }
 
             return new CommandLineBuilder(rootCommand)
-                .UseDefaults()
+                .UseHelp()
                 .Build()
                 .Invoke(args, console);
         }
