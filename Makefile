@@ -5,7 +5,7 @@
 	docs-validate-api-docs install install-latest-snapshot publish-release \
 	release run test src/Perlang.Common/CommonConstants.Generated.cs
 
-RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net6.0/linux-x64/publish/perlang
+RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish/perlang
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -72,7 +72,7 @@ run: auto-generated
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
-	src/Perlang.ConsoleApp/bin/Debug/net6.0/perlang
+	src/Perlang.ConsoleApp/bin/Debug/net7.0/perlang
 
 test:
 	dotnet test --configuration Release
