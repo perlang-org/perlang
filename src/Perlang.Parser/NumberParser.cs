@@ -14,13 +14,36 @@ internal static class NumberParser
 
         if (numericToken.IsFractional)
         {
-            // TODO: This is a mess. We currently treat all floating point values as _double_, which is insane. We
-            // TODO: should probably have a "use smallest possible type" logic as below for integers, for floating point
-            // TODO: values as well. We could also consider supporting `decimal` while we're at it.
+            if (numericToken.HasSuffix)
+            {
+                switch (numericToken.Suffix)
+                {
+                    case 'f':
+                    {
+                        // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
+                        // language/region settings. See #263 for more details.
+                        float value = Single.Parse(numberCharacters, CultureInfo.InvariantCulture);
+                        return new FloatingPointLiteral<float>(value);
+                    }
 
-            // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
-            // language/region settings. See #263 for more details.
-            return new FloatingPointLiteral<double>(Double.Parse(numberCharacters, CultureInfo.InvariantCulture));
+                    case 'd':
+                    {
+                        // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
+                        // language/region settings. See #263 for more details.
+                        double value = Double.Parse(numberCharacters, CultureInfo.InvariantCulture);
+                        return new FloatingPointLiteral<double>(value);
+                    }
+
+                    default:
+                        throw new InvalidOperationException($"Numeric literal suffix {numericToken.Suffix} is not supported");
+                }
+            }
+            else
+            {
+                // No suffix provided => use `double` precision by default, just like C#
+                double value = Double.Parse(numberCharacters, CultureInfo.InvariantCulture);
+                return new FloatingPointLiteral<double>(value);
+            }
         }
         else
         {
@@ -85,7 +108,11 @@ internal static class NumberParser
     {
         if (value is INumericLiteral numericLiteral)
         {
-            if (numericLiteral.Value is double doubleValue)
+            if (numericLiteral.Value is float floatValue)
+            {
+                return new FloatingPointLiteral<float>(-floatValue);
+            }
+            else if (numericLiteral.Value is double doubleValue)
             {
                 return new FloatingPointLiteral<double>(-doubleValue);
             }

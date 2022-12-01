@@ -304,6 +304,8 @@ public class BinaryOperatorDataTests
     /// </summary>
     private sealed class HashSetFormatter : IValueFormatter
     {
+        private const int MaxElementsDisplayed = 10;
+
         /// <summary>
         /// Indicates whether the current <see cref="IValueFormatter"/> can handle the specified <paramref name="value"/>.
         /// </summary>
@@ -320,7 +322,7 @@ public class BinaryOperatorDataTests
         {
             var list = ((HashSet<(Type, Type)>)value).ToList();
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < Math.Min(MaxElementsDisplayed, list.Count); i++)
             {
                 (Type, Type) obj = list[i];
 
@@ -339,6 +341,11 @@ public class BinaryOperatorDataTests
                     // AddFragment to avoid a superfluous newline in the output.
                     formattedGraph.AddFragment(" - " + obj);
                 }
+            }
+
+            if (list.Count > MaxElementsDisplayed)
+            {
+                formattedGraph.AddFragment(" - (...)");
             }
 
             if (list.Count == 0)

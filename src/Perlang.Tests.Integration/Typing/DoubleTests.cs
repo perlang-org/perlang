@@ -10,7 +10,7 @@ public class DoubleTests
     public void double_variable_can_be_printed()
     {
         string source = @"
-                var d: double = 103.1;
+                var d: double = 103.1d;
 
                 print(d);
             ";
@@ -87,9 +87,9 @@ public class DoubleTests
     }
 
     [Fact]
-    public void double_variable_has_expected_type_when_initialized_to_8bit_value()
+    public void double_variable_has_expected_type_when_initialized_to_int_value()
     {
-        // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type.
+        // A 32-bit integer should be converted to `double` when assigned to a variable of that type.
         string source = @"
                 var d: double = 103;
 
@@ -102,9 +102,9 @@ public class DoubleTests
     }
 
     [Fact]
-    public void double_variable_has_expected_type_when_assigned_8bit_value_from_another_variable()
+    public void double_variable_has_expected_type_when_assigned_int_value_from_another_variable()
     {
-        // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type.
+        // A 32-bit integer should be converted to `double` when assigned to a variable of that type.
         string source = @"
                 var d: double = 103;
                 var e = d;
@@ -117,8 +117,7 @@ public class DoubleTests
         Assert.Equal("System.Double", output);
     }
 
-    // The value becomes a uint in this case, but uints are not fully supported in the language yet.
-    [Fact(Skip = "Pending https://github.com/perlang-org/perlang/issues/70")]
+    [Fact]
     public void double_variable_has_expected_type_for_large_value()
     {
         string source = @"

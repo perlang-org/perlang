@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Perlang.Tests.Integration.Typing;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -133,12 +134,29 @@ namespace Perlang.Tests.Integration.Number
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                123.456
+                123.456f
             ";
 
             object result = Eval(source);
 
-            Assert.Equal(123.456, result);
+            result.Should()
+                .Be(123.456f);
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_float_has_expected_type(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                123.456f
+            ";
+
+            object result = Eval(source);
+
+            result.Should()
+                .BeOfType<float>();
         }
 
         [Theory]
@@ -148,12 +166,13 @@ namespace Perlang.Tests.Integration.Number
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                -0.001
+                -0.001f
             ";
 
             object result = Eval(source);
 
-            Assert.Equal(-0.001, result);
+            result.Should()
+                .Be(-0.001f);
         }
 
         [Theory]
@@ -163,12 +182,13 @@ namespace Perlang.Tests.Integration.Number
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                123_45.678
+                123_45.678f
             ";
 
             object result = Eval(source);
 
-            Assert.Equal(12345.678, result);
+            result.Should()
+                .Be(12345.678f);
         }
 
         [Theory]
@@ -178,12 +198,77 @@ namespace Perlang.Tests.Integration.Number
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                123.45_678
+                123.45_678f
             ";
 
             object result = Eval(source);
 
-            Assert.Equal(123.45678, result);
+            result.Should()
+                .Be(123.45678f);
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_double_with_suffix(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                123.456d
+            ";
+
+            object result = Eval(source);
+
+            result.Should()
+                .Be(123.456d);
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_double_with_suffix_has_expected_type(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                123.456d
+            ";
+
+            object result = Eval(source);
+
+            result.Should()
+                .BeOfType<double>();
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_double_with_implicit_suffix(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                123.456
+            ";
+
+            object result = Eval(source);
+
+            result.Should()
+                .Be(123.456d);
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        public async Task literal_double_with_implicit_suffix_has_expected_type(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = @"
+                123.456
+            ";
+
+            object result = Eval(source);
+
+            result.Should()
+                .BeOfType<double>();
         }
 
         [Fact]

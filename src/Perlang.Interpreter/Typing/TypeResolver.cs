@@ -139,7 +139,15 @@ namespace Perlang.Interpreter.Typing
                                  new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
                                  (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
                         {
+                            // Order is important. This branch must come _before_ the float branch, since `float +
+                            // double` and `double + float` is expected to produce a `double`.
                             expr.TypeReference.ClrType = typeof(double);
+                        }
+                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                                 (leftTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(float)))
+                        {
+                            expr.TypeReference.ClrType = typeof(float);
                         }
                         else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
                                  new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
@@ -176,9 +184,17 @@ namespace Perlang.Interpreter.Typing
                     {
                         expr.TypeReference.ClrType = typeof(long);
                     }
-                    else if (new[] { typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
-                             (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
+                    else if (new[] { typeof(float) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float) }.Contains(rightTypeReference.ClrType))
+                    {
+                        // Here it gets interesting: `float` += `double` is legal in Java but *NOT* supported in C#
+                        // (Cannot implicitly convert type 'double' to 'float'). We go with the C# semantics for now
+                        // since it seems like the safer approach. If/when we need to support this, some form of
+                        // explicit casting mechanism would be more suitable.
+                        expr.TypeReference.ClrType = typeof(float);
+                    }
+                    else if (new[] { typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))
                     {
                         expr.TypeReference.ClrType = typeof(double);
                     }
@@ -279,8 +295,12 @@ namespace Perlang.Interpreter.Typing
                     }
                     else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
                              new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
-                             (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
+                             (new[] { typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) || new[] { typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType)))
                     {
+                        // The above check to ensure that either of the operands is `float` or `double` is important
+                        // here, since e.g. `ulong` and `int` cannot be compared to each other (because of
+                        // not-so-hard-to-understand limitations in the C# language; I'm not even sure this would be
+                        // possible to implement with the existing x64 math instructions)
                         expr.TypeReference.ClrType = typeof(bool);
                     }
                     else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
@@ -726,6 +746,12 @@ namespace Perlang.Interpreter.Typing
 
                 case "ulong" or "UInt64":
                     typeReference.ClrType = typeof(ulong);
+                    break;
+
+                // "Float" is called "Single" in C#/.NET, but Java uses `float` and `Float`. In this case, I think it
+                // makes little sense to make them inconsistent.
+                case "float" or "Float":
+                    typeReference.ClrType = typeof(float);
                     break;
 
                 case "double" or "Double":
