@@ -4,7 +4,7 @@
 
 From time to time, we publish a release version of Perlang at https://github.com/perlang-org/perlang/releases. These releases are useful if you want to have something a little more "stable" than the automated snapshots, but please be aware that these releases are still not recommended for "production usage" unless you are very brave.
 
-For most of you, the automated snapshots are more suitable than the release versions, since they include all the latest bug fixes and new features.
+For most of you, the automated snapshots are more suitable than the release versions, since they include all the latest bug fixes and new features. Nevertheless, use the following command to download the latest release version:
 
 <pre><code class="lang-shell hljs"><span class="hljs-meta">$ </span><span class="bash">curl -sSL https://perlang.org/install.sh | sh -s -- --default-toolchain release</span>
 </code></pre>
