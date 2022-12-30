@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Mono.Terminal;
 using Perlang.Interpreter;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
@@ -22,10 +23,12 @@ namespace Perlang.ConsoleApp
 {
     public class Program
     {
-        private static readonly ISet<string> ReplCommands = new HashSet<string>
+        private static readonly ISet<string> ReplCommands = new HashSet<string>(new List<string>
         {
+            "exit",
+            "help",
             "quit"
-        };
+        }.Select(s => "/" + s));
 
         internal enum ExitCodes
         {
@@ -309,13 +312,38 @@ namespace Perlang.ConsoleApp
         private void RunPrompt()
         {
             PrintBanner();
-            ReadLine.HistoryEnabled = true;
-            ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
 
-            while (true)
+            // TODO: Should we use different history files for snapshots and release versions?
+            var lineEditor = new LineEditor("perlang");
+
+            lineEditor.AutoCompleteEvent += (a, pos) =>
             {
-                string command = ReadLine.Read("> ");
+                var matchingKeywords = Scanner.ReservedKeywords
+                    .Where(keyword => keyword.Key.StartsWith(a))
+                    .Where(keyword => keyword.Value != TokenType.RESERVED_WORD)
+                    .Select(keyword => keyword.Key)
+                    .ToList();
 
+                matchingKeywords.AddRange(
+                    ReplCommands.Where(cmd => cmd.StartsWith(a))
+                );
+
+                string prefix = String.Empty;
+
+                if (matchingKeywords.Count == 1)
+                {
+                    return new LineEditor.Completion(prefix, new[] { matchingKeywords[0].Substring(pos) });
+                }
+                else
+                {
+                    return new LineEditor.Completion(prefix, matchingKeywords.ToArray());
+                }
+            };
+
+            string command;
+
+            while ((command = lineEditor.Edit("> ", String.Empty)) != null)
+            {
                 if (command.ToLowerInvariant() == "/quit" || command.ToLowerInvariant() == "/exit")
                 {
                     break;
@@ -470,27 +498,6 @@ namespace Perlang.ConsoleApp
             Warn(compilerWarning.Token, compilerWarning.Message);
 
             return false;
-        }
-
-        private class AutoCompletionHandler : IAutoCompleteHandler
-        {
-            public string[] GetSuggestions(string text, int index)
-            {
-                var matchingKeywords = Scanner.ReservedKeywords
-                    .Where(keyword => keyword.Key.StartsWith(text))
-                    .Where(keyword => keyword.Value != TokenType.RESERVED_WORD)
-                    .Select(keyword => keyword.Key)
-                    .ToList();
-
-                matchingKeywords.AddRange(
-                    ReplCommands.Where(command => command.StartsWith(text))
-                );
-
-                return matchingKeywords.ToArray();
-            }
-
-            // characters to start completion from
-            public char[] Separators { get; set; } = { ' ', '.', '/' };
         }
     }
 }
