@@ -76,8 +76,9 @@ comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
 multiplication → unary_prefix ( ( "/" | "*" ) unary_prefix )* ;
 
-unary_prefix   → ( "!" | "-" ) unary_prefix | call ;
+unary_prefix   → ( "!" | "-" ) unary_prefix | indexing | call ;
 call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+indexing       → primary ( "[" expression "]" ) ;
 primary        → "true" | "false" | "nil" | "this"
                | NUMBER | STRING | IDENTIFIER | "(" expression ")"
                | "super" "." IDENTIFIER ;

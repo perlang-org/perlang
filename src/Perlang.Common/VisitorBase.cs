@@ -69,6 +69,14 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        public virtual VoidObject VisitIndexExpr(Expr.Index expr)
+        {
+            Visit(expr.Indexee);
+            Visit(expr.Argument);
+
+            return VoidObject.Void;
+        }
+
         public virtual VoidObject VisitGroupingExpr(Expr.Grouping expr)
         {
             Visit(expr.Expression);

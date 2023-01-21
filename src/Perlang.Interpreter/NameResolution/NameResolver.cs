@@ -263,6 +263,19 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
+        public VoidObject VisitIndexExpr(Expr.Index expr)
+        {
+            Resolve(expr.Indexee);
+            Resolve(expr.Argument);
+
+            if (expr.Indexee is Expr.Identifier identifierExpr)
+            {
+                ResolveLocalOrGlobal(expr, identifierExpr.Name);
+            }
+
+            return VoidObject.Void;
+        }
+
         public VoidObject VisitGroupingExpr(Expr.Grouping expr)
         {
             Resolve(expr.Expression);

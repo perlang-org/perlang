@@ -578,18 +578,27 @@ namespace Perlang.Parser
                 }
             }
 
-            return Call();
+            return IndexingOrCall();
         }
 
-        private Expr Call()
+        private Expr IndexingOrCall()
         {
             Expr expr = Primary();
 
+            // At this point, we have no idea whether the primary expression will be called or indexed.
             while (true)
             {
                 if (Match(LEFT_PAREN))
                 {
+                    // Cannot return, since we must continue consuming Call expressions (to support
+                    // foo().bar().baz().zot chaining of function calls)
                     expr = FinishCall(expr);
+                }
+                else if (Match(LEFT_SQUARE_BRACKET))
+                {
+                    // Likewise, cannot return here to be able to support things like foo[1][2][3]-style, i.e.
+                    // multi-dimensional indexing.
+                    expr = FinishIndex(expr);
                 }
                 else if (Match(DOT))
                 {
@@ -626,6 +635,14 @@ namespace Perlang.Parser
             Token paren = Consume(RIGHT_PAREN, "Expect ')' after arguments.");
 
             return new Expr.Call(callee, paren, arguments);
+        }
+
+        private Expr FinishIndex(Expr indexee)
+        {
+            Expr argument = Expression();
+            Token closingBracket = Consume(RIGHT_SQUARE_BRACKET, "Expect '] after index argument'");
+
+            return new Expr.Index(indexee, closingBracket, argument);
         }
 
         private Expr Primary()
@@ -748,6 +765,7 @@ namespace Perlang.Parser
         /// Returns the token at the current position.
         /// </summary>
         /// <returns>A token.</returns>
+        [DebuggerStepThrough]
         private Token Peek()
         {
             return tokens[current];
