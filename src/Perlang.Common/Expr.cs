@@ -21,6 +21,7 @@ namespace Perlang
             TR VisitAssignExpr(Assign expr);
             TR VisitBinaryExpr(Binary expr);
             TR VisitCallExpr(Call expr);
+            TR VisitIndexExpr(Index expr);
             TR VisitGroupingExpr(Grouping expr);
             TR VisitLiteralExpr(Literal expr);
             TR VisitLogicalExpr(Logical expr);
@@ -171,6 +172,37 @@ namespace Perlang
             public Token Token => Paren;
         }
 
+        public class Index : Expr, ITokenAware
+        {
+            /// <summary>
+            /// Gets the object being indexed.
+            /// </summary>
+            public Expr Indexee { get; }
+
+            public Token ClosingBracket { get; }
+
+            /// <summary>
+            /// Gets the position in the object being indexed to retrieve.
+            /// </summary>
+            public Expr Argument { get; }
+
+            public Index(Expr indexee, Token closingBracket, Expr argument)
+            {
+                Indexee = indexee;
+                ClosingBracket = closingBracket;
+                Argument = argument;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitIndexExpr(this);
+            }
+
+            // TODO: Add a better ToString() implementation
+
+            public Token Token => ClosingBracket;
+        }
+
         public class Grouping : Expr, ITokenAware
         {
             public Expr Expression { get; }
@@ -293,7 +325,7 @@ namespace Perlang
 
             public Identifier(Token name)
             {
-                Name = name ?? throw new ArgumentException("name cannot be null");
+                Name = name;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)
@@ -319,7 +351,7 @@ namespace Perlang
 
             public Get(Expr @object, Token name)
             {
-                Object = @object ?? throw new ArgumentException("object cannot be null");
+                Object = @object;
                 Name = name;
             }
 

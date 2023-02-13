@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -383,6 +384,75 @@ namespace Perlang.Interpreter.Typing
             else
             {
                 expr.TypeReference.ClrType = typeReference.ClrType;
+            }
+
+            return VoidObject.Void;
+        }
+
+        public override VoidObject VisitIndexExpr(Expr.Index expr)
+        {
+            base.VisitIndexExpr(expr);
+
+            Type? type = expr.Indexee.TypeReference.ClrType;
+            Type? argumentType = expr.Argument.TypeReference.ClrType;
+
+            if (argumentType == null)
+            {
+                // TODO: Be ITokenAware and use expr.Argument.Token in this error, for better accuracy
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Token,
+                    "Internal compiler error: Type of index argument expected to be resolved at this stage")
+                );
+
+                return VoidObject.Void;
+            }
+
+            switch (type)
+            {
+                case { } when type == typeof(string):
+                    if (!argumentType.IsAssignableTo(typeof(int)))
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"'string' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
+                        );
+                    }
+
+                    expr.TypeReference.ClrType = typeof(char);
+                    break;
+
+                // TODO: arrays
+                // TODO: support lists
+
+                case { } when type.IsGenericType && type.IsAssignableTo(typeof(IDictionary)):
+                    Type[] genericArguments = type.GetGenericArguments();
+                    Type keyType = genericArguments[0];
+                    Type valueType = genericArguments[1];
+
+                    if (!argumentType.IsAssignableTo(keyType))
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"Dictionary with TKey of type '{keyType}' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
+                        );
+                    }
+
+                    expr.TypeReference.ClrType = valueType;
+                    break;
+
+                case { } when type == typeof(NullObject):
+                    typeValidationErrorCallback(new TypeValidationError(
+                        expr.ClosingBracket,
+                        $"'null' reference cannot be indexed")
+                    );
+                    break;
+
+                default:
+                    typeValidationErrorCallback(new TypeValidationError(
+                        expr.ClosingBracket,
+                        $"Unable to index object of type '{type.ToTypeKeyword()}': operation not supported")
+                    );
+                    break;
             }
 
             return VoidObject.Void;

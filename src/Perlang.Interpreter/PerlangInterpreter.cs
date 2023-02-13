@@ -1,6 +1,7 @@
 #nullable enable
 #pragma warning disable SA1513
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -2646,6 +2647,38 @@ namespace Perlang.Interpreter
 
                 default:
                     throw new RuntimeError(expr.Paren, $"Can only call functions, classes and native methods, not {callee}.");
+            }
+        }
+
+        public object? VisitIndexExpr(Expr.Index expr)
+        {
+            object? indexee = Evaluate(expr.Indexee);
+
+            if (indexee == null)
+            {
+                throw new RuntimeError(expr.ClosingBracket, $"'null' reference cannot be indexed.");
+            }
+
+            var argument = Evaluate(expr.Argument);
+
+            if (argument == null)
+            {
+                throw new RuntimeError(expr.ClosingBracket, "Cannot index by 'null' key");
+            }
+
+            if (indexee is IDictionary dictionary)
+            {
+                return dictionary[argument];
+            }
+            else if (indexee is string s && argument is int i)
+            {
+                return s[i];
+            }
+            else
+            {
+                // TODO: Try to make about 99.9% of the scenarios that would trigger this be compile-time errors instead
+                // TODO: of runtime exceptions.
+                throw new RuntimeError(expr.ClosingBracket, $"Indexing {indexee.GetType().ToTypeKeyword()} by {argument.GetType().ToTypeKeyword()} is not supported.");
             }
         }
 

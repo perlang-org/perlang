@@ -55,6 +55,11 @@ namespace Perlang.Interpreter.Internals
             return Parenthesize2("call", expr.Callee, expr.Arguments);
         }
 
+        public string VisitIndexExpr(Expr.Index expr)
+        {
+            return Parenthesize2("index", expr.Indexee, expr.Argument);
+        }
+
         public string VisitGroupingExpr(Expr.Grouping expr)
         {
             return Parenthesize("group", expr.Expression);
