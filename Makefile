@@ -93,12 +93,12 @@ test:
 
 # Note: run `make prepare-new-dev-version` when updating this, to ensure that
 # snapshot releases have the correct -V info.
-NEXT_RELEASE_VERSION=0.3.0
+NEXT_RELEASE_VERSION=0.4.0
 NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
 
 prepare-new-dev-version:
 	touch release-notes/$(NEXT_RELEASE_TAG).md
-	git add Makefile
+	git add Makefile release-notes/$(NEXT_RELEASE_TAG).md
 	git commit -m '(Makefile) Start working on $(NEXT_RELEASE_TAG)'
 	git push
 	git tag dev/$(NEXT_RELEASE_VERSION) && git push origin dev/$(NEXT_RELEASE_VERSION)
