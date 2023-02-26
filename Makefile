@@ -77,6 +77,20 @@ run: auto-generated
 test:
 	dotnet test --configuration Release
 
+#
+# Steps for publishing a new release:
+#
+# 1. Ensure release-notes/v($NEXT_RELEASE_VERSION).md is polished and contains
+#   today's date. Remember that this file will be automatically used in the
+#   GitHub Release created in the next step.
+#
+# 2. `make publish-release` - this creates a release in GitHub automatically.
+#
+# 3. Bump NEXT_RELEASE_VERSION below.
+#
+# 4. `make prepare-new-dev-version`
+#
+
 # Note: run `make prepare-new-dev-version` when updating this, to ensure that
 # snapshot releases have the correct -V info.
 NEXT_RELEASE_VERSION=0.3.0
