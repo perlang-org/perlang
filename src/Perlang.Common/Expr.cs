@@ -220,6 +220,9 @@ namespace Perlang
             public Token? Token => (Expression as ITokenAware)?.Token;
         }
 
+        /// <summary>
+        /// A literal string or number.
+        /// </summary>
         public class Literal : Expr
         {
             public object? Value { get; }

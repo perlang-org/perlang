@@ -1,7 +1,8 @@
 using System;
 using System.Numerics;
+using Perlang.Lang;
 
-namespace Perlang.Extensions
+namespace Perlang.Internal.Extensions
 {
     /// <summary>
     /// Extension methods for <see cref="Type"/>.
@@ -20,7 +21,8 @@ namespace Perlang.Extensions
                 { } when type == typeof(Single) => "float",
                 { } when type == typeof(Double) => "double",
                 { } when type == typeof(NullObject) => "null",
-                { } when type == typeof(String) => "string",
+                { } when type == typeof(Lang.String) => "string",
+                { } when type == typeof(AsciiString) => "AsciiString",
 
                 // TODO: add bool here
                 { } when type.IsAssignableTo(typeof(IPerlangFunction)) => "function",

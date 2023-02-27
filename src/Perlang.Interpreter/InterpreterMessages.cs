@@ -1,5 +1,5 @@
 using Perlang.Interpreter.Extensions;
-using static Perlang.Utils;
+using static Perlang.Internal.Utils;
 
 namespace Perlang.Interpreter;
 

@@ -103,7 +103,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("'string' is not a valid && operand", exception.Message);
+            Assert.Matches("'AsciiString' is not a valid && operand", exception.Message);
         }
 
         [Fact]

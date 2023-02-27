@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.Numerics;
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 
 #nullable enable
 namespace Perlang.Parser;

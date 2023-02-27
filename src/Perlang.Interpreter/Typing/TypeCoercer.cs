@@ -109,8 +109,17 @@ namespace Perlang.Interpreter.Typing
 
             if (sourceSize == null || targetSize == null)
             {
-                // One or both of the values involved are non-numeric. The coercion is unsupported in this case.
-                return false;
+                // One or both of the values involved are non-numeric. The coercion is normally unsupported in this
+                // case, but let's check for assignability first: The target type can be a supertype of sourceType
+                // (inheritance or interfaces), in which case the coercion is fine.
+                if (sourceType?.IsAssignableTo(targetType) ?? false)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // Expansions are fine; in other words, as long as the target type is wider (number of bits) or than or

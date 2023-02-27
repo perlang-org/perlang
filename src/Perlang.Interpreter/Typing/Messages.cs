@@ -1,5 +1,5 @@
 #nullable enable
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Extensions;
 
 namespace Perlang.Interpreter.Typing;

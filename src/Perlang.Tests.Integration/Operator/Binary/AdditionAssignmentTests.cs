@@ -123,7 +123,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Inferred: Perlang.NullObject is not comparable and can therefore not be used with the $PLUS_EQUAL += operator");
+                .Message.Should().Match("Inferred: Perlang.NullObject cannot be used with the $PLUS_EQUAL += operator");
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Cannot assign 'int' to 'string' variable");
+                .Message.Should().Match("Cannot assign 'int' to 'AsciiString' variable");
         }
     }
 }

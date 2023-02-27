@@ -411,7 +411,7 @@ namespace Perlang.Tests.ConsoleApp
                 StdoutLines.Should().Contain(
                         "[line 6] Warning at 'greet': Null parameter detected for 'name'")
                     .And.Contain(
-                        "[line 2] Operands must be numbers, not string and null"
+                        "[line 2] Operands must be numbers, not AsciiString and null"
                     );
 
                 exitCode.Should().Be((int)Program.ExitCodes.RUNTIME_ERROR);

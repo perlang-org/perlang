@@ -49,8 +49,10 @@ namespace Perlang.Tests.Integration.Typing
             var result = EvalWithValidationErrorCatch(source);
             var exception = result.Errors.FirstOrDefault();
 
+            // TODO: Fix this error. Should be something like "Cannot initialize int variable with AsciiString";
+            // TODO: initialization isn't assignment.
             Assert.Single(result.Errors);
-            Assert.Equal("Cannot assign string to int variable", exception.Message);
+            Assert.Equal("Cannot assign AsciiString to int variable", exception.Message);
         }
 
         [Fact]
@@ -233,7 +235,7 @@ namespace Perlang.Tests.Integration.Typing
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Cannot assign 'string' to 'int' variable", exception!.Message);
+            Assert.Matches("Cannot assign 'AsciiString' to 'int' variable", exception!.Message);
         }
 
         [Fact]

@@ -6,8 +6,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Humanizer;
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 using Perlang.Interpreter.NameResolution;
+using Perlang.Lang;
 using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
@@ -78,18 +79,18 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            if (!leftTypeReference.ClrType!.IsAssignableTo(typeof(IComparable)))
+            if (leftTypeReference.ClrType!.IsAssignableTo(typeof(NullObject)))
             {
                 throw new TypeValidationError(
                     expr.Operator,
-                    $"{leftTypeReference} is not comparable and can therefore not be used with the ${expr.Operator} operator"
+                    $"{leftTypeReference} cannot be used with the ${expr.Operator} operator"
                 );
             }
-            else if (!rightTypeReference.ClrType!.IsAssignableTo(typeof(IComparable)))
+            else if (rightTypeReference.ClrType!.IsAssignableTo(typeof(NullObject)))
             {
                 throw new TypeValidationError(
                     expr.Operator,
-                    $"{leftTypeReference} is not comparable and can therefore not be used with the ${expr.Operator} operator"
+                    $"{leftTypeReference} is cannot be used with the ${expr.Operator} operator"
                 );
             }
 
@@ -104,8 +105,8 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.STAR:
                 case TokenType.PERCENT:
                     if (expr.Operator.Type == TokenType.PLUS &&
-                        (leftTypeReference.ClrType == typeof(string) ||
-                         rightTypeReference.ClrType == typeof(string)))
+                        (leftTypeReference.ClrType == typeof(AsciiString) ||
+                         rightTypeReference.ClrType == typeof(AsciiString)))
                     {
                         // Special-casing of "string" + "string", to allow for convenient string concatenation.
                         expr.TypeReference.ClrType = leftTypeReference.ClrType;
@@ -409,12 +410,25 @@ namespace Perlang.Interpreter.Typing
 
             switch (type)
             {
+                // TODO: Remove once the migration to AsciiString and Utf8String is complete
                 case { } when type == typeof(string):
                     if (!argumentType.IsAssignableTo(typeof(int)))
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.ClosingBracket,
                             $"'string' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
+                        );
+                    }
+
+                    expr.TypeReference.ClrType = typeof(char);
+                    break;
+
+                case { } when type == typeof(AsciiString):
+                    if (!argumentType.IsAssignableTo(typeof(int)))
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"'AsciiString' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
                         );
                     }
 
@@ -829,7 +843,8 @@ namespace Perlang.Interpreter.Typing
                     break;
 
                 case "string" or "String":
-                    typeReference.ClrType = typeof(string);
+                    // Perlang String is NOT the same as the .NET String class.
+                    typeReference.ClrType = typeof(Lang.String);
                     break;
 
                 case "void":

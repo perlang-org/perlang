@@ -129,6 +129,6 @@ public class ShiftRightTests
         var exception = result.Errors.FirstOrDefault();
 
         Assert.Single(result.Errors);
-        Assert.Matches("Unsupported >> operand types: 'int' and 'string'", exception.Message);
+        Assert.Matches("Unsupported >> operand types: 'int' and 'AsciiString'", exception.Message);
     }
 }

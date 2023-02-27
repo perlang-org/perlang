@@ -115,6 +115,22 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
+        void addition_of_bigint_and_string_coerces_number_to_string()
+        {
+            string source = @"
+                var i = 18446744073709551616;
+                var s = ""xyz"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("18446744073709551616xyz");
+        }
+
+        [Fact]
         void addition_of_string_and_integer_coerces_number_to_string()
         {
             string source = @"
@@ -128,6 +144,22 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Should()
                 .Be("abc123");
+        }
+
+        [Fact]
+        void addition_of_string_and_bigint_coerces_number_to_string()
+        {
+            string source = @"
+                var s = ""abc"";
+                var i = 18446744073709551616;
+
+                print s + i;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc18446744073709551616");
         }
 
         [Theory]

@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 
-namespace Perlang
+namespace Perlang.Internal
 {
     /// <summary>
     /// Various utility methods.
