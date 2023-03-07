@@ -6,7 +6,8 @@ Perlang is a general-purpose programming language which aims to incorporate the 
 
 * _static typing_
 * strong _type inference_
-* _immutability_ as default, mutability where required
+* _immutability_ by default, mutability where required
+* _safe_ by default, unsafe where required
 * _object-orientation_
 * _functional programming_
 
