@@ -125,7 +125,7 @@ public class SubtractionAssignmentTests
         var exception = result.Errors.First();
 
         Assert.Single(result.Errors);
-        Assert.Equal("Inferred: Perlang.NullObject is not comparable and can therefore not be used with the $MINUS_EQUAL -= operator", exception.Message);
+        Assert.Equal("Inferred: Perlang.NullObject cannot be used with the $MINUS_EQUAL -= operator", exception.Message);
     }
 
     [Fact]
@@ -140,6 +140,6 @@ public class SubtractionAssignmentTests
         var exception = result.Errors.First();
 
         Assert.Single(result.Errors);
-        Assert.Equal("Cannot assign 'int' to 'string' variable", exception.Message);
+        Assert.Equal("Cannot assign 'int' to 'AsciiString' variable", exception.Message);
     }
 }

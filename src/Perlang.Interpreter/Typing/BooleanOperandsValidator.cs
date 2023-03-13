@@ -1,5 +1,5 @@
 using System;
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing

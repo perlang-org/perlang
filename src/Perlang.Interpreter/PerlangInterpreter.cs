@@ -11,16 +11,18 @@ using System.Reflection;
 using System.Text;
 using Perlang.Attributes;
 using Perlang.Exceptions;
-using Perlang.Extensions;
+using Perlang.Internal.Extensions;
 using Perlang.Interpreter.CodeAnalysis;
 using Perlang.Interpreter.Immutability;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
+using Perlang.Lang;
 using Perlang.Parser;
 using Perlang.Stdlib;
+using static Perlang.Internal.Utils;
 using static Perlang.TokenType;
-using static Perlang.Utils;
+using String = System.String;
 
 namespace Perlang.Interpreter
 {
@@ -1694,14 +1696,19 @@ namespace Perlang.Interpreter
                     }
 
                 case PLUS:
-                    string? leftString = left as string;
-                    string? rightString = right as string;
+                    Lang.String? leftString = left as Lang.String;
+                    Lang.String? rightString = right as Lang.String;
 
                     if (leftString != null)
                     {
                         if (rightString != null)
                         {
-                            return leftString + rightString;
+                            // TODO: How to handle this complexity? Lang.String does _not_ implement the + operator, and
+                            // I'm not sure we even want it to. What would Utf16String + AsciiString mean? (one way to
+                            // deal with that would be to not let Utf16String implement the String interface, but it
+                            // would be kind of odd. It would almost even seem better to not even support UTF-16 strings
+                            // at all in that case)
+                            return (AsciiString)leftString + (AsciiString)rightString;
                         }
                         else if (IsValidNumberType(right))
                         {
@@ -1711,9 +1718,15 @@ namespace Perlang.Interpreter
                                 // of host OS language/region settings. See #263 for more details.
                                 return leftString + rightConvertible.ToString(CultureInfo.InvariantCulture);
                             }
+                            else if (right is BigInteger rightBigint)
+                            {
+                                return leftString + rightBigint.ToString(CultureInfo.InvariantCulture);
+                            }
                             else
                             {
-                                return leftString + right;
+                                // TODO: Make this a compile-time error instead.
+                                string message = InterpreterMessages.UnsupportedOperandTypes(expr.Operator.Type, left, right);
+                                throw new RuntimeError(expr.Operator, message);
                             }
                         }
                     }
@@ -1726,9 +1739,15 @@ namespace Perlang.Interpreter
                             // host OS language/region settings. See #263 for more details.
                             return leftConvertible.ToString(CultureInfo.InvariantCulture) + rightString;
                         }
+                        else if (left is BigInteger leftBigint)
+                        {
+                            return leftBigint.ToString(CultureInfo.InvariantCulture) + right;
+                        }
                         else
                         {
-                            return left + rightString;
+                            // TODO: Make this a compile-time error instead.
+                            string message = InterpreterMessages.UnsupportedOperandTypes(expr.Operator.Type, left, right);
+                            throw new RuntimeError(expr.Operator, message);
                         }
                     }
 
@@ -2666,6 +2685,9 @@ namespace Perlang.Interpreter
                 throw new RuntimeError(expr.ClosingBracket, "Cannot index by 'null' key");
             }
 
+            // TODO: This approach is rather hardwired and ugly. We should probably try to detect the `this` method or
+            // TODO: something like that instead, to support all kind of indexable types in the CLR. OTOH, we might not
+            // TODO: want to couple ourselves too tightly to the .NET type system...
             if (indexee is IDictionary dictionary)
             {
                 return dictionary[argument];
@@ -2673,6 +2695,11 @@ namespace Perlang.Interpreter
             else if (indexee is string s && argument is int i)
             {
                 return s[i];
+            }
+            else if (indexee is AsciiString asciiString && argument is int j)
+            {
+                // TODO: Why is j an `int` here? Needs to be investigated.
+                return asciiString[(nuint)j];
             }
             else
             {

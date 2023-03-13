@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable SA1601
 #pragma warning disable SA1300
 #pragma warning disable S3218
 using System;
@@ -8,6 +9,8 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Perlang.Attributes;
+using Perlang.Lang;
+using String = System.String;
 
 namespace Perlang.Stdlib
 {
@@ -18,7 +21,8 @@ namespace Perlang.Stdlib
     /// supported platforms.
     /// </summary>
     /// <remarks>
-    /// The XML method descriptions are based on [the .NET source code](https://github.com/dotnet/runtime), licensed
+    /// The XML method descriptions are based on [the .NET source
+    /// code](https://github.com/dotnet/dotnet-api-docs/blob/main/xml/System/Environment.xml), licensed
     /// under the MIT license. Copyright (c) .NET Foundation and Contributors. Some method descriptions are also based
     /// on `man` pages in [the NetBSD source code](https://github.com/NetBSD/src). The full license of these man pages
     /// can be found at https://github.com/perlang-org/perlang/blob/master/NOTICE.md.
@@ -26,11 +30,15 @@ namespace Perlang.Stdlib
     /// Portions may also be inspired by Donald Lewine's great book "POSIX Programmer's Guide" (O'Reilly 1991).
     /// </remarks>
     [GlobalClass]
-    public static class Libc
+    public static partial class Libc
     {
-        // Internal class which contains the P/Invoke definitions, to avoid exposing them directly to our callers.
+        /// <summary>
+        /// Contains P/Invoke definitions for libc methods.
+        ///
+        /// This class is deliberately internal, to avoid exposing these methods to code outside of this assembly.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static class Internal
+        internal static partial class Internal
         {
 #if _WINDOWS
             [DllImport("ucrtbase", EntryPoint = "_getpid")]
@@ -38,6 +46,20 @@ namespace Perlang.Stdlib
             [DllImport("libc")]
 #endif
             public static extern int getpid();
+
+#if _WINDOWS
+            [LibraryImport("ucrtbase")]
+#else // POSIX
+            [LibraryImport("libc")]
+#endif
+            internal static unsafe partial int memcmp(byte* b1, byte* b2, uint count);
+
+#if _WINDOWS
+            [LibraryImport("ucrtbase")]
+#else // POSIX
+            [LibraryImport("libc")]
+#endif
+            internal static partial int toupper(int c);
         }
 
         /// <summary>Gets the fully qualified path of the current working directory.</summary>
@@ -98,17 +120,17 @@ namespace Perlang.Stdlib
         /// * `LC_NUMERIC`: The name of the locale for numeric editing.
         /// * `LC_TIME`: The name of the locale for date- and time-formatting information.
         /// * `LOGNAME`: The name of the user's login account.
-        /// * `PATH`: The sequence of path prefeixes used by "exec" functions in locating programs to run.
+        /// * `PATH`: The sequence of path prefixes used by "exec" functions in locating programs to run.
         /// * `TERM`: The user's terminal type.
         /// * `TZ`: Time zone information.
         /// </remarks>
-        public static ImmutableDictionary<string, string> environ()
+        public static ImmutableDictionary<Lang.String, string> environ()
         {
-            var result = new Dictionary<string, string>();
+            var result = new Dictionary<Lang.String, string>();
 
             foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
             {
-                result.Add((string)entry.Key, (string?)entry.Value ?? String.Empty);
+                result.Add(AsciiString.from((string)entry.Key), (string?)entry.Value ?? String.Empty);
             }
 
             return result.ToImmutableDictionary();
@@ -119,7 +141,7 @@ namespace Perlang.Stdlib
         /// <returns>The value of the environment variable specified by <paramref name="name" />, or <see
         /// langword="null" /> if the environment variable is not found.</returns>
         /// <remarks>
-        /// The  <see cref="getenv(string)"/> method retrieves an environment
+        /// The  <see cref="getenv(Lang.String)"/> method retrieves an environment
         /// variable from the environment block of the current process.
         ///
         /// To retrieve all environment variables along with their values, call the <see cref="environ"/> method.
@@ -158,9 +180,9 @@ namespace Perlang.Stdlib
         /// <paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission to
         /// perform this operation.</exception>
-        public static string? getenv(string name)
+        public static string? getenv(Lang.String name)
         {
-            return Environment.GetEnvironmentVariable(name);
+            return Environment.GetEnvironmentVariable(name.ToString());
         }
 
         /// <summary>

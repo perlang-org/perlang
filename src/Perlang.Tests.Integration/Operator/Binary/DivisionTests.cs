@@ -85,7 +85,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Unsupported / operand types: 'string' and 'int'", exception.Message);
+            Assert.Matches("Unsupported / operand types: 'AsciiString' and 'int'", exception.Message);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Matches("Unsupported / operand types: 'int' and 'string'", exception.Message);
+            Assert.Matches("Unsupported / operand types: 'int' and 'AsciiString'", exception.Message);
         }
 
         // TODO: This should definitely be a compile-time error (constant division by zero). We should aim for

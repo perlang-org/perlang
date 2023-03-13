@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Perlang.Common\Perlang.Common.csproj" />
+      <ProjectReference Include="..\Perlang.Stdlib\Perlang.Stdlib.csproj" />
     </ItemGroup>
 
 </Project>

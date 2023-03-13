@@ -16,7 +16,7 @@ namespace Perlang.Tests.Integration.Stdlib
             var result = Eval("Libc.environ()");
 
             result.Should()
-                .BeOfType<ImmutableDictionary<string, string>>().Which.Should()
+                .BeOfType<ImmutableDictionary<Lang.String, string>>().Which.Should()
                 .NotBeEmpty();
         }
 
@@ -26,10 +26,10 @@ namespace Perlang.Tests.Integration.Stdlib
             var result = Eval("Libc.environ()");
 
             result.Should()
-                .BeOfType<ImmutableDictionary<string, string>>().Which.Should()
+                .BeOfType<ImmutableDictionary<Lang.String, string>>().Which.Should()
 
                 // PATH is typically Path on Windows, hence the need for uppercasing it to make tests pass on Windows.
-                .Contain(d => d.Key.ToUpper() == "PATH");
+                .Contain(d => d.Key.ToUpper().ToString() == "PATH");
         }
 
 #if _WINDOWS

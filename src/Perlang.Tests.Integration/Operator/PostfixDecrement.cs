@@ -133,7 +133,7 @@ namespace Perlang.Tests.Integration.Operator
             var exception = result.Errors.First();
 
             Assert.Single(result.Errors);
-            Assert.Matches("can only be used to decrement numbers, not string", exception.Message);
+            Assert.Matches("can only be used to decrement numbers, not AsciiString", exception.Message);
         }
     }
 }
