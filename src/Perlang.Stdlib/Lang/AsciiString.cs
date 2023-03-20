@@ -38,7 +38,7 @@ public class AsciiString : Lang.String
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AsciiString"/> class from an existing <see cref="char"/> array. A
-    /// new `byte[]` will be allocated to contain the string content.
+    /// new <see cref="byte"/> buffer will be allocated to contain the string content.
     /// </summary>
     /// <param name="chars">A char array, validated by the caller to be ASCII safe.</param>
     /// <returns>A newly allocated <see cref="AsciiString"/>.</returns>
