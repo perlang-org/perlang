@@ -46,7 +46,7 @@ namespace Perlang.Interpreter
         private readonly IDictionary<string, object> globalClasses = new Dictionary<string, object>();
 
         private readonly ImmutableDictionary<string, Type> nativeClasses;
-        private readonly Action<string> standardOutputHandler;
+        private readonly Action<Lang.String> standardOutputHandler;
         private readonly bool replMode;
 
         private ImmutableList<Stmt> previousStatements = ImmutableList.Create<Stmt>();
@@ -64,7 +64,7 @@ namespace Perlang.Interpreter
         ///     without semicolons are accepted.</param>
         public PerlangInterpreter(
             Action<RuntimeError> runtimeErrorHandler,
-            Action<string> standardOutputHandler,
+            Action<Lang.String> standardOutputHandler,
             IBindingHandler? bindingHandler = null,
             IEnumerable<string>? arguments = null,
             bool replMode = false)

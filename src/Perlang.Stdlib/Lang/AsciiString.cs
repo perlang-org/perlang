@@ -18,7 +18,7 @@ namespace Perlang.Lang;
 /// - They consist of valid ASCII characters (0-127) only.
 ///
 /// - They are _immutable_. Once constructed, an <see cref="AsciiString"/> cannot be modified. Methods which seem to
-///   perform "modifications" of the string like <see cref="ToUpper"/> etc. will always allocate a new instance and
+///   perform "modifications" of the string like <see cref="to_upper"/> etc. will always allocate a new instance and
 ///   operate on that.
 ///
 /// - They are _backed by native memory_. This means that they can be used with zero/very low cost together with
@@ -30,9 +30,10 @@ public class AsciiString : Lang.String
     private readonly nuint length;
 
     public override nuint Length => length;
+    internal override unsafe IntPtr Bytes => (IntPtr)bytes;
 
     /// <summary>
-    /// Memoized uppercase form of this string. Will be initialized on the first call to <see cref="ToUpper"/>.
+    /// Memoized uppercase form of this string. Will be initialized on the first call to <see cref="to_upper"/>.
     /// </summary>
     private AsciiString? upperString;
 
@@ -56,7 +57,7 @@ public class AsciiString : Lang.String
     /// <param name="s">The input string.</param>
     /// <returns>A newly allocated <see cref="AsciiString"/>.</returns>
     /// <exception cref="ArgumentException">The given string contains non-ASCII characters.</exception>
-    public static AsciiString from(string s)
+    public static new AsciiString from(string s)
     {
         char[] chars = s.ToCharArray();
 
@@ -210,18 +211,18 @@ public class AsciiString : Lang.String
         return hashCode;
     }
 
-    // TODO: Replace the need for this by making our "print" keyword not use
-    // TODO: ToString() for this class. Ideally, we could just call "puts" with
-    // TODO: a pointer to the `bytes` array straight away; for ASCII strings
-    // TODO: this would work on both Windows and POSIX systems. For UTF-8
-    // TODO: strings, it would *not* work on Windows though so we would need to
-    // TODO: special-case that platform... :|
+    // TODO: This method is primarily used from tests. Since our tests are currently written in C#, it is convenient to
+    // TODO: be able to make assertions based on .NET strings (since string constants in C# will be parsed as such).
+    // TODO: Getting rid of this will take _time_, but we should definitely aim for doing it since this is a
+    // TODO: performance-heavy, resource-allocation method for no good reason than the ones described above.
+
+    /// <inheritdoc/>
     public override unsafe string ToString()
     {
         return Marshal.PtrToStringUTF8((nint)bytes)!;
     }
 
-    public override unsafe Lang.String ToUpper()
+    public override unsafe Lang.String to_upper()
     {
         // TODO: This implementation will allocate memory multiple times when racing. However, the MemoryAllocator will
         // TODO: ensure that all "extra" buffers is freed at program exit. This is considered "good enough" for now, but

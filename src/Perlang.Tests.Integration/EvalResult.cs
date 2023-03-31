@@ -48,9 +48,12 @@ namespace Perlang.Tests.Integration
             errors.Add(error);
         }
 
-        public void OutputHandler(string line)
+        public void OutputHandler(Lang.String line)
         {
-            output.Add(line);
+            // TODO: Store as native Perlang strings when we are ready for it. The problem right now is that it makes
+            // TODO: the unit/integration test code at lot more verbose (since we can't use standard string constants)
+            // TODO: for too little benefit.
+            output.Add(line.ToString());
         }
 
         public bool WarningHandler(CompilerWarning compilerWarning)
