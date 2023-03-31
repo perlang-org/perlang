@@ -614,8 +614,7 @@ namespace Perlang.Interpreter
                 }
                 catch (SystemException ex)
                 {
-                    // TODO: Include the original stack trace in the exception being thrown here, to simplify debugging.
-                    throw new RuntimeError(null, ex.Message);
+                    throw new RuntimeError(null, ex.Message, ex);
                 }
             }
         }
