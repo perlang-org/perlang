@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -86,7 +87,7 @@ namespace Perlang.ConsoleApp
         /// <param name="console">A custom `IConsole` implementation to use. May be null, in which case the standard
         /// streams of the calling process will be used.</param>
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
-        public static int MainWithCustomConsole(string[] args, IConsole console)
+        public static int MainWithCustomConsole(string[] args, IConsole? console)
         {
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
@@ -98,7 +99,7 @@ namespace Perlang.ConsoleApp
 
             noWarnAsErrorOption.AddValidator(result =>
             {
-                string warningName = result.GetValueOrDefault<string>();
+                string warningName = result.GetValueOrDefault<string>()!;
 
                 if (!WarningType.KnownWarning(warningName))
                 {
@@ -166,7 +167,7 @@ namespace Perlang.ConsoleApp
 
                     if (parseResult.HasOption(evalOption))
                     {
-                        string source = parseResult.GetValueForOption(evalOption);
+                        string source = parseResult.GetValueForOption(evalOption)!;
 
                         var program = new Program(
                             replMode: true,
@@ -180,7 +181,7 @@ namespace Perlang.ConsoleApp
                     }
                     else if (parseResult.HasOption(printOption))
                     {
-                        string source = parseResult.GetValueForOption(printOption);
+                        string source = parseResult.GetValueForOption(printOption)!;
 
                         new Program(
                             replMode: true,
@@ -263,15 +264,15 @@ namespace Perlang.ConsoleApp
 
         internal Program(
             bool replMode,
-            IEnumerable<string> arguments = null,
-            IEnumerable<WarningType> disabledWarningsAsErrors = null,
-            Action<string> standardOutputHandler = null,
-            Action<RuntimeError> runtimeErrorHandler = null)
+            Action<string> standardOutputHandler,
+            IEnumerable<string>? arguments = null,
+            IEnumerable<WarningType>? disabledWarningsAsErrors = null,
+            Action<RuntimeError>? runtimeErrorHandler = null)
         {
             // TODO: Make these be separate handlers at some point, so the caller can separate between these types of
             // output.
-            this.standardOutputHandler = standardOutputHandler ?? Console.WriteLine;
-            this.standardErrorHandler = standardOutputHandler ?? Console.Error.WriteLine;
+            this.standardOutputHandler = standardOutputHandler;
+            this.standardErrorHandler = standardOutputHandler;
             this.disabledWarningsAsErrors = (disabledWarningsAsErrors ?? Enumerable.Empty<WarningType>()).ToHashSet();
 
             interpreter = new PerlangInterpreter(
@@ -386,11 +387,11 @@ namespace Perlang.ConsoleApp
 
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
-            object result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            object? result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
 
             if (result != null && result != VoidObject.Void)
             {
-                standardOutputHandler(result.ToString());
+                standardOutputHandler(result.ToString() ?? String.Empty);
             }
 
             return (int)ExitCodes.SUCCESS;
@@ -398,7 +399,14 @@ namespace Perlang.ConsoleApp
 
         private void ParseAndPrint(string source)
         {
-            string result = interpreter.Parse(source, ScanError, ParseError);
+            string? result = interpreter.Parse(source, ScanError, ParseError);
+
+            if (result == null)
+            {
+                // Parse() returns `null` when one or more errors occurred. These errors have already been reported to
+                // the user at this point, so we can safely just return here.
+                return;
+            }
 
             standardOutputHandler(result);
         }
