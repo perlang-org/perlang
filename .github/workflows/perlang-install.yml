@@ -9,7 +9,8 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-          - macos-10.15
+          - ubuntu-22.04
+          - macos-11
 
     steps:
       - uses: actions/checkout@v1
