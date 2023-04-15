@@ -230,9 +230,8 @@ namespace Perlang.Tests.ConsoleApp
                 {
                     CallWithPrintParameter("hej hej");
 
-                    // TODO: Hmm, I wonder why this prints an extra linebreak?
                     StdoutLines.Should().Equal(
-                        "[line 1] Error at 'hej': Expect ';' after expression.", String.Empty, String.Empty
+                        "[line 1] Error at 'hej': Expect ';' after expression.", String.Empty
                     );
                 }
 
