@@ -34,7 +34,7 @@ public class AsciiStringTests
     {
         var s = AsciiString.from("Path");
 
-        Perlang.Lang.String result = s.ToUpper();
+        Perlang.Lang.String result = s.to_upper();
 
         result.Should()
             .Be(AsciiString.from("PATH"));
@@ -45,7 +45,7 @@ public class AsciiStringTests
     {
         var s = AsciiString.from("PATH");
 
-        Perlang.Lang.String result = s.ToUpper();
+        Perlang.Lang.String result = s.to_upper();
 
         result.Should()
             .Be(AsciiString.from("PATH"));
@@ -56,7 +56,7 @@ public class AsciiStringTests
     {
         var s = AsciiString.from("PATH");
 
-        string result = s.ToUpper().ToString();
+        string result = s.to_upper().ToString();
 
         result.Should()
             .Be("PATH");

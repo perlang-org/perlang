@@ -19,12 +19,14 @@ namespace Perlang.Interpreter.Internals
     /// </summary>
     internal class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
     {
+        // TODO: Return Perlang string instead
         [Pure]
         internal static string Print(Expr expr)
         {
             return expr.Accept(new AstPrinter());
         }
 
+        // TODO: Return Perlang string instead
         [Pure]
         internal static string Print(Stmt stmt)
         {

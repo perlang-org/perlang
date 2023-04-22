@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Perlang.Lang;
 using static Perlang.Internal.Utils;
 using static Perlang.TokenType;
 
@@ -663,25 +662,10 @@ namespace Perlang.Parser
 
             if (Match(STRING))
             {
-                // Determine what type of string this is and act accordingly.
                 string s = (string)Previous().Literal!;
-                char[] chars = s.ToCharArray();
 
-                foreach (char c in chars)
-                {
-                    if (c > 127)
-                    {
-                        // Non-ASCII character encountered => use Utf8String instead
-                        // TODO: think about whether Utf16String would be a better default here. Could be Utf16 by
-                        // TODO: default and opt-in to Utf8 (or the other way around). See
-                        // TODO: https://github.com/perlang-org/perlang/issues/370
-                        return new Expr.Literal(Utf8String.from(s));
-                    }
-                }
-
-                // All characters in the string are ASCII safe => represent this
-                // string as an AsciiString in the created Literal.
-                return new Expr.Literal(AsciiString.from(chars));
+                Lang.String nativeString = Lang.String.from(s);
+                return new Expr.Literal(nativeString);
             }
 
             if (Match(IDENTIFIER))

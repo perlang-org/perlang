@@ -21,13 +21,15 @@ public class Utf8String : String
 
     public override nuint Length => length;
 
+    internal override unsafe IntPtr Bytes => (IntPtr)bytes;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Utf8String"/> class from an existing <see cref="char"/> array. A
     /// new <see cref="byte"/> buffer will be allocated to contain the string content.
     /// </summary>
     /// <param name="s">A .NET string.</param>
     /// <returns>A newly allocated <see cref="Utf8String"/>.</returns>
-    public static Utf8String from(string s)
+    public static new Utf8String from(string s)
     {
         return new Utf8String(s);
     }
@@ -51,7 +53,7 @@ public class Utf8String : String
         bytes[bytesWritten] = 0;
     }
 
-    public override String ToUpper()
+    public override String to_upper()
     {
         throw new NotImplementedException();
     }

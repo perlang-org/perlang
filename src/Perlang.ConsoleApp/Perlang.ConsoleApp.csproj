@@ -9,6 +9,7 @@
         <!-- PublishReadyToRun is set on command line since it cannot
              run in cross-compilation scenarios -->
         <AssemblyName>perlang</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

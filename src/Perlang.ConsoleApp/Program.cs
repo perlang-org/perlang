@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mono.Terminal;
+using Perlang.Internal;
 using Perlang.Interpreter;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
@@ -63,8 +64,27 @@ namespace Perlang.ConsoleApp
         }
 
         private readonly PerlangInterpreter interpreter;
-        private readonly Action<string> standardOutputHandler;
-        private readonly Action<string> standardErrorHandler;
+
+        /// <summary>
+        /// Writes a Perlang native string to the standard output stream.
+        /// </summary>
+        private readonly Action<Lang.String> standardOutputHandler;
+
+        /// <summary>
+        /// Writes a Perlang native string to the standard error stream.
+        /// </summary>
+        private readonly Action<Lang.String> standardErrorHandler;
+
+        /// <summary>
+        /// Writes a CLR string to the standard output stream.
+        /// </summary>
+        private readonly Action<string> standardOutputHandlerFromClrString;
+
+        /// <summary>
+        /// Writes a CLR string to the standard error stream.
+        /// </summary>
+        private readonly Action<string> standardErrorHandlerFromClrString;
+
         private readonly HashSet<WarningType> disabledWarningsAsErrors;
 
         private bool hadError;
@@ -77,17 +97,20 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
-            return MainWithCustomConsole(args, console: null);
+            return MainWithCustomConsole(args, console: new PerlangConsole());
         }
 
         /// <summary>
         /// Entry point for `perlang`, with the possibility to override the console streams (stdin, stdout, stderr).
+        ///
+        /// This constructor is typically used from tests, wishing to intercept the output to stdout and/or stderr.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         /// <param name="console">A custom `IConsole` implementation to use. May be null, in which case the standard
         /// streams of the calling process will be used.</param>
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
-        public static int MainWithCustomConsole(string[] args, IConsole? console)
+        // TODO: Replace IConsole here with interface which is "Perlang string-aware", so we can delegate to libc write() instead of using Console.WriteLine.
+        public static int MainWithCustomConsole(string[] args, IPerlangConsole console)
         {
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
@@ -145,7 +168,7 @@ namespace Perlang.ConsoleApp
             {
                 Description = "The Perlang Interpreter",
 
-                Handler = CommandHandler.Create((ParseResult parseResult, IConsole console) =>
+                Handler = CommandHandler.Create((ParseResult parseResult, IConsole _) =>
                 {
                     if (parseResult.HasOption(versionOption))
                     {
@@ -171,7 +194,7 @@ namespace Perlang.ConsoleApp
 
                         var program = new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine,
+                            standardOutputHandler: console.WriteStdoutLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         );
 
@@ -185,7 +208,7 @@ namespace Perlang.ConsoleApp
 
                         new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine,
+                            standardOutputHandler: console.WriteStdoutLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         ).ParseAndPrint(source);
 
@@ -195,7 +218,7 @@ namespace Perlang.ConsoleApp
                     {
                         new Program(
                             replMode: true,
-                            standardOutputHandler: console.Out.WriteLine,
+                            standardOutputHandler: console.WriteStdoutLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         ).RunPrompt();
 
@@ -210,7 +233,7 @@ namespace Perlang.ConsoleApp
                         {
                             var program = new Program(
                                 replMode: false,
-                                standardOutputHandler: console.Out.WriteLine,
+                                standardOutputHandler: console.WriteStdoutLine,
                                 disabledWarningsAsErrors: disabledWarningsAsErrorsList
                             );
 
@@ -223,7 +246,7 @@ namespace Perlang.ConsoleApp
                             var program = new Program(
                                 replMode: false,
                                 arguments: remainingArguments,
-                                standardOutputHandler: console.Out.WriteLine,
+                                standardOutputHandler: console.WriteStdoutLine,
                                 disabledWarningsAsErrors: disabledWarningsAsErrorsList
                             );
 
@@ -264,16 +287,20 @@ namespace Perlang.ConsoleApp
 
         internal Program(
             bool replMode,
-            Action<string> standardOutputHandler,
+            Action<Lang.String> standardOutputHandler,
             IEnumerable<string>? arguments = null,
             IEnumerable<WarningType>? disabledWarningsAsErrors = null,
             Action<RuntimeError>? runtimeErrorHandler = null)
         {
             // TODO: Make these be separate handlers at some point, so the caller can separate between these types of
-            // output.
+            // TODO: output.
             this.standardOutputHandler = standardOutputHandler;
             this.standardErrorHandler = standardOutputHandler;
             this.disabledWarningsAsErrors = (disabledWarningsAsErrors ?? Enumerable.Empty<WarningType>()).ToHashSet();
+
+            // Convenience fields while we are migrating away from CLR strings to Perlang strings.
+            this.standardOutputHandlerFromClrString = s => this.standardOutputHandler(Lang.String.from(s));
+            this.standardErrorHandlerFromClrString = s => this.standardErrorHandler(Lang.String.from(s));
 
             interpreter = new PerlangInterpreter(
                 runtimeErrorHandler ?? RuntimeError,
@@ -288,7 +315,7 @@ namespace Perlang.ConsoleApp
         {
             if (!File.Exists(path))
             {
-                standardErrorHandler($"Error: File {path} not found");
+                standardErrorHandler(Lang.String.from($"Error: File {path} not found"));
                 return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
@@ -364,25 +391,27 @@ namespace Perlang.ConsoleApp
 
         private void ShowHelp()
         {
-            standardOutputHandler(
+            standardOutputHandlerFromClrString(
                 "\n" +
                 "This is the Perlang interactive console (commonly called REPL, short for\n" +
                 "Read-Evaluate-Print-Loop). Any valid Perlang expression or statement can be\n" +
                 "entered here, and will be evaluated dynamically. For example, 10 + 5, 2 ** 32,\n" +
                 "or `print \"Hello, World\"`"
             );
-            standardOutputHandler(String.Empty);
 
-            standardOutputHandler("The following special commands are also available:");
-            standardOutputHandler("\x1B[36;1m/quit\x1B[0m or \x1B[36;1m/exit\x1B[0m to quit the program.");
-            standardOutputHandler("\x1B[36;1m/help\x1B[0m to display this help.");
-            standardOutputHandler(String.Empty);
+            standardOutputHandler(Lang.String.Empty);
 
-            standardOutputHandler(
+            standardOutputHandlerFromClrString("The following special commands are also available:");
+            standardOutputHandlerFromClrString("\x1B[36;1m/quit\x1B[0m or \x1B[36;1m/exit\x1B[0m to quit the program.");
+            standardOutputHandlerFromClrString("\x1B[36;1m/help\x1B[0m to display this help.");
+            standardOutputHandler(Lang.String.Empty);
+
+            standardOutputHandlerFromClrString(
                 "For more information on the Perlang language, please consult this web page:\n" +
                 "https://perlang.org/learn. Thank you for your interest in the project! 🙏"
             );
-            standardOutputHandler(String.Empty);
+
+            standardOutputHandler(Lang.String.Empty);
         }
 
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
@@ -391,7 +420,7 @@ namespace Perlang.ConsoleApp
 
             if (result != null && result != VoidObject.Void)
             {
-                standardOutputHandler(result.ToString() ?? String.Empty);
+                standardOutputHandler(Utils.Stringify(result));
             }
 
             return (int)ExitCodes.SUCCESS;
@@ -408,14 +437,14 @@ namespace Perlang.ConsoleApp
                 return;
             }
 
-            standardOutputHandler(result);
+            standardOutputHandler(Lang.String.from(result));
         }
 
         private void PrintBanner()
         {
-            standardOutputHandler($"Perlang Interactive REPL Console (\x1B[1m{CommonConstants.GetFullVersion()}\x1B[0m, built from git commit {CommonConstants.GitCommit})");
-            standardOutputHandler("Type \x1B[36;1m/help\x1B[0m for more information or \x1B[36;1m/quit\x1B[0m to quit the program.");
-            standardOutputHandler(String.Empty);
+            standardOutputHandlerFromClrString($"Perlang Interactive REPL Console (\x1B[1m{CommonConstants.GetFullVersion()}\x1B[0m, built from git commit {CommonConstants.GitCommit})");
+            standardOutputHandlerFromClrString("Type \x1B[36;1m/help\x1B[0m for more information or \x1B[36;1m/quit\x1B[0m to quit the program.");
+            standardOutputHandler(Lang.String.Empty);
         }
 
         private void ScanError(ScanError scanError)
@@ -427,7 +456,7 @@ namespace Perlang.ConsoleApp
         {
             string line = error.Token?.Line.ToString() ?? "unknown";
 
-            standardOutputHandler($"[line {line}] {error.Message}");
+            standardOutputHandlerFromClrString($"[line {line}] {error.Message}");
             hadRuntimeError = true;
         }
 
@@ -445,7 +474,7 @@ namespace Perlang.ConsoleApp
 
         private void ReportError(int line, string where, string message)
         {
-            standardErrorHandler($"[line {line}] Error{where}: {message}");
+            standardErrorHandlerFromClrString($"[line {line}] Error{where}: {message}");
             hadError = true;
         }
 
@@ -463,7 +492,7 @@ namespace Perlang.ConsoleApp
 
         private void ReportWarning(int line, string where, string message)
         {
-            standardErrorHandler($"[line {line}] Warning{where}: {message}");
+            standardErrorHandlerFromClrString($"[line {line}] Warning{where}: {message}");
         }
 
         private void ParseError(ParseError parseError)

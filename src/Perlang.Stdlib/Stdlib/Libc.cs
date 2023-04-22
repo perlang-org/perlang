@@ -1,6 +1,7 @@
 #nullable enable
 #pragma warning disable SA1601
 #pragma warning disable SA1300
+#pragma warning disable SA1310
 #pragma warning disable S3218
 using System;
 using System.Collections;
@@ -40,6 +41,9 @@ namespace Perlang.Stdlib
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static partial class Internal
         {
+            internal const int STDOUT_FILENO = 1;
+            internal const int STDERR_FILENO = 2;
+
 #if _WINDOWS
             [DllImport("ucrtbase", EntryPoint = "_getpid")]
 #else // POSIX
@@ -53,6 +57,13 @@ namespace Perlang.Stdlib
             [LibraryImport("libc")]
 #endif
             internal static unsafe partial int memcmp(byte* b1, byte* b2, uint count);
+
+#if _WINDOWS
+            [LibraryImport("ucrtbase", EntryPoint = "_write")]
+#else // POSIX
+            [LibraryImport("libc", SetLastError = true)]
+#endif
+            internal static partial int write(int fd, IntPtr s, int count);
 
 #if _WINDOWS
             [LibraryImport("ucrtbase")]

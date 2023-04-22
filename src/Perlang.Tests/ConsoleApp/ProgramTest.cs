@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.CommandLine.IO;
 using System.Linq;
 using FluentAssertions;
 using Perlang.ConsoleApp;
@@ -26,7 +25,7 @@ namespace Perlang.Tests.ConsoleApp
             {
                 subject = new Program(
                     replMode: true,
-                    standardOutputHandler: s => output.Add(s),
+                    standardOutputHandler: s => output.Add(s.ToString()),
                     runtimeErrorHandler: e => throw e,
                     disabledWarningsAsErrors: Enumerable.Empty<WarningType>()
                 );
@@ -154,7 +153,7 @@ namespace Perlang.Tests.ConsoleApp
 
         public class MainWithCustomConsole
         {
-            private readonly TestConsole testConsole = new();
+            private readonly IPerlangConsole testConsole = new TestConsole();
 
             /// <summary>
             /// Gets the content printed to the standard output stream during test execution.
@@ -177,7 +176,7 @@ namespace Perlang.Tests.ConsoleApp
 
             public class WithPrintParameter
             {
-                private readonly TestConsole testConsole = new();
+                private readonly IPerlangConsole testConsole = new TestConsole();
 
                 /// <summary>
                 /// Gets the content printed to the standard output stream during test execution.
