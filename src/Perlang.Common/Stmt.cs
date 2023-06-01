@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -99,9 +100,9 @@ namespace Perlang
         {
             public Expr Condition { get; }
             public Stmt ThenBranch { get; }
-            public Stmt ElseBranch { get; }
+            public Stmt? ElseBranch { get; }
 
-            public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
+            public If(Expr condition, Stmt thenBranch, Stmt? elseBranch)
             {
                 Condition = condition;
                 ThenBranch = thenBranch;
@@ -132,9 +133,9 @@ namespace Perlang
         public class Return : Stmt
         {
             public Token Keyword { get; }
-            public Expr Value { get; }
+            public Expr? Value { get; }
 
-            public Return(Token keyword, Expr value)
+            public Return(Token keyword, Expr? value)
             {
                 Keyword = keyword;
                 Value = value;

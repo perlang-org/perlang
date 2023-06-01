@@ -32,7 +32,7 @@ namespace Perlang.Interpreter.Typing
             bool typeResolvingFailed = false;
 
             //
-            // Phase 1: Resolve explicit and explicit type references to their corresponding CLR types.
+            // Phase 1: Resolve explicit and implicit type references to their corresponding CLR types.
             //
             var typeResolver = new TypeResolver(
                 getVariableOrFunctionCallback,

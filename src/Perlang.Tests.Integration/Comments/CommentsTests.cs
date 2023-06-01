@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -27,9 +28,10 @@ namespace Perlang.Tests.Integration.Comments
         {
             string source = "// comment";
 
-            var output = Eval(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Null(output);
+            output.Should()
+                .BeEmpty();
         }
 
         [Fact]
@@ -37,9 +39,10 @@ namespace Perlang.Tests.Integration.Comments
         {
             string source = "// comment\n";
 
-            var output = Eval(source);
+            var output = EvalReturningOutputString(source);
 
-            Assert.Null(output);
+            output.Should()
+                .BeEmpty();
         }
 
         [Fact]

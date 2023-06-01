@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -128,7 +129,10 @@ namespace Perlang.Tests.Integration.For
 
             var output = EvalReturningOutput(source);
 
-            Assert.Equal(new string[] { }, output);
+            // TODO: Nothing is expected to have been printed by the above, but perhaps we could make this test better
+            // TODO: and print in the branches?
+            output.Should()
+                .BeEmpty();
         }
     }
 }

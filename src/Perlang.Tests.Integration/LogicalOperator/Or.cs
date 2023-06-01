@@ -1,4 +1,5 @@
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -47,7 +48,8 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("True", output);
+            output!.Should()
+                .Be("True");
         }
 
         [Fact]
@@ -61,7 +63,8 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            output!.Should()
+                .Be("False");
         }
 
         [Fact]

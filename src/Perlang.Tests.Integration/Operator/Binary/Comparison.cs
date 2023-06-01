@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -46,9 +48,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -62,9 +65,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -78,9 +82,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         //
@@ -98,9 +103,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -114,9 +120,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -132,7 +139,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         //
@@ -152,7 +160,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -168,7 +177,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -184,7 +194,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         //
@@ -203,7 +214,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("False", output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -219,7 +231,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -235,7 +248,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal("True", output);
+            output.Should()
+                .Be("True");
         }
 
         //
@@ -259,12 +273,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             // We deliberately do not check for equality, since even negative and positive zero floats are equal.
             // Instead, we check if one is smaller than the other.
             string source = @"
-                0 < -0
+                print 0 < -0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal(false, output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -274,12 +289,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                0.0 < -0.0
+                print 0.0 < -0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal(false, output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -289,12 +305,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                -0.0 < 0.0
+                print -0.0 < 0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal(false, output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -304,12 +321,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                0.0 > -0.0
+                print 0.0 > -0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutput(source).SingleOrDefault();
 
-            Assert.Equal(false, output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -319,12 +337,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                -0.0 > 0.0
+                print -0.0 > 0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal(false, output);
+            output.Should()
+                .Be("False");
         }
 
         [Theory]
@@ -334,12 +353,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                0.0 <= -0.0
+                print 0.0 <= -0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal(true, output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -349,27 +369,29 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                -0.0 <= 0.0
+                print -0.0 <= 0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal(true, output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        public async Task zero_greater_than_or_equals_negative_zero_is_false(CultureInfo cultureInfo)
+        public async Task zero_greater_than_or_equals_negative_zero_is_true(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                0.0 >= -0.0
+                print 0.0 >= -0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal(true, output);
+            output.Should()
+                .Be("True");
         }
 
         [Theory]
@@ -379,12 +401,13 @@ namespace Perlang.Tests.Integration.Operator.Binary
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
-                -0.0 >= 0.0
+                print -0.0 >= 0.0;
             ";
 
-            object output = Eval(source);
+            string output = EvalReturningOutputString(source);
 
-            Assert.Equal(true, output);
+            output.Should()
+                .Be("True");
         }
     }
 }

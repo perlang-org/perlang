@@ -172,8 +172,8 @@ public class BinaryOperatorDataTests
         EnsureAllPrimitiveTypesAreHandled(Exponential_result, Exponential_unsupported_types, "Exponential");
     }
 
-    // EnsureAllPrimitiveTypePairsAreHandled deliberately not tests for the exponential operator, since it only supports
-    // a limited subset of operand types.
+    // EnsureAllPrimitiveTypePairsAreHandled deliberately does not test for the exponential operator, since it only
+    // supports a limited subset of operand types.
 
     [Fact]
     void Modulo_has_test_data_for_all_supported_primitive_types()

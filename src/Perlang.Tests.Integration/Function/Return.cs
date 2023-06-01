@@ -12,6 +12,9 @@ namespace Perlang.Tests.Integration.Function
                 fun f(i: int): int {
                     if (i < 10) return i;
                     if (i >= 10) return i / 2;
+
+                    // Will never be reached
+                    return -1;
                 }
 
                 print f(5);
