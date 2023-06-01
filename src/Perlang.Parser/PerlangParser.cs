@@ -4,12 +4,14 @@
 // try and send a PR.
 
 #pragma warning disable SA1503
+#pragma warning disable S1117
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
 using static Perlang.Internal.Utils;
 using static Perlang.TokenType;
@@ -46,6 +48,85 @@ namespace Perlang.Parser
         private readonly List<Token> tokens;
 
         private int current;
+
+        /// <summary>
+        /// Scans and parses the given program, to prepare for execution or inspection.
+        ///
+        /// This method is useful for inspecting the AST or perform other validation of the internal state after
+        /// parsing a given program. It is also used for interpreting the expressions/statements, or compiling it to
+        /// executable form.
+        /// </summary>
+        /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
+        /// <param name="scanErrorHandler">A handler for scanner errors.</param>
+        /// <param name="parseErrorHandler">A handler for parse errors.</param>
+        /// <param name="replMode">`true` if the program is being executed in REPL mode; otherwise, `false`. REPL mode
+        /// implies a more relaxed more where e.g. semicolons are automatically added after each line.</param>
+        /// <returns>A <see cref="ScanAndParseResult"/> instance.</returns>
+        public static ScanAndParseResult ScanAndParse(
+            string source,
+            ScanErrorHandler scanErrorHandler,
+            ParseErrorHandler parseErrorHandler,
+            bool replMode = false)
+        {
+            //
+            // Scanning phase
+            //
+
+            bool hasScanErrors = false;
+            var scanner = new Scanner(source, scanError =>
+            {
+                hasScanErrors = true;
+                scanErrorHandler(scanError);
+            });
+
+            var tokens = scanner.ScanTokens();
+
+            if (hasScanErrors)
+            {
+                // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
+                return ScanAndParseResult.ScanErrorOccurred;
+            }
+
+            //
+            // Parsing phase
+            //
+
+            bool hasParseErrors = false;
+            var parser = new PerlangParser(
+                tokens,
+                parseError =>
+                {
+                    hasParseErrors = true;
+                    parseErrorHandler(parseError);
+                },
+                allowSemicolonElision: replMode
+            );
+
+            object syntax = parser.ParseExpressionOrStatements();
+
+            if (hasParseErrors)
+            {
+                // One or more parse errors were encountered. They have been reported upstream, so we just abort
+                // the evaluation at this stage.
+                return ScanAndParseResult.ParseErrorEncountered;
+            }
+
+            // TODO: Should we return here (and change PrepareForEvalResult to something like ScanAndParseResult) or
+            // should we continue with moving more of the code in eval into this method? Given that we want to inspect
+            // the result from Resolver, maybe doing more work here would be completely fine...
+            if (syntax is Expr expr)
+            {
+                return ScanAndParseResult.OfExpr(expr);
+            }
+            else if (syntax is List<Stmt> stmts)
+            {
+                return ScanAndParseResult.OfStmts(stmts);
+            }
+            else
+            {
+                throw new IllegalStateException($"syntax expected to be Expr or List<Stmt>, not {syntax}");
+            }
+        }
 
         public PerlangParser(List<Token> tokens, ParseErrorHandler parseErrorHandler, bool allowSemicolonElision)
         {

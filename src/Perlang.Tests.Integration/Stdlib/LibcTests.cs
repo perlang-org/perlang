@@ -10,7 +10,7 @@ namespace Perlang.Tests.Integration.Stdlib
     /// </summary>
     public class LibcTests
     {
-        [Fact]
+        [SkippableFact]
         public void environ_returns_dictionary()
         {
             var result = Eval("Libc.environ()");
@@ -20,7 +20,7 @@ namespace Perlang.Tests.Integration.Stdlib
                 .NotBeEmpty();
         }
 
-        [Fact]
+        [SkippableFact]
         public void environ_contains_path()
         {
             var result = Eval("Libc.environ()");
@@ -35,7 +35,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "PATH is named Path on Windows")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void environ_item_supports_get_Item()
         {
@@ -47,7 +47,7 @@ namespace Perlang.Tests.Integration.Stdlib
                 .NotBeEmpty();
         }
 
-        [Fact]
+        [SkippableFact]
         public void getcwd_returns_non_null_string()
         {
             var result = Eval("Libc.getcwd()");
@@ -57,7 +57,7 @@ namespace Perlang.Tests.Integration.Stdlib
                 .NotBeNull();
         }
 
-        [Fact]
+        [SkippableFact]
         public void getenv_path_returns_non_empty_string()
         {
             var result = Eval("Libc.getenv(\"PATH\")");
@@ -67,7 +67,7 @@ namespace Perlang.Tests.Integration.Stdlib
                 .NotBeEmpty();
         }
 
-        [Fact]
+        [SkippableFact]
         public void getpid_returns_positive_integer()
         {
             var result = Eval("Libc.getpid()");

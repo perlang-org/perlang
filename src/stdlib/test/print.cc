@@ -3,6 +3,9 @@
 #include "src/stdlib.hpp"
 #include "double-conversion//cctest.h"
 
+#define FMT_HEADER_ONLY
+#include "src/fmt/format.h"
+
 bool fwrite_mocked = false;
 char* captured_output = NULL;
 
@@ -89,4 +92,10 @@ TEST(PrintDouble_9223372036854775807)
     fwrite_mocked = true;
     perlang::print(9223372036854775807.0);
     fwrite_mocked = false;
+
+    float f = 340282349999999991754788743781432688640.0f;
+
+    f /= 4294967295;
+
+    fmt::println("{:.7G}", f);
 }

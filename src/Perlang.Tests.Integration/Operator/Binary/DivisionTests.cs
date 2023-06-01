@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     // https://github.com/munificent/craftinginterpreters/blob/c6da0e61e6072271de404464c34b51c2fdc39e59/test/operator/divide_num_nonnum.lox
     public class DivisionTests
     {
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Division_result), MemberType = typeof(BinaryOperatorData))]
         void performs_division(string i, string j, string expectedResult)
         {
@@ -30,10 +30,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Division_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                     print ({i} / {j}).get_type();
                 ";
@@ -59,7 +61,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Message.Should().Match(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task dividing_doubles_works_on_different_cultures(CultureInfo cultureInfo)
         {

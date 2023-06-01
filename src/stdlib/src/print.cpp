@@ -10,9 +10,14 @@ namespace perlang
 {
     void print(const char* str)
     {
-        // For plain strings, there's no need to use the overhead which `printf` induces. `puts` can potentially be a
-        // tiny bit faster.
-        puts(str);
+        if (str == nullptr) {
+            puts("null");
+        }
+        else {
+            // For plain strings, there's no need to use the overhead which `printf` induces. `puts` can potentially be a
+            // tiny bit faster.
+            puts(str);
+        }
     }
 
     void print(bool b)
@@ -52,11 +57,13 @@ namespace perlang
 
     void print(float f)
     {
-        fmt::println("{}", f);
+        // Use the same precision as on the C# side
+        fmt::println("{:.7G}", f);
     }
 
     void print(double d)
     {
-        fmt::println("{}", d);
+        // Use the same precision as on the C# side
+        fmt::println("{:.15G}", d);
     }
 }

@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Numerics;
+using Perlang.Compiler;
 
 namespace Perlang
 {
@@ -43,6 +45,28 @@ namespace Perlang
                 clrType = value;
             }
         }
+
+        public string CppType =>
+            clrType switch
+            {
+                // TODO: Add the other Perlang-supported types as well
+                var t when t == typeof(Int32) => "int32_t",
+                var t when t == typeof(UInt32) => "uint32_t",
+                var t when t == typeof(Int64) => "int64_t",
+                var t when t == typeof(UInt64) => "uint64_t",
+                var t when t == typeof(Single) => "float",
+                var t when t == typeof(Double) => "double",
+                var t when t == typeof(bool) => "bool",
+                var t when t == typeof(void) => "void",
+                var t when t == typeof(BigInteger) => throw new NotImplementedInCompiledModeException("BigInteger is not yet supported in compiled mode"),
+                null => throw new InvalidOperationException($"Internal error: ClrType was unexpectedly null"),
+
+                // TODO: Differentiate from these on the C++ level as well
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "const char *",
+                var t when t.FullName == "Perlang.Lang.String" => "const char *",
+
+                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
+            };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type

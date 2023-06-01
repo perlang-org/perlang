@@ -182,10 +182,11 @@ namespace Perlang.Interpreter
                 return null;
             }
 
-            ScanAndParseResult result = ScanAndParse(
+            ScanAndParseResult result = PerlangParser.ScanAndParse(
                 source,
                 scanErrorHandler,
-                parseErrorHandler
+                parseErrorHandler,
+                replMode
             );
 
             if (result == ScanAndParseResult.ScanErrorOccurred ||
@@ -439,81 +440,6 @@ namespace Perlang.Interpreter
             else
             {
                 throw new IllegalStateException("syntax was neither Expr nor list of Stmt");
-            }
-        }
-
-        /// <summary>
-        /// Scans and parses the given program, to prepare for evaluation.
-        ///
-        /// This method is useful for inspecting the AST or perform other validation of the internal state after
-        /// parsing a given program.
-        /// </summary>
-        /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
-        /// <param name="scanErrorHandler">A handler for scanner errors.</param>
-        /// <param name="parseErrorHandler">A handler for parse errors.</param>
-        /// <returns>A <see cref="ScanAndParseResult"/> instance.</returns>
-        internal ScanAndParseResult ScanAndParse(
-            string source,
-            ScanErrorHandler scanErrorHandler,
-            ParseErrorHandler parseErrorHandler)
-        {
-            //
-            // Scanning phase
-            //
-
-            bool hasScanErrors = false;
-            var scanner = new Scanner(source, scanError =>
-            {
-                hasScanErrors = true;
-                scanErrorHandler(scanError);
-            });
-
-            var tokens = scanner.ScanTokens();
-
-            if (hasScanErrors)
-            {
-                // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
-                return ScanAndParseResult.ScanErrorOccurred;
-            }
-
-            //
-            // Parsing phase
-            //
-
-            bool hasParseErrors = false;
-            var parser = new PerlangParser(
-                tokens,
-                parseError =>
-                {
-                    hasParseErrors = true;
-                    parseErrorHandler(parseError);
-                },
-                allowSemicolonElision: replMode
-            );
-
-            object syntax = parser.ParseExpressionOrStatements();
-
-            if (hasParseErrors)
-            {
-                // One or more parse errors were encountered. They have been reported upstream, so we just abort
-                // the evaluation at this stage.
-                return ScanAndParseResult.ParseErrorEncountered;
-            }
-
-            // TODO: Should we return here (and change PrepareForEvalResult to something like ScanAndParseResult) or
-            // should we continue with moving more of the code in eval into this method? Given that we want to inspect
-            // the result from Resolver, maybe doing more work here would be completely fine...
-            if (syntax is Expr expr)
-            {
-                return ScanAndParseResult.OfExpr(expr);
-            }
-            else if (syntax is List<Stmt> stmts)
-            {
-                return ScanAndParseResult.OfStmts(stmts);
-            }
-            else
-            {
-                throw new IllegalStateException($"syntax expected to be Expr or List<Stmt>, not {syntax}");
             }
         }
 
@@ -2771,45 +2697,6 @@ namespace Perlang.Interpreter
             }
 
             return value;
-        }
-
-        /// <summary>
-        /// Contains the result of the <see cref="PerlangInterpreter.ScanAndParse"/> method.
-        /// </summary>
-        internal class ScanAndParseResult
-        {
-            public static ScanAndParseResult ScanErrorOccurred { get; } = new();
-            public static ScanAndParseResult ParseErrorEncountered { get; } = new();
-
-            public Expr? Expr { get; }
-            public List<Stmt>? Statements { get; }
-
-            public bool HasExpr => Expr != null;
-            public bool HasStatements => Statements != null;
-
-            private ScanAndParseResult()
-            {
-            }
-
-            private ScanAndParseResult(Expr expr)
-            {
-                Expr = expr;
-            }
-
-            private ScanAndParseResult(List<Stmt> statements)
-            {
-                Statements = statements;
-            }
-
-            public static ScanAndParseResult OfExpr(Expr expr)
-            {
-                return new ScanAndParseResult(expr);
-            }
-
-            public static ScanAndParseResult OfStmts(List<Stmt> stmts)
-            {
-                return new ScanAndParseResult(stmts);
-            }
         }
     }
 }

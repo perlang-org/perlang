@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class NotEqualTests
 {
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.NotEqual), MemberType = typeof(BinaryOperatorData))]
     void performs_non_equality_comparison(string i, string j, string expectedResult)
     {
@@ -19,14 +19,16 @@ public class NotEqualTests
 
         string result = EvalReturningOutputString(source);
 
-        result.Should()
+        result
+            .ToLower()
+            .Should()
             .Be(expectedResult);
     }
 
     [Theory]
-    [InlineData("Foo", "Bar", "True")]
-    [InlineData("Foo", "foo", "True")] // Comparison is case sensitive
-    [InlineData("foo", "foo", "False")]
+    [InlineData("Foo", "Bar", "true")]
+    [InlineData("Foo", "foo", "true")] // Comparison is case sensitive
+    [InlineData("foo", "foo", "false")]
     void strings_can_be_compared_for_equality(string i, string j, string expectedResult)
     {
         string source = $@"
@@ -38,7 +40,9 @@ public class NotEqualTests
 
         string result = EvalReturningOutputString(source);
 
-        result.Should()
+        result
+            .ToLower()
+            .Should()
             .Be(expectedResult);
     }
 

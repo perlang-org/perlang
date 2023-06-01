@@ -68,7 +68,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot assign bigint to long variable", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void long_variable_has_expected_type_when_initialized_to_8bit_value()
         {
             // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type.
@@ -83,7 +83,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Int64", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void long_variable_has_expected_type_when_assigned_8bit_value_from_another_variable()
         {
             // An 8-bit integer (sbyte) should be expanded to 64-bit when the assignment target is of the 'long' type.
@@ -99,7 +99,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Int64", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void long_variable_has_expected_type_for_large_value()
         {
             string source = @"

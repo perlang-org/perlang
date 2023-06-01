@@ -28,7 +28,7 @@ public class UintTests
         Assert.Equal(expectedOutput, output);
     }
 
-    [Theory]
+    [SkippableTheory]
     [InlineData("103", "System.UInt32")]
     [InlineData("2147483647", "System.UInt32")] // Int32.MaxValue
     [InlineData("2147483648", "System.UInt32")] // Int32.MaxValue + 1
@@ -77,7 +77,7 @@ public class UintTests
         Assert.Matches("Cannot assign bigint to uint variable", exception.Message);
     }
 
-    [Fact]
+    [SkippableFact]
     public void uint_variable_has_expected_type_when_initialized_to_8bit_value()
     {
         // An 8-bit integer (sbyte) should be expanded to 32-bit when the assignment target is of the `uint` type.
@@ -92,7 +92,7 @@ public class UintTests
         Assert.Equal("System.UInt32", output);
     }
 
-    [Fact]
+    [SkippableFact]
     public void uint_variable_has_expected_type_when_assigned_8bit_value_from_another_variable()
     {
         // An 8-bit integer (sbyte) should be expanded to 32-bit when the assignment target is of the `uint` type.

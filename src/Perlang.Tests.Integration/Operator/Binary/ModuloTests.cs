@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     /// </summary>
     public class ModuloTests
     {
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Modulo_result), MemberType = typeof(BinaryOperatorData))]
         public void returns_remainder_of_division(string i, string j, string expectedResult)
         {
@@ -26,10 +26,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Modulo_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                     print ({i} % {j}).get_type();
                 ";
@@ -55,7 +57,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Message.Should().Match(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task modulo_operation_works_on_different_cultures(CultureInfo cultureInfo)
         {
@@ -71,7 +73,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(0.04000000000000031, result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task modulo_operation_combined_with_others_without_grouping(CultureInfo cultureInfo)
         {
@@ -86,7 +88,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(1.9, result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task modulo_operation_combined_with_others_with_grouping_first_operators(CultureInfo cultureInfo)
         {
@@ -101,7 +103,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(1.9, result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task modulo_operation_combined_with_others_with_grouping_last_operators(CultureInfo cultureInfo)
         {

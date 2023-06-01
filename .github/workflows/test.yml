@@ -12,6 +12,12 @@ jobs:
           - windows-2022
           - ubuntu-22.04
           - macos-11
+        execution_mode:
+          - interpreted
+        include:
+          # Run in interpreted mode on all runners, but additionally also in compiled mode on Ubuntu
+          - runner: ubuntu-22.04
+            execution_mode: compiled
 
     steps:
       - uses: actions/checkout@v1
@@ -24,10 +30,13 @@ jobs:
       - name: Re-generate auto-generated files
         run: make auto-generated
 
-      # Needed to run tests, when they are running in compilation mode
+      # Needed to run tests, when they are running in experimental compilation mode
       # (PERLANG_EXPERIMENTAL_COMPILATION=true)
       - name: Rebuild stdlib
         run: make stdlib
 
       - name: Run test suite
-        run: dotnet test --configuration Release --verbosity normal
+        run: dotnet test --configuration Release --verbosity minimal
+        env:
+          PERLANG_EXPERIMENTAL_COMPILATION: ${{ matrix.execution_mode == 'compiled' && 'true' || 'false' }}
+          PERLANG_ROOT: ${{ github.workspace }}

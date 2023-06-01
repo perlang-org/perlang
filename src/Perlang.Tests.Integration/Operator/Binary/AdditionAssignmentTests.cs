@@ -6,10 +6,18 @@ namespace Perlang.Tests.Integration.Operator.Binary
 {
     public class AdditionAssignmentTests
     {
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.AdditionAssignment_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_addition_assignment(string i, string j, string expectedResult)
         {
+            // double d = 12.0;
+            // d = d += 340282349999999991754788743781432688640.0f;
+            //
+            // Console.WriteLine(d);
+            // Console.WriteLine(d.ToString());
+            //
+            // int q = 0;
+
             string source = $@"
                 var i = {i};
                 i += {j};
@@ -22,10 +30,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.AdditionAssignment_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                 var i = {i};
                 print (i += {j}).get_type();

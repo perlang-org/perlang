@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class EqualTests
 {
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Equal), MemberType = typeof(BinaryOperatorData))]
     void performs_equality_comparison(string i, string j, string expectedResult)
     {
@@ -17,16 +17,17 @@ public class EqualTests
                 print i1 == i2;
             ";
 
-        string result = EvalReturningOutputString(source);
+        string result = EvalReturningOutputString(source)
+            .ToLower();
 
         result.Should()
             .Be(expectedResult);
     }
 
     [Theory]
-    [InlineData("Foo", "Bar", "False")]
-    [InlineData("Foo", "foo", "False")] // Comparison is case sensitive
-    [InlineData("foo", "foo", "True")]
+    [InlineData("Foo", "Bar", "false")]
+    [InlineData("Foo", "foo", "false")] // Comparison is case sensitive
+    [InlineData("foo", "foo", "true")]
     void strings_can_be_compared_for_equality(string i, string j, string expectedResult)
     {
         string source = $@"
@@ -36,7 +37,9 @@ public class EqualTests
                 print i1 == i2;
             ";
 
-        string result = EvalReturningOutputString(source);
+        // "True" in interpreted mode vs "true" in compiled mode
+        string result = EvalReturningOutputString(source)
+            .ToLower();
 
         result.Should()
             .Be(expectedResult);

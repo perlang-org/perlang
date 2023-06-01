@@ -29,7 +29,7 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(new[] { "-1" }, output);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("int", "1", "System.Int32", "en-US")]
         [InlineData("int", "1", "System.Int32", "sv-SE")]
         [InlineData("long", "4294967296", "System.Int64", "en-US")]

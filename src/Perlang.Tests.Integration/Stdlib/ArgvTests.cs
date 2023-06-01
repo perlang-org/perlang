@@ -8,13 +8,13 @@ namespace Perlang.Tests.Integration.Stdlib
 {
     public class ArgvTests
     {
-        [Fact]
+        [SkippableFact]
         public void ARGV_is_defined()
         {
             Assert.IsAssignableFrom<Argv>(Eval("ARGV"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_is_defined()
         {
             Assert.IsAssignableFrom<TargetAndMethodContainer>(Eval("ARGV.pop"));
@@ -30,13 +30,13 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Matches("No arguments left", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_with_one_argument_expr_returns_the_expected_result()
         {
             Assert.Equal("arg1", EvalWithArguments("ARGV.pop()", "arg1"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_with_one_argument_stmt_returns_the_expected_result()
         {
             var result = EvalReturningOutput("print ARGV.pop();", "arg1").SingleOrDefault();
@@ -44,7 +44,7 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Equal("arg1", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_with_multiple_arguments_returns_the_expected_result()
         {
             var result = EvalReturningOutput("ARGV.pop(); print ARGV.pop();", "arg1", "arg2").Single();

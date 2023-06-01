@@ -40,9 +40,11 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Matches("Class Foo already defined; cannot redefine", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void native_class_can_be_accessed_by_name()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             // For now, all native classes are registered in the global namespace. We could consider changing this,
             // since a global namespace is a precious thing that should be treated as such, preventing unnecessary
             // pollution. As long as we use this mechanism for mostly providing system-utilities that are widely useful
@@ -132,9 +134,13 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("#<Foo System.String ToString()>", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void can_get_reference_to_static_method_native_class()
         {
+            // We need to figure out a way to handle method references in compiled mode, and once we've done that, how
+            // to `print()` it in a reasonable manner. :-)
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 print Base64.to_string;
             ";

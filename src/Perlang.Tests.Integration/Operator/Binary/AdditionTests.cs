@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 {
     public class AdditionTests
     {
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Addition_result), MemberType = typeof(BinaryOperatorData))]
         void performs_addition(string i, string j, string expectedResult)
         {
@@ -29,10 +29,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
         void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                 print ({i} + {j}).get_type();
             ";
@@ -43,7 +45,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedType);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
         void local_variable_inference_returns_expected_type(string i, string j, string expectedType)
         {
@@ -74,7 +76,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Message.Should().Match(expectedResult);
         }
 
-        [Fact]
+        [SkippableFact]
         void addition_of_strings_performs_concatenation()
         {
             string source = @"
@@ -90,7 +92,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("foobar");
         }
 
-        [Fact]
+        [SkippableFact]
         void addition_of_integer_and_string_coerces_number_to_string()
         {
             // Some interesting notes on how other languages deal with this:
@@ -114,7 +116,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("123abc");
         }
 
-        [Fact]
+        [SkippableFact]
         void addition_of_bigint_and_string_coerces_number_to_string()
         {
             string source = @"
@@ -130,7 +132,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("18446744073709551616xyz");
         }
 
-        [Fact]
+        [SkippableFact]
         void addition_of_string_and_integer_coerces_number_to_string()
         {
             string source = @"
@@ -146,7 +148,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("abc123");
         }
 
-        [Fact]
+        [SkippableFact]
         void addition_of_string_and_bigint_coerces_number_to_string()
         {
             string source = @"
@@ -162,7 +164,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("abc18446744073709551616");
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
@@ -181,7 +183,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("123.45abc");
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {

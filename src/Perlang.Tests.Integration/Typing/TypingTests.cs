@@ -107,7 +107,7 @@ namespace Perlang.Tests.Integration.Typing
 
         // These tests deliberately test the edge cases (minimum/maximum values), to prevent off-by-one errors.
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("2147483647", "System.Int32")]              // Int32.MaxValue
         [InlineData("-2147483648", "System.Int32")]             // Int32.MinValue
         [InlineData("4294967295", "System.UInt32")]             // UInt32.MaxValue
@@ -129,7 +129,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal(expectedType, result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_int_variable()
         {
             string source = @"
@@ -143,7 +143,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Int32", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_long_variable()
         {
             string source = @"
@@ -157,7 +157,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Int64", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_expression()
         {
             string source = @"

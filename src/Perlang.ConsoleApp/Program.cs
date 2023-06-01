@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Mono.Terminal;
 using Perlang.Internal;
 using Perlang.Interpreter;
+using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
@@ -64,6 +65,7 @@ namespace Perlang.ConsoleApp
         }
 
         private readonly PerlangInterpreter interpreter;
+        private readonly PerlangCompiler compiler;
 
         /// <summary>
         /// Writes a Perlang native string to the standard output stream.
@@ -86,6 +88,11 @@ namespace Perlang.ConsoleApp
         private readonly Action<string> standardErrorHandlerFromClrString;
 
         private readonly HashSet<WarningType> disabledWarningsAsErrors;
+
+        /// <summary>
+        /// A flag which determines if (highly experimental) compilation to machine code is enabled or not.
+        /// </summary>
+        private readonly bool experimentalCompilation;
 
         private bool hadError;
         private bool hadRuntimeError;
@@ -234,7 +241,8 @@ namespace Perlang.ConsoleApp
                             var program = new Program(
                                 replMode: false,
                                 standardOutputHandler: console.WriteStdoutLine,
-                                disabledWarningsAsErrors: disabledWarningsAsErrorsList
+                                disabledWarningsAsErrors: disabledWarningsAsErrorsList,
+                                experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
 
                             result = program.RunFile(scriptName);
@@ -247,7 +255,8 @@ namespace Perlang.ConsoleApp
                                 replMode: false,
                                 arguments: remainingArguments,
                                 standardOutputHandler: console.WriteStdoutLine,
-                                disabledWarningsAsErrors: disabledWarningsAsErrorsList
+                                disabledWarningsAsErrors: disabledWarningsAsErrorsList,
+                                experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
 
                             result = program.RunFile(scriptName);
@@ -290,13 +299,15 @@ namespace Perlang.ConsoleApp
             Action<Lang.String> standardOutputHandler,
             IEnumerable<string>? arguments = null,
             IEnumerable<WarningType>? disabledWarningsAsErrors = null,
-            Action<RuntimeError>? runtimeErrorHandler = null)
+            Action<RuntimeError>? runtimeErrorHandler = null,
+            bool experimentalCompilation = false)
         {
             // TODO: Make these be separate handlers at some point, so the caller can separate between these types of
             // TODO: output.
             this.standardOutputHandler = standardOutputHandler;
             this.standardErrorHandler = standardOutputHandler;
             this.disabledWarningsAsErrors = (disabledWarningsAsErrors ?? Enumerable.Empty<WarningType>()).ToHashSet();
+            this.experimentalCompilation = experimentalCompilation;
 
             // Convenience fields while we are migrating away from CLR strings to Perlang strings.
             this.standardOutputHandlerFromClrString = s => this.standardOutputHandler(Lang.String.from(s));
@@ -309,6 +320,11 @@ namespace Perlang.ConsoleApp
                 arguments ?? new List<string>(),
                 replMode: replMode
             );
+
+            compiler = new PerlangCompiler(
+                runtimeErrorHandler ?? RuntimeError,
+                this.standardOutputHandler
+            );
         }
 
         private int RunFile(string path)
@@ -320,8 +336,16 @@ namespace Perlang.ConsoleApp
             }
 
             var bytes = File.ReadAllBytes(path);
+            string source = Encoding.UTF8.GetString(bytes);
 
-            Run(Encoding.UTF8.GetString(bytes), CompilerWarning);
+            if (experimentalCompilation)
+            {
+                CompileAndRun(source, path, CompilerWarning);
+            }
+            else
+            {
+                Run(source, CompilerWarning);
+            }
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -424,6 +448,11 @@ namespace Perlang.ConsoleApp
             }
 
             return (int)ExitCodes.SUCCESS;
+        }
+
+        private void CompileAndRun(string source, string path, CompilerWarningHandler compilerWarningHandler)
+        {
+            compiler.CompileAndRun(source, path, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ParseAndPrint(string source)

@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void getegid_returns_positive_integer()
         {
@@ -26,7 +26,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void geteuid_returns_positive_integer()
         {
@@ -40,7 +40,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void getgid_returns_positive_integer()
         {
@@ -54,7 +54,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void getppid_returns_positive_integer()
         {
@@ -68,7 +68,7 @@ namespace Perlang.Tests.Integration.Stdlib
 #if _WINDOWS
         [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-        [Fact]
+        [SkippableFact]
 #endif
         public void getuid_returns_positive_integer()
         {

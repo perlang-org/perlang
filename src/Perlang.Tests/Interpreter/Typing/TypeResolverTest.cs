@@ -122,7 +122,7 @@ namespace Perlang.Tests.Interpreter.Typing
         {
             var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
-            var scanAndParseResult = interpreter.ScanAndParse(
+            var scanAndParseResult = PerlangParser.ScanAndParse(
                 program,
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler

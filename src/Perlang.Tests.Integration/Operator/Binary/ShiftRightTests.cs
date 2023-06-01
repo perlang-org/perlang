@@ -7,7 +7,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class ShiftRightTests
 {
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.ShiftRight_result), MemberType = typeof(BinaryOperatorData))]
     public void performs_right_shifting(string i, string j, string expectedResult)
     {
@@ -21,10 +21,12 @@ public class ShiftRightTests
             .Be(expectedResult);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.ShiftRight_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
         string source = $@"
                     print ({i} >> {j}).get_type();
                 ";
@@ -107,7 +109,7 @@ public class ShiftRightTests
         Assert.Equal("24", result);
     }
 
-    [Fact]
+    [SkippableFact]
     public void takes_precedence_over_power_operator()
     {
         string source = @"
