@@ -352,3 +352,4 @@ _site/
 docfx/*.dll
 docfx/docfx.exe
 docfx/docfx.exe.config
+lib/

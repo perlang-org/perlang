@@ -37,6 +37,9 @@ jobs:
       - name: Re-generate auto-generated files
         run: make auto-generated
 
+      - name: Rebuild stdlib
+        run: make stdlib
+
       #
       # Build releases
       #

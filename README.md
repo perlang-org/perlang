@@ -146,6 +146,16 @@ editor](https://github.com/mono/mono/blob/main/mcs/tools/csharp/getline.cs),
 dual-licensed under the terms of the MIT X11 license or the Apache License 2.0.
 Copyright (c) 2008 Novell, Inc. Copyright (c) 2016 Xamarin Inc.
 
+[src/stdlib/src/double-conversion](src/stdlib/src/double-conversion) includes
+content from the Google `double-conversion` library, available at
+https://github.com/google/double-conversion, licensed under the BSD 3-Clause
+"New" or "Revised" License. Copyright 2006-2011, the V8 project authors.
+
+[src/stdlib/src/fmt](src/stdlib/src/fmt) includes content from the `{fmt}`
+library, available at https://github.com/fmtlib/fmt, licensed under the MIT
+license. Copyright (c) 2012 - present, Victor Zverovich and `{fmt}`
+contributors.
+
 ## Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
