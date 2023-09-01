@@ -2496,9 +2496,11 @@ template <typename Char, typename OutputIt>
 FMT_CONSTEXPR20 auto write_nonfinite(OutputIt out, bool isnan,
                                      format_specs<Char> specs,
                                      const float_specs& fspecs) -> OutputIt {
+  // Local modification: use NaN and Infinity for closer C# compatibility
   auto str =
-      isnan ? (fspecs.upper ? "NAN" : "nan") : (fspecs.upper ? "INF" : "inf");
-  constexpr size_t str_size = 3;
+      isnan ? (fspecs.upper ? "NaN" : "nan") : (fspecs.upper ? "Infinity" : "inf");
+  const size_t str_size = strlen(str);
+
   auto sign = fspecs.sign;
   auto size = str_size + (sign ? 1 : 0);
   // Replace '0'-padding with space for non-finite values.
@@ -3655,6 +3657,9 @@ FMT_CONSTEXPR20 auto write(OutputIt out, T value) -> OutputIt {
     fspecs.sign = sign::minus;
     value = -value;
   }
+
+  // Local modification: we want uppercase E sign for compatibility with .NET Double.ToString()
+  fspecs.upper = true;
 
   constexpr auto specs = format_specs<Char>();
   using floaty = conditional_t<std::is_same<T, long double>::value, double, T>;
