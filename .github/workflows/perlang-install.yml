@@ -23,14 +23,17 @@ jobs:
   # GitHub actions is Powershell. We do not want to change to 'bash' for the
   # other platforms though, since we want to ensure that the installer works on
   # any POSIX compliant shell.
-  install_windows:
-    runs-on: windows-2019
 
-    steps:
-      - uses: actions/checkout@v1
-      - name: Run perlang-install script
-        run: ./scripts/perlang-install
-        shell: bash
-      - name: Output perlang version
-        run: $HOME/.perlang/nightly/bin/perlang --version
-        shell: bash
+# Temporary disabled because Windows builds are currently broken:
+# https://github.com/perlang-org/perlang/issues/398
+#  install_windows:
+#    runs-on: windows-2019
+#
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Run perlang-install script
+#        run: ./scripts/perlang-install
+#        shell: bash
+#      - name: Output perlang version
+#        run: $HOME/.perlang/nightly/bin/perlang --version
+#        shell: bash
