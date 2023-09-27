@@ -24,5 +24,10 @@ jobs:
       - name: Re-generate auto-generated files
         run: make auto-generated
 
+      # Needed to run tests, when they are running in compilation mode
+      # (PERLANG_EXPERIMENTAL_COMPILATION=true)
+      - name: Rebuild stdlib
+        run: make stdlib
+
       - name: Run test suite
         run: dotnet test --configuration Release --verbosity normal

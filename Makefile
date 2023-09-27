@@ -74,6 +74,11 @@ run: auto-generated
 	dotnet build
 	src/Perlang.ConsoleApp/bin/Debug/net7.0/perlang
 
+stdlib:
+# Creating a subdirectory is important, since cmake will otherwise clutter the stdlib directory with its auto-generated
+# build scripts
+	cd src/stdlib && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && make stdlib install
+
 test:
 	dotnet test --configuration Release
 
