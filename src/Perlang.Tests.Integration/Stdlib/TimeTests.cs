@@ -1,4 +1,5 @@
 using System;
+using FluentAssertions;
 using Perlang.Interpreter;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -24,13 +25,27 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void Time_now_get_Ticks_returns_a_value_greater_than_zero()
         {
-            Assert.True((long) Eval("Time.now().get_Ticks()") > 0);
+            string source = @"
+               print Time.now().get_Ticks() > 0;
+            ";
+
+            string output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("True");
         }
 
         [Fact]
         public void Time_now_ticks_returns_a_value_greater_than_zero()
         {
-            Assert.True((long) Eval("Time.now().ticks()") > 0);
+            string source = @"
+               print Time.now().ticks() > 0;
+            ";
+
+            string output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("True");
         }
     }
 }

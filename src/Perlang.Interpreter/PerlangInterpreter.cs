@@ -323,7 +323,7 @@ namespace Perlang.Interpreter
                 // validation steps on the complete program now (all the statements executed up to now + the expression
                 // we just received).
                 var previousAndNewStatements = previousStatements
-                    .Concat(ImmutableList.Create(new Stmt.ExpressionStmt(result.Expr)))
+                    .Concat(ImmutableList.Create(new Stmt.ExpressionStmt(result.Expr!)))
                     .ToImmutableList();
 
                 //

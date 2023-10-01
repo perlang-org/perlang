@@ -344,7 +344,14 @@ namespace Perlang
 
         public class Get : Expr, ITokenAware
         {
+            /// <summary>
+            /// Gets the target object whose field/property/method is being accessed.
+            /// </summary>
             public Expr Object { get; }
+
+            /// <summary>
+            /// Gets the name of the field/property/method that is being accessed.
+            /// </summary>
             public Token Name { get; }
 
             // TODO: Would be much nicer to have this be without setter, but there is no easy way to accomplish this,

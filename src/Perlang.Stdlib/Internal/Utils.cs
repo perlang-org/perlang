@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Numerics;
 using Perlang.Internal.Extensions;
 using Perlang.Lang;
 using String = Perlang.Lang.String;

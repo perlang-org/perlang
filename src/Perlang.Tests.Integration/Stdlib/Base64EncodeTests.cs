@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -20,7 +21,14 @@ namespace Perlang.Tests.Integration.Stdlib
         [Fact]
         public void Base64_encode_with_a_string_argument_returns_the_expected_result()
         {
-            Assert.Equal("aGVqIGhlag==", Eval("Base64.encode(\"hej hej\")"));
+            string source = @"
+               print Base64.encode(""hej hej"");
+            ";
+
+            string output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("aGVqIGhlag==");
         }
 
         [Fact]
@@ -33,13 +41,18 @@ namespace Perlang.Tests.Integration.Stdlib
                 sb.Append("hej hej, hemskt mycket hej");
             }
 
+            string source = $@"
+               print Base64.encode(""{sb}"");
+            ";
+
             // At the moment, all lines are wrapped at every 76 characters. We could consider to make this configurable,
             // but it's awkward until we support method overloading.
-            Assert.Equal(
-                "aGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWpoZWogaGVqLCBoZW1za3QgbXlja2V0IGhlamhlaiBo\r\n" +
-                "ZWosIGhlbXNrdCBteWNrZXQgaGVqaGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWou",
-                Eval($"Base64.encode(\"{sb}.\")")
-            );
+            string output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("aGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWpoZWogaGVqLCBoZW1za3QgbXlja2V0IGhlamhlaiBo\r\n" +
+                    "ZWosIGhlbXNrdCBteWNrZXQgaGVqaGVqIGhlaiwgaGVtc2t0IG15Y2tldCBoZWo="
+                );
         }
 
         [Fact]
