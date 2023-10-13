@@ -1,9 +1,9 @@
+#nullable enable
 using System;
 using System.Globalization;
 using System.Numerics;
 using Perlang.Internal.Extensions;
 
-#nullable enable
 namespace Perlang.Parser;
 
 internal static class NumberParser
@@ -22,8 +22,13 @@ internal static class NumberParser
                     {
                         // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
                         // language/region settings. See #263 for more details.
+                        //
+                        // An interesting detail: we preserve the `numberCharacters` here (the unparsed floating point
+                        // value), since we might otherwise loose valuable precision. Round-tripping via ToString() will
+                        // otherwise risk loosing precision. This is particularly important to get proper semantics for
+                        // `double + float` operations in compiled mode.
                         float value = Single.Parse(numberCharacters, CultureInfo.InvariantCulture);
-                        return new FloatingPointLiteral<float>(value);
+                        return new FloatingPointLiteral<float>(value, numberCharacters);
                     }
 
                     case 'd':
@@ -31,7 +36,7 @@ internal static class NumberParser
                         // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of host OS
                         // language/region settings. See #263 for more details.
                         double value = Double.Parse(numberCharacters, CultureInfo.InvariantCulture);
-                        return new FloatingPointLiteral<double>(value);
+                        return new FloatingPointLiteral<double>(value, numberCharacters);
                     }
 
                     default:
@@ -40,9 +45,9 @@ internal static class NumberParser
             }
             else
             {
-                // No suffix provided => use `double` precision by default, just like C#
+                // No suffix provided => use `double` precision by default, just like C++, Java and C#.
                 double value = Double.Parse(numberCharacters, CultureInfo.InvariantCulture);
-                return new FloatingPointLiteral<double>(value);
+                return new FloatingPointLiteral<double>(value, numberCharacters);
             }
         }
         else
@@ -104,72 +109,72 @@ internal static class NumberParser
         }
     }
 
-    public static object MakeNegative(object value)
+    public static object MakeNegative(INumericLiteral numericLiteral)
     {
-        if (value is INumericLiteral numericLiteral)
+        if (numericLiteral is IFloatingPointLiteral floatingPointLiteral)
         {
             if (numericLiteral.Value is float floatValue)
             {
-                return new FloatingPointLiteral<float>(-floatValue);
+                return new FloatingPointLiteral<float>(-floatValue, "-" + floatingPointLiteral.NumberCharacters);
             }
             else if (numericLiteral.Value is double doubleValue)
             {
-                return new FloatingPointLiteral<double>(-doubleValue);
-            }
-            else if (numericLiteral.Value is int intValue)
-            {
-                return new IntegerLiteral<int>(-intValue);
-            }
-            else if (numericLiteral.Value is uint uintValue)
-            {
-                long negativeValue = -uintValue;
-
-                // This is a special hack to ensure that the value -2147483648 gets returned as an `int` and not a `long`.
-                // Some details available in #302, summarized here in brief:
-                //
-                // The value 2147483648 is too large for an `int` => gets parsed into a `ulong` where it will fit. Once it
-                // has been made negative, the value -2147483648 is again small enough to fit in an `int` => the code below
-                // will narrow it down to comply with the "smallest type possible" design principle.
-                //
-                // Rationale: Two's complement: https://en.wikipedia.org/wiki/Two%27s_complement
-                if (negativeValue >= Int32.MinValue)
-                {
-                    return new IntegerLiteral<int>((int)negativeValue);
-                }
-                else
-                {
-                    return new IntegerLiteral<long>(negativeValue);
-                }
-            }
-            else if (numericLiteral.Value is long longValue)
-            {
-                return new IntegerLiteral<long>(-longValue);
-            }
-            else if (numericLiteral.Value is ulong ulongValue)
-            {
-                // Again, this needs to be handled specially to ensure that numbers that fit in a `long` doesn't use
-                // BigInteger unnecessarily.
-                BigInteger negativeValue = -new BigInteger(ulongValue);
-
-                if (negativeValue >= Int64.MinValue)
-                {
-                    return new IntegerLiteral<long>((long)negativeValue);
-                }
-                else
-                {
-                    // All negative numbers that are too big to fit in any of the smaller signed integer types will go
-                    // through this code path.
-                    return new IntegerLiteral<BigInteger>(negativeValue);
-                }
+                return new FloatingPointLiteral<double>(-doubleValue, "-" + floatingPointLiteral.NumberCharacters);
             }
             else
             {
                 throw new ArgumentException($"Type {numericLiteral.Value.GetType().ToTypeKeyword()} not supported");
             }
         }
+        else if (numericLiteral.Value is int intValue)
+        {
+            return new IntegerLiteral<int>(-intValue);
+        }
+        else if (numericLiteral.Value is uint uintValue)
+        {
+            long negativeValue = -uintValue;
+
+            // This is a special hack to ensure that the value -2147483648 gets returned as an `int` and not a `long`.
+            // Some details available in #302, summarized here in brief:
+            //
+            // The value 2147483648 is too large for an `int` => gets parsed into a `ulong` where it will fit. Once it
+            // has been made negative, the value -2147483648 is again small enough to fit in an `int` => the code below
+            // will narrow it down to comply with the "smallest type possible" design principle.
+            //
+            // Rationale: Two's complement: https://en.wikipedia.org/wiki/Two%27s_complement
+            if (negativeValue >= Int32.MinValue)
+            {
+                return new IntegerLiteral<int>((int)negativeValue);
+            }
+            else
+            {
+                return new IntegerLiteral<long>(negativeValue);
+            }
+        }
+        else if (numericLiteral.Value is long longValue)
+        {
+            return new IntegerLiteral<long>(-longValue);
+        }
+        else if (numericLiteral.Value is ulong ulongValue)
+        {
+            // Again, this needs to be handled specially to ensure that numbers that fit in a `long` doesn't use
+            // BigInteger unnecessarily.
+            BigInteger negativeValue = -new BigInteger(ulongValue);
+
+            if (negativeValue >= Int64.MinValue)
+            {
+                return new IntegerLiteral<long>((long)negativeValue);
+            }
+            else
+            {
+                // All negative numbers that are too big to fit in any of the smaller signed integer types will go
+                // through this code path.
+                return new IntegerLiteral<BigInteger>(negativeValue);
+            }
+        }
         else
         {
-            throw new ArgumentException($"Type {value.GetType().ToTypeKeyword()} not supported");
+            throw new ArgumentException($"Type {numericLiteral.Value.GetType().ToTypeKeyword()} not supported");
         }
     }
 }
