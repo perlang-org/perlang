@@ -3,21 +3,21 @@ using System;
 
 namespace Perlang.Parser;
 
-internal readonly struct FloatingPointLiteral<T> : INumericLiteral
+internal readonly struct FloatingPointLiteral<T> : IFloatingPointLiteral, INumericLiteral
     where T : notnull
 {
-    internal T Value { get; }
+    public object Value { get; }
+    public string NumberCharacters { get; }
 
     /// <inheritdoc cref="INumericLiteral.BitsUsed"/>
     public long BitsUsed { get; }
 
     public bool IsPositive { get; }
 
-    object INumericLiteral.Value => Value;
-
-    public FloatingPointLiteral(T value)
+    public FloatingPointLiteral(T value, string numberCharacters)
     {
         Value = value;
+        NumberCharacters = numberCharacters;
 
         BitsUsed = value switch
         {

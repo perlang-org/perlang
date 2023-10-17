@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Perlang.Internal.Extensions;
 using static Perlang.Internal.Utils;
 using static Perlang.TokenType;
 
@@ -570,7 +571,20 @@ namespace Perlang.Parser
                 // changed.
                 if (@operator.Type == MINUS && right is Expr.Literal rightLiteral)
                 {
-                    return new Expr.Literal(NumberParser.MakeNegative(rightLiteral.Value!));
+                    if (rightLiteral.Value is INumericLiteral numericLiteral)
+                    {
+                        return new Expr.Literal(NumberParser.MakeNegative(numericLiteral));
+                    }
+                    else if (rightLiteral.Value is null)
+                    {
+                        Error(Peek(), "Unary minus operator does not support null operand");
+                        return new Expr.Literal(null);
+                    }
+                    else
+                    {
+                        // TODO: Call Error() here to produce a context-aware error instead of just throwing a raw exception
+                        throw new ArgumentException($"Type {rightLiteral.Value.GetType().ToTypeKeyword()} not supported");
+                    }
                 }
                 else
                 {

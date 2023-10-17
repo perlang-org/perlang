@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Numerics;
 using Perlang.Internal.Extensions;
 using Perlang.Lang;
 using String = Perlang.Lang.String;
@@ -12,15 +11,15 @@ namespace Perlang.Internal
     /// </summary>
     public static class Utils
     {
-        private static readonly Lang.String NullString = AsciiString.from("null");
+        private static readonly String NullString = AsciiString.from("null");
 
-        public static Lang.String Stringify(object @object)
+        public static String Stringify(object @object)
         {
             if (@object == null)
             {
                 return NullString;
             }
-            else if (@object is Lang.String nativeString)
+            else if (@object is String nativeString)
             {
                 return nativeString;
             }
