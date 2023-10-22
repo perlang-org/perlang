@@ -9,6 +9,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using Microsoft.CSharp.RuntimeBinder;
 using Perlang.Attributes;
 using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
@@ -948,10 +949,23 @@ namespace Perlang.Interpreter
 
             if (a == null)
             {
+                // null != non-null
                 return false;
             }
 
-            return a.Equals(b);
+            // Note: must use dynamic here since `object == object` behaves differently than e.g. `int == double`,
+            // tragically enough. More details:
+            // https://learn.microsoft.com/en-us/dotnet/api/System.Object.Equals?view=net-7.0#notes-for-callers
+            try
+            {
+                return (dynamic)a == (dynamic?)b;
+            }
+            catch (RuntimeBinderException)
+            {
+                // This will happen when trying to compare e.g `double == BigInteger`. We fall back to Equals() in this
+                // case, hoping that it will make sense...
+                return a.Equals(b);
+            }
         }
 
         public object? VisitGroupingExpr(Expr.Grouping expr)

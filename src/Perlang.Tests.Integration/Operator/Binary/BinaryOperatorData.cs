@@ -284,8 +284,8 @@ public static class BinaryOperatorData
         {
             new object[] { "12", "34", "True" },
             new object[] { "12", "12", "False" },
-            new object[] { "12", "12.0", "True" }, // Same value but different types. Note: this is truthy in C# AND Java.
-            new object[] { "12.0", "12", "True" }, // Same value but different types. Note: this is truthy in C# AND Java.
+            new object[] { "12", "12.0", "False" }, // Same value but different types. We follow the precedent of C#, Java and C++ and consider these to be equal.
+            new object[] { "12.0", "12", "False" }, // Likewise
 
             new object[] { "2147483647", "4294967295", "True" },
             new object[] { "2147483647", "9223372036854775807", "True" },
@@ -341,8 +341,8 @@ public static class BinaryOperatorData
         {
             new object[] { "12", "34", "False" },
             new object[] { "12", "12", "True" },
-            new object[] { "12", "12.0", "False" }, // Same value but different types. Note: this is truthy in C# AND Java.
-            new object[] { "12.0", "12", "False" }, // Same value but different types. Note: this is truthy in C# AND Java.
+            new object[] { "12", "12.0", "True" }, // Same value but different types. We follow the precedent of C#, Java and C++ and consider these to be equal.
+            new object[] { "12.0", "12", "True" }, // Likewise
             new object[] { "12.345", "12.345", "True" },
             new object[] { "12.345", "67.890", "False" },
 
