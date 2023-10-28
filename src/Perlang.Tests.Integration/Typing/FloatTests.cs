@@ -44,7 +44,8 @@ public class FloatTests
         // https://en.wikipedia.org/wiki/Single-precision_floating-point_format#Precision_limitations_on_integer_values
         //
         // _However_, since other well-respected languages like Java and C# allow this implicit conversion, we decided
-        // to allow it in Perlang alike, to reduce end-user confusion.
+        // to allow it in Perlang alike, to reduce end-user confusion. We could do like CLion/Clang-Tidy and warn about
+        // it, though.
 
         string source = @"
                 var f: float = 2147483647;
@@ -55,7 +56,7 @@ public class FloatTests
         var result = EvalReturningOutputString(source);
 
         // Note how this is less exact than the source value
-        Assert.Equal("2.1474836E+09", result);
+        Assert.Equal("2.147484E+09", result);
     }
 
     [Fact]
