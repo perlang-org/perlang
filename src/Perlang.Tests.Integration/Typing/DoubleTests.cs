@@ -43,7 +43,9 @@ public class DoubleTests
         // https://en.wikipedia.org/wiki/Double-precision_floating-point_format#Precision_limitations_on_integer_values
         //
         // _However_, since other well-respected languages like Java and C# allow this implicit conversion, we decided
-        // to allow it in Perlang alike, to reduce end-user confusion.
+        // to allow it in Perlang alike, to reduce end-user confusion. We could do like CLion/Clang-Tidy and warn about
+        // "Implicit conversion from 'unsigned long long' to 'double' changes value from 18446744073709551615 to
+        // 18446744073709551616" though.
 
         string source = @"
                 var d: double = 9223372036854775807;
@@ -54,7 +56,7 @@ public class DoubleTests
         var result = EvalReturningOutputString(source);
 
         // Note how this is less exact than the source value
-        Assert.Equal("9.223372036854776E+18", result);
+        Assert.Equal("9.22337203685478E+18", result);
     }
 
     [Fact]

@@ -27,6 +27,16 @@ namespace Perlang.Internal
             {
                 return String.from(clrString);
             }
+            else if (@object is float f)
+            {
+                // Us an explicit format, so we can produce something equal in the C# and C++/fmt-based implementations
+                return String.from(f.ToString("G7", CultureInfo.InvariantCulture));
+            }
+            else if (@object is double d)
+            {
+                // Us an explicit format, so we can produce something equal in the C# and C++/fmt-based implementations
+                return String.from(d.ToString("G15", CultureInfo.InvariantCulture));
+            }
             else if (@object is IConvertible convertible)
             {
                 // The explicit IFormatProvider is required to ensure we use 123.45 format, regardless of

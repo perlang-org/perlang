@@ -219,8 +219,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [Theory]
         [InlineData("2", "12", "4096", "sv-SE")]
         [InlineData("2", "12", "4096", "en-US")]
-        [InlineData("10", "3.5", "3162.2776601683795", "sv-SE")]
-        [InlineData("10", "3.5", "3162.2776601683795", "en-US")]
+        [InlineData("10", "3.5", "3162.27766016838", "sv-SE")]
+        [InlineData("10", "3.5", "3162.27766016838", "en-US")]
         public async Task exponential_integer_literals_as_variable_initializer(string left, string right, string expectedResult, string cultureName)
         {
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
