@@ -12,7 +12,7 @@ public class DictionaryIndexing
     private const string PathKey = "PATH";
 #endif
 
-    [Fact]
+    [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_by_string()
     {
         string source = @$"
@@ -32,7 +32,7 @@ public class DictionaryIndexing
 #endif
     }
 
-    [Fact]
+    [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_multiple_times()
     {
         string source = @$"

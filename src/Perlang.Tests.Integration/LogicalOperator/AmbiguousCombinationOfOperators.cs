@@ -62,8 +62,9 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            output!.Should()
-                .Be("False");
+            // "False" in interpreted mode and "false" in compiled mode
+            output!.ToLower().Should()
+                .Be("false");
         }
     }
 }

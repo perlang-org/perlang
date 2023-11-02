@@ -10,6 +10,21 @@ namespace Perlang.Tests.Integration.Operator;
 public class PrefixNegation
 {
     [Fact]
+    public void negation_of_negative_int_print()
+    {
+        // This test is a bit weaker than the test which tests both the value and the type, but the latter is currently
+        // not possible to achieve in compiled mode.
+        string source = @"
+                print(- -100);
+            ";
+
+        string result = EvalReturningOutputString(source);
+
+        result.Should()
+            .Be("100");
+    }
+
+    [SkippableFact]
     public void negation_of_negative_int()
     {
         string source = @"
@@ -23,6 +38,21 @@ public class PrefixNegation
     }
 
     [Fact]
+    public void negation_of_positive_int_print()
+    {
+        // Note: there is a certain logic in the parsing of the unary prefix operator, converting "- 123" into a single
+        // literal expression. To ensure that this logic is circumvented, we add grouping parentheses.
+        string source = @"
+                print -(123);
+            ";
+
+        string result = EvalReturningOutputString(source);
+
+        result.Should()
+            .Be("-123");
+    }
+
+    [SkippableFact]
     public void negation_of_positive_int()
     {
         // Note: there is a certain logic in the parsing of the unary prefix operator, converting "- 123" into a single

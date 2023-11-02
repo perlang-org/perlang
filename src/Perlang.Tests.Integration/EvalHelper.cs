@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using Perlang.Compiler;
 using Perlang.Interpreter;
+using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
+using Xunit;
 
 namespace Perlang.Tests.Integration
 {
@@ -25,17 +31,24 @@ namespace Perlang.Tests.Integration
         /// statements.</returns>
         internal static object Eval(string source)
         {
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, _ => { });
+            if (PerlangMode.ExperimentalCompilation)
+            {
+                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+            }
+            else
+            {
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, _ => { });
 
-            return interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                AssertFailParseErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailCompilerWarningHandler
-            );
+                return interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    AssertFailParseErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailCompilerWarningHandler
+                );
+            }
         }
 
         /// <summary>
@@ -230,20 +243,72 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<Exception> EvalWithResult(string source, params string[] arguments)
         {
-            var result = new EvalResult<Exception>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
+            if (PerlangMode.ExperimentalCompilation)
+            {
+                var result = new EvalResult<Exception>();
+                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
 
-            result.Value = interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                AssertFailParseErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                result.WarningHandler
-            );
+                try
+                {
+                    // TODO: include the name of the test method here, to make it easier to know what executable correspond to which test
+                    result.ExecutablePath = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        AssertFailScanErrorHandler,
+                        AssertFailParseErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e)
+                {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message);
+                }
 
-            return result;
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else
+            {
+                var result = new EvalResult<Exception>();
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
+
+                result.Value = interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    AssertFailParseErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
+        }
+
+        private static string CreateTemporaryPath(string source)
+        {
+            // Note: this is obviously very Linux-specific. We need to figure out a good way to do this on macOS and
+            // Windows as well.
+            string xdgRuntimeDir = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
+            string perlangTempDir = Path.Join(xdgRuntimeDir, "perlang", "tmp", "unit_tests");
+
+            Directory.CreateDirectory(perlangTempDir);
+
+            // The idea is to use a hashed version of the source as the file name, which means that a given Perlang
+            // program will reliably always produce the same hash => can use the caching mechanism already in place to
+            // avoid meaningless recompilation. (Might want to add a `make cache_clear` target or similar.)
+            byte[] sourceAsBytes = Encoding.UTF8.GetBytes(source);
+            byte[] sourceHash = SHA256.HashData(sourceAsBytes);
+            return Path.Join(perlangTempDir, Convert.ToHexString(sourceHash) + ".per");
         }
 
         /// <summary>
@@ -315,22 +380,22 @@ namespace Perlang.Tests.Integration
 
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw new Exception($"NameResolutionError occurred: {nameResolutionError.Message}", nameResolutionError);
+            throw new EvalException($"NameResolutionError occurred: {nameResolutionError.Message}", nameResolutionError);
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
-            throw new Exception($"RuntimeError occurred: {runtimeError.Message}", runtimeError);
+            throw new EvalException($"RuntimeError occurred: {runtimeError.Message}", runtimeError);
         }
 
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
-            throw new Exception($"ValidationError occurred: {validationError.Message}", validationError);
+            throw new EvalException($"ValidationError occurred: {validationError.Message}", validationError);
         }
 
         private static bool AssertFailCompilerWarningHandler(CompilerWarning compilerWarning)
         {
-            throw new Exception($"CompilerWarning occurred: {compilerWarning.Message}", compilerWarning);
+            throw new EvalException($"CompilerWarning occurred: {compilerWarning.Message}", compilerWarning);
         }
     }
 }

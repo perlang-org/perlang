@@ -7,7 +7,7 @@ namespace Perlang.Tests.Integration.Stdlib
 {
     public class Base64DecodeTests
     {
-        [Fact]
+        [SkippableFact]
         public void Base64_decode_is_defined()
         {
             Assert.IsAssignableFrom<TargetAndMethodContainer>(Eval("Base64.decode"));
@@ -23,13 +23,13 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Contains("Method 'decode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_decode_with_a_padded_string_argument_returns_the_expected_result()
         {
             Assert.Equal("hej hej", Eval("Base64.decode(\"aGVqIGhlag==\")"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_decode_with_an_non_padded_string_argument_returns_the_expected_result()
         {
             // This used to fail at one point, which is why we added a test for it.

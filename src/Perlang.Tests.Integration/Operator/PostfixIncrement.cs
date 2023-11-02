@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Operator
         // "Positive" tests, testing for supported behavior
         //
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("int", "0", "1", "en-US")]
         [InlineData("int", "0", "1", "sv-SE")]
         [InlineData("long", "4294967296", "4294967297", "en-US")]
@@ -36,7 +36,7 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(after, output);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("int", "0", "System.Int32", "en-US")]
         [InlineData("int", "0", "System.Int32", "sv-SE")]
         [InlineData("long", "4294967296", "System.Int64", "en-US")]

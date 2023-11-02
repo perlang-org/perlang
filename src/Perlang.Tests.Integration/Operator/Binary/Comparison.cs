@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -36,7 +35,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         // Tests for the < (less than) operator
         //
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_greater_is_true(string left, string right)
         {
@@ -47,13 +46,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_same_is_false(string left, string right)
         {
@@ -64,13 +65,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_smaller_is_false(string left, string right)
         {
@@ -81,17 +84,19 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         //
         // Tests for the <= (less than or equals) operator
         //
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_greater_is_true(string left, string right)
         {
@@ -102,13 +107,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_same_is_true(string left, string right)
         {
@@ -119,13 +126,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_smaller_is_false(string left, string right)
         {
@@ -136,17 +145,19 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         //
         // Tests for the > (greater than) operator
         //
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_smaller_is_false(string left, string right)
         {
@@ -157,13 +168,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_same_is_false(string left, string right)
         {
@@ -174,13 +187,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_smaller_is_true(string left, string right)
         {
@@ -191,16 +206,18 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
         //
         // Tests for the >= (greater than or equals) operator
         //
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_larger_is_false(string left, string right)
         {
@@ -211,13 +228,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_same_is_true(string left, string right)
         {
@@ -228,13 +247,15 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_smaller_is_true(string left, string right)
         {
@@ -245,10 +266,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print b;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
         //
@@ -275,10 +298,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print 0 < -0;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         [Theory]
@@ -291,10 +316,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print 0.0 < -0.0;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         [Theory]
@@ -307,10 +334,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print -0.0 < 0.0;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         [Theory]
@@ -323,10 +352,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print 0.0 > -0.0;
             ";
 
-            string output = EvalReturningOutput(source).SingleOrDefault();
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         [Theory]
@@ -339,10 +370,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print -0.0 > 0.0;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "False" vs "false" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("False");
+                .Be("false");
         }
 
         [Theory]
@@ -355,10 +388,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print 0.0 <= -0.0;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
         [Theory]
@@ -371,10 +406,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print -0.0 <= 0.0;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
         [Theory]
@@ -387,10 +424,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print 0.0 >= -0.0;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
 
         [Theory]
@@ -403,10 +442,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print -0.0 >= 0.0;
             ";
 
-            string output = EvalReturningOutputString(source);
+            // "True" vs "true" in interpreted and compiled mode
+            string output = EvalReturningOutputString(source)
+                .ToLower();
 
             output.Should()
-                .Be("True");
+                .Be("true");
         }
     }
 }

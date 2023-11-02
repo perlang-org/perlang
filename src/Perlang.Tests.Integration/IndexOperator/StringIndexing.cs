@@ -18,9 +18,11 @@ public class StringIndexing
         output.Should().Be("f");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AsciiString_indexed_by_integer_returns_char_object()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
         string source = @"
             print ""foobar""[0].get_type();
         ";

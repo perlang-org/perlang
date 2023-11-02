@@ -18,9 +18,11 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Contains("Method 'encode' has 1 parameter(s) but was called with 0 argument(s)", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_encode_with_a_string_argument_returns_the_expected_result()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                print Base64.encode(""hej hej"");
             ";
@@ -31,9 +33,11 @@ namespace Perlang.Tests.Integration.Stdlib
                 .Be("aGVqIGhlag==");
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_encode_with_a_long_string_argument_returns_the_expected_result()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             var sb = new StringBuilder();
 
             for (int i = 0; i < 4; i++)

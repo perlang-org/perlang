@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class LessEqualTests
 {
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.LessEqual), MemberType = typeof(BinaryOperatorData))]
     void performs_less_equal_comparison(string i, string j, string expectedResult)
     {
@@ -17,7 +17,8 @@ public class LessEqualTests
                 print i1 <= i2;
             ";
 
-        string result = EvalReturningOutputString(source);
+        string result = EvalReturningOutputString(source)
+            .ToLower();
 
         result.Should()
             .Be(expectedResult);

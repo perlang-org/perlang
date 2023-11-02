@@ -41,6 +41,12 @@ namespace Perlang.Tests.Integration
         /// </summary>
         public IReadOnlyList<CompilerWarning> CompilerWarnings => compilerWarnings.AsReadOnly();
 
+        /// <summary>
+        /// Gets or sets the path to the executable which was created as part of this evaluation. Will be `null` when
+        /// running in interpreted mode.
+        /// </summary>
+        public string? ExecutablePath { get; set; }
+
         private readonly List<CompilerWarning> compilerWarnings = new();
 
         public void ErrorHandler(T error)

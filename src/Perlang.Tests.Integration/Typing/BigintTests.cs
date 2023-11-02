@@ -9,7 +9,7 @@ namespace Perlang.Tests.Integration.Typing
     /// </summary>
     public class BigintTests
     {
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_can_be_printed()
         {
             string source = @"
@@ -23,7 +23,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("103", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_can_be_reassigned()
         {
             string source = @"
@@ -38,7 +38,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("8589934592", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_can_contain_numbers_larger_than_32_bits()
         {
             string source = @"
@@ -52,7 +52,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("8589934592", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_can_contain_numbers_larger_than_64_bits()
         {
             string source = @"
@@ -66,7 +66,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("1231231230912839019312831232", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_has_expected_type_when_initialized_to_8bit_value()
         {
             // An 8-bit integer (sbyte) should be expanded to bigint when the assignment target is of the 'bigint' type.
@@ -81,7 +81,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Numerics.BigInteger", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_has_expected_type_when_assigned_8bit_value_from_another_variable()
         {
             // An 8-bit integer (sbyte) should be expanded to bigint when the assignment target is of the 'bigint' type.
@@ -97,7 +97,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("System.Numerics.BigInteger", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void bigint_variable_has_expected_type_for_large_value()
         {
             string source = @"

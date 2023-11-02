@@ -37,12 +37,12 @@ namespace Perlang.Interpreter.Typing
         internal static ImmutableDictionary<Type, int?> FloatIntegerLengthByType => new Dictionary<Type, int?>
         {
             // Single-precision values are 32-bit but can store numbers between 1.4E-45 and ~3.40E38 (with data loss,
-            // i.e. numbers larger or equal than +/- 2^24 can not be exactly represented. We presume people working with
+            // i.e. numbers larger or equal than +/- 2^24 cannot be exactly represented. We presume people working with
             // numbers this large to be (or make themselves aware of) this limitation.)
             { typeof(Single), 32 },
 
             // Double-precision values are 64-bit but can store numbers between 4.9E-324 and ~1.80E308 (with data loss,
-            // i.e. numbers larger or equal than +/- 2^53 can not be exactly represented. We presume people working with
+            // i.e. numbers larger or equal than +/- 2^53 cannot be exactly represented. We presume people working with
             // numbers this large to be (or make themselves aware of) this limitation.)
             { typeof(Double), 64 }
         }.ToImmutableDictionary();

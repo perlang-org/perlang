@@ -15,7 +15,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     /// </summary>
     public class ExponentialTests
     {
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Exponential_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_exponential_calculation(string i, string j, string expectedResult)
         {
@@ -29,7 +29,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Exponential_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
@@ -78,7 +78,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_negative_and_positive_integer_literals()
         {
             string source = @"
@@ -90,7 +90,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(new BigInteger(-1000), result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_negative_and_positive_integer_literals_again()
         {
             // This tests an important edge case where we differ from MRI Ruby. Try it in 'irb' and you'll see what I
@@ -120,7 +120,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(new BigInteger(59049), result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task exponential_operator_works_on_different_cultures(CultureInfo cultureInfo)
         {
@@ -135,7 +135,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(3162.2776601683795, result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task exponential_integer_and_float_literals_infers_to_expected_type(CultureInfo cultureInfo)
         {
@@ -151,7 +151,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("System.Double", result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task exponential_integer_and_negative_float_literals(CultureInfo cultureInfo)
         {
@@ -166,7 +166,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(0.00031622776601683794, result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_integer_literals_and_multiplication()
         {
             string source = @"
@@ -178,7 +178,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(new BigInteger(2048), result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_bigint_and_int()
         {
             string source = @"
@@ -190,7 +190,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_multiple_times()
         {
             string source = @"
@@ -202,7 +202,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_integer_literal_and_function_return_value()
         {
             string source = @"
@@ -216,7 +216,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("65536", result);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("2", "12", "4096", "sv-SE")]
         [InlineData("2", "12", "4096", "en-US")]
         [InlineData("10", "3.5", "3162.27766016838", "sv-SE")]
@@ -235,7 +235,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(expectedResult, result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_function_return_value_and_int_literal()
         {
             string source = @"
@@ -249,7 +249,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("65536", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_int_variable_and_int_literal()
         {
             string source = @"
@@ -263,7 +263,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("256", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_function_return_values()
         {
             string source = @"
@@ -278,7 +278,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("256", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void exponential_bigint_and_negative_int_throws_expected_runtime_error()
         {
             string source = @"

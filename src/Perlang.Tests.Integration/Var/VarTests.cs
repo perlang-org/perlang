@@ -71,9 +71,13 @@ namespace Perlang.Tests.Integration.Var
             Assert.Matches("Error at 'arg': Variable with this name already declared in this scope.", exception.ToString());
         }
 
-        [Fact]
+        [SkippableFact]
         public void early_bound()
         {
+            // This is a bit of an edge case. Unsure if we need to care about it in compiled mode, at least not
+            // initially.
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 var a = ""outer"";
                 {
@@ -96,7 +100,7 @@ namespace Perlang.Tests.Integration.Var
             }, output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void in_middle_of_block()
         {
             string source = @"

@@ -29,12 +29,14 @@ namespace Perlang.Tests.Integration.LogicalOperator
                 print b;
             ";
 
-            var output = EvalReturningOutput(source);
+            // "False" and "True" in interpreted mode, "false" and "true" in compiled mode
+            var output = EvalReturningOutput(source)
+                .Select(s => s.ToLower());
 
             Assert.Equal(new[]
             {
-                "False", // The `a = true` assignment should never execute
-                "True"
+                "false", // The `a = true` assignment should never execute
+                "true"
             }, output);
         }
 
@@ -48,8 +50,9 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            output!.Should()
-                .Be("True");
+            // "True" in interpreted mode and "true" in compiled mode
+            output!.ToLower().Should()
+                .Be("true");
         }
 
         [Fact]
@@ -63,8 +66,9 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             string output = EvalReturningOutput(source).SingleOrDefault();
 
-            output!.Should()
-                .Be("False");
+            // "False" in interpreted mode and "false" in compiled mode
+            output!.ToLower().Should()
+                .Be("false");
         }
 
         [Fact]
@@ -109,7 +113,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
             Assert.Matches("'string' is not a valid || operand", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void result_of_or_is_boolean()
         {
             string source = @"

@@ -16,7 +16,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         //
         // Tests for the * (multiplication) operator
         //
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Multiplication_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_multiplication(string i, string j, string expectedResult)
         {
@@ -30,10 +30,12 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Multiplication_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                 print ({i} * {j}).get_type();
             ";
@@ -59,7 +61,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Message.Should().Match(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCultures))]
         public async Task multiplying_doubles_works_on_different_cultures(CultureInfo cultureInfo)
         {

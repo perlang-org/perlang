@@ -54,7 +54,7 @@ public class StringTests
             .Be("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏ");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ascii_string_variable_has_expected_type()
     {
         string source = @"

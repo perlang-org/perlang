@@ -276,9 +276,11 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact]
+            [SkippableFact]
             public void with_script_and_script_argument_outputs_expected_value()
             {
+                Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
                 // Arrange & Act
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per", "foo" }, testConsole);
 
@@ -288,9 +290,11 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact]
+            [SkippableFact]
             public void with_script_and_no_argument_prints_expected_error()
             {
+                Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
                 // Arrange & Act
                 Program.MainWithCustomConsole(new[] { "test/fixtures/argv_pop.per" }, testConsole);
 
@@ -383,9 +387,11 @@ namespace Perlang.Tests.ConsoleApp
                 StderrContent.Should().BeEmpty();
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning for usage of null")]
+            [SkippableFact(DisplayName = "with -Wno-error=null-usage parameter: emits warning for usage of null")]
             public void with_no_error_null_usage_parameter_emits_warning_for_usage_of_null()
             {
+                Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
                 int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/null_usage.per" }, testConsole);
 
                 StderrContent.Should().BeEmpty();
@@ -397,9 +403,11 @@ namespace Perlang.Tests.ConsoleApp
                 exitCode.Should().Be(0);
             }
 
-            [Fact]
+            [SkippableFact]
             public void with_no_error_null_usage_parameter_includes_correct_line_numbers_in_errors()
             {
+                Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
                 int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/defining-and-calling-a-function-with-null-parameter.per" }, testConsole);
 
                 StderrContent.Should().BeEmpty();
@@ -415,9 +423,11 @@ namespace Perlang.Tests.ConsoleApp
                 exitCode.Should().Be((int)Program.ExitCodes.RUNTIME_ERROR);
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: can be combined with script argument")]
+            [SkippableFact(DisplayName = "with -Wno-error=null-usage parameter: can be combined with script argument")]
             public void with_no_error_null_usage_parameter_can_be_combined_with_script_argument()
             {
+                Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
                 int exitCode = Program.MainWithCustomConsole(new[] { "-Wno-error", "null-usage", "test/fixtures/argv_pop.per", "hello, world" }, testConsole);
 
                 StderrContent.Should().BeEmpty();

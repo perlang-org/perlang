@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class SubtractionTests
 {
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Subtraction_result), MemberType = typeof(BinaryOperatorData))]
     void performs_subtraction(string i, string j, string expectedResult)
     {
@@ -23,10 +23,12 @@ public class SubtractionTests
             .Be(expectedResult);
     }
 
-    [Theory]
+    [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Subtraction_type), MemberType = typeof(BinaryOperatorData))]
     void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
         string source = $@"
             var i1 = {i};
             var i2 = {j};

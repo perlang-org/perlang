@@ -109,11 +109,13 @@ namespace Perlang.Tests.Integration
         // TODO: This is an oversight; as of https://github.com/perlang-org/perlang/pull/54, these semantics should no
         // longer be supported. Automatically returning `null` when no value is provided is wrong. This should only be
         // supported when the return type is explicitly declared as `void`.
-        [Fact]
+        [SkippableFact]
         public void return_null_if_no_value()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
-                fun f(): string {
+                fun f(): void {
                   return;
                   print ""bad"";
                 }

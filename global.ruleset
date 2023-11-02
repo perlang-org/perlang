@@ -36,6 +36,7 @@
 
     <Rules AnalyzerId="SonarAnalyzer.CSharp" RuleNamespace="SonarAnalyzer.CSharp">
         <Rule Id="S125" Action="None"/>
+        <Rule Id="S927" Action="None"/>         <!-- All declarations of an object or function should use the same names and type qualifiers -->
         <Rule Id="S1134" Action="None"/>
         <Rule Id="S1135" Action="None"/>
         <Rule Id="S3260" Action="None"/>        <!-- Private classes or records which are not derived in the current assembly should be marked as 'sealed' -->
