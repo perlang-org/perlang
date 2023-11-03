@@ -1,7 +1,9 @@
 ﻿#nullable enable
+#pragma warning disable S112
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -490,28 +492,49 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
             }
 
-            // TODO: Try picking this up from the location of the `perlang` executable first, if possible. We might even
-            // TODO: be able to get rid of this environment variable completely.
-            string? perlangRoot = Environment.GetEnvironmentVariable("PERLANG_ROOT");
+            // We attempt to detect the stdlib location by looking in the path to the `perlang` executable first. If it
+            // doesn't exist there, the PERLANG_ROOT environment variable is checked next.
+            string? executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (perlangRoot == null)
+            string? stdlibPath;
+
+            string perlangExecutableStdlibPath = Path.Join(executablePath, "lib", "stdlib");
+
+            if (Directory.Exists(perlangExecutableStdlibPath))
             {
-                throw new PerlangCompilerException(
-                    "The PERLANG_ROOT environment variable must be set for experimental compilation to succeed. " +
-                    "It should point to a directory where the lib/stdlib directory contains a compiled version " +
-                    "of the Perlang standard library.");
+                // This seems to be a Perlang distribution, either a nightly snapshot or a release version. Use the
+                // stdlib provided with it.
+                stdlibPath = perlangExecutableStdlibPath;
+            }
+            else
+            {
+                string? perlangRoot = Environment.GetEnvironmentVariable("PERLANG_ROOT");
+
+                if (perlangRoot == null)
+                {
+                    throw new PerlangCompilerException(
+                        $"The {perlangExecutableStdlibPath} directory does not exist, and PERLANG_ROOT is not set. One " +
+                        "of these conditions must be met for experimental compilation to succeed. If setting " +
+                        "PERLANG_ROOT, it should point to a directory where the lib/stdlib directory contains a " +
+                        "compiled version of the Perlang standard library."
+                    );
+                }
+
+                stdlibPath = Path.Join(perlangRoot, "lib", "stdlib");
             }
 
             var processStartInfo = new ProcessStartInfo
             {
-                FileName = "clang++",
+                // Make this explicit, since we have only tested this with a very specific clang version. Anything else is
+                // completely untested and not expected to work at the moment.
+                FileName = "clang++-14",
 
                 ArgumentList =
                 {
                     // Required for nested namespaces
                     "--std=c++17",
 
-                    "-I", Path.Combine(perlangRoot, "lib/stdlib/include"),
+                    "-I", Path.Combine(stdlibPath, "include"),
                     "-o", targetExecutable,
 
                     // Useful while debugging
@@ -572,7 +595,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     targetCppFile,
 
                     // TODO: Support Windows static libraries as well
-                    Path.Combine(perlangRoot, "lib/stdlib/lib/libstdlib.a"),
+                    Path.Combine(stdlibPath, "lib/libstdlib.a"),
 
                     // Needed by the Perlang stdlib
                     "-lm"
@@ -602,6 +625,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                 return targetExecutable;
             }
+        }
+        catch (SystemException e)
+        {
+            throw new ApplicationException(
+                "Failed running clang. Experimental compilation is only supported on Linux-based systems. If running a " +
+                "Debian/Ubuntu-based distribution, please ensure that the clang-14 package is installed since experimental " +
+                "compilation depends on it.",
+                e
+            );
         }
         catch (RuntimeError e)
         {
