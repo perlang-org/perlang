@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mono.Terminal;
+using Perlang.Compiler;
 using Perlang.Internal;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
@@ -452,7 +453,7 @@ namespace Perlang.ConsoleApp
 
         private void CompileAndRun(string source, string path, CompilerWarningHandler compilerWarningHandler)
         {
-            compiler.CompileAndRun(source, path, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            compiler.CompileAndRun(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ParseAndPrint(string source)

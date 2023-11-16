@@ -1,5 +1,6 @@
 using System.Linq;
 using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -21,7 +22,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
                 var a = false && false || true;
             ";
 
-            var result = EvalWithResult(source);
+            var result = EvalWithResult(source, CompilerFlags.CacheDisabled);
             var compilerWarning = result.CompilerWarnings.FirstOrDefault();
 
             Assert.Single(result.CompilerWarnings);
@@ -37,7 +38,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
                 false && false || true
             ";
 
-            var result = EvalWithResult(source);
+            var result = EvalWithResult(source, CompilerFlags.CacheDisabled);
             var compilerWarning = result.CompilerWarnings.FirstOrDefault();
 
             Assert.Single(result.CompilerWarnings);

@@ -1,7 +1,8 @@
-#ifndef PERLANG_STDLIB_HPP
-#define PERLANG_STDLIB_HPP
+#pragma once
 
 #include <stdint.h>
+
+#include "bigint.hpp"
 
 namespace perlang
 {
@@ -20,9 +21,8 @@ namespace perlang
     void print(int32_t i);
     void print(uint32_t u);
     void print(int64_t i);
-    void print(uint64_t u);
+    void print(uint64_t i);
+    void print(const BigInt& bigint);
     void print(float f);
     void print(double d);
 }
-
-#endif //PERLANG_STDLIB_HPP

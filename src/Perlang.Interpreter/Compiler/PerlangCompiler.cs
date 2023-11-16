@@ -196,6 +196,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
     /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
     /// <param name="nameResolutionErrorHandler">A handler for resolve errors.</param>
@@ -207,6 +208,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     public string? CompileAndRun(
         string source,
         string path,
+        CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
         ParseErrorHandler parseErrorHandler,
         NameResolutionErrorHandler nameResolutionErrorHandler,
@@ -217,6 +219,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         string? executablePath = Compile(
             source,
             path,
+            compilerFlags,
             scanErrorHandler,
             parseErrorHandler,
             nameResolutionErrorHandler,
@@ -271,6 +274,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
     /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
     /// <param name="nameResolutionErrorHandler">A handler for resolve errors.</param>
@@ -281,6 +285,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     private string? Compile(
         string source,
         string path,
+        CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
         ParseErrorHandler parseErrorHandler,
         NameResolutionErrorHandler nameResolutionErrorHandler,
@@ -300,7 +305,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         // TODO: Check the creation time of *all* dependencies here, including the stdlib (both .so/.dll and .h files
         // TODO: ideally). Right now, rebuilding the stdlib doesn't trigger a cache invalidation which is annoying
         // TODO: when developing the stdlib.
-        if (!CompilationCacheDisabled &&
+        if (!(compilerFlags.HasFlag(CompilerFlags.CacheDisabled) || CompilationCacheDisabled) &&
             File.GetCreationTime(targetCppFile) > File.GetCreationTime(path) &&
             File.GetCreationTime(targetExecutable) > File.GetCreationTime(path))
         {
@@ -457,6 +462,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 #include <math.h> // fmod()
 #include <stdint.h>
 
+#include ""bigint.hpp"" // BigInt
 #include ""stdlib.hpp""
 
 ");
@@ -517,6 +523,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     "-Wall",
                     "-Werror",
 
+                    // Enable warnings on e.g. narrowing conversion from `long long` to `unsigned long long`.
+                    "-Wconversion",
+
+                    // ...but do not warn on implicit conversion from `int` to `float` or `double`. For now, we are
+                    // aiming at mimicking the C# semantics in this.
+                    "-Wno-implicit-int-float-conversion",
+
+                    // Certain narrowing conversions are problematic; we have seen this causing issues when implementing
+                    // the BigInt support. For example, `uint64_t` must not be implicitly converted to call a `long
+                    // long` constructor/method.
+                    "-Wimplicit-int-conversion",
+
                     // C# allows cast from e.g. 2147483647 to float without warnings, but here's an interesting thing:
                     // clang emits a very nice warning for this ("implicit conversion from 'int' to 'float' changes
                     // value from 2147483647 to 2147483648"). We might want to consider doing something similar for
@@ -530,6 +548,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                     // Handled on the Perlang side
                     "-Wno-logical-op-parentheses",
+
+                    // Probably enabled by -Wconversion, but this causes issues with valid code like `2147483647 /
+                    // 4294967295U`.
+                    "-Wno-sign-conversion",
 
                     // We currently overflow without warnings, but we could consider implementing something like this
                     // warning in Perlang as well. Here's what the warning produces on `9223372036854775807 << 2`:
@@ -1014,10 +1036,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 throw new PerlangCompilerException($"Internal compiler error: unsupported floating point literal type {expr.Value.GetType().ToTypeKeyword()} encountered");
             }
         }
-        else if (expr.Value is IntegerLiteral<BigInteger>)
+        else if (expr.Value is IntegerLiteral<BigInteger> bigintLiteral)
         {
-            // TODO: Use something like https://github.com/faheel/BigInt for this
-            throw new NotImplementedInCompiledModeException($"BigInteger literals is not yet implemented in compiled mode");
+            currentMethod.Append("BigInt(\"");
+            currentMethod.Append(bigintLiteral.Value.ToString());
+            currentMethod.Append("\")");
         }
         else if (expr.Value is INumericLiteral numericLiteral)
         {

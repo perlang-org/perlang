@@ -146,6 +146,11 @@ editor](https://github.com/mono/mono/blob/main/mcs/tools/csharp/getline.cs),
 dual-licensed under the terms of the MIT X11 license or the Apache License 2.0.
 Copyright (c) 2008 Novell, Inc. Copyright (c) 2016 Xamarin Inc.
 
+[src/stdlib/src/bigint.hpp](src/stdlib/src/bigint.hpp) includes content from
+Syed Faheel Ahmad's `BigInt` library, available at
+https://github.com/faheel/BigInt, licensed under the terms of the MIT license.
+Copyright (c) 2017 - 2018 Syed Faheel Ahmad.
+
 [src/stdlib/src/double-conversion](src/stdlib/src/double-conversion) includes
 content from the Google `double-conversion` library, available at
 https://github.com/google/double-conversion, licensed under the BSD 3-Clause

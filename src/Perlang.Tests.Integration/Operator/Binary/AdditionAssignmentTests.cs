@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 {
     public class AdditionAssignmentTests
     {
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.AdditionAssignment_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_addition_assignment(string i, string j, string expectedResult)
         {

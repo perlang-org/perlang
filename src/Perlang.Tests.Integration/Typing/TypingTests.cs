@@ -1,6 +1,7 @@
 #pragma warning disable SA1025
 using System;
 using System.Linq;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -198,7 +199,7 @@ namespace Perlang.Tests.Integration.Typing
                 print s;
             ";
 
-            var result = EvalWithResult(source);
+            var result = EvalWithResult(source, CompilerFlags.CacheDisabled);
 
             Assert.Empty(result.Errors);
             Assert.Single(result.CompilerWarnings);
@@ -263,7 +264,7 @@ namespace Perlang.Tests.Integration.Typing
                 print s;
             ";
 
-            EvalResult<Exception> result = EvalWithResult(source);
+            EvalResult<Exception> result = EvalWithResult(source, CompilerFlags.CacheDisabled);
 
             Assert.Empty(result.Errors);
             Assert.Single(result.CompilerWarnings);
@@ -350,7 +351,7 @@ namespace Perlang.Tests.Integration.Typing
                 foo(null);
             ";
 
-            var result = EvalWithResult(source);
+            var result = EvalWithResult(source, CompilerFlags.CacheDisabled);
 
             Assert.Empty(result.Errors);
             Assert.Single(result.CompilerWarnings);
