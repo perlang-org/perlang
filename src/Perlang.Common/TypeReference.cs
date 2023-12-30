@@ -58,8 +58,8 @@ namespace Perlang
                 var t when t == typeof(Double) => "double",
                 var t when t == typeof(bool) => "bool",
                 var t when t == typeof(void) => "void",
-                var t when t == typeof(BigInteger) => throw new NotImplementedInCompiledModeException("BigInteger is not yet supported in compiled mode"),
-                null => throw new InvalidOperationException($"Internal error: ClrType was unexpectedly null"),
+                var t when t == typeof(BigInteger) => "BigInt",
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
                 // TODO: Differentiate from these on the C++ level as well
                 var t when t.FullName == "Perlang.Lang.AsciiString" => "const char *",

@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 project(stdlib VERSION 0.1.0)
 
 set(headers
+        src/bigint.hpp
         src/stdlib.hpp
         src/double-conversion/utils.h
 )
 
 add_library(
         stdlib
+        src/bigint.cpp
         src/Base64.cpp
         src/print.cpp
 )
@@ -35,7 +37,7 @@ install(
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
-# The testing code is not yet ready for macOS, since it uses a different linker which doesnät support --wrap. We'll
+# The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap. We'll
 # live with only building/running the tests on other platforms for now.
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     enable_testing()
@@ -58,9 +60,9 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
     target_link_libraries(cctest stdlib)
 
-        # We enable wrapping for fwrite(), to be able to capture its output in tests. The reason why we don't do this on
-        # macOS is because it does not use GNU ld, so the --wrap linker option isn't available.
-        target_link_options(cctest PRIVATE -Wl,--wrap=fwrite)
+    # We enable wrapping for fwrite(), to be able to capture its output in tests. The reason why we don't do this on
+    # macOS is because it does not use GNU ld, so the --wrap linker option isn't available.
+    target_link_options(cctest PRIVATE -Wl,--wrap=fwrite)
 
     add_test(NAME test_fast_dtoa
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

@@ -16,7 +16,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         //
         // Tests for the * (multiplication) operator
         //
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.Multiplication_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_multiplication(string i, string j, string expectedResult)
         {

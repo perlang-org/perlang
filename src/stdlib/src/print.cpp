@@ -6,6 +6,8 @@
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
+#include "bigint.hpp"
+
 namespace perlang
 {
     void print(const char* str)
@@ -53,6 +55,11 @@ namespace perlang
     void print(uint64_t u)
     {
         printf("%llu\n", u);
+    }
+
+    void print(const BigInt& bigint)
+    {
+        puts(bigint.to_string().c_str());
     }
 
     void print(float f)

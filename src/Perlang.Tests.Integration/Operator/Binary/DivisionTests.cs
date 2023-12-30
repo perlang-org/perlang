@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     // https://github.com/munificent/craftinginterpreters/blob/c6da0e61e6072271de404464c34b51c2fdc39e59/test/operator/divide_num_nonnum.lox
     public class DivisionTests
     {
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.Division_result), MemberType = typeof(BinaryOperatorData))]
         void performs_division(string i, string j, string expectedResult)
         {

@@ -243,6 +243,29 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<Exception> EvalWithResult(string source, params string[] arguments)
         {
+            return EvalWithResult(source, CompilerFlags.None, arguments);
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
+        ///
+        /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
+        ///
+        /// This method will propagate all kinds of errors to the caller, throwing an exception on the first error
+        /// encountered. If any warnings are emitted, they will be available in the returned <see
+        /// cref="EvalResult{T}.CompilerWarnings"/> property. This can be seen as "warnings as errors" is disabled
+        /// for all warnings; the caller need to explicitly check for warnings and fail if appropriate.
+        /// </summary>
+        /// <param name="source">A valid Perlang program.</param>
+        /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use if compilation is
+        /// enabled.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, params string[] arguments)
+        {
             if (PerlangMode.ExperimentalCompilation)
             {
                 var result = new EvalResult<Exception>();
@@ -254,6 +277,7 @@ namespace Perlang.Tests.Integration
                     result.ExecutablePath = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        compilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -266,7 +290,7 @@ namespace Perlang.Tests.Integration
                 {
                     // This exception is thrown to make it possible for integration tests to skip tests for code which
                     // is known to not yet work.
-                    throw new SkipException(e.Message);
+                    throw new SkipException(e.Message, e);
                 }
 
                 // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
