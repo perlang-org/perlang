@@ -36,6 +36,7 @@ class BigInt {
         BigInt(const unsigned long&);
         BigInt(const long long&);
         BigInt(const unsigned long long& num);
+        BigInt(const double& num);
         BigInt(const std::string&);
 
         // Assignment operators:

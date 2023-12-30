@@ -35,7 +35,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         // Tests for the < (less than) operator
         //
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_greater_is_true(string left, string right)
         {
@@ -54,7 +54,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("true");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_same_is_false(string left, string right)
         {
@@ -73,7 +73,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("false");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_smaller_is_false(string left, string right)
         {
@@ -96,7 +96,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         // Tests for the <= (less than or equals) operator
         //
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_greater_is_true(string left, string right)
         {
@@ -115,7 +115,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("true");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_same_is_true(string left, string right)
         {
@@ -134,7 +134,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("true");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_or_equals_smaller_is_false(string left, string right)
         {
@@ -157,7 +157,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         // Tests for the > (greater than) operator
         //
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_smaller_is_false(string left, string right)
         {
@@ -176,7 +176,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("false");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_same_is_false(string left, string right)
         {
@@ -195,7 +195,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("false");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_smaller_is_true(string left, string right)
         {
@@ -217,7 +217,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         //
         // Tests for the >= (greater than or equals) operator
         //
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_larger_is_false(string left, string right)
         {
@@ -236,7 +236,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("false");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_same_is_true(string left, string right)
         {
@@ -255,7 +255,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("true");
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void greater_than_or_equals_smaller_is_true(string left, string right)
         {

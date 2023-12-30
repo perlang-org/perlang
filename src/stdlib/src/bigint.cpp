@@ -247,6 +247,16 @@ BigInt::BigInt(const unsigned long long& num) {
     sign = '+';
 }
 
+BigInt::BigInt(const double& num) {
+    if (ceil(num) != num) {
+        // num has a fractional part and can inherently never be equal to a BigInt.
+        throw std::invalid_argument("Expected a value without any fractional part, got \'" + std::to_string(num) + "\'");
+    }
+
+    // Without this cast, values like "4096" will be converted to "4096.000000"
+    value = std::to_string((long)num);
+    sign = '+';
+}
 
 /*
     String to BigInt
