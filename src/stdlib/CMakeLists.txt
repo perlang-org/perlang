@@ -10,6 +10,7 @@ set(headers
 add_library(
         stdlib
         src/bigint.cpp
+        src/bigint_pow.cpp
         src/Base64.cpp
         src/print.cpp
 )
@@ -20,6 +21,14 @@ set_property(TARGET stdlib PROPERTY CXX_STANDARD 17)
 target_include_directories(
         stdlib PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
+
+target_compile_options(
+        stdlib PRIVATE -Wall -Wextra -Werror
+
+        # TODO: Remove this. We have some current issues with %lld (long long int vs int64_t) that needs to be
+        # TODO: resolved for this. The problem is IIRC that Linux and macOS treated this differently.
+        -Wno-error=format
 )
 
 include(GNUInstallDirs)

@@ -10,12 +10,12 @@ namespace perlang
     {
         class Base64
         {
-        public:
-            static const char *to_string();
+         public:
+            static const char* to_string();
         };
     }
 
-    void print(const char *str);
+    void print(const char* str);
     void print(bool b);
     void print(char c);
     void print(int32_t i);
@@ -25,4 +25,6 @@ namespace perlang
     void print(const BigInt& bigint);
     void print(float f);
     void print(double d);
+
+    BigInt BigInt_pow(const BigInt& value, int exponent);
 }
