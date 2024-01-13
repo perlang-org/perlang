@@ -713,7 +713,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -726,7 +726,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -767,7 +767,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 {
                     // TODO: Strings/other types need different handling, and are more complex since they will
                     // TODO: inherently require memory allocation. We don't have a defined model for when that
-                    // TODO: memory would be deallocated.
+                    // TODO: memory would be deallocated, #378
                     string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
@@ -781,7 +781,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -794,7 +794,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -821,7 +821,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -857,7 +857,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -879,7 +879,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -910,7 +910,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                         }
                         else
                         {
-                            string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                            string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                             throw new RuntimeError(expr.Operator, message);
                         }
 
@@ -921,7 +921,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else
                 {
-                    string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
                     throw new RuntimeError(expr.Operator, message);
                 }
 
@@ -929,6 +929,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
             default:
             {
+                // Other operator types are not supported for binary expressions
                 string message = CompilerMessages.UnsupportedOperatorTypeInBinaryExpression(expr.Operator.Type);
                 throw new RuntimeError(expr.Operator, message);
             }
