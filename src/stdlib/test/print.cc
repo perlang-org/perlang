@@ -91,11 +91,6 @@ TEST(PrintDouble_9223372036854775807)
     fwrite_mocked = false;
 
     CHECK_EQ("9.22337203685478E+18\n", captured_output);
-
-    // TODO: temp code
-    double i1 = -12.0;
-    BigInt i2 = BigInt("18446744073709551616");
-    perlang::print(i1 != i2);
 }
 
 // TODO: Make this test work. We need to (linker-)wrap puts to make it happen.

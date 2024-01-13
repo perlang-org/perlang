@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 {
     public class AdditionTests
     {
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.Addition_result), MemberType = typeof(BinaryOperatorData))]
         void performs_addition(string i, string j, string expectedResult)
         {

@@ -33,6 +33,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [MemberData(nameof(BinaryOperatorData.Exponential_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = $@"
                     print ({i} ** {j}).get_type();
                 ";
@@ -278,7 +280,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("256", result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void exponential_bigint_and_negative_int_throws_expected_runtime_error()
         {
             string source = @"

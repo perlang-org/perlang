@@ -828,7 +828,41 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 break;
 
             case STAR_STAR:
-                throw new NotImplementedInCompiledModeException("** operator is not yet supported in compiled mode");
+                if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(expr.Left.TypeReference.ClrType) &&
+                    expr.Right.TypeReference.ClrType == typeof(int))
+                {
+                    // TODO: We need something lke BigInteger.Pow() in .NET to be able to accomplish this. Perhaps do
+                    // TODO: like the .NET folks and implement something using this approach?
+                    // TODO: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+                    throw new NotImplementedInCompiledModeException("** operator for BigInteger is not yet supported in compiled mode");
+                }
+                else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
+                         new[] { typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
+                {
+                    // Normal math.h-based pow(), returning a double
+                    currentMethod.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                }
+                else if (new[] { typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
+                         new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
+                {
+                    // Normal math.h-based pow(), returning a double
+                    currentMethod.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                }
+                else if (expr.Left.TypeReference.ClrType == typeof(BigInteger) ||
+                    expr.Right.TypeReference.ClrType == typeof(BigInteger))
+                {
+                    // TODO: We need something lke BigInteger.Pow() in .NET to be able to accomplish this. Perhaps do
+                    // TODO: like the .NET folks and implement something using this approach?
+                    // TODO: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+                    throw new NotImplementedInCompiledModeException("** operator for BigInteger is not yet supported in compiled mode");
+                }
+                else
+                {
+                    string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
+                    throw new RuntimeError(expr.Operator, message);
+                }
+
+                break;
 
             case PERCENT:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
@@ -838,14 +872,14 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     {
                         throw new NotImplementedInCompiledModeException("% operator for BigInteger is not yet supported in compiled mode");
                     }
-                    else if (typeof(Double) == expr.Left.TypeReference.ClrType ||
-                             typeof(Double) == expr.Right.TypeReference.ClrType)
+                    else if (expr.Left.TypeReference.ClrType == typeof(double) ||
+                             expr.Right.TypeReference.ClrType == typeof(double))
                     {
                         // C and C++ does not support the % operator for double; we must use `fmod()` instead
                         currentMethod.Append($"fmod({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
                     }
-                    else if (typeof(Single) == expr.Left.TypeReference.ClrType ||
-                             typeof(Single) == expr.Right.TypeReference.ClrType)
+                    else if (expr.Left.TypeReference.ClrType == typeof(float) ||
+                             expr.Right.TypeReference.ClrType == typeof(float))
                     {
                         // Likewise, but with `float` instead of `double` as arguments and return type
                         currentMethod.Append($"fmodf({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
