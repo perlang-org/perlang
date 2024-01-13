@@ -15,7 +15,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     /// </summary>
     public class ExponentialTests
     {
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.Exponential_result), MemberType = typeof(BinaryOperatorData))]
         public void performs_exponential_calculation(string i, string j, string expectedResult)
         {
