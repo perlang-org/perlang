@@ -1,13 +1,17 @@
 /*
     BigInt
     ------
-    Arbitrary-sized integer class for C++.
+    Arbitrary-sized integer class for C++ (rewritten to use libtommath as backend)
 
-    Version: 0.5.0-dev
-    Released on: 05 October 2020 23:15 IST
-    Author: Syed Faheel Ahmad (faheel@live.in)
-    Project on GitHub: https://github.com/faheel/BigInt
-    License: MIT
+    Based on C++ API by Syed Faheel Ahmad (faheel@live.in), in https://github.com/faheel/BigInt
+    Licensed under the MIT (Expat) license.
+
+    The libtommath-wrapper is inspired by the boost/multiprecision/tommath.hpp file, licensed under the following terms:
+
+    Copyright 2011 John Maddock.
+    Copyright 2021 Matt Borland. Distributed under the Boost
+    Software License, Version 1.0. (See accompanying file
+    LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 */
 
 /*
@@ -20,11 +24,14 @@
 #ifndef BIG_INT_HPP
 #define BIG_INT_HPP
 
-#include <iostream>
+#include "libtommath/tommath.h"
+
+#include <string>
+#include <cassert>
 
 class BigInt {
-    std::string value;
-    char sign;
+    private:
+        mp_int data;
 
     public:
         // Constructors:
@@ -37,12 +44,19 @@ class BigInt {
         BigInt(const long long&);
         BigInt(const unsigned long long& num);
         BigInt(const double& num);
-        BigInt(const std::string&);
+        BigInt(const char* s);
+
+        // Destructor
+        ~BigInt();
 
         // Assignment operators:
         BigInt& operator=(const BigInt&);
+        BigInt& operator=(const int&);
+        BigInt& operator=(const unsigned int&);
+        BigInt& operator=(const long&);
         BigInt& operator=(const long long&);
-        BigInt& operator=(const std::string&);
+        BigInt& operator=(const unsigned long long&);
+        BigInt& operator=(const char* s);
 
         // Unary arithmetic operators:
         BigInt operator+() const;   // unary +
@@ -64,11 +78,6 @@ class BigInt {
         BigInt operator/(const long long&) const;
         BigInt operator/(const unsigned long long&) const;
         BigInt operator%(const long long&) const;
-        BigInt operator+(const std::string&) const;
-        BigInt operator-(const std::string&) const;
-        BigInt operator*(const std::string&) const;
-        BigInt operator/(const std::string&) const;
-        BigInt operator%(const std::string&) const;
 
         // Arithmetic-assignment operators:
         BigInt& operator+=(const BigInt&);
@@ -91,11 +100,6 @@ class BigInt {
         BigInt& operator*=(const long long&);
         BigInt& operator/=(const long long&);
         BigInt& operator%=(const long long&);
-        BigInt& operator+=(const std::string&);
-        BigInt& operator-=(const std::string&);
-        BigInt& operator*=(const std::string&);
-        BigInt& operator/=(const std::string&);
-        BigInt& operator%=(const std::string&);
 
         // Increment and decrement operators:
         BigInt& operator++();       // pre-increment
@@ -145,29 +149,27 @@ class BigInt {
         bool operator!=(const long long&) const;
         bool operator!=(const unsigned long long&) const;
         bool operator!=(const double&) const;
-        bool operator<(const std::string&) const;
-        bool operator>(const std::string&) const;
-        bool operator<=(const std::string&) const;
-        bool operator>=(const std::string&) const;
-        bool operator==(const std::string&) const;
-        bool operator!=(const std::string&) const;
 
-        // I/O stream operators:
-        friend std::istream& operator>>(std::istream&, BigInt&);
-        friend std::ostream& operator<<(std::ostream&, const BigInt&);
+        BigInt pow(uint32_t exponent) const;
 
         // Conversion functions:
         std::string to_string() const;
-        int to_int() const;
-        long to_long() const;
-        long long to_long_long() const;
 
-        // Random number generating functions:
-        friend BigInt big_random(size_t);
+    ::mp_int& get_data()
+        {
+            assert(data.dp != nullptr);
+            return data;
+        }
+
+        const ::mp_int& get_data() const
+        {
+            assert(data.dp != nullptr);
+            return data;
+        }
 };
 
-//// The following operator overloads operate with primitives like long long on the left-hand side; they are not part of
-//// the class. Their declarations must still exist in the header file, so that it can be found by the calling code.
+// The following operator overloads operate with primitives like long long on the left-hand side; they are not part of
+// the class. Their declarations must still exist in the header file, so that it can be found by the calling code.
 
 /*
     Integer / BigInt
@@ -219,6 +221,10 @@ BigInt operator/(const unsigned long& lhs, const BigInt& rhs);
 BigInt operator/(const long long& lhs, const BigInt& rhs);
 BigInt operator/(const unsigned long long& lhs, const BigInt& rhs);
 BigInt operator%(const long long& lhs, const BigInt& rhs);
+
+void eval_multiply(BigInt& t, const BigInt& o);
+void eval_add(BigInt& t, const BigInt& o);
+int eval_get_sign(const BigInt& val);
 
 #endif  // BIG_INT_HPP
 

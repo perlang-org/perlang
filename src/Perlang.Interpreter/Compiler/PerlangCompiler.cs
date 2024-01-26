@@ -831,9 +831,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(expr.Left.TypeReference.ClrType) &&
                     expr.Right.TypeReference.ClrType == typeof(int))
                 {
-                    // TODO: We need something lke BigInteger.Pow() in .NET to be able to accomplish this. Perhaps do
-                    // TODO: like the .NET folks and implement something using this approach?
-                    // TODO: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
                     currentMethod.Append($"{leftCast}perlang::BigInt_pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
