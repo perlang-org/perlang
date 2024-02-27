@@ -12,7 +12,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     /// </summary>
     public class ModuloTests
     {
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(BinaryOperatorData.Modulo_result), MemberType = typeof(BinaryOperatorData))]
         public void returns_remainder_of_division(string i, string j, string expectedResult)
         {

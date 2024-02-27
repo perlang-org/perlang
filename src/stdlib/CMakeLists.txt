@@ -14,6 +14,7 @@ set(libtommath_headers
 add_library(
         stdlib
         src/bigint.cpp
+        src/bigint_mod.cpp
         src/bigint_pow.cpp
         src/Base64.cpp
         src/print.cpp
