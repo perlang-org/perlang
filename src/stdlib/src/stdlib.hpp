@@ -26,5 +26,6 @@ namespace perlang
     void print(float f);
     void print(double d);
 
+    BigInt BigInt_mod(const BigInt& value, const BigInt& divisor);
     BigInt BigInt_pow(const BigInt& value, int exponent);
 }

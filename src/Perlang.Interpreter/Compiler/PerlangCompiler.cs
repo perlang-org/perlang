@@ -859,7 +859,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     if (expr.Left.TypeReference.ClrType == typeof(BigInteger) ||
                         expr.Right.TypeReference.ClrType == typeof(BigInteger))
                     {
-                        throw new NotImplementedInCompiledModeException("% operator for BigInteger is not yet supported in compiled mode");
+                        currentMethod.Append($"{leftCast}perlang::BigInt_mod({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                     }
                     else if (expr.Left.TypeReference.ClrType == typeof(double) ||
                              expr.Right.TypeReference.ClrType == typeof(double))
