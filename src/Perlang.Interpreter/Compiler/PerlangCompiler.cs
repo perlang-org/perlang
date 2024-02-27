@@ -889,16 +889,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             case LESS_LESS:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    if (expr.TypeReference.ClrType == typeof(BigInteger))
-                    {
-                        throw new NotImplementedInCompiledModeException("<< operator with BigInteger results is currently not supported in compiled mode");
-                    }
-                    else
-                    {
-                        // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
-                        // precedence for the shift left operator, which clang is kind enough to warn us about.
-                        currentMethod.Append($"({expr.Left.Accept(this)} << {expr.Right.Accept(this)})");
-                    }
+                    // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
+                    // precedence for the shift left operator, which clang is kind enough to warn us about.
+                    currentMethod.Append($"({expr.Left.Accept(this)} << {expr.Right.Accept(this)})");
                 }
                 else
                 {
@@ -911,36 +904,34 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             case GREATER_GREATER:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    if (expr.TypeReference.ClrType == typeof(BigInteger))
+                    // The bitmask rules here correspond to those of C#, as defined here:
+                    // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/bitwise-and-shift-operators#shift-count-of-the-shift-operators
+                    string shiftCountBitMask;
+
+                    if (expr.Left.TypeReference.ClrType == typeof(int) ||
+                        expr.Left.TypeReference.ClrType == typeof(uint))
                     {
-                        throw new NotImplementedInCompiledModeException("<< operator with BigInteger results is currently not supported in compiled mode");
+                        shiftCountBitMask = "& 0b11111";
+                    }
+                    else if (expr.Left.TypeReference.ClrType == typeof(long) ||
+                             expr.Left.TypeReference.ClrType == typeof(ulong))
+                    {
+                        shiftCountBitMask = "& 0b111111";
+                    }
+                    else if (expr.Left.TypeReference.ClrType == typeof(BigInteger))
+                    {
+                        // BigInt == don't mask away anything of the result
+                        shiftCountBitMask = "";
                     }
                     else
                     {
-                        // The bitmask rules here correspond to those of C#, as defined here:
-                        // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/bitwise-and-shift-operators#shift-count-of-the-shift-operators
-                        int shiftCountBitMask;
-
-                        if (expr.Left.TypeReference.ClrType == typeof(int) ||
-                            expr.Left.TypeReference.ClrType == typeof(uint))
-                        {
-                            shiftCountBitMask = 0b_1_1111;
-                        }
-                        else if (expr.Left.TypeReference.ClrType == typeof(long) ||
-                                 expr.Left.TypeReference.ClrType == typeof(ulong))
-                        {
-                            shiftCountBitMask = 0b_11_1111;
-                        }
-                        else
-                        {
-                            string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
-                            throw new RuntimeError(expr.Operator, message);
-                        }
-
-                        // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
-                        // precedence for the shift left operator, which clang is kind enough to warn us about.
-                        currentMethod.Append($"({expr.Left.Accept(this)} >> ({expr.Right.Accept(this)} & {shiftCountBitMask}))");
+                        string message = CompilerMessages.UnsupportedOperandsInBinaryExpression(expr.Operator.Type, expr.Left.TypeReference, expr.Right.TypeReference);
+                        throw new RuntimeError(expr.Operator, message);
                     }
+
+                    // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
+                    // precedence for the shift left operator, which clang is kind enough to warn us about.
+                    currentMethod.Append($"({expr.Left.Accept(this)} >> ({expr.Right.Accept(this)} {shiftCountBitMask}))");
                 }
                 else
                 {
