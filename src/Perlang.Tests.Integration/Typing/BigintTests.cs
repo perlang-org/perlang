@@ -9,7 +9,7 @@ namespace Perlang.Tests.Integration.Typing
     /// </summary>
     public class BigintTests
     {
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_can_be_printed()
         {
             string source = @"
@@ -23,7 +23,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("103", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_can_be_reassigned()
         {
             string source = @"
@@ -38,7 +38,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("8589934592", result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_can_contain_numbers_larger_than_32_bits()
         {
             string source = @"
@@ -52,7 +52,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("8589934592", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_can_contain_numbers_larger_than_64_bits()
         {
             string source = @"

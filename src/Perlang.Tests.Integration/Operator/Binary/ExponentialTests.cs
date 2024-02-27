@@ -204,7 +204,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void exponential_integer_literal_and_function_return_value()
         {
             string source = @"
@@ -218,7 +218,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("65536", result);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("2", "12", "4096", "sv-SE")]
         [InlineData("2", "12", "4096", "en-US")]
         [InlineData("10", "3.5", "3162.27766016838", "sv-SE")]
@@ -237,7 +237,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(expectedResult, result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void exponential_function_return_value_and_int_literal()
         {
             string source = @"
@@ -251,7 +251,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("65536", result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void exponential_int_variable_and_int_literal()
         {
             string source = @"
@@ -265,7 +265,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal("256", result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void exponential_function_return_values()
         {
             string source = @"
