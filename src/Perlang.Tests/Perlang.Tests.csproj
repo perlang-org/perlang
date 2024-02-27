@@ -25,7 +25,7 @@
         <PackageReference Include="coverlet.collector" Version="6.0.1" />
 
         <!-- Dependency needed by Moq/Moq.Analyzers; our reflection code fails without this being listed explicitly -->
-        <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis" Version="4.8.0" />
     </ItemGroup>
 
     <ItemGroup>
