@@ -128,7 +128,7 @@ guide.
 
 ## License
 
-[MIT](LICENSE)
+[MIT (Expat)](LICENSE)
 
 [perlang-install](scripts/perlang-install) is originally based on
 [rustup-init](https://github.com/rust-lang/rustup/blob/master/rustup-init.sh),
@@ -150,6 +150,10 @@ Copyright (c) 2008 Novell, Inc. Copyright (c) 2016 Xamarin Inc.
 Syed Faheel Ahmad's `BigInt` library, available at
 https://github.com/faheel/BigInt, licensed under the terms of the MIT license.
 Copyright (c) 2017 - 2018 Syed Faheel Ahmad.
+
+[src/stdlib/src/libtommath](src/stdlib/src/libtommath/) includes content from
+libtommath (https://github.com/libtom/libtommath), licensed under the Unlicense
+(http://unlicense.org).
 
 [src/stdlib/src/double-conversion](src/stdlib/src/double-conversion) includes
 content from the Google `double-conversion` library, available at

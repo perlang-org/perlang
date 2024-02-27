@@ -7,12 +7,67 @@ set(headers
         src/double-conversion/utils.h
 )
 
+set(libtommath_headers
+        src/libtommath/tommath.h
+)
+
 add_library(
         stdlib
         src/bigint.cpp
         src/bigint_pow.cpp
         src/Base64.cpp
         src/print.cpp
+        src/libtommath/bn_cutoffs.c
+        src/libtommath/bn_mp_add.c
+        src/libtommath/bn_mp_clamp.c
+        src/libtommath/bn_mp_clear.c
+        src/libtommath/bn_mp_clear_multi.c
+        src/libtommath/bn_mp_cmp.c
+        src/libtommath/bn_mp_cmp_mag.c
+        src/libtommath/bn_mp_copy.c
+        src/libtommath/bn_mp_count_bits.c
+        src/libtommath/bn_mp_div.c
+        src/libtommath/bn_mp_div_d.c
+        src/libtommath/bn_mp_div_2.c
+        src/libtommath/bn_mp_div_2d.c
+        src/libtommath/bn_mp_div_3.c
+        src/libtommath/bn_mp_exch.c
+        src/libtommath/bn_mp_expt_u32.c
+        src/libtommath/bn_mp_grow.c
+        src/libtommath/bn_mp_init.c
+        src/libtommath/bn_mp_init_copy.c
+        src/libtommath/bn_mp_init_multi.c
+        src/libtommath/bn_mp_init_size.c
+        src/libtommath/bn_mp_lshd.c
+        src/libtommath/bn_mp_mod.c
+        src/libtommath/bn_mp_mod_2d.c
+        src/libtommath/bn_mp_mul.c
+        src/libtommath/bn_mp_mul_d.c
+        src/libtommath/bn_mp_mul_2.c
+        src/libtommath/bn_mp_mul_2d.c
+        src/libtommath/bn_mp_neg.c
+        src/libtommath/bn_mp_radix_size.c
+        src/libtommath/bn_mp_radix_smap.c
+        src/libtommath/bn_mp_rshd.c
+        src/libtommath/bn_mp_error_to_string.c
+        src/libtommath/bn_mp_to_radix.c
+        src/libtommath/bn_mp_set.c
+        src/libtommath/bn_mp_set_u64.c
+        src/libtommath/bn_mp_sqr.c
+        src/libtommath/bn_mp_sub.c
+        src/libtommath/bn_mp_zero.c
+        src/libtommath/bn_s_mp_add.c
+        src/libtommath/bn_s_mp_balance_mul.c
+        src/libtommath/bn_s_mp_karatsuba_mul.c
+        src/libtommath/bn_s_mp_karatsuba_sqr.c
+        src/libtommath/bn_s_mp_mul_digs.c
+        src/libtommath/bn_s_mp_mul_digs_fast.c
+        src/libtommath/bn_s_mp_sqr.c
+        src/libtommath/bn_s_mp_sqr_fast.c
+        src/libtommath/bn_s_mp_reverse.c
+        src/libtommath/bn_s_mp_sub.c
+        src/libtommath/bn_s_mp_toom_mul.c
+        src/libtommath/bn_s_mp_toom_sqr.c
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13
@@ -44,6 +99,11 @@ install(
 install(
         FILES ${headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+        FILES ${libtommath_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libtommath"
 )
 
 # The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap. We'll
