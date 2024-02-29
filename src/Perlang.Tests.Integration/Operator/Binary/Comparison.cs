@@ -54,6 +54,21 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("true");
         }
 
+        [Fact]
+        public void less_than_bigint_and_double_throws_expected_error()
+        {
+            string source = $@"
+                var b = (2 ** 64) < 18446744073709551616.1;
+                print b;
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle().Which
+                .Message.Should().Be("Unsupported < operand types: 'bigint' and 'double'");
+        }
+
         [Theory]
         [MemberData(nameof(ComparisonTypes))]
         public void less_than_same_is_false(string left, string right)
