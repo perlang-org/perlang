@@ -78,6 +78,8 @@ class BigInt {
         BigInt operator/(const long long&) const;
         BigInt operator/(const unsigned long long&) const;
         BigInt operator%(const long long&) const;
+        BigInt operator<<(const int) const;
+        BigInt operator>>(const int) const;
 
         // Arithmetic-assignment operators:
         BigInt& operator+=(const BigInt&);
@@ -227,4 +229,3 @@ void eval_add(BigInt& t, const BigInt& o);
 int eval_get_sign(const BigInt& val);
 
 #endif  // BIG_INT_HPP
-

@@ -15,6 +15,7 @@
         <Rule Id="SA1111" Action="None"/>       <!-- Closing parenthesis should be on line of last parameter -->
         <Rule Id="SA1120" Action="None"/>       <!-- Comments should contain text -->
         <Rule Id="SA1121" Action="None"/>       <!-- Use built-in type alias -->
+        <Rule Id="SA1122" Action="None"/>       <!-- Use string.Empty for empty strings -->
 
         <!-- TODO: Consider fixing this. Here are the docs: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1201.md -->
         <Rule Id="SA1201" Action="None"/>       <!-- Elements should appear in the correct order -->

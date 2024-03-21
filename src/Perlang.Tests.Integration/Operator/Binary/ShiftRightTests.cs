@@ -7,7 +7,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class ShiftRightTests
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.ShiftRight_result), MemberType = typeof(BinaryOperatorData))]
     public void performs_right_shifting(string i, string j, string expectedResult)
     {

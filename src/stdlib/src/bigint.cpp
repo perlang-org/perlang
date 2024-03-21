@@ -1222,6 +1222,22 @@ BigInt operator%(const long long& lhs, const BigInt& rhs)
     return BigInt(lhs) % rhs;
 }
 
+BigInt BigInt::operator<<(const int shift) const
+{
+    BigInt result = BigInt(*this);
+    check_tommath_result(mp_mul_2d(&this->get_data(), shift, &result.get_data()));
+
+    return result;
+}
+
+BigInt BigInt::operator>>(const int shift) const
+{
+    BigInt result = BigInt(*this);
+    check_tommath_result(mp_div_2d(&this->get_data(), shift, &result.get_data(), nullptr));
+
+    return result;
+}
+
 #endif  // BIG_INT_BINARY_ARITHMETIC_OPERATORS_HPP
 
 
