@@ -22,7 +22,7 @@
         <PackageReference Include="xunit" Version="2.7.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7" />
         <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="coverlet.collector" Version="6.0.1" />
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
 
         <!-- Dependency needed by Moq/Moq.Analyzers; our reflection code fails without this being listed explicitly -->
         <PackageReference Include="Microsoft.CodeAnalysis" Version="4.9.2" />
