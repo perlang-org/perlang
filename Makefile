@@ -61,7 +61,7 @@ docfx/docfx.exe:
 darkerfx-push:
 	rsync -av docs/templates/darkerfx/ ../darkerfx/darkerfx/
 
-install: auto-generated
+install: auto-generated stdlib
 	./scripts/local_install_linux.sh
 
 # Downloads and installs the latest snapshot from https://builds.perlang.org
