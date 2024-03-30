@@ -39,7 +39,7 @@ namespace Perlang.Tests.ConsoleApp
                 output.Should().Equal("42");
             }
 
-            [Fact]
+            [Fact(Skip = "Interpreted mode is going away: https://github.com/perlang-org/perlang/issues/406")]
             public void supports_final_semicolon_elision_single_statement()
             {
                 subject.Run("print 10", FatalWarningsHandler);
@@ -47,7 +47,7 @@ namespace Perlang.Tests.ConsoleApp
                 output.Should().Equal("10");
             }
 
-            [Fact]
+            [Fact(Skip = "Interpreted mode is going away: https://github.com/perlang-org/perlang/issues/406")]
             public void supports_final_semicolon_elision_multiple_statements()
             {
                 subject.Run("var a = 43; print a", FatalWarningsHandler);
