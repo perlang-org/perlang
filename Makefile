@@ -98,7 +98,7 @@ test:
 
 # Note: run `make prepare-new-dev-version` when updating this, to ensure that
 # snapshot releases have the correct -V info.
-NEXT_RELEASE_VERSION=0.4.0
+NEXT_RELEASE_VERSION=0.5.0
 NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
 
 prepare-new-dev-version:
