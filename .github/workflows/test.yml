@@ -30,8 +30,9 @@ jobs:
       - name: Re-generate auto-generated files
         run: make auto-generated
 
-      # Needed to run tests, when they are running in experimental compilation mode
-      # (PERLANG_EXPERIMENTAL_COMPILATION=true)
+      # Needed to run tests, when they are running in experimental compilation
+      # mode (PERLANG_EXPERIMENTAL_COMPILATION=true). This also makes sure that
+      # the stdlib builds without errors on all supported platforms.
       - name: Rebuild stdlib
         run: make stdlib
 
