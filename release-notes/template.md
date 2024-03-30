@@ -1,5 +1,5 @@
-## [0.5.0] - Unreleased
-- The fifth public release of Perlang
+## [0.x.0] - Unreleased
+- The x:th public release of Perlang
 - All changes below were made by @perlun
 
 ### Added

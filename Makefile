@@ -102,7 +102,7 @@ NEXT_RELEASE_VERSION=0.5.0
 NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
 
 prepare-new-dev-version:
-	touch release-notes/$(NEXT_RELEASE_TAG).md
+	cp release-notes/template.md release-notes/$(NEXT_RELEASE_TAG).md
 	git add Makefile release-notes/$(NEXT_RELEASE_TAG).md
 	git commit -m '(Makefile) Start working on $(NEXT_RELEASE_TAG)'
 	git push
