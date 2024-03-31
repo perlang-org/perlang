@@ -140,12 +140,6 @@ includes content from the NetBSD project, licensed under the 3-clause BSD
 license. Copyright (c) 1980, 1991, 1993 The Regents of the University of
 California.  All rights reserved.
 
-[src/Perlang.ConsoleApp/dependencies/Mono/Terminal/getline.cs](src/Perlang.ConsoleApp/dependencies/Mono/Terminal/getline.cs)
-is based on Miguel de Icaza's [command line
-editor](https://github.com/mono/mono/blob/main/mcs/tools/csharp/getline.cs),
-dual-licensed under the terms of the MIT X11 license or the Apache License 2.0.
-Copyright (c) 2008 Novell, Inc. Copyright (c) 2016 Xamarin Inc.
-
 [src/stdlib/src/bigint.hpp](src/stdlib/src/bigint.hpp) includes content from
 Syed Faheel Ahmad's `BigInt` library, available at
 https://github.com/faheel/BigInt, licensed under the terms of the MIT license.

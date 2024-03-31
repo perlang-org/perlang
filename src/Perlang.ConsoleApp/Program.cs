@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Mono.Terminal;
 using Perlang.Compiler;
 using Perlang.Internal;
 using Perlang.Interpreter;
@@ -224,13 +223,11 @@ namespace Perlang.ConsoleApp
                     }
                     else if (parseResult.Tokens.Count == 0)
                     {
-                        new Program(
-                            replMode: true,
-                            standardOutputHandler: console.WriteStdoutLine,
-                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
-                        ).RunPrompt();
-
-                        return Task.FromResult(0);
+                        // TODO: Tried to fix this using some logic in the rootCommand.AddValidator() lambda, but I
+                        // TODO: couldn't get it working. Since this is going to be rewritten in Perlang at some point
+                        // TODO: anyway, let's not spend too much time thinking about it.
+                        Console.Error.WriteLine("One of the -e <script>, -p <script> or <script-name> arguments must be provided");
+                        return Task.FromResult(1);
                     }
                     else
                     {
@@ -362,83 +359,6 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private void RunPrompt()
-        {
-            PrintBanner();
-
-            // TODO: Should we use different history files for snapshots and release versions?
-            var lineEditor = new LineEditor("perlang");
-
-            lineEditor.AutoCompleteEvent += (a, pos) =>
-            {
-                var matchingKeywords = Scanner.ReservedKeywords
-                    .Where(keyword => keyword.Key.StartsWith(a))
-                    .Where(keyword => keyword.Value != TokenType.RESERVED_WORD)
-                    .Select(keyword => keyword.Key)
-                    .ToList();
-
-                matchingKeywords.AddRange(
-                    ReplCommands.Where(cmd => cmd.StartsWith(a))
-                );
-
-                string prefix = String.Empty;
-
-                if (matchingKeywords.Count == 1)
-                {
-                    return new LineEditor.Completion(prefix, new[] { matchingKeywords[0].Substring(pos) });
-                }
-                else
-                {
-                    return new LineEditor.Completion(prefix, matchingKeywords.ToArray());
-                }
-            };
-
-            string command;
-
-            while ((command = lineEditor.Edit("> ", String.Empty)) != null)
-            {
-                if (command.ToLowerInvariant() == "/quit" || command.ToLowerInvariant() == "/exit")
-                {
-                    break;
-                }
-                else if (command.ToLowerInvariant() == "/help")
-                {
-                    ShowHelp();
-                    continue;
-                }
-
-                // REPL mode is more relaxed: -Wno-error is enabled for all warnings by default. It simply makes sense
-                // to be less strict in this mode, since it's often used in an ad-hoc fashion for exploratory
-                // programming.
-                Run(command, CompilerWarningAsWarning);
-            }
-        }
-
-        private void ShowHelp()
-        {
-            standardOutputHandlerFromClrString(
-                "\n" +
-                "This is the Perlang interactive console (commonly called REPL, short for\n" +
-                "Read-Evaluate-Print-Loop). Any valid Perlang expression or statement can be\n" +
-                "entered here, and will be evaluated dynamically. For example, 10 + 5, 2 ** 32,\n" +
-                "or `print \"Hello, World\"`"
-            );
-
-            standardOutputHandler(Lang.String.Empty);
-
-            standardOutputHandlerFromClrString("The following special commands are also available:");
-            standardOutputHandlerFromClrString("\x1B[36;1m/quit\x1B[0m or \x1B[36;1m/exit\x1B[0m to quit the program.");
-            standardOutputHandlerFromClrString("\x1B[36;1m/help\x1B[0m to display this help.");
-            standardOutputHandler(Lang.String.Empty);
-
-            standardOutputHandlerFromClrString(
-                "For more information on the Perlang language, please consult this web page:\n" +
-                "https://perlang.org/learn. Thank you for your interest in the project! 🙏"
-            );
-
-            standardOutputHandler(Lang.String.Empty);
-        }
-
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
             object? result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
@@ -468,13 +388,6 @@ namespace Perlang.ConsoleApp
             }
 
             standardOutputHandler(Lang.String.from(result));
-        }
-
-        private void PrintBanner()
-        {
-            standardOutputHandlerFromClrString($"Perlang Interactive REPL Console (\x1B[1m{CommonConstants.GetFullVersion()}\x1B[0m, built from git commit {CommonConstants.GitCommit})");
-            standardOutputHandlerFromClrString("Type \x1B[36;1m/help\x1B[0m for more information or \x1B[36;1m/quit\x1B[0m to quit the program.");
-            standardOutputHandler(Lang.String.Empty);
         }
 
         private void ScanError(ScanError scanError)
