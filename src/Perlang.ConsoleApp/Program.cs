@@ -121,7 +121,6 @@ namespace Perlang.ConsoleApp
         {
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
-            var evalOption = new Option<string>("-e", "Executes a single-line script") { AllowMultipleArgumentsPerToken = false, ArgumentHelpName = "script" };
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
 
@@ -144,7 +143,6 @@ namespace Perlang.ConsoleApp
             {
                 versionOption,
                 detailedVersionOption,
-                evalOption,
                 printOption,
                 noWarnAsErrorOption
             };
@@ -154,16 +152,6 @@ namespace Perlang.ConsoleApp
                 Name = "script-name",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-
-            scriptNameArgument.AddValidator(result =>
-            {
-                var tokens = result.Parent!.Tokens;
-
-                if (tokens.Any(t => t.Type == System.CommandLine.Parsing.TokenType.Option && t.Value == evalOption.Name))
-                {
-                    result.ErrorMessage = "<script-name> positional argument cannot be used together with the -e option";
-                }
-            });
 
             var scriptArguments = new Argument<IEnumerable<string>>
             {
@@ -195,21 +183,7 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
-                    if (parseResult.HasOption(evalOption))
-                    {
-                        string source = parseResult.GetValueForOption(evalOption)!;
-
-                        var program = new Program(
-                            replMode: true,
-                            standardOutputHandler: console.WriteStdoutLine,
-                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
-                        );
-
-                        int result = program.Run(source, program.CompilerWarning);
-
-                        return Task.FromResult(result);
-                    }
-                    else if (parseResult.HasOption(printOption))
+                    if (parseResult.HasOption(printOption))
                     {
                         string source = parseResult.GetValueForOption(printOption)!;
 
@@ -226,7 +200,7 @@ namespace Perlang.ConsoleApp
                         // TODO: Tried to fix this using some logic in the rootCommand.AddValidator() lambda, but I
                         // TODO: couldn't get it working. Since this is going to be rewritten in Perlang at some point
                         // TODO: anyway, let's not spend too much time thinking about it.
-                        Console.Error.WriteLine("One of the -e <script>, -p <script> or <script-name> arguments must be provided");
+                        Console.Error.WriteLine("One of the -p <script> or <script-name> arguments must be provided");
                         return Task.FromResult(1);
                     }
                     else
@@ -264,19 +238,6 @@ namespace Perlang.ConsoleApp
                     }
                 })
             };
-
-            rootCommand.AddValidator(result =>
-            {
-                if (result.HasOption(evalOption) && result.HasOption(printOption))
-                {
-                    result.ErrorMessage = "Error: the -e and -p options are mutually exclusive";
-                }
-
-                if (result.HasOption(evalOption) && result.HasArgument(scriptNameArgument))
-                {
-                    result.ErrorMessage = "Error: the -e option cannot be combined with the <script-name> argument";
-                }
-            });
 
             rootCommand.AddArgument(scriptNameArgument);
             rootCommand.AddArgument(scriptArguments);

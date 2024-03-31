@@ -39,7 +39,7 @@ namespace Perlang.Tests.ConsoleApp
                 output.Should().Equal("42");
             }
 
-            [Fact(Skip = "Interpreted mode is going away: https://github.com/perlang-org/perlang/issues/406")]
+            [Fact(Skip = "Running an inline script is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void supports_final_semicolon_elision_single_statement()
             {
                 subject.Run("print 10", FatalWarningsHandler);
@@ -47,7 +47,7 @@ namespace Perlang.Tests.ConsoleApp
                 output.Should().Equal("10");
             }
 
-            [Fact(Skip = "Interpreted mode is going away: https://github.com/perlang-org/perlang/issues/406")]
+            [Fact(Skip = "Running an inline script is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void supports_final_semicolon_elision_multiple_statements()
             {
                 subject.Run("var a = 43; print a", FatalWarningsHandler);
@@ -252,7 +252,7 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact]
+            [Fact(Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void with_eval_parameter_outputs_expected_value()
             {
                 // Arrange & Act
@@ -341,10 +341,10 @@ namespace Perlang.Tests.ConsoleApp
             }
 
             // There used to be an exception in the default runtimeErrorHandler. This test would illustrate it.
-            [Fact]
+            [Fact(Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void ARGV_pop_expr_with_no_arguments_throws_the_expected_exception()
             {
-                // Note that the trailing ; makes this a complete statement.
+                // Note that the trailing ; (automatically added) makes this a complete statement.
                 Program.MainWithCustomConsole(new[] { "-e", "ARGV.pop()" }, testConsole);
 
                 StdoutLines.Should().Equal(
@@ -352,7 +352,7 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact]
+            [Fact(Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void ARGV_pop_stmt_with_no_arguments_throws_the_expected_exception()
             {
                 // Note that the trailing ; makes this a complete statement.
@@ -363,7 +363,10 @@ namespace Perlang.Tests.ConsoleApp
                 );
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning on null assignment")]
+            [Fact(
+                DisplayName = "with -Wno-error=null-usage parameter: emits warning on null assignment",
+                Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406"
+            )]
             public void with_Wno_error_null_usage_parameter_emits_warning_on_null_assignment()
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string; s = null;" }, testConsole);
@@ -375,7 +378,10 @@ namespace Perlang.Tests.ConsoleApp
                 StderrContent.Should().BeEmpty();
             }
 
-            [Fact(DisplayName = "with -Wno-error=null-usage parameter: emits warning when initializing to null")]
+            [Fact(
+                DisplayName = "with -Wno-error=null-usage parameter: emits warning when initializing to null",
+                Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406"
+            )]
             public void with_Wno_error_null_usage_parameter_emits_warning_when_initializing_to_null()
             {
                 Program.MainWithCustomConsole(new[] { "-Wno-error=null-usage", "-e", "var s: string = null;" }, testConsole);
@@ -439,7 +445,7 @@ namespace Perlang.Tests.ConsoleApp
                 exitCode.Should().Be(0);
             }
 
-            [Fact]
+            [Fact(Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void without_parameter_throws_error_on_null_assignment()
             {
                 Program.MainWithCustomConsole(new[] { "-e", "var s: string; s = null; print 10;" }, testConsole);
@@ -455,7 +461,7 @@ namespace Perlang.Tests.ConsoleApp
                 StderrContent.Should().BeEmpty();
             }
 
-            [Fact]
+            [Fact(Skip = "Eval option is temporarily going away: https://github.com/perlang-org/perlang/issues/406")]
             public void without_parameter_throws_error_when_initializing_to_null()
             {
                 Program.MainWithCustomConsole(new[] { "-e", "var s: string = null; print 10;" }, testConsole);
