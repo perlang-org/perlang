@@ -23,7 +23,8 @@ public class StringIndexing
     {
         // The reason why we can't easily support this yet is that -Warray-bounds returns a compile-time error for this in
         // Clang (tested with Clang 14). We would need to be able to have an EvalHelper helper methods for checking ICE
-        // errors to be able to deal with it there.
+        // errors to be able to deal with it there; EvalWithRuntimeErrorCatch wouldn't help (and is not supported in
+        // compiled mode yet)
         Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
 
         string source = @"

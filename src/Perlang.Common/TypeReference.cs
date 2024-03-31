@@ -61,9 +61,8 @@ namespace Perlang
                 var t when t == typeof(BigInteger) => "BigInt",
                 null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
-                // TODO: Differentiate from these on the C++ level as well
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "const char *",
-                var t when t.FullName == "Perlang.Lang.String" => "const char *",
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "ASCIIString",
+                var t when t.FullName == "Perlang.Lang.String" => "String",
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };

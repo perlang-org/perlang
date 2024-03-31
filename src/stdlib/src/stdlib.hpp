@@ -2,7 +2,10 @@
 
 #include <stdint.h>
 
+#include "ascii_string.h"
 #include "bigint.hpp"
+#include "perlang_string.h"
+#include "utf8_string.h"
 
 namespace perlang
 {
@@ -11,11 +14,11 @@ namespace perlang
         class Base64
         {
          public:
-            static const char* to_string();
+            static ASCIIString to_string();
         };
     }
 
-    void print(const char* str);
+    void print(const String& str);
     void print(bool b);
     void print(char c);
     void print(int32_t i);

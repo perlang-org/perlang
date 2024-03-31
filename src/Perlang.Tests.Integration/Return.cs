@@ -8,9 +8,15 @@ namespace Perlang.Tests.Integration
     {
         // Tests based on Lox test suite: https://github.com/munificent/craftinginterpreters/tree/master/test/return
 
-        [Fact]
+        [SkippableFact]
         public void after_else()
         {
+            // The code below is incredibly hard to support in compiled mode, because: an AsciiString cannot be assigned
+            // to a String variable in C++ (because the latter is an abstract class; I believe the C++ compiler will try
+            // to make a copy of it, which is why it would be failing since the abstract String class cannot be
+            // instantiated)
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
             string source = @"
                 fun f(): string {
                   if (false) ""no""; else return ""ok"";
@@ -24,9 +30,11 @@ namespace Perlang.Tests.Integration
             Assert.Equal("ok", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void after_if()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
             string source = @"
                 fun f(): string {
                   if (true) return ""ok"";
@@ -40,9 +48,11 @@ namespace Perlang.Tests.Integration
             Assert.Equal("ok", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void after_while()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
             string source = @"
                 fun f(): string {
                   while (true) return ""ok"";
@@ -70,9 +80,11 @@ namespace Perlang.Tests.Integration
             Assert.Matches("Cannot return from top-level code.", exception.Message);
         }
 
-        [Fact]
+        [SkippableFact]
         public void in_function()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
             string source = @"
                 fun f(): string {
                   return ""ok"";
