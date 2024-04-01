@@ -19,6 +19,26 @@ public class StringIndexing
     }
 
     [SkippableFact]
+    public void AsciiString_indexed_outside_string_returns_expected_error()
+    {
+        // The reason why we can't easily support this yet is that -Warray-bounds returns a compile-time error for this in
+        // Clang (tested with Clang 14). We would need to be able to have an EvalHelper helper methods for checking ICE
+        // errors to be able to deal with it there.
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
+        string source = @"
+            print ""foobar""[10];
+        ";
+
+        var result = EvalWithRuntimeErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Index was outside the bounds of the array");
+    }
+
+    [SkippableFact]
     public void AsciiString_indexed_by_integer_returns_char_object()
     {
         Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
