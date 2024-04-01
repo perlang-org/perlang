@@ -573,6 +573,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                     // Probably enabled by -Wconversion, but this causes issues with valid code like `2147483647 /
                     // 4294967295U`.
+                    //
+                    // NOTE: disabling this also enables extremely dangerous constructs like being able to call
+                    // BigInt::pow(-3), causing the negative integer to be reinterpreted as a very large uint32 instead.
+                    // We should re-think this and really try to re-enable this, to prevent such horrible code from
+                    // compiling.
                     "-Wno-sign-conversion",
 
                     // We currently overflow without warnings, but we could consider implementing something like this
