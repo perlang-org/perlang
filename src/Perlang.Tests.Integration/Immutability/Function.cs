@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -16,16 +19,26 @@ namespace Perlang.Tests.Integration.Immutability
                 fun f(): void {}
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*Function 'f' is already defined*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.First();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+            }
         }
 
-        [Fact]
+        [SkippableFact]
         public void function_cannot_be_overwritten_by_a_variable()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "In compiled mode, functions are shadowed by variables.");
+
             string source = @"
                 fun f(): void {}
                 var f = 42;

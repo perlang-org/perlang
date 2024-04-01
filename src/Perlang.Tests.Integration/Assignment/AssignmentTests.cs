@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -37,8 +40,7 @@ namespace Perlang.Tests.Integration.Assignment
             }, output);
         }
 
-        // TODO: This is a bug; create a GitHub issue for it so we can look into it at some point.
-        [Fact(Skip = "Gives a TypeValidationError: Internal compiler error: var c initializer a = var inference has not been attempted")]
+        [Fact]
         public void assignment_on_right_hand_side_of_variable_is_right_associative()
         {
             string source = @"
@@ -182,11 +184,19 @@ namespace Perlang.Tests.Integration.Assignment
                 unknown = ""what"";
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Undefined variable 'unknown'.", exception.Message);
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*use of undeclared identifier 'unknown'*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.First();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Undefined variable 'unknown'.", exception.Message);
+            }
         }
     }
 }

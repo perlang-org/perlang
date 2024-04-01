@@ -644,6 +644,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     // Enable warnings on e.g. narrowing conversion from `long long` to `unsigned long long`.
                     "-Wconversion",
 
+                    // This could be added, but the problem is that division by zero has undefined behavior in C++. :/ I
+                    // think the long-term goal for Perlang in this regard is to use proper hardware exceptions for this
+                    // (which is natively supported on x86 and amd64, at least), and propagate it as a Perlang exception.
+                    // For platforms without hardware support, we might have to emulate this in software for a coherent
+                    // dev experience. For now, let Clang warn about it when dividing with a zero constant.
+                    //"-Wno-division-by-zero",
+
                     // ...but do not warn on implicit conversion from `int` to `float` or `double`. For now, we are
                     // aiming at mimicking the C# semantics in this.
                     "-Wno-implicit-int-float-conversion",

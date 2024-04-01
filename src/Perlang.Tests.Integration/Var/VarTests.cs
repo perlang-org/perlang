@@ -1,4 +1,7 @@
+using System;
 using System.Linq;
+using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -176,11 +179,20 @@ namespace Perlang.Tests.Integration.Var
                 print a;
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+                // This is horribly hardwired for (a particular version of) CLang, but it will have to do for now.
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*redefinition of 'a'*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.FirstOrDefault();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+            }
         }
 
         [Fact]
@@ -192,11 +204,20 @@ namespace Perlang.Tests.Integration.Var
                 print a;
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+                // This is horribly hardwired for (a particular version of) CLang, but it will have to do for now.
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*redefinition of 'a'*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.FirstOrDefault();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Variable with this name already declared in this scope.", exception.Message);
+            }
         }
 
         [Fact]

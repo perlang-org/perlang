@@ -20,9 +20,11 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.IsAssignableFrom<TargetAndMethodContainer>(Eval("ARGV.pop"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_with_no_arguments_throws_the_expected_exception()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             var result = EvalWithRuntimeErrorCatch("ARGV.pop()");
             var exception = result.Errors.FirstOrDefault();
 
@@ -52,9 +54,11 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Equal("arg2", result);
         }
 
-        [Fact]
+        [SkippableFact]
         public void ARGV_pop_too_many_times_throws_the_expected_exception()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             var result = EvalWithRuntimeErrorCatch("ARGV.pop(); ARGV.pop();", "arg1");
             var exception = result.Errors.FirstOrDefault();
 

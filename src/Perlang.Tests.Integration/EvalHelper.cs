@@ -71,23 +71,61 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, params string[] arguments)
         {
-            var result = new EvalResult<RuntimeError>();
+            if (PerlangMode.ExperimentalCompilation)
+            {
+                var result = new EvalResult<RuntimeError>();
 
-            var interpreter = new PerlangInterpreter(
-                result.ErrorHandler, result.OutputHandler, null, arguments
-            );
+                var compiler = new PerlangCompiler(
+                    result.ErrorHandler, result.OutputHandler, null, arguments
+                );
 
-            result.Value = interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                AssertFailParseErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                result.WarningHandler
-            );
+                try
+                {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        CompilerFlags.None,
+                        AssertFailScanErrorHandler,
+                        AssertFailParseErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e)
+                {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message, e);
+                }
 
-            return result;
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else
+            {
+                var result = new EvalResult<RuntimeError>();
+
+                var interpreter = new PerlangInterpreter(
+                    result.ErrorHandler, result.OutputHandler, null, arguments
+                );
+
+                result.Value = interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    AssertFailParseErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -108,20 +146,55 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<ScanError> EvalWithScanErrorCatch(string source)
         {
-            var result = new EvalResult<ScanError>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+            if (PerlangMode.ExperimentalCompilation)
+            {
+                var result = new EvalResult<ScanError>();
 
-            result.Value = interpreter.Eval(
-                source,
-                result.ErrorHandler,
-                AssertFailParseErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                result.WarningHandler
-            );
+                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
-            return result;
+                try
+                {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        CompilerFlags.None,
+                        result.ErrorHandler,
+                        AssertFailParseErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e)
+                {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message, e);
+                }
+
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else {
+                var result = new EvalResult<ScanError>();
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+
+                result.Value = interpreter.Eval(
+                    source,
+                    result.ErrorHandler,
+                    AssertFailParseErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -142,20 +215,52 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<ParseError> EvalWithParseErrorCatch(string source)
         {
-            var result = new EvalResult<ParseError>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+            if (PerlangMode.ExperimentalCompilation) {
+                var result = new EvalResult<ParseError>();
 
-            result.Value = interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                result.ErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                result.WarningHandler
-            );
+                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
-            return result;
+                try {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        CompilerFlags.None,
+                        AssertFailScanErrorHandler,
+                        result.ErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e) {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message, e);
+                }
+
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else {
+                var result = new EvalResult<ParseError>();
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+
+                result.Value = interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    result.ErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -176,20 +281,52 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<NameResolutionError> EvalWithNameResolutionErrorCatch(string source)
         {
-            var result = new EvalResult<NameResolutionError>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+            if (PerlangMode.ExperimentalCompilation) {
+                var result = new EvalResult<NameResolutionError>();
 
-            result.Value = interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                AssertFailParseErrorHandler,
-                result.ErrorHandler,
-                AssertFailValidationErrorHandler,
-                AssertFailValidationErrorHandler,
-                result.WarningHandler
-            );
+                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
-            return result;
+                try {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        CompilerFlags.None,
+                        AssertFailScanErrorHandler,
+                        AssertFailParseErrorHandler,
+                        result.ErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e) {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message, e);
+                }
+
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else {
+                var result = new EvalResult<NameResolutionError>();
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+
+                result.Value = interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    AssertFailParseErrorHandler,
+                    result.ErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    AssertFailValidationErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -210,20 +347,52 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<ValidationError> EvalWithValidationErrorCatch(string source)
         {
-            var result = new EvalResult<ValidationError>();
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+            if (PerlangMode.ExperimentalCompilation) {
+                var result = new EvalResult<ValidationError>();
 
-            result.Value = interpreter.Eval(
-                source,
-                AssertFailScanErrorHandler,
-                AssertFailParseErrorHandler,
-                AssertFailNameResolutionErrorHandler,
-                result.ErrorHandler,
-                result.ErrorHandler,
-                result.WarningHandler
-            );
+                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
-            return result;
+                try {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        CompilerFlags.None,
+                        AssertFailScanErrorHandler,
+                        AssertFailParseErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        result.ErrorHandler,
+                        result.ErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (NotImplementedInCompiledModeException e) {
+                    // This exception is thrown to make it possible for integration tests to skip tests for code which
+                    // is known to not yet work.
+                    throw new SkipException(e.Message, e);
+                }
+
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else {
+                var result = new EvalResult<ValidationError>();
+                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
+
+                result.Value = interpreter.Eval(
+                    source,
+                    AssertFailScanErrorHandler,
+                    AssertFailParseErrorHandler,
+                    AssertFailNameResolutionErrorHandler,
+                    result.ErrorHandler,
+                    result.ErrorHandler,
+                    result.WarningHandler
+                );
+
+                return result;
+            }
         }
 
         /// <summary>
