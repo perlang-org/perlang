@@ -1508,8 +1508,12 @@ BigInt BigInt::operator--(int)
 
 #endif  // BIG_INT_INCREMENT_DECREMENT_OPERATORS_HPP
 
-BigInt BigInt::pow(uint32_t exponent) const
+BigInt BigInt::pow(int32_t exponent) const
 {
+    if (exponent < 0) {
+        throw std::invalid_argument("The exponent must be greater than or equal to zero");
+    }
+
     BigInt result;
     check_tommath_result(mp_expt_u32(&get_data(), exponent, &result.data));
 

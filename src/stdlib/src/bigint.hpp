@@ -152,9 +152,11 @@ class BigInt {
         bool operator!=(const unsigned long long&) const;
         bool operator!=(const double&) const;
 
-        BigInt pow(uint32_t exponent) const;
+        [[nodiscard]]
+        BigInt pow(int32_t exponent) const;
 
         // Conversion functions:
+        [[nodiscard]]
         std::string to_string() const;
 
     ::mp_int& get_data()
@@ -163,6 +165,7 @@ class BigInt {
             return data;
         }
 
+        [[nodiscard]]
         const ::mp_int& get_data() const
         {
             assert(data.dp != nullptr);
