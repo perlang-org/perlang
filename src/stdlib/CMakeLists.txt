@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.0)
 project(stdlib VERSION 0.1.0)
 
 set(headers
+        src/ascii_string.h
         src/bigint.hpp
+        src/perlang_string.h
         src/stdlib.hpp
+        src/utf8_string.h
         src/double-conversion/utils.h
 )
 
@@ -13,11 +16,13 @@ set(libtommath_headers
 
 add_library(
         stdlib
+        src/ascii_string.cc
         src/bigint.cpp
         src/bigint_mod.cpp
         src/bigint_pow.cpp
         src/Base64.cpp
         src/print.cpp
+        src/utf8_string.cc
         src/libtommath/bn_cutoffs.c
         src/libtommath/bn_mp_add.c
         src/libtommath/bn_mp_clamp.c

@@ -466,6 +466,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 #include ""bigint.hpp"" // BigInt
 #include ""stdlib.hpp""
 
+using namespace perlang;
+
 ");
 
                 streamWriter.WriteLine("//");
@@ -1042,14 +1044,25 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public object VisitLiteralExpr(Expr.Literal expr)
     {
-        if (expr.Value is AsciiString or Utf8String)
+        if (expr.Value is AsciiString)
         {
-            // Wrap in double quotes.
-            currentMethod.Append('"');
+            // The value is an ASCII string literal, so it is safe to use this factory method to wrap it in an AsciiString
+            // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
+            // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
+            // the program.)
+            currentMethod.Append("ASCIIString::from_static_string(\"");
             currentMethod.Append(expr);
-            currentMethod.Append('"');
-
-            // TODO: Support our other string types as well
+            currentMethod.Append("\")");
+        }
+        else if (expr.Value is Utf8String)
+        {
+            // The value is an UTF-8 string literal, so it is safe to use this factory method to wrap it in an UTF8String
+            // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
+            // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
+            // the program.)
+            currentMethod.Append("UTF8String::from_static_string(\"");
+            currentMethod.Append(expr);
+            currentMethod.Append("\")");
         }
         else if (expr.Value == null)
         {

@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdio.h>
 
 // fmt is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
@@ -6,19 +5,22 @@
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
+#include "ascii_string.h"
 #include "bigint.hpp"
 
 namespace perlang
 {
-    void print(const char* str)
+    void print(const String& str)
     {
-        if (str == nullptr) {
+        const char* bytes = str.bytes();
+
+        if (bytes == nullptr) {
             puts("null");
         }
         else {
             // For plain strings, there's no need to use the overhead which `printf` induces. `puts` can potentially be a
             // tiny bit faster.
-            puts(str);
+            puts(bytes);
         }
     }
 
