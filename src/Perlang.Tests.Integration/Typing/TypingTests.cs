@@ -14,11 +14,9 @@ namespace Perlang.Tests.Integration.Typing
     /// </summary>
     public class TypingTests
     {
-        [SkippableFact]
+        [Fact]
         public void var_declaration_can_provide_a_type()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 var s: String = ""Hello World"";
             ";
@@ -192,11 +190,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot assign null to an implicitly typed local variable", exception.Message);
         }
 
-        [SkippableFact]
+        [Fact]
         public void var_declaration_with_initializer_emits_warning_on_null_usage()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 var s: string = null;
 
@@ -243,12 +239,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot assign 'AsciiString' to 'int' variable", exception!.Message);
         }
 
-        [SkippableFact]
+        [Fact]
         public void var_declaration_supports_reassignment_to_null_for_reference_type()
         {
-            // ...because nullptr is not implicitly assignable to AsciiString. :-)
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 var s = ""foo"";
                 s = null;
@@ -261,12 +254,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("null", result.OutputAsString);
         }
 
-        [SkippableFact]
+        [Fact]
         public void var_declaration_emits_warning_on_reassignment_to_null_for_reference_type()
         {
-            // ...because nullptr is not implicitly assignable to AsciiString. :-)
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 var s = ""foo"";
                 s = null;
@@ -300,11 +290,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot assign null to 'int' variable", exception!.Message);
         }
 
-        [SkippableFact]
+        [Fact]
         public void function_parameter_can_provide_a_type()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(s: String): void {
                     print(s);
@@ -336,12 +324,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot pass int argument as parameter 's: string'", exception!.Message);
         }
 
-        [SkippableFact]
+        [Fact]
         public void function_parameter_allows_null_argument_for_reference_type_parameter()
         {
-            // ...because nullptr is not implicitly assignable to AsciiString. :-)
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(s: String): void {
                     print(s);
@@ -355,11 +340,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("null", result.OutputAsString);
         }
 
-        [SkippableFact]
+        [Fact]
         public void function_parameter_emits_warning_when_null_passed_for_reference_type_parameter()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(s: String): void {
                     print(s);
@@ -395,11 +378,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Matches("Cannot pass null argument as parameter 'i: int'", exception!.Message);
         }
 
-        [SkippableFact]
+        [Fact]
         public void function_return_type_can_specify_explicit_type()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(): String {
                     return ""typed return value"";
@@ -413,11 +394,9 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("typed return value", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void function_return_value_can_be_assigned_to_variable_of_same_type()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(): string {
                     return ""typed return value"";

@@ -17,7 +17,7 @@ namespace perlang
         // Because of the above assumptions, we know that we can make the new ASCIIString constructed from the `s`
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
-        static ASCIIString from_static_string(const char* s);
+        static std::shared_ptr<const ASCIIString> from_static_string(const char* s);
 
         // Returns the backing byte array for this ASCIIString. This method is generally to be avoided; it is safer to
         // use the ASCIIString throughout the code and only call this when you really must.
@@ -39,10 +39,18 @@ namespace perlang
         // checking; attempting to read outside the string will result in an exception.
         char operator[](size_t index) const;
 
+        // Alias for [], which is easier to use from Perlang-generated C++ code in a pointer context.
+        [[nodiscard]]
+        char char_at(int index) const;
+
      private:
         // Private constructor for creating a `null` string, not yet initialized with any sensible content.
         ASCIIString();
 
+     public:
+        virtual ~ASCIIString() = default;
+
+     private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple ASCIIString objects pointing to the same `bytes_`, so modifying one of them
         // would unintentionally spread the modifications to these other objects too.
