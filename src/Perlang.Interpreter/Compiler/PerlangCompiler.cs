@@ -1,5 +1,7 @@
 ﻿#nullable enable
 #pragma warning disable S112
+#pragma warning disable SA1118
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -1434,10 +1436,7 @@ using namespace perlang;
         /// </summary>
         public string ParametersString { get; } = String.Join(", ", Parameters
             .Select(p =>
-                // TODO: might be able to replace these with CppParameterWrapInSharedPtr now that it exists
-                $"{(p.TypeReference.CppWrapInSharedPtr ? "std::shared_ptr<const " : "")}" +
-                $"{p.TypeReference.CppType}" +
-                $"{(p.TypeReference.CppWrapInSharedPtr ? ">" : "")} " +
+                $"{p.TypeReference.PossiblyWrappedCppType} " +
                 $"{p.Name.Lexeme}"
             )
         );
