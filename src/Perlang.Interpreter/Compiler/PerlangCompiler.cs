@@ -1,5 +1,7 @@
 ﻿#nullable enable
 #pragma warning disable S112
+#pragma warning disable SA1118
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -461,6 +463,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
 #include <math.h> // fmod()
+#include <memory> // std::shared_ptr
 #include <stdint.h>
 
 #include ""bigint.hpp"" // BigInt
@@ -716,11 +719,31 @@ using namespace perlang;
                 break;
 
             case BANG_EQUAL:
-                currentMethod.Append($"{expr.Left.Accept(this)} != {expr.Right.Accept(this)}");
+                if (expr.Left.TypeReference.IsStringType() && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                    expr.Right.TypeReference.IsStringType() && expr.Right.TypeReference.CppWrapInSharedPtr)
+                {
+                    // Example generated code: *s1 != *s2
+                    currentMethod.Append($"*{expr.Left.Accept(this)} != *{expr.Right.Accept(this)}");
+                }
+                else
+                {
+                    currentMethod.Append($"{expr.Left.Accept(this)} != {expr.Right.Accept(this)}");
+                }
+
                 break;
 
             case EQUAL_EQUAL:
-                currentMethod.Append($"{expr.Left.Accept(this)} == {expr.Right.Accept(this)}");
+                if (expr.Left.TypeReference.IsStringType() && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                    expr.Right.TypeReference.IsStringType() && expr.Right.TypeReference.CppWrapInSharedPtr)
+                {
+                    // Example generated code: *s1 == *s2
+                    currentMethod.Append($"*{expr.Left.Accept(this)} == *{expr.Right.Accept(this)}");
+                }
+                else
+                {
+                    currentMethod.Append($"{expr.Left.Accept(this)} == {expr.Right.Accept(this)}");
+                }
+
                 break;
 
             //
@@ -1026,9 +1049,30 @@ using namespace perlang;
         // TODO: One way to deal with this: make `foo[bar]` be safe and add an "unsafe" indexing operator `foo[[bar]]`
         // TODO: which can be used when the user believes he knows best. Investigate how Rust is doing this.
         expr.Indexee.Accept(this);
-        currentMethod.Append('[');
+
+        ITypeReference indexeeTypeReference = expr.Indexee.TypeReference;
+
+        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType())
+        {
+            // This object is wrapped in a std::shared_ptr<T>, which cannot be indexed as a non-wrapped type. We call the
+            // char_at() method to help us solve this.
+            currentMethod.Append("->char_at(");
+        }
+        else
+        {
+            currentMethod.Append('[');
+        }
+
         expr.Argument.Accept(this);
-        currentMethod.Append(']');
+
+        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType())
+        {
+            currentMethod.Append(')');
+        }
+        else
+        {
+            currentMethod.Append(']');
+        }
 
         return VoidObject.Void;
     }
@@ -1282,7 +1326,9 @@ using namespace perlang;
         methods[functionStmt.Name.Lexeme] = new Method(
             functionStmt.Name.Lexeme,
             functionStmt.Parameters,
-            functionStmt.ReturnTypeReference.CppType,
+            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? "std::shared_ptr<const " : "")}" +
+            $"{functionStmt.ReturnTypeReference.CppType}" +
+            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? ">" : "")}",
             currentMethod
         );
 
@@ -1355,7 +1401,9 @@ using namespace perlang;
 
     public VoidObject VisitVarStmt(Stmt.Var stmt)
     {
-        currentMethod.Append($"{Indent(indentationLevel)}{stmt.TypeReference.CppType} {stmt.Name.Lexeme}");
+        string variableName = stmt.Name.Lexeme;
+
+        currentMethod.Append($"{Indent(indentationLevel)}{stmt.TypeReference.PossiblyWrappedCppType} {variableName}");
 
         if (stmt.HasInitializer)
         {
@@ -1386,6 +1434,11 @@ using namespace perlang;
         /// <summary>
         /// Gets the method parameters as a comma-separated string, in C++ format. Example: `int foo, int bar`.
         /// </summary>
-        public string ParametersString { get; } = String.Join(", ", Parameters.Select(p => $"{p.TypeReference.CppType} {p.Name.Lexeme}"));
+        public string ParametersString { get; } = String.Join(", ", Parameters
+            .Select(p =>
+                $"{p.TypeReference.PossiblyWrappedCppType} " +
+                $"{p.Name.Lexeme}"
+            )
+        );
     }
 }

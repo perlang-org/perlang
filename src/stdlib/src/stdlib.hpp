@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory> // std::shared_ptr
 #include <stdint.h>
 
 #include "ascii_string.h"
@@ -14,11 +15,17 @@ namespace perlang
         class Base64
         {
          public:
-            static ASCIIString to_string();
+            static std::shared_ptr<const ASCIIString> to_string();
         };
     }
 
-    void print(const String& str);
+    // C++ doesn't seem to have the kind of covariance we intend for Perlang. This means that we have to define these
+    // for all the existing String types instead of just receiving `const String`-type parameters.
+    void print(const String* str);
+    void print(const ASCIIString& str);
+    void print(const std::shared_ptr<const String>& str);
+    void print(const std::shared_ptr<const ASCIIString>& str);
+
     void print(bool b);
     void print(char c);
     void print(int32_t i);

@@ -21,10 +21,21 @@ namespace Perlang
         string CppType { get; }
 
         /// <summary>
+        /// Gets the C++ for this <see cref="ITypeReference"/>, possibly wrapped in a `std::shared_ptr&lt;T&gt;`.
+        /// </summary>
+        string PossiblyWrappedCppType { get; }
+
+        /// <summary>
         /// Gets a cast to the C++ type that this <see cref="ITypeReference"/> refers to. Note that no validation if the
         /// cast will be possible or not is performed here; it is the responsibility of the caller.
         /// </summary>
         string CppTypeCast => $"({CppType})";
+
+        /// <summary>
+        /// Gets a value indicating whether this type should be wrapped in an `std::shared_ptr&lt;T&gt;` in certain cases
+        /// (local variables, method parameters, etc).
+        /// </summary>
+        bool CppWrapInSharedPtr { get; }
 
         /// <summary>
         /// Gets a value indicating whether the type reference contains an explicit type specifier or not. If this is
@@ -68,6 +79,7 @@ namespace Perlang
 
                 // Cannot use typeof(AsciiString) since Perlang.Common cannot depend on Perlang.Stdlib
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,
+                var t when t.FullName == "Perlang.Lang.String" => true,
 
                 _ => false
             };

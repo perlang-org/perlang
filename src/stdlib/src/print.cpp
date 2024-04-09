@@ -10,9 +10,10 @@
 
 namespace perlang
 {
-    void print(const String& str)
+    void print(const String* str)
     {
-        const char* bytes = str.bytes();
+        // Safeguard against both `str` and `str->bytes()` potentially returning `null`
+        const char* bytes = str != nullptr ? str->bytes() : nullptr;
 
         if (bytes == nullptr) {
             puts("null");
@@ -22,6 +23,21 @@ namespace perlang
             // tiny bit faster.
             puts(bytes);
         }
+    }
+
+    void print(const ASCIIString& str)
+    {
+        print(&str);
+    }
+
+    void print(const std::shared_ptr<const String>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::shared_ptr<const ASCIIString>& str)
+    {
+        print(str.get());
     }
 
     void print(bool b)

@@ -61,10 +61,56 @@ namespace Perlang
                 var t when t == typeof(BigInteger) => "BigInt",
                 null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
+                // TODO: Handle UTF-8 strings here too
                 var t when t.FullName == "Perlang.Lang.AsciiString" => "ASCIIString",
                 var t when t.FullName == "Perlang.Lang.String" => "String",
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
+            };
+
+        public string PossiblyWrappedCppType =>
+            clrType switch
+            {
+                // TODO: Add the other Perlang-supported types as well
+                var t when t == typeof(Int32) => "int32_t",
+                var t when t == typeof(UInt32) => "uint32_t",
+                var t when t == typeof(Int64) => "int64_t",
+                var t when t == typeof(UInt64) => "uint64_t",
+                var t when t == typeof(Single) => "float",
+                var t when t == typeof(Double) => "double",
+                var t when t == typeof(bool) => "bool",
+                var t when t == typeof(void) => "void",
+                var t when t == typeof(BigInteger) => "BigInt",
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
+                // long-term solution, see https://github.com/perlang-org/perlang/issues/378.
+                // TODO: Handle UTF-8 strings here too
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<const ASCIIString>",
+                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const String>",
+
+                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
+            };
+
+        public bool CppWrapInSharedPtr =>
+            clrType switch
+            {
+                var t when t == typeof(Int32) => false,
+                var t when t == typeof(UInt32) => false,
+                var t when t == typeof(Int64) => false,
+                var t when t == typeof(UInt64) => false,
+                var t when t == typeof(Single) => false,
+                var t when t == typeof(Double) => false,
+                var t when t == typeof(bool) => false,
+                var t when t == typeof(void) => false,
+                var t when t == typeof(BigInteger) => true,
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // TODO: Handle UTF-8 strings here too
+                var t when t.FullName == "Perlang.Lang.AsciiString" => true,
+                var t when t.FullName == "Perlang.Lang.String" => true,
+
+                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ reference handling for {clrType} not defined")
             };
 
         /// <summary>
