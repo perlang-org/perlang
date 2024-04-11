@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Architecture"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Compiler", "src\Perlang.Compiler\Perlang.Compiler.csproj", "{7E7CF7BF-F792-49C9-BB16-67FE856D8D51}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{47B4A37F-6999-4510-9815-418E03D7B39E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{47B4A37F-6999-4510-9815-418E03D7B39E}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
