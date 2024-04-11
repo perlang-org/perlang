@@ -29,6 +29,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Tests.Architecture"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.Compiler", "src\Perlang.Compiler\Perlang.Compiler.csproj", "{7E7CF7BF-F792-49C9-BB16-67FE856D8D51}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{47B4A37F-6999-4510-9815-418E03D7B39E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "release-notes", "release-notes", "{3223DBA6-64AE-41B5-8864-6FDD232FCE7F}"
+	ProjectSection(SolutionItems) = preProject
+		release-notes\template.md = release-notes\template.md
+		release-notes\v0.1.0.md = release-notes\v0.1.0.md
+		release-notes\v0.1.1.md = release-notes\v0.1.1.md
+		release-notes\v0.2.0.md = release-notes\v0.2.0.md
+		release-notes\v0.3.0.md = release-notes\v0.3.0.md
+		release-notes\v0.4.0.md = release-notes\v0.4.0.md
+		release-notes\v0.5.0.md = release-notes\v0.5.0.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,5 +98,6 @@ Global
 		{1874E267-5D6F-4EA4-8938-F2A0D19F27B1} = {F13F8E4E-5231-4321-9722-1BFCC08E5BB5}
 		{E9D632CB-E520-4868-9E64-A4A70ACD713C} = {F13F8E4E-5231-4321-9722-1BFCC08E5BB5}
 		{7E7CF7BF-F792-49C9-BB16-67FE856D8D51} = {B924E83B-6AFE-4ABF-B79D-444F92582892}
+		{3223DBA6-64AE-41B5-8864-6FDD232FCE7F} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 	EndGlobalSection
 EndGlobal
