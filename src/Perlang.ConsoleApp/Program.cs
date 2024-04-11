@@ -121,6 +121,7 @@ namespace Perlang.ConsoleApp
         {
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
+            var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
 
@@ -143,6 +144,7 @@ namespace Perlang.ConsoleApp
             {
                 versionOption,
                 detailedVersionOption,
+                compileAndAssembleOnlyOption,
                 printOption,
                 noWarnAsErrorOption
             };
@@ -200,8 +202,31 @@ namespace Perlang.ConsoleApp
                         // TODO: Tried to fix this using some logic in the rootCommand.AddValidator() lambda, but I
                         // TODO: couldn't get it working. Since this is going to be rewritten in Perlang at some point
                         // TODO: anyway, let's not spend too much time thinking about it.
-                        Console.Error.WriteLine("One of the -p <script> or <script-name> arguments must be provided");
+                        Console.Error.WriteLine("ERROR: One of the -p <script> or <script-name> arguments must be provided");
                         return Task.FromResult(1);
+                    }
+                    else if (parseResult.HasOption(compileAndAssembleOnlyOption))
+                    {
+                        string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
+
+                        // Console.Out.WriteLine(parseResult.Tokens);
+                        // Console.Out.WriteLine(parseResult.GetValueForArgument(scriptArguments));
+                        //
+                        // if (parseResult.Tokens.Count != 1)
+                        // {
+                        //     Console.Error.WriteLine("ERROR: When the -c option is used, no script arguments can be provided since the Perlang script/program will not get executed");
+                        //     return Task.FromResult(1);
+                        // }
+
+                        var program = new Program(
+                            replMode: false,
+                            standardOutputHandler: console.WriteStdoutLine,
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList,
+                            experimentalCompilation: PerlangMode.ExperimentalCompilation
+                        );
+
+                        int result = program.CompileAndAssembleFile(scriptName);
+                        return Task.FromResult(result);
                     }
                     else
                     {
@@ -238,6 +263,14 @@ namespace Perlang.ConsoleApp
                     }
                 })
             };
+
+            rootCommand.AddValidator(result =>
+            {
+                if (result.HasOption(compileAndAssembleOnlyOption) && result.HasOption(printOption))
+                {
+                    result.ErrorMessage = "Error: the -c and -p options are mutually exclusive";
+                }
+            });
 
             rootCommand.AddArgument(scriptNameArgument);
             rootCommand.AddArgument(scriptArguments);
@@ -320,6 +353,35 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
+        private int CompileAndAssembleFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                standardErrorHandler(Lang.String.from($"Error: File {path} not found"));
+                return (int)ExitCodes.FILE_NOT_FOUND;
+            }
+
+            var bytes = File.ReadAllBytes(path);
+            string source = Encoding.UTF8.GetString(bytes);
+
+            CompileAndAssemble(source, path, CompilerWarning);
+
+            // Indicate an error in the exit code.
+            if (hadError)
+            {
+                return (int)ExitCodes.ERROR;
+            }
+
+            // Should never happen, but _if_ it does, it's surely better that we return with non-zero rather than falsely
+            // imply success.
+            if (hadRuntimeError)
+            {
+                return (int)ExitCodes.RUNTIME_ERROR;
+            }
+
+            return (int)ExitCodes.SUCCESS;
+        }
+
         internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
         {
             object? result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
@@ -335,6 +397,11 @@ namespace Perlang.ConsoleApp
         private void CompileAndRun(string source, string path, CompilerWarningHandler compilerWarningHandler)
         {
             compiler.CompileAndRun(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+        }
+
+        private void CompileAndAssemble(string source, string path, CompilerWarningHandler compilerWarningHandler)
+        {
+            compiler.CompileAndAssemble(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ParseAndPrint(string source)

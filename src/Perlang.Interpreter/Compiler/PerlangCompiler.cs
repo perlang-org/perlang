@@ -273,6 +273,47 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     }
 
     /// <summary>
+    /// Compiles and assembles the given Perlang program to a .o file (ELF object file).
+    /// </summary>
+    /// <param name="source">The Perlang program to compile.</param>
+    /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
+    /// <param name="scanErrorHandler">A handler for scanner errors.</param>
+    /// <param name="parseErrorHandler">A handler for parse errors.</param>
+    /// <param name="nameResolutionErrorHandler">A handler for resolve errors.</param>
+    /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
+    /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
+    /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
+    /// <returns>The path to the compiled .o file. Note that this will be non-null even on unsuccessful
+    /// compilation.</returns>
+    public string? CompileAndAssemble(
+        string source,
+        string path,
+        CompilerFlags compilerFlags,
+        ScanErrorHandler scanErrorHandler,
+        ParseErrorHandler parseErrorHandler,
+        NameResolutionErrorHandler nameResolutionErrorHandler,
+        ValidationErrorHandler typeValidationErrorHandler,
+        ValidationErrorHandler immutabilityValidationErrorHandler,
+        CompilerWarningHandler compilerWarningHandler)
+    {
+        string? executablePath = Compile(
+            source,
+            path,
+            compilerFlags,
+            scanErrorHandler,
+            parseErrorHandler,
+            nameResolutionErrorHandler,
+            typeValidationErrorHandler,
+            immutabilityValidationErrorHandler,
+            compilerWarningHandler,
+            compileAndAssembleOnly: true
+        );
+
+        return executablePath;
+    }
+
+    /// <summary>
     /// Compiles the given Perlang program to an executable.
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
@@ -284,6 +325,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
     /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
     /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
+    /// <param name="compileAndAssembleOnly">A flag which enables functionality similar to `gcc -c`; compile and assemble
+    /// the given program, but do not generate an executable (and inherently do not execute it).</param>
     /// <returns>The path to the generated executable file, or `null` if compilation failed.</returns>
     private string? Compile(
         string source,
@@ -294,15 +337,16 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         NameResolutionErrorHandler nameResolutionErrorHandler,
         ValidationErrorHandler typeValidationErrorHandler,
         ValidationErrorHandler immutabilityValidationErrorHandler,
-        CompilerWarningHandler compilerWarningHandler)
+        CompilerWarningHandler compilerWarningHandler,
+        bool compileAndAssembleOnly = false)
     {
         string targetCppFile = Path.ChangeExtension(path, ".cc");
 
 #if _WINDOWS
         // clang is very unlikely to have been available on Windows anyway, but why not...
-        string targetExecutable = Path.ChangeExtension(targetCppFile, "exe");
+        string targetExecutable = Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "obj" : "exe");
 #else
-        string targetExecutable = Path.ChangeExtension(targetCppFile, null);
+        string targetExecutable = Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "o" : null);
 #endif
 
         // TODO: Check the creation time of *all* dependencies here, including the stdlib (both .so/.dll and .h files
@@ -453,6 +497,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         try
         {
+            if (compileAndAssembleOnly && methods["main"].MethodBody.Length == 0)
+            {
+                // We generate a default "main" method elsewhere. In -c mode, we want to remove this method if it's empty,
+                // to avoid conflicts with the "real" main method of the program the .o file is being linked into.
+                methods.Remove("main");
+            }
+
             // The AST traverser writes its output to the transpiledSource field.
             Compile(statements);
 
@@ -539,6 +590,7 @@ using namespace perlang;
                     "--std=c++17",
 
                     "-I", Path.Combine(stdlibPath, "include"),
+                    compileAndAssembleOnly ? "-c" : "",
                     "-o", targetExecutable,
 
                     // Useful while debugging
@@ -604,10 +656,10 @@ using namespace perlang;
                     targetCppFile,
 
                     // TODO: Support Windows static libraries as well
-                    Path.Combine(stdlibPath, "lib/libstdlib.a"),
+                    compileAndAssembleOnly ? "" : Path.Combine(stdlibPath, "lib/libstdlib.a"),
 
                     // Needed by the Perlang stdlib
-                    "-lm"
+                    compileAndAssembleOnly ? "" : "-lm"
                 },
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
