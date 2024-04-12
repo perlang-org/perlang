@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.IO;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -26,13 +25,6 @@ namespace Perlang.ConsoleApp
 {
     public class Program
     {
-        private static readonly ISet<string> ReplCommands = new HashSet<string>(new List<string>
-        {
-            "exit",
-            "help",
-            "quit"
-        }.Select(s => "/" + s));
-
         internal enum ExitCodes
         {
             /// <summary>
@@ -104,21 +96,6 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
-            return MainWithCustomConsole(args, console: new PerlangConsole());
-        }
-
-        /// <summary>
-        /// Entry point for `perlang`, with the possibility to override the console streams (stdin, stdout, stderr).
-        ///
-        /// This constructor is typically used from tests, wishing to intercept the output to stdout and/or stderr.
-        /// </summary>
-        /// <param name="args">The command line arguments.</param>
-        /// <param name="console">A custom `IConsole` implementation to use. May be null, in which case the standard
-        /// streams of the calling process will be used.</param>
-        /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
-        // TODO: Replace IConsole here with interface which is "Perlang string-aware", so we can delegate to libc write() instead of using Console.WriteLine.
-        public static int MainWithCustomConsole(string[] args, IPerlangConsole console)
-        {
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
             var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");
@@ -169,18 +146,18 @@ namespace Perlang.ConsoleApp
                 {
                     if (parseResult.HasOption(versionOption))
                     {
-                        console.Out.WriteLine(CommonConstants.InformationalVersion);
+                        Console.Out.WriteLine(CommonConstants.InformationalVersion);
                         return Task.FromResult(0);
                     }
 
                     if (parseResult.HasOption(detailedVersionOption))
                     {
-                        console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} (built from git commit {CommonConstants.GitCommit}) on .NET {Environment.Version}");
-                        console.Out.WriteLine();
-                        console.Out.WriteLine($"  Number of detected (v)CPUs: {Environment.ProcessorCount}");
-                        console.Out.WriteLine($"  Running in 64-bit mode: {Environment.Is64BitProcess}");
-                        console.Out.WriteLine($"  Operating system info: {Environment.OSVersion.VersionString}");
-                        console.Out.WriteLine();
+                        Console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} (built from git commit {CommonConstants.GitCommit}) on .NET {Environment.Version}");
+                        Console.Out.WriteLine();
+                        Console.Out.WriteLine($"  Number of detected (v)CPUs: {Environment.ProcessorCount}");
+                        Console.Out.WriteLine($"  Running in 64-bit mode: {Environment.Is64BitProcess}");
+                        Console.Out.WriteLine($"  Operating system info: {Environment.OSVersion.VersionString}");
+                        Console.Out.WriteLine();
 
                         return Task.FromResult(0);
                     }
@@ -191,7 +168,7 @@ namespace Perlang.ConsoleApp
 
                         new Program(
                             replMode: true,
-                            standardOutputHandler: console.WriteStdoutLine,
+                            standardOutputHandler: Console.WriteLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         ).ParseAndPrint(source);
 
@@ -209,18 +186,9 @@ namespace Perlang.ConsoleApp
                     {
                         string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
 
-                        // Console.Out.WriteLine(parseResult.Tokens);
-                        // Console.Out.WriteLine(parseResult.GetValueForArgument(scriptArguments));
-                        //
-                        // if (parseResult.Tokens.Count != 1)
-                        // {
-                        //     Console.Error.WriteLine("ERROR: When the -c option is used, no script arguments can be provided since the Perlang script/program will not get executed");
-                        //     return Task.FromResult(1);
-                        // }
-
                         var program = new Program(
                             replMode: false,
-                            standardOutputHandler: console.WriteStdoutLine,
+                            standardOutputHandler: Console.WriteLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList,
                             experimentalCompilation: PerlangMode.ExperimentalCompilation
                         );
@@ -237,7 +205,7 @@ namespace Perlang.ConsoleApp
                         {
                             var program = new Program(
                                 replMode: false,
-                                standardOutputHandler: console.WriteStdoutLine,
+                                standardOutputHandler: Console.WriteLine,
                                 disabledWarningsAsErrors: disabledWarningsAsErrorsList,
                                 experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
@@ -251,7 +219,7 @@ namespace Perlang.ConsoleApp
                             var program = new Program(
                                 replMode: false,
                                 arguments: remainingArguments,
-                                standardOutputHandler: console.WriteStdoutLine,
+                                standardOutputHandler: Console.WriteLine,
                                 disabledWarningsAsErrors: disabledWarningsAsErrorsList,
                                 experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
@@ -283,7 +251,7 @@ namespace Perlang.ConsoleApp
             return new CommandLineBuilder(rootCommand)
                 .UseHelp()
                 .Build()
-                .Invoke(args, console);
+                .Invoke(args);
         }
 
         internal Program(

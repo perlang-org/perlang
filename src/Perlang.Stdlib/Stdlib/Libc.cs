@@ -59,13 +59,6 @@ namespace Perlang.Stdlib
             internal static unsafe partial int memcmp(byte* b1, byte* b2, uint count);
 
 #if _WINDOWS
-            [LibraryImport("ucrtbase", EntryPoint = "_write")]
-#else // POSIX
-            [LibraryImport("libc", SetLastError = true)]
-#endif
-            internal static partial int write(int fd, IntPtr s, int count);
-
-#if _WINDOWS
             [LibraryImport("ucrtbase")]
 #else // POSIX
             [LibraryImport("libc")]
