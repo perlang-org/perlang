@@ -2,15 +2,20 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	docs-validate-api-docs install install-latest-snapshot publish-release \
-	release run test src/Perlang.Common/CommonConstants.Generated.cs
+	docs-validate-api-docs install install-latest-snapshot perlang-cli \
+	publish-release release run test \
+	src/Perlang.Common/CommonConstants.Generated.cs
+
+.PRECIOUS: %.cc
 
 RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish/perlang
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
 
-all: auto-generated
+CLANGPP=clang++-14
+
+all: auto-generated perlang_cli
 	dotnet build
 
 release:
@@ -21,10 +26,19 @@ auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants.rb
 	scripts/update_common_constants.rb
 
+#perlang_cli.so: native_main.o
+# We must include the Perlang stdlib into this shared library, since it depends on symbols exported from it
+#	$(CLANGPP) -shared -o $(@) $< lib/stdlib/lib/libstdlib.a
+
+# Ugly, but this seems to be the easiest way to drop the .so file into the right location for now
+#	cp $(@) src/Perlang.ConsoleApp/bin/Debug/net7.0
+
 clean:
 	dotnet clean
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
 	rm -rf src/Perlang.ConsoleApp/bin/Release
+	rm *.o
+	rm -rf lib/
 
 docs-clean:
 	rm -rf _site
@@ -69,16 +83,29 @@ install: auto-generated stdlib
 install-latest-snapshot:
 	curl -sSL https://perlang.org/install.sh | sh -s -- --force
 
-run: auto-generated
+run: auto-generated perlang_cli
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Debug/net7.0
 	src/Perlang.ConsoleApp/bin/Debug/net7.0/perlang
 
+# Creating a subdirectory is important in these targets, since cmake will otherwise clutter the stdlib directory with
+# its auto-generated build scripts
 stdlib:
-# Creating a subdirectory is important, since cmake will otherwise clutter the stdlib directory with its auto-generated
-# build scripts
 	cd src/stdlib && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && make stdlib install
+
+# perlang_cli depends on stdlib, so it must be built before this can be successfully built
+perlang_cli: stdlib
+	cd src/perlang_cli/src && make
+	cd src/perlang_cli && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && make perlang_cli install
+
+# Note that this removes all auto-generated files, including the C++ files which
+# are normally committed to git. This makes it easy to regenerate them from the
+# Perlang sources.
+perlang_cli_clean:
+	cd src/perlang_cli/src && make clean
+	cd src/perlang_cli && rm -rf out
 
 test:
 	dotnet test --configuration Release

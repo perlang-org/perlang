@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(stdlib VERSION 0.1.0)
 
+# This is needed to get CMake to use -fPIC. Without this, linking the Perlang stdlib into a .so shared library will fail
+# with relocation errors.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(headers
         src/ascii_string.h
         src/bigint.h

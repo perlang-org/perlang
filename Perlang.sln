@@ -34,6 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		README.md = README.md
 		Makefile = Makefile
 		.gitignore = .gitignore
+		native_main.per = native_main.per
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "release-notes", "release-notes", "{3223DBA6-64AE-41B5-8864-6FDD232FCE7F}"

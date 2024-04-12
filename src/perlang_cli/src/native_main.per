@@ -1,0 +1,18 @@
+#c++-prototypes
+extern "C" int native_main(int argc, const char** argv);
+#/c++-prototypes
+
+fun perlang_main(arg1: string): int
+{
+    // TODO: Implement -v flag in Perlang. We may need to add a wrapper on top of getopt_long for this to be meaningful.
+    print "Hello World from *Native* *Code*! First parameter is: " + arg1;
+    return 0;
+}
+
+#c++-methods
+extern "C" int native_main([[maybe_unused]] int argc, const char **argv)
+{
+    // TODO: range check
+    return perlang_main(perlang::ASCIIString::from_copied_string(argv[0]));
+}
+#/c++-methods

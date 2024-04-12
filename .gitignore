@@ -350,10 +350,11 @@ MigrationBackup/
 _exported_templates/
 _site/
 .idea/
+*.o
 docfx/*.dll
 docfx/docfx.exe
 docfx/docfx.exe.config
 lib/
 src/Perlang.Common/CommonConstants.Generated.cs
-src/stdlib/cmake-build-debug/
-src/stdlib/out/
+src/*/cmake-build-debug/
+src/*/out/
