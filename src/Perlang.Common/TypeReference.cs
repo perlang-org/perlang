@@ -62,8 +62,8 @@ namespace Perlang
                 null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
                 // TODO: Handle UTF-8 strings here too
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "ASCIIString",
-                var t when t.FullName == "Perlang.Lang.String" => "String",
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "perlang::ASCIIString",
+                var t when t.FullName == "Perlang.Lang.String" => "perlang::String",
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
@@ -86,8 +86,8 @@ namespace Perlang
                 // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
                 // long-term solution, see https://github.com/perlang-org/perlang/issues/378.
                 // TODO: Handle UTF-8 strings here too
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<const ASCIIString>",
-                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const String>",
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<const perlang::ASCIIString>",
+                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const perlang::String>",
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
