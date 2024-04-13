@@ -520,8 +520,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 #include ""bigint.hpp"" // BigInt
 #include ""stdlib.hpp""
 
-using namespace perlang;
-
 ");
 
                 streamWriter.WriteLine("//");
@@ -1146,7 +1144,7 @@ using namespace perlang;
             // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
-            currentMethod.Append("ASCIIString::from_static_string(\"");
+            currentMethod.Append("perlang::ASCIIString::from_static_string(\"");
             currentMethod.Append(expr);
             currentMethod.Append("\")");
         }
@@ -1156,7 +1154,7 @@ using namespace perlang;
             // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
-            currentMethod.Append("UTF8String::from_static_string(\"");
+            currentMethod.Append("perlang::UTF8String::from_static_string(\"");
             currentMethod.Append(expr);
             currentMethod.Append("\")");
         }
