@@ -27,6 +27,8 @@
         <Rule Id="SA1204" Action="None"/>       <!-- Static elements should appear before instance elements -->
 
         <Rule Id="SA1413" Action="None"/>       <!-- Use trailing comma in multi-line initializers -->
+
+        <Rule Id="SA1500" Action="None"/>       <!-- Braces for multi-line statements should not share line -->
         <Rule Id="SA1512" Action="None"/>       <!-- Single-line comments should not be followed by blank line -->
         <Rule Id="SA1516" Action="None"/>       <!-- Elements should be separated by blank line -->
 

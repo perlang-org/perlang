@@ -21,7 +21,8 @@ namespace Perlang.Tests.Integration
         /// first will be thrown.
         ///
         /// Output printed to the standard output stream will be silently discarded by this method. For tests which need
-        /// to make assertions based on the output printed, see e.g. the <see cref="EvalReturningOutput"/> method.
+        /// to make assertions based on the output printed, see e.g. the
+        /// <see cref="EvalReturningOutput(string, string[])"/> method.
         ///
         /// Note that compiler warnings will be propagated as exceptions to the caller; in other words, this resembles
         /// the `-Werror` flag being enabled.
@@ -347,7 +348,23 @@ namespace Perlang.Tests.Integration
         /// <returns>The output from the provided expression/statements.</returns>
         internal static IEnumerable<string> EvalReturningOutput(string source, params string[] arguments)
         {
-            var result = EvalWithResult(source, arguments);
+            return EvalReturningOutput(source, CompilerFlags.None, arguments);
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements. If the expression or statements prints to the
+        /// standard output, the content will be returned as a collection of strings (one string per line printed).
+        ///
+        /// This method will propagate all errors to the caller. Note that compiler warnings will also be propagated as
+        /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
+        /// </summary>
+        /// <param name="source">A valid Perlang program.</param>
+        /// <param name="compilerFlags">The <see cref="CompilerFlags"/> to use when performing the compilation.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <returns>The output from the provided expression/statements.</returns>
+        internal static IEnumerable<string> EvalReturningOutput(string source, CompilerFlags compilerFlags, params string[] arguments)
+        {
+            var result = EvalWithResult(source, compilerFlags, arguments);
 
             if (result.CompilerWarnings.Count > 0)
             {

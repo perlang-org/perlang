@@ -379,10 +379,14 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         }
 
         ImmutableList<Stmt> statements;
+        ImmutableList<Token> cppPrototypes;
+        ImmutableList<Token> cppMethods;
 
         if (result.HasStatements)
         {
             statements = result.Statements!.ToImmutableList();
+            cppPrototypes = result.CppPrototypes!.ToImmutableList();
+            cppMethods = result.CppMethods!.ToImmutableList();
         }
         else if (result.HasExpr)
         {
@@ -390,6 +394,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             // caller). In compiled mode, single expressions typically don't make _sense_ but they are used by some unit
             // test(s). We wrap them as statements to make the compiler be able to deal with them.
             statements = ImmutableList.Create<Stmt>(new Stmt.ExpressionStmt(result.Expr!));
+            cppPrototypes = ImmutableList<Token>.Empty;
+            cppMethods = ImmutableList<Token>.Empty;
         }
         else
         {
@@ -500,7 +506,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         try
         {
-            if (compileAndAssembleOnly && methods["main"].MethodBody.Length == 0)
+            if ((compileAndAssembleOnly || compilerFlags.HasFlag(CompilerFlags.RemoveEmptyMainMethod)) && methods["main"].MethodBody.Length == 0)
             {
                 // We generate a default "main" method elsewhere. In -c mode, we want to remove this method if it's empty,
                 // to avoid conflicts with the "real" main method of the program the .o file is being linked into.
@@ -525,26 +531,58 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
 ");
 
-                streamWriter.WriteLine("//");
-                streamWriter.WriteLine("// Method definitions");
-                streamWriter.WriteLine("//");
+                if (cppPrototypes.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ prototypes");
+                    streamWriter.WriteLine("//");
 
-                foreach (var (key, value) in methods)
-                {
-                    streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString});");
+                    foreach (Token prototype in cppPrototypes)
+                    {
+                        streamWriter.WriteLine(prototype.Literal);
+                    }
+
+                    streamWriter.WriteLine();
                 }
 
-                streamWriter.WriteLine();
-                streamWriter.WriteLine("//");
-                streamWriter.WriteLine("// Method declarations");
-                streamWriter.WriteLine("//");
+                if (methods.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Method definitions");
+                    streamWriter.WriteLine("//");
 
-                foreach (var (key, value) in methods)
-                {
-                    streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString}) {{");
-                    streamWriter.Write(value.MethodBody);
-                    streamWriter.WriteLine('}');
+                    foreach (var (key, value) in methods) {
+                        streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString});");
+                    }
+
                     streamWriter.WriteLine();
+                }
+
+                if (cppMethods.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ methods");
+                    streamWriter.WriteLine("//");
+
+                    foreach (Token method in cppMethods)
+                    {
+                        streamWriter.WriteLine(method.Literal);
+                    }
+
+                    // Try to avoid an extra newline at the end of the file
+                    if (methods.Count > 0) {
+                        streamWriter.WriteLine();
+                    }
+                }
+
+                if (methods.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Method declarations");
+                    streamWriter.WriteLine("//");
+
+                    foreach (var (key, value) in methods) {
+                        streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString}) {{");
+                        streamWriter.Write(value.MethodBody);
+                        streamWriter.WriteLine('}');
+                        streamWriter.WriteLine();
+                    }
                 }
             }
 
@@ -1480,6 +1518,23 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         return VoidObject.Void;
     }
+
+    // public VoidObject VisitPreprocessorDirective(Stmt.PreprocessorDirective preprocessorDirective)
+    // {
+    //     if (preprocessorDirective.Type == PreprocessorDirectiveType.Prototypes) {
+    //         cppPrototypes.Add(preprocessorDirective.Content);
+    //     }
+    //     else if (preprocessorDirective.Type == PreprocessorDirectiveType.Methods) {
+    //         cppMethods.Add(preprocessorDirective.Content);
+    //     }
+    //     else {
+    //         throw new PerlangCompilerException(
+    //             $"Unsupported preprocessor directive {preprocessorDirective.Type} encountered"
+    //         );
+    //     }
+    //
+    //     return VoidObject.Void;
+    // }
 
     private static string Indent(int level) => String.Empty.PadLeft(level * 4);
 
