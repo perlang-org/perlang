@@ -32,6 +32,9 @@ namespace Perlang.Interpreter
     ///
     /// Instances of this class are not thread safe; calling <see cref="Eval"/> on multiple threads simultaneously can
     /// lead to race conditions and is not supported.
+    /// <remarks>Note: must **NOT** be a <see cref="VisitorBase"/>, because we use different return types than the base class'
+    /// methods. Using the `new` keyword for these overloads will not work, since the base class will then not call the
+    /// methods in this class as expected.</remarks>
     /// </summary>
     public class PerlangInterpreter : IInterpreter, Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {

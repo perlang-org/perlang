@@ -14,7 +14,7 @@ namespace Perlang.Interpreter.NameResolution
     /// <summary>
     /// The `NameResolver` is responsible for resolving names of local and global variable/function names.
     /// </summary>
-    internal class NameResolver : Expr.IVisitor<VoidObject>, Stmt.IVisitor<VoidObject>
+    internal class NameResolver : VisitorBase
     {
         private readonly IBindingHandler bindingHandler;
         private readonly Action<string, PerlangClass> addGlobalClassCallback;
@@ -225,12 +225,12 @@ namespace Perlang.Interpreter.NameResolution
             }
         }
 
-        public VoidObject VisitEmptyExpr(Expr.Empty expr)
+        public override VoidObject VisitEmptyExpr(Expr.Empty expr)
         {
             return VoidObject.Void;
         }
 
-        public VoidObject VisitAssignExpr(Expr.Assign expr)
+        public override VoidObject VisitAssignExpr(Expr.Assign expr)
         {
             Resolve(expr.Value);
             ResolveLocalOrGlobal(expr, expr.Name);
@@ -238,7 +238,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitBinaryExpr(Expr.Binary expr)
+        public override VoidObject VisitBinaryExpr(Expr.Binary expr)
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
@@ -246,7 +246,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitCallExpr(Expr.Call expr)
+        public override VoidObject VisitCallExpr(Expr.Call expr)
         {
             Resolve(expr.Callee);
 
@@ -263,7 +263,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitIndexExpr(Expr.Index expr)
+        public override VoidObject VisitIndexExpr(Expr.Index expr)
         {
             Resolve(expr.Indexee);
             Resolve(expr.Argument);
@@ -276,18 +276,18 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitGroupingExpr(Expr.Grouping expr)
+        public override VoidObject VisitGroupingExpr(Expr.Grouping expr)
         {
             Resolve(expr.Expression);
             return VoidObject.Void;
         }
 
-        public VoidObject VisitLiteralExpr(Expr.Literal expr)
+        public override VoidObject VisitLiteralExpr(Expr.Literal expr)
         {
             return VoidObject.Void;
         }
 
-        public VoidObject VisitLogicalExpr(Expr.Logical expr)
+        public override VoidObject VisitLogicalExpr(Expr.Logical expr)
         {
             Resolve(expr.Left);
             Resolve(expr.Right);
@@ -295,14 +295,14 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
+        public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             Resolve(expr.Right);
 
             return VoidObject.Void;
         }
 
-        public VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
+        public override VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
         {
             Resolve(expr.Left);
             ResolveLocalOrGlobal(expr, expr.Name);
@@ -310,7 +310,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitIdentifierExpr(Expr.Identifier expr)
+        public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
             // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must be able
             // to distinguish between "set to null" and "not set at all".
@@ -325,14 +325,14 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitGetExpr(Expr.Get expr)
+        public override VoidObject VisitGetExpr(Expr.Get expr)
         {
             Resolve(expr.Object);
 
             return VoidObject.Void;
         }
 
-        public VoidObject VisitBlockStmt(Stmt.Block stmt)
+        public override VoidObject VisitBlockStmt(Stmt.Block stmt)
         {
             BeginScope();
             Resolve(stmt.Statements);
@@ -341,7 +341,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        public override VoidObject VisitClassStmt(Stmt.Class stmt)
         {
             // TODO: Implement resolution related to classes: handle fields defined in the class, resolve method
             // TODO: arguments, etc.
@@ -360,13 +360,13 @@ namespace Perlang.Interpreter.NameResolution
             stmt.Accept(this);
         }
 
-        public VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
+        public override VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Resolve(stmt.Expression);
             return VoidObject.Void;
         }
 
-        public VoidObject VisitFunctionStmt(Stmt.Function stmt)
+        public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             Declare(stmt.Name);
             DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
@@ -395,7 +395,7 @@ namespace Perlang.Interpreter.NameResolution
             currentFunction = enclosingFunction;
         }
 
-        public VoidObject VisitIfStmt(Stmt.If stmt)
+        public override VoidObject VisitIfStmt(Stmt.If stmt)
         {
             Resolve(stmt.Condition);
             Resolve(stmt.ThenBranch);
@@ -408,13 +408,13 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitPrintStmt(Stmt.Print stmt)
+        public override VoidObject VisitPrintStmt(Stmt.Print stmt)
         {
             Resolve(stmt.Expression);
             return VoidObject.Void;
         }
 
-        public VoidObject VisitReturnStmt(Stmt.Return stmt)
+        public override VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
             if (currentFunction == FunctionType.NONE)
             {
@@ -429,7 +429,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitVarStmt(Stmt.Var stmt)
+        public override VoidObject VisitVarStmt(Stmt.Var stmt)
         {
             Declare(stmt.Name);
 
@@ -443,7 +443,7 @@ namespace Perlang.Interpreter.NameResolution
             return VoidObject.Void;
         }
 
-        public VoidObject VisitWhileStmt(Stmt.While stmt)
+        public override VoidObject VisitWhileStmt(Stmt.While stmt)
         {
             Resolve(stmt.Condition);
             Resolve(stmt.Body);

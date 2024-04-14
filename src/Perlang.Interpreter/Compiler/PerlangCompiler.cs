@@ -51,6 +51,9 @@ namespace Perlang.Interpreter.Compiler;
 /// This is not the case for this simple implementation; it simply knows the level of indentation at each stage in the
 /// processing and does its best to try to produce something which is "not garbage", but not necessarily perfectly
 /// aesthetically pleasing.
+/// <remarks>Note: must **NOT** be a <see cref="VisitorBase"/>, because we use different return types than the base class'
+/// methods. Using the `new` keyword for these overloads will not work, since the base class will then not call the
+/// methods in this class as expected.</remarks>
 /// </summary>
 public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 {
@@ -723,12 +726,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         globalClasses[name] = perlangClass;
     }
 
-    public object? VisitEmptyExpr(Expr.Empty expr)
+    public object VisitEmptyExpr(Expr.Empty expr)
     {
-        throw new NotImplementedException();
+        // No need to emit anything in the generated C++ code for an empty expression.
+        return VoidObject.Void;
     }
 
-    public object? VisitAssignExpr(Expr.Assign expr)
+    public object VisitAssignExpr(Expr.Assign expr)
     {
         currentMethod.Append($"{expr.Identifier.Name.Lexeme} = {expr.Value.Accept(this)}");
         return VoidObject.Void;
