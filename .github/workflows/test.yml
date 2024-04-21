@@ -9,15 +9,12 @@ jobs:
     strategy:
       matrix:
         runner:
-          - windows-2022
+          # Windows and maOS disabled as of https://github.com/perlang-org/perlang/pull/465. We are planning to
+          # reintroduce Windows and macOS support in the future, but for now, we are focusing on Linux for simplicity.
+          # Once we have a compiler which is C# and C++ (transpiled from Perlang), we should be able to build the
+          # compiler for these platforms, but getting rid of the "Linux-onliness" of the compiler really depends on
+          # moving to an LLVM-based backend, so we don't need to shell-execute clang++-14 to compile the C++ code.
           - ubuntu-22.04
-          - macos-11
-        execution_mode:
-          - interpreted
-        include:
-          # Run in interpreted mode on all runners, but additionally also in compiled mode on Ubuntu
-          - runner: ubuntu-22.04
-            execution_mode: compiled
 
     steps:
       - uses: actions/checkout@v1
@@ -39,5 +36,4 @@ jobs:
       - name: Run test suite
         run: dotnet test --configuration Release --verbosity minimal
         env:
-          PERLANG_EXPERIMENTAL_COMPILATION: ${{ matrix.execution_mode == 'compiled' && 'true' || 'false' }}
           PERLANG_ROOT: ${{ github.workspace }}

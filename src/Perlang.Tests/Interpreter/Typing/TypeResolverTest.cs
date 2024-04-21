@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Perlang.Interpreter;
+using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
@@ -120,7 +121,7 @@ namespace Perlang.Tests.Interpreter.Typing
 
         private static (List<Stmt> Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveStatements(string program)
         {
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
+            var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
                 program,
@@ -133,7 +134,7 @@ namespace Perlang.Tests.Interpreter.Typing
             var nameResolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
                 ImmutableDictionary<string, Type>.Empty,
-                interpreter.BindingHandler,
+                compiler.BindingHandler,
                 AssertFailAddGlobalClassHandler,
                 AssertFailNameResolutionErrorHandler
             );
@@ -143,7 +144,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // This is a partial extract of code from TypeValidator. Time will tell whether it's a good or bad idea
             // to copy-paste the code to the test like this or not.
             var typeResolver = new TypeResolver(
-                interpreter.BindingHandler.GetVariableOrFunctionBinding,
+                compiler.BindingHandler.GetVariableOrFunctionBinding,
                 AssertFailValidationErrorHandler
             );
 

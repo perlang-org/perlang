@@ -38,17 +38,9 @@ namespace Perlang.Tests.Integration
             }
             else
             {
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, _ => { });
-
-                return interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    AssertFailParseErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailCompilerWarningHandler
-                );
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("Evaluating and returning a result is not yet supported in interpreted mode");
             }
         }
 
@@ -108,23 +100,9 @@ namespace Perlang.Tests.Integration
             }
             else
             {
-                var result = new EvalResult<RuntimeError>();
-
-                var interpreter = new PerlangInterpreter(
-                    result.ErrorHandler, result.OutputHandler, null, arguments
-                );
-
-                result.Value = interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    AssertFailParseErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithRuntimeErrorCatch is not yet supported in interpreted mode");
             }
         }
 
@@ -180,20 +158,9 @@ namespace Perlang.Tests.Integration
                 return result;
             }
             else {
-                var result = new EvalResult<ScanError>();
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
-
-                result.Value = interpreter.Eval(
-                    source,
-                    result.ErrorHandler,
-                    AssertFailParseErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithScanErrorCatch is not yet supported in interpreted mode");
             }
         }
 
@@ -246,20 +213,9 @@ namespace Perlang.Tests.Integration
                 return result;
             }
             else {
-                var result = new EvalResult<ParseError>();
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
-
-                result.Value = interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    result.ErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithParseErrorCatch is not yet supported in interpreted mode");
             }
         }
 
@@ -312,20 +268,9 @@ namespace Perlang.Tests.Integration
                 return result;
             }
             else {
-                var result = new EvalResult<NameResolutionError>();
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
-
-                result.Value = interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    AssertFailParseErrorHandler,
-                    result.ErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithNameResolutionErrorCatch is not yet supported in interpreted mode");
             }
         }
 
@@ -378,20 +323,9 @@ namespace Perlang.Tests.Integration
                 return result;
             }
             else {
-                var result = new EvalResult<ValidationError>();
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler);
-
-                result.Value = interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    AssertFailParseErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    result.ErrorHandler,
-                    result.ErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithValidationErrorCatch is not yet supported in interpreted mode");
             }
         }
 
@@ -471,20 +405,9 @@ namespace Perlang.Tests.Integration
             }
             else
             {
-                var result = new EvalResult<Exception>();
-                var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
-
-                result.Value = interpreter.Eval(
-                    source,
-                    AssertFailScanErrorHandler,
-                    AssertFailParseErrorHandler,
-                    AssertFailNameResolutionErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    AssertFailValidationErrorHandler,
-                    result.WarningHandler
-                );
-
-                return result;
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithResult is not yet supported in interpreted mode");
             }
         }
 
@@ -601,11 +524,6 @@ namespace Perlang.Tests.Integration
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
             throw new EvalException($"ValidationError occurred: {validationError.Message}", validationError);
-        }
-
-        private static bool AssertFailCompilerWarningHandler(CompilerWarning compilerWarning)
-        {
-            throw new EvalException($"CompilerWarning occurred: {compilerWarning.Message}", compilerWarning);
         }
     }
 }

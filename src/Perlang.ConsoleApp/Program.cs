@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Perlang.Compiler;
-using Perlang.Internal;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
@@ -56,7 +55,6 @@ namespace Perlang.ConsoleApp
             INVALID_ARGUMENT = 67
         }
 
-        private readonly PerlangInterpreter interpreter;
         private readonly PerlangCompiler compiler;
 
         /// <summary>
@@ -80,11 +78,6 @@ namespace Perlang.ConsoleApp
         private readonly Action<string> standardErrorHandlerFromClrString;
 
         private readonly HashSet<WarningType> disabledWarningsAsErrors;
-
-        /// <summary>
-        /// A flag which determines if (highly experimental) compilation to machine code is enabled or not.
-        /// </summary>
-        private readonly bool experimentalCompilation;
 
         private bool hadError;
         private bool hadRuntimeError;
@@ -267,19 +260,10 @@ namespace Perlang.ConsoleApp
             this.standardOutputHandler = standardOutputHandler;
             this.standardErrorHandler = standardOutputHandler;
             this.disabledWarningsAsErrors = (disabledWarningsAsErrors ?? Enumerable.Empty<WarningType>()).ToHashSet();
-            this.experimentalCompilation = experimentalCompilation;
 
             // Convenience fields while we are migrating away from CLR strings to Perlang strings.
             this.standardOutputHandlerFromClrString = s => this.standardOutputHandler(Lang.String.from(s));
             this.standardErrorHandlerFromClrString = s => this.standardErrorHandler(Lang.String.from(s));
-
-            interpreter = new PerlangInterpreter(
-                runtimeErrorHandler ?? RuntimeError,
-                this.standardOutputHandler,
-                null,
-                arguments ?? new List<string>(),
-                replMode: replMode
-            );
 
             compiler = new PerlangCompiler(
                 runtimeErrorHandler ?? RuntimeError,
@@ -298,14 +282,7 @@ namespace Perlang.ConsoleApp
             var bytes = File.ReadAllBytes(path);
             string source = Encoding.UTF8.GetString(bytes);
 
-            if (experimentalCompilation)
-            {
-                CompileAndRun(source, path, CompilerWarning);
-            }
-            else
-            {
-                Run(source, CompilerWarning);
-            }
+            CompileAndRun(source, path, CompilerWarning);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -350,18 +327,6 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        internal int Run(string source, CompilerWarningHandler compilerWarningHandler)
-        {
-            object? result = interpreter.Eval(source, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
-
-            if (result != null && result != VoidObject.Void)
-            {
-                standardOutputHandler(Utils.Stringify(result));
-            }
-
-            return (int)ExitCodes.SUCCESS;
-        }
-
         private void CompileAndRun(string source, string path, CompilerWarningHandler compilerWarningHandler)
         {
             compiler.CompileAndRun(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
@@ -374,7 +339,9 @@ namespace Perlang.ConsoleApp
 
         private void ParseAndPrint(string source)
         {
-            string? result = interpreter.Parse(source, ScanError, ParseError);
+            // TODO: Implement this in PerlangCompiler. Should definitely be doable, and could be taken in a nice little
+            // TODO: isolated PR of its own.
+            string? result = compiler.Parse(source, ScanError, ParseError);
 
             if (result == null)
             {

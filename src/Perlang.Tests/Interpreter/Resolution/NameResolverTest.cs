@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using Perlang.Interpreter;
+using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 using Xunit;
@@ -29,7 +29,7 @@ namespace Perlang.Tests.Interpreter.Resolution
 
         private static (Stmt Stmt, NameResolver Resolver) ScanParseAndResolveSingleStatement(string program)
         {
-            var interpreter = new PerlangInterpreter(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
+            var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
                 program,
@@ -45,7 +45,7 @@ namespace Perlang.Tests.Interpreter.Resolution
             var resolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
                 ImmutableDictionary<string, Type>.Empty,
-                interpreter.BindingHandler,
+                compiler.BindingHandler,
                 AssertFailAddGlobalClassHandler,
                 AssertFailNameResolutionErrorHandler
             );
