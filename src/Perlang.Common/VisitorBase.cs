@@ -151,7 +151,7 @@ namespace Perlang
             return VoidObject.Void;
         }
 
-        public VoidObject VisitClassStmt(Stmt.Class stmt)
+        public virtual VoidObject VisitClassStmt(Stmt.Class stmt)
         {
             // TODO: visit fields also, once we have implemented support for them.
 
