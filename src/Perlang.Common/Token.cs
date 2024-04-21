@@ -21,12 +21,10 @@ namespace Perlang
 
         public override string ToString()
         {
-            if (Literal != null)
-            {
+            if (Literal != null) {
                 return $"{Type} {Lexeme} {Literal}";
             }
-            else
-            {
+            else {
                 return $"{Type} {Lexeme}";
             }
         }

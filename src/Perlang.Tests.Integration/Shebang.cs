@@ -1,4 +1,5 @@
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -29,10 +30,12 @@ namespace Perlang.Tests.Integration
             ".Trim();
 
             var result = EvalWithScanErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Unexpected character #", exception.Message);
+            // This doesn't get treated as a shebang, but as preprocessor directive, which is why the error message
+            // doesn't contain the hash sign.
+            result.Errors.Should()
+                .ContainSingle().Which
+                .Message.Should().Match("Unknown preprocessor directive !/usr/bin/env perlang.");
         }
     }
 }

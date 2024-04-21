@@ -199,6 +199,11 @@ namespace Perlang.Interpreter
                 return null;
             }
 
+            if (result.CppPrototypes.Count > 0 || result.CppMethods.Count > 0)
+            {
+                throw new PerlangInterpreterException("C++ code is not supported in interpreted mode");
+            }
+
             if (result.HasStatements)
             {
                 var previousAndNewStatements = previousStatements.Concat(result.Statements!).ToImmutableList();
@@ -490,13 +495,18 @@ namespace Perlang.Interpreter
                 allowSemicolonElision: replMode
             );
 
-            object syntax = parser.ParseExpressionOrStatements();
+            (object syntax, List<Token> cppPrototypes, List<Token> cppMethods) = parser.ParseExpressionOrStatements();
 
             if (hasParseErrors)
             {
                 // One or more parse errors were encountered. They have been reported upstream, so we just abort
                 // the evaluation at this stage.
                 return null;
+            }
+
+            if (cppPrototypes.Count > 0 || cppMethods.Count > 0)
+            {
+                throw new IllegalStateException("C++ code is not supported in interpreted mode");
             }
 
             if (syntax is List<Stmt> statements)

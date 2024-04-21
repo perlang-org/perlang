@@ -50,6 +50,11 @@ namespace Perlang
         STRING,
         NUMBER,
 
+        // #-directives, used for enabling special features in the compiler. These are not part of the language itself,
+        // and each directive has a token type of its own.
+        PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES,
+        PREPROCESSOR_DIRECTIVE_CPP_METHODS,
+
         // Keywords.
         ELSE,
         FALSE,

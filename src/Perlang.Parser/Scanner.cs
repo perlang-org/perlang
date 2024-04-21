@@ -186,7 +186,7 @@ namespace Perlang.Parser
         {
             char c = Advance();
 
-            // Note: case values are sorted in ASCII order, for predictability.
+            // Note: case values are sorted in ASCII order, which makes it easy and unambiguous to add new content.
             //
             // (Hmm, I'm having second thoughts about this... It actually makes it harder to find things in the code,
             // since things logically connected together like && and || end up being far apart. Might have to revisit
@@ -211,8 +211,9 @@ namespace Perlang.Parser
                     String();
                     break;
 
-                // # not supported yet, but might be added at some point to support macros/other fanciful constructs
-                // like in Rust.
+                case '#':
+                    PreprocessorDirective();
+                    break;
 
                 case '%':
                     AddToken(PERCENT);
@@ -506,6 +507,91 @@ namespace Perlang.Parser
             // Trim the surrounding quotes.
             string value = source[(start + 1)..(current - 1)];
             AddToken(STRING, value);
+        }
+
+        // "Preprocessor directives" are a bad name here, but calling it this for lack of better wording. "Macros" would
+        // be one option, but the directives we currently support are in fact closer to preprocessor-like directives.
+        private void PreprocessorDirective()
+        {
+            while (Peek() != '\n' && !IsAtEnd()) {
+                Advance();
+            }
+
+            // TrimEnd() call needed to workaround Windows CR+LF line endings
+            string startDirective = source[(start + 1)..current].TrimEnd();
+            int valueStart = current;
+
+            switch (startDirective) {
+                case "c++-prototypes":
+                {
+                    while (Peek() != '#' && PeekNext() != '/' && !IsAtEnd()) {
+                        Advance();
+                    }
+
+                    if (IsAtEnd()) {
+                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", line));
+                        return;
+                    }
+
+                    // Consume the '#'
+                    Advance();
+
+                    int endDirectiveStart = current;
+
+                    while (Peek() != '\n' && !IsAtEnd()) {
+                        Advance();
+                    }
+
+                    string endDirective = source[endDirectiveStart..current].Trim();
+
+                    if (endDirective == "/c++-prototypes") {
+                        string value = source[valueStart..(endDirectiveStart - 1)];
+                        AddToken(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES, value.Trim());
+                    }
+                    else {
+                        scanErrorHandler(new ScanError($"Expected '/c++-prototypes' but got '{endDirective}'.", line));
+                    }
+
+                    break;
+                }
+
+                case "c++-methods":
+                {
+                    while (Peek() != '#' && PeekNext() != '/' && !IsAtEnd()) {
+                        Advance();
+                    }
+
+                    if (IsAtEnd()) {
+                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", line));
+                        return;
+                    }
+
+                    // Consume the '#'
+                    Advance();
+
+                    int endDirectiveStart = current;
+
+                    while (Peek() != '\n' && !IsAtEnd()) {
+                        Advance();
+                    }
+
+                    string endDirective = source[endDirectiveStart..current].Trim();
+
+                    if (endDirective == "/c++-methods") {
+                        string value = source[valueStart..(endDirectiveStart - 1)];
+                        AddToken(PREPROCESSOR_DIRECTIVE_CPP_METHODS, value.Trim());
+                    }
+                    else {
+                        scanErrorHandler(new ScanError($"Expected '/c++-methods' but got '{endDirective}'.", line));
+                    }
+
+                    break;
+                }
+
+                default:
+                    scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", line));
+                    break;
+            }
         }
 
         /// <summary>

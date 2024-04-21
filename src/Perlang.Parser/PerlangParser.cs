@@ -47,6 +47,9 @@ namespace Perlang.Parser
         private readonly ParseErrorHandler parseErrorHandler;
         private readonly List<Token> tokens;
 
+        private readonly List<Token> cppPrototypes = new List<Token>();
+        private readonly List<Token> cppMethods = new List<Token>();
+
         private int current;
 
         /// <summary>
@@ -102,7 +105,7 @@ namespace Perlang.Parser
                 allowSemicolonElision: replMode
             );
 
-            object syntax = parser.ParseExpressionOrStatements();
+            (object syntax, List<Token> cppPrototypes, List<Token> cppMethods) = parser.ParseExpressionOrStatements();
 
             if (hasParseErrors)
             {
@@ -116,11 +119,16 @@ namespace Perlang.Parser
             // the result from Resolver, maybe doing more work here would be completely fine...
             if (syntax is Expr expr)
             {
+                if (cppPrototypes.Count > 0 || cppMethods.Count > 0)
+                {
+                    throw new IllegalStateException("C++ code is not supported when evaluating an expression");
+                }
+
                 return ScanAndParseResult.OfExpr(expr);
             }
             else if (syntax is List<Stmt> stmts)
             {
-                return ScanAndParseResult.OfStmts(stmts);
+                return ScanAndParseResult.OfStmts(stmts, cppPrototypes, cppMethods);
             }
             else
             {
@@ -168,8 +176,9 @@ namespace Perlang.Parser
         /// <see cref="ParseExpression"/> and <see cref="ParseStatements"/> methods are typically more convenient
         /// to use.
         /// </summary>
-        /// <returns>An <see cref="Expr"/> or a list of <see cref="Stmt"/> objects.</returns>
-        public object ParseExpressionOrStatements()
+        /// <returns>A tuple with an <see cref="Expr"/> or a list of <see cref="Stmt"/> objects, a list of C++ prototypes
+        /// and a list of C++ methods.</returns>
+        public (object Syntax, List<Token> CppPrototypes, List<Token> CppMethods) ParseExpressionOrStatements()
         {
             allowExpression = true;
 
@@ -182,13 +191,13 @@ namespace Perlang.Parser
                 if (foundExpression)
                 {
                     Stmt last = statements.Last();
-                    return ((Stmt.ExpressionStmt)last).Expression;
+                    return (((Stmt.ExpressionStmt)last).Expression, cppPrototypes, cppMethods);
                 }
 
                 allowExpression = false;
             }
 
-            return statements;
+            return (statements, cppPrototypes, cppMethods);
         }
 
         /// <summary>
@@ -224,6 +233,17 @@ namespace Perlang.Parser
             if (Match(RETURN)) return ReturnStatement();
             if (Match(WHILE)) return WhileStatement();
             if (Match(LEFT_BRACE)) return new Stmt.Block(Block());
+
+            // TODO: Continue here the next time. Try to return something sensible here, like an empty
+            if (Check(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES)) {
+                cppPrototypes.Add(Advance());
+                return new Stmt.ExpressionStmt(new Expr.Empty());
+            }
+            else if (Check(PREPROCESSOR_DIRECTIVE_CPP_METHODS))
+            {
+                cppMethods.Add(Advance());
+                return new Stmt.ExpressionStmt(new Expr.Empty());
+            }
 
             return ExpressionStatement();
         }
