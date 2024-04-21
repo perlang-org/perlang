@@ -2,6 +2,8 @@
 - The x:th public release of Perlang
 - All changes below were made by @perlun
 
+### Breaking changes
+
 ### Added
 #### Experimental compilation
 
