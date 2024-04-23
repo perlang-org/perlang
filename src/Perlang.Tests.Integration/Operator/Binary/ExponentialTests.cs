@@ -1,8 +1,10 @@
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -76,8 +78,18 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var result = EvalWithRuntimeErrorCatch(source);
             var exception = result.Errors.First();
 
-            Assert.Single(result.Errors);
-            Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
+            if (PerlangMode.ExperimentalCompilation) {
+                result.Errors
+                    .Should().ContainSingle()
+                    .Which.Message.Should().Contain("exited with exit code 134");
+
+                result.Output.Should()
+                    .ContainMatch("*The exponent must be greater than or equal to zero*");
+            }
+            else {
+                Assert.Single(result.Errors);
+                Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
+            }
         }
 
         [SkippableFact]
@@ -288,10 +300,20 @@ namespace Perlang.Tests.Integration.Operator.Binary
             ";
 
             var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
 
-            Assert.Single(result.Errors);
-            Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
+            if (PerlangMode.ExperimentalCompilation) {
+                result.Errors
+                    .Should().ContainSingle()
+                    .Which.Message.Should().Contain("exited with exit code 134");
+
+                result.Output.Should()
+                    .ContainMatch("*The exponent must be greater than or equal to zero*");
+            }
+            else {
+                result.Errors
+                    .Should().ContainSingle()
+                    .Which.Message.Should().Contain("The number must be greater than or equal to zero. (Parameter 'exponent')");
+            }
         }
 
         [Fact]
@@ -331,13 +353,19 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 print base ** 8;
             ";
 
-            // TODO: Should not be runtime error but rather a compile-time error from the TypeResolver class. See the
-            // TODO: comment in TypeResolver.VisitBinaryExpr() for more details about why this is not currently doable.
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Operands must be numbers, not function and int", exception.Message);
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*reference to type 'const BigInt' could not bind to an lvalue of type 'int32_t ()'*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.First();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Operands must be numbers, not function and int", exception.Message);
+            }
         }
     }
 }

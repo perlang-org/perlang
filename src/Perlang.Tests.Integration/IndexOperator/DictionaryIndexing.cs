@@ -51,9 +51,11 @@ public class DictionaryIndexing
 #endif
     }
 
-    [Fact]
+    [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_not_present_key()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
         string source = @"
             var env = Libc.environ();
             print env[""NOT_PRESENT_DICTIONARY_KEY""];

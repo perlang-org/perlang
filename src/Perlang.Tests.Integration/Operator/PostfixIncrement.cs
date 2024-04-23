@@ -1,6 +1,9 @@
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -121,11 +124,19 @@ namespace Perlang.Tests.Integration.Operator
                 s++;
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("can only be used to increment numbers, not null", exception.Message);
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*cannot increment value of type*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.First();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("can only be used to increment numbers, not null", exception.Message);
+            }
         }
 
         [Fact]
@@ -136,11 +147,19 @@ namespace Perlang.Tests.Integration.Operator
                 i++;
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("can only be used to increment numbers, not AsciiString", exception.Message);
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*cannot increment value of type*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.First();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("can only be used to increment numbers, not AsciiString", exception.Message);
+            }
         }
     }
 }

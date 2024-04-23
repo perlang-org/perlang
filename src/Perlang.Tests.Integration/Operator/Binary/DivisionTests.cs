@@ -1,7 +1,9 @@
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -104,9 +106,6 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Matches("Unsupported / operand types: 'int' and 'AsciiString'", exception.Message);
         }
 
-        // TODO: This should definitely be a compile-time error (constant division by zero). We should aim for
-        // TODO: evaluating constant expressions completely at compile-time, which may have other benefits also.
-
         [Fact]
         public void division_by_zero_throws_expected_runtime_error()
         {
@@ -114,16 +113,27 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 1 / 0
             ";
 
-            var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
+            if (PerlangMode.ExperimentalCompilation) {
+                Action action = () => EvalReturningOutput(source);
 
-            Assert.Single(result.Errors);
-            Assert.Matches("Attempted to divide by zero.", exception.Message);
+                // This is horribly hardwired for (a particular version of) CLang, but it will have to do for now.
+                action.Should().Throw<PerlangCompilerException>()
+                    .WithMessage("*division by zero is undefined*");
+            }
+            else {
+                var result = EvalWithRuntimeErrorCatch(source);
+                var exception = result.Errors.FirstOrDefault();
+
+                Assert.Single(result.Errors);
+                Assert.Matches("Attempted to divide by zero.", exception.Message);
+            }
         }
 
-        [Fact]
+        [SkippableFact]
         public void division_by_zero_halts_execution()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 1 / 0;
                 print ""hejhej"";
