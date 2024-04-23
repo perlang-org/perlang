@@ -1415,6 +1415,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         currentMethod = new StringBuilder();
 
+        if (methods.ContainsKey(functionStmt.Name.Lexeme))
+        {
+            throw new PerlangCompilerException($"Function '{functionStmt.Name.Lexeme}' is already defined");
+        }
+
         methods[functionStmt.Name.Lexeme] = new Method(
             functionStmt.Name.Lexeme,
             functionStmt.Parameters,
