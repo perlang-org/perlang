@@ -40,6 +40,9 @@ jobs:
       - name: Build Perlang (in release mode)
         run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
+      - name: Rebuild stdlib
+        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
+
       - name: Ensure examples execute without errors
         run: make docs-test-examples SHELL="sh -x -e"
 

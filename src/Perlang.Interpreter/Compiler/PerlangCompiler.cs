@@ -84,6 +84,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         }
     }
 
+    internal IBindingHandler BindingHandler { get; }
+
     private readonly Action<RuntimeError> runtimeErrorHandler;
     private readonly Action<Lang.String> standardOutputHandler;
     private readonly PerlangEnvironment globals = new();
@@ -96,8 +98,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
-
-    private IBindingHandler BindingHandler { get; }
 
     private StringBuilder currentMethod;
 
@@ -1561,5 +1561,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 $"{p.Name.Lexeme}"
             )
         );
+    }
+
+    public string? Parse(string source, Action<ScanError> scanError, Action<ParseError> parseError)
+    {
+        throw new NotImplementedException();
     }
 }

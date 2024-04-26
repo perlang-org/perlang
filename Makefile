@@ -24,6 +24,7 @@ src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants
 clean:
 	dotnet clean
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
+	rm -rf src/Perlang.ConsoleApp/bin/Release
 
 docs-clean:
 	rm -rf _site
