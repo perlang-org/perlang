@@ -79,6 +79,7 @@ namespace Perlang
 
                 // Cannot use typeof(AsciiString) since Perlang.Common cannot depend on Perlang.Stdlib
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,
+                var t when t.FullName == "Perlang.Lang.Utf8String" => true,
                 var t when t.FullName == "Perlang.Lang.String" => true,
 
                 _ => false
