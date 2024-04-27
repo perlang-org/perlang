@@ -79,7 +79,7 @@ namespace Perlang.Tests.Integration.Var
         {
             // This is a bit of an edge case. Unsure if we need to care about it in compiled mode, at least not
             // initially.
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "Early-bound variable test is not supported in compiled mode");
 
             string source = @"
                 var a = ""outer"";
