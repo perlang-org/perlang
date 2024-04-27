@@ -13,7 +13,7 @@ namespace perlang
             throw std::invalid_argument("string argument cannot be null");
         }
 
-        // TODO: Mark this string as "static" in some way, to ensure the destructor doesn't try to delete `bytes`.
+        // TODO: Mark this string as "static" in some way, to ensure the destructor doesn't try to delete `bytes_`.
         auto result = ASCIIString();
         result.bytes_ = s;
         result.length_ = strlen(s);

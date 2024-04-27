@@ -17,7 +17,8 @@ namespace perlang
         // Because of the above assumptions, we know that we can make the new UTF8String constructed from the `s`
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
-        static UTF8String from_static_string(const char* s);
+        [[nodiscard]]
+        static std::shared_ptr<const UTF8String> from_static_string(const char* s);
 
         // Returns the backing byte array for this UTF8String. This method is generally to be avoided; it is safer to
         // use the UTF8String throughout the code and only call this when you really must.
@@ -39,6 +40,10 @@ namespace perlang
         // Private constructor for creating a `null` string, not yet initialized with any sensible content.
         UTF8String();
 
+     public:
+        virtual ~UTF8String();
+
+     private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple UTF8String objects pointing to the same `bytes_`, so modifying one of them
         // would unintentionally spread the modifications to these other objects too.
