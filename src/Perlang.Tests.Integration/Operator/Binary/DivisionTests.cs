@@ -132,7 +132,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         public void division_by_zero_halts_execution()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "Division by zero has undefined behavior in compiled mode.");
 
             string source = @"
                 1 / 0;

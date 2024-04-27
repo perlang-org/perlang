@@ -17,6 +17,7 @@ namespace perlang
         // Because of the above assumptions, we know that we can make the new ASCIIString constructed from the `s`
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
+        [[nodiscard]]
         static std::shared_ptr<const ASCIIString> from_static_string(const char* s);
 
         // Returns the backing byte array for this ASCIIString. This method is generally to be avoided; it is safer to
