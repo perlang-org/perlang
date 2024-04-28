@@ -34,7 +34,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [MemberData(nameof(BinaryOperatorData.AdditionAssignment_type), MemberType = typeof(BinaryOperatorData))]
         public void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 
             string source = $@"
                 var i = {i};

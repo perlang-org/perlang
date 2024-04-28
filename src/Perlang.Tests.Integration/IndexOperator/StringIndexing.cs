@@ -21,11 +21,9 @@ public class StringIndexing
     [SkippableFact]
     public void AsciiString_indexed_outside_string_returns_expected_error()
     {
-        // The reason why we can't easily support this yet is that -Warray-bounds returns a compile-time error for this in
-        // Clang (tested with Clang 14). We would need to be able to have an EvalHelper helper methods for checking ICE
-        // errors to be able to deal with it there; EvalWithRuntimeErrorCatch wouldn't help (and is not supported in
-        // compiled mode yet)
-        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+        // -Warray-bounds is not enough to catch this, since the Perlang code is approximately
+        // perlang::ASCIIString::from_static_string("foobar")->char_at(10). We need to implement this on the Perlang side.
+        Skip.If(PerlangMode.ExperimentalCompilation, "String bounds checking is not yet supported in compiled mode");
 
         string source = @"
             print ""foobar""[10];
@@ -42,7 +40,7 @@ public class StringIndexing
     [SkippableFact]
     public void AsciiString_indexed_by_integer_returns_char_object()
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 
         string source = @"
             print ""foobar""[0].get_type();

@@ -44,11 +44,9 @@ namespace Perlang.Tests.Integration.For
             }, output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void no_clauses()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 fun foo(): string {
                     for (;;) return ""done"";
