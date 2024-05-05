@@ -104,67 +104,113 @@ namespace Perlang.Interpreter.Typing
                 case TokenType.SLASH:
                 case TokenType.STAR:
                 case TokenType.PERCENT:
+                    // String concatenation is only supported for the `+` operator. All supported `string` + type forms
+                    // must be listed here.
                     if (expr.Operator.Type == TokenType.PLUS &&
-                        (leftTypeReference.ClrType == typeof(AsciiString) ||
-                         rightTypeReference.ClrType == typeof(AsciiString)))
+                        (leftTypeReference.ClrType == typeof(Lang.String) &&
+                         rightTypeReference.ClrType == typeof(Lang.String)))
                     {
-                        // Special-casing of "string" + "string", to allow for convenient string concatenation.
-                        expr.TypeReference.ClrType = leftTypeReference.ClrType;
-
-                        return VoidObject.Void;
+                        // "string" + "string"
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Lang.String) &&
+                              rightTypeReference.ClrType == typeof(AsciiString))) {
+                        // string_variable + "string" literal
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Lang.String) &&
+                              rightTypeReference.ClrType == typeof(Utf8String))) {
+                        // string_variable + "åäö string" literal
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Lang.String) &&
+                              rightTypeReference.ClrType == typeof(int))) {
+                        // "string" + 42
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Lang.String) &&
+                              rightTypeReference.ClrType == typeof(double))) {
+                        // "string" + 123.45
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(AsciiString) &&
+                              rightTypeReference.ClrType == typeof(AsciiString))) {
+                        // "string" + "string"
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Utf8String) &&
+                              rightTypeReference.ClrType == typeof(Utf8String))) {
+                        // "åäö string" + "åäö string"
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(AsciiString) &&
+                              rightTypeReference.ClrType == typeof(Utf8String))) {
+                        // "string" + "åäö string". These must use Utf8String type, since the result will be a UTF-8
+                        // string.
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Utf8String) &&
+                              rightTypeReference.ClrType == typeof(AsciiString))) {
+                        // "åäö string" + "string"; likewise
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
+                    {
+                        expr.TypeReference.ClrType = typeof(int);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(uint) && rightTypeReference.ClrType == typeof(uint))
+                    {
+                        expr.TypeReference.ClrType = typeof(uint);
+                    }
+                    else if (leftTypeReference.ClrType == typeof(ulong) && rightTypeReference.ClrType == typeof(ulong))
+                    {
+                        expr.TypeReference.ClrType = typeof(ulong);
+                    }
+                    else if (new[] { typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))
+                    {
+                        expr.TypeReference.ClrType = typeof(ulong);
+                    }
+                    else if (new[] { typeof(int), typeof(long), typeof(uint) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint) }.Contains(rightTypeReference.ClrType))
+                    {
+                        expr.TypeReference.ClrType = typeof(long);
+                    }
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
+                    {
+                        // Order is important. This branch must come _before_ the float branch, since `float +
+                        // double` and `double + float` is expected to produce a `double`.
+                        expr.TypeReference.ClrType = typeof(double);
+                    }
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(float)))
+                    {
+                        expr.TypeReference.ClrType = typeof(float);
+                    }
+                    else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
+                             new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
+                             (leftTypeReference.ClrType == typeof(BigInteger) || rightTypeReference.ClrType == typeof(BigInteger)))
+                    {
+                        expr.TypeReference.ClrType = typeof(BigInteger);
                     }
                     else
                     {
-                        if (leftTypeReference.ClrType == typeof(int) && rightTypeReference.ClrType == typeof(int))
-                        {
-                            expr.TypeReference.ClrType = typeof(int);
-                        }
-                        else if (leftTypeReference.ClrType == typeof(uint) && rightTypeReference.ClrType == typeof(uint))
-                        {
-                            expr.TypeReference.ClrType = typeof(uint);
-                        }
-                        else if (leftTypeReference.ClrType == typeof(ulong) && rightTypeReference.ClrType == typeof(ulong))
-                        {
-                            expr.TypeReference.ClrType = typeof(ulong);
-                        }
-                        else if (new[] { typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))
-                        {
-                            expr.TypeReference.ClrType = typeof(ulong);
-                        }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint) }.Contains(rightTypeReference.ClrType))
-                        {
-                            expr.TypeReference.ClrType = typeof(long);
-                        }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
-                                 (leftTypeReference.ClrType == typeof(double) || rightTypeReference.ClrType == typeof(double)))
-                        {
-                            // Order is important. This branch must come _before_ the float branch, since `float +
-                            // double` and `double + float` is expected to produce a `double`.
-                            expr.TypeReference.ClrType = typeof(double);
-                        }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType) &&
-                                 (leftTypeReference.ClrType == typeof(float) || rightTypeReference.ClrType == typeof(float)))
-                        {
-                            expr.TypeReference.ClrType = typeof(float);
-                        }
-                        else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(leftTypeReference.ClrType) &&
-                                 new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(rightTypeReference.ClrType) &&
-                                 (leftTypeReference.ClrType == typeof(BigInteger) || rightTypeReference.ClrType == typeof(BigInteger)))
-                        {
-                            expr.TypeReference.ClrType = typeof(BigInteger);
-                        }
-                        else
-                        {
-                            string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
-                            throw new TypeValidationError(expr.Operator, message);
-                        }
-
-                        return VoidObject.Void;
+                        string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
+                        throw new TypeValidationError(expr.Operator, message);
                     }
+
+                    return VoidObject.Void;
 
                 case TokenType.PLUS_EQUAL:
                 case TokenType.MINUS_EQUAL:

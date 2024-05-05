@@ -20,10 +20,27 @@ namespace perlang
         [[nodiscard]]
         static std::shared_ptr<const UTF8String> from_static_string(const char* s);
 
+        // Creates a new ASCIIString from an "owned string", like a string that has been allocated on the heap. The
+        // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
+        // memory when it is no longer needed (i.e. when no references to it remains).
+        static std::shared_ptr<const UTF8String> from_owned_string(const char* s, size_t length);
+
+        // Private constructor for creating a new UTF8String from a C-style string. The `owned` parameter indicates
+        // whether the UTF8String should take ownership of the memory it points to, and thus be responsible for
+        // deallocating it when it is no longer needed.
+        UTF8String(const char* string, size_t length, bool owned);
+
+     public:
+        virtual ~UTF8String();
+
         // Returns the backing byte array for this UTF8String. This method is generally to be avoided; it is safer to
         // use the UTF8String throughout the code and only call this when you really must.
         [[nodiscard]]
         const char* bytes() const override;
+
+        // The length of the string in bytes, excluding the terminating `NUL` character.
+        [[nodiscard]]
+        size_t length() const override;
 
         // Compares the equality of two `UTF8String`s, returning `true` if they point to the same backing byte array
         // and have the same length. Note that this method does *not* compare referential equality; two different
@@ -36,12 +53,9 @@ namespace perlang
         // documentation for more semantic details about the implementation.
         bool operator!=(const UTF8String& rhs) const;
 
-     private:
-        // Private constructor for creating a `null` string, not yet initialized with any sensible content.
-        UTF8String();
-
-     public:
-        virtual ~UTF8String();
+        // Concatenate this string with another string. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(const String& rhs) const override;
 
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
@@ -51,5 +65,10 @@ namespace perlang
 
         // The length of the string in bytes, excluding the terminating `NUL` character.
         size_t length_;
+
+        // A flag indicating whether this string owns the memory it points to. If this is true, the string is
+        // responsible for deallocating the memory when it is no longer needed. If false, the string is borrowing the
+        // memory from somewhere else, and should not deallocate it.
+        bool owned_;
     };
 }

@@ -897,12 +897,22 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 // to ensure we get the expected operator on the C++ side (example: `int + uint` should produce a
                 // `long`, and at least one of the operands need to be widened to ensure expected semantics for an
                 // expression like `2 + 4294967295`)
-                if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType)
+                //
+                // String types are special-cased here, since they are wrapped in std::shared_ptr and cannot be cast to
+                // e.g perlang::String directly (because this will make the C++ compiler attempt to perform a copy to an
+                // abstract, non-instantiable type).
+                if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType && !(
+                        expr.TypeReference.ClrType == typeof(Lang.String) ||
+                        expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
+                        expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
                 {
                     leftCast = expr.TypeReference.CppTypeCast;
                 }
 
-                if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType)
+                if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType && !(
+                        expr.TypeReference.ClrType == typeof(Lang.String) ||
+                        expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
+                        expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
                 {
                     rightCast = expr.TypeReference.CppTypeCast;
                 }
@@ -913,7 +923,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 }
                 else if (expr.Left.TypeReference.IsStringType() && expr.Right.TypeReference.IsStringType())
                 {
-                    throw new NotImplementedInCompiledModeException($"Concatenation between {expr.Left.TypeReference.ClrType.ToTypeKeyword()} and {expr.Right.TypeReference.ClrType.ToTypeKeyword()} is not yet implemented");
+                    // The dereference operator (*) must be used to dereference the std::shared_ptr instances
+                    currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType())
                 {

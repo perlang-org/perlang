@@ -12,29 +12,44 @@ namespace perlang
             throw std::invalid_argument("string argument cannot be null");
         }
 
-        // TODO: Mark this string as "static" in some way, to ensure the destructor doesn't try to delete `bytes_`.
-        auto result = UTF8String();
-        result.bytes_ = s;
-        result.length_ = strlen(s);
+        auto result = new UTF8String(s, strlen(s), false);
 
-        return std::make_shared<UTF8String>(result);
+        return std::shared_ptr<UTF8String>(result);
     }
 
-    UTF8String::UTF8String()
+    std::shared_ptr<const UTF8String> UTF8String::from_owned_string(const char* s, size_t length)
     {
-        // Set these to ensure we have predictable defaults. Note that this constructor must ONLY be used from factory
-        // methods, which set these fields to their appropriate values.
-        bytes_ = nullptr;
-        length_ = -1;
+        if (s == nullptr) {
+            throw std::invalid_argument("string argument cannot be null");
+        }
+
+        auto result = new UTF8String(s, length, true);
+
+        return std::shared_ptr<UTF8String>(result);
     }
 
-    // TODO: Implement deallocation here for non-static strings, but MAKE SURE to keep a distinction between static and
-    // TODO: non-static strings!
-    UTF8String::~UTF8String() = default;
+    UTF8String::UTF8String(const char* string, size_t length, bool owned)
+    {
+        bytes_ = string;
+        length_ = length;
+        owned_ = owned;
+    }
+
+    UTF8String::~UTF8String()
+    {
+        if (owned_) {
+            delete[] bytes_;
+        }
+    }
 
     const char* UTF8String::bytes() const
     {
         return bytes_;
+    }
+
+    size_t UTF8String::length() const
+    {
+        return length_;
     }
 
     bool UTF8String::operator==(const UTF8String& rhs) const
@@ -46,5 +61,17 @@ namespace perlang
     bool UTF8String::operator!=(const UTF8String& rhs) const
     {
         return !(rhs == *this);
+    }
+
+    std::shared_ptr<const String> UTF8String::operator+(const String& rhs) const
+    {
+        size_t length = this->length_ + rhs.length();
+        char *bytes = new char[length + 1];
+
+        memcpy((void*)bytes, this->bytes_, this->length_);
+        memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
     }
 }

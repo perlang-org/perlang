@@ -95,6 +95,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_integer_and_string_coerces_number_to_string()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             // Some interesting notes on how other languages deal with this:
             //
             // Ruby 2.6: Not supported. TypeError (no implicit conversion of Integer into String)
@@ -119,6 +121,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_bigint_and_string_coerces_number_to_string()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 var i = 18446744073709551616;
                 var s = ""xyz"";
@@ -135,6 +139,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_string_and_integer_coerces_number_to_string()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 var s = ""abc"";
                 var i = 123;
@@ -151,6 +157,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_string_and_bigint_coerces_number_to_string()
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             string source = @"
                 var s = ""abc"";
                 var i = 18446744073709551616;
@@ -168,6 +176,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [ClassData(typeof(TestCultures))]
         async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
@@ -187,6 +197,8 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [ClassData(typeof(TestCultures))]
         async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {
+            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+
             CultureInfo.CurrentCulture = cultureInfo;
 
             string source = @"
