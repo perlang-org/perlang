@@ -77,7 +77,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         // TODO: There's a clear overlap between these tests and the ones in StringTests.cs. We could consider
-        // TODO: removing some of them at some point. OTOH, the tests in StringTests test more complex
+        // TODO: removing some of them at some point. OTOH, the tests in StringTests test more complex operations.
 
         [Fact]
         void addition_of_strings_performs_concatenation()
@@ -96,7 +96,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_integer_and_string_coerces_number_to_string()
+        void addition_of_int_and_string_coerces_number_to_string()
         {
             // Some interesting notes on how other languages deal with this:
             //
@@ -119,6 +119,54 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("123abc");
         }
 
+        [Fact]
+        void addition_of_uint_and_string_coerces_number_to_string()
+        {
+            string source = @"
+                var i = 4294967295;
+                var s = ""abc"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("4294967295abc");
+        }
+
+        [Fact]
+        void addition_of_long_and_string_coerces_number_to_string()
+        {
+            string source = @"
+                var i = 9223372036854775807;
+                var s = ""abc"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("9223372036854775807abc");
+        }
+
+        [Fact]
+        void addition_of_ulong_and_string_coerces_number_to_string()
+        {
+            string source = @"
+                var i = 18446744073709551615;
+                var s = ""abc"";
+
+                print i + s;
+            ";
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("18446744073709551615abc");
+        }
+
         [SkippableFact]
         void addition_of_bigint_and_string_coerces_number_to_string()
         {
@@ -138,19 +186,67 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_integer_coerces_number_to_string()
+        void addition_of_string_and_int_coerces_number_to_string()
         {
-            string source = @"
-                var s = ""abc"";
+            string source = """
+                var s = "abc";
                 var i = 123;
 
                 print s + i;
-            ";
+                """;
 
             string result = EvalReturningOutputString(source);
 
             result.Should()
                 .Be("abc123");
+        }
+
+        [Fact]
+        void addition_of_string_and_uint_coerces_number_to_string()
+        {
+            string source = """
+                var s = "abc";
+                var i = 4294967295;
+
+                print s + i;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc4294967295");
+        }
+
+        [Fact]
+        void addition_of_string_and_long_coerces_number_to_string()
+        {
+            string source = """
+                var s = "abc";
+                var l = 9223372036854775807;
+
+                print s + l;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc9223372036854775807");
+        }
+
+        [Fact]
+        void addition_of_string_and_ulong_coerces_number_to_string()
+        {
+            string source = """
+                var s = "abc";
+                var l = 18446744073709551615;
+
+                print s + l;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abc18446744073709551615");
         }
 
         [SkippableFact]

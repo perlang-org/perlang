@@ -19,8 +19,26 @@ namespace perlang
         [[nodiscard]]
         virtual std::shared_ptr<const String> operator+(const String& rhs) const = 0;
 
-        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        // Concatenates this string with an int32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::shared_ptr<const String> operator+(long rhs) const = 0;
+        virtual std::shared_ptr<const String> operator+(int32_t rhs) const
+        {
+            return this->operator+(static_cast<int64_t>(rhs));
+        }
+
+        // Concatenates this string with an int64. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(int64_t rhs) const = 0;
+
+        // Concatenates this string with a uint32. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(uint32_t rhs) const
+        {
+            return this->operator+(static_cast<uint64_t>(rhs));
+        }
+
+        // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(uint64_t rhs) const = 0;
     };
 }

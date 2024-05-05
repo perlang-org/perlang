@@ -103,7 +103,7 @@ namespace Perlang.Tests.Integration.Var
             }, output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void in_middle_of_block()
         {
             string source = @"

@@ -64,9 +64,27 @@ namespace perlang
         [[nodiscard]]
         std::shared_ptr<const String> operator+(const String& rhs) const override;
 
-        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        // Concatenates this string with an int32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::shared_ptr<const String> operator+(long rhs) const override;
+        inline std::shared_ptr<const String> operator+(int32_t rhs) const override
+        {
+            return this->operator+(static_cast<int64_t>(rhs));
+        }
+
+        // Concatenates this string with an int64. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(int64_t rhs) const override;
+
+        // Concatenates this string with a uint32. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        inline std::shared_ptr<const String> operator+(uint32_t rhs) const override
+        {
+            return this->operator+(static_cast<uint64_t>(rhs));
+        }
+
+        // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(uint64_t rhs) const override;
 
         // Alias for [], which is easier to use from Perlang-generated C++ code in a pointer context.
         [[nodiscard]]
@@ -87,8 +105,32 @@ namespace perlang
         bool owned_;
     };
 
-    // Concatenate an int/long+ASCIIString. The memory for the new string is allocated from the heap. This is a free
+    // Concatenate an int64+ASCIIString. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an ASCIIString.
     [[nodiscard]]
-    std::shared_ptr<const ASCIIString> operator+(long lhs, const ASCIIString& rhs);
+    std::shared_ptr<const ASCIIString> operator+(int64_t lhs, const ASCIIString& rhs);
+
+    // Concatenate a uint64+ASCIIString. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an ASCIIString.
+    [[nodiscard]]
+    std::shared_ptr<const ASCIIString> operator+(uint64_t lhs, const ASCIIString& rhs);
+
+    // Note: must come after the operator+ declarations above, since they are used in the following declarations. In
+    // C++, the order of function declaration matters.
+
+    // Concatenate an int32+ASCIIString. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an ASCIIString.
+    [[nodiscard]]
+    inline std::shared_ptr<const ASCIIString> operator+(const int32_t lhs, const ASCIIString& rhs)
+    {
+        return static_cast<int64_t>(lhs) + rhs;
+    }
+
+    // Concatenate a uint32+ASCIIString. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an ASCIIString.
+    [[nodiscard]]
+    inline std::shared_ptr<const ASCIIString> operator+(uint32_t lhs, const ASCIIString& rhs)
+    {
+        return static_cast<uint64_t>(lhs) + rhs;
+    }
 }
