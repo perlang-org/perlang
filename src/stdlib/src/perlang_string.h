@@ -18,5 +18,9 @@ namespace perlang
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         virtual std::shared_ptr<const String> operator+(const String& rhs) const = 0;
+
+        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(long rhs) const = 0;
     };
 }

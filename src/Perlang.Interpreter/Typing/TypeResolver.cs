@@ -132,6 +132,36 @@ namespace Perlang.Interpreter.Typing
                         expr.TypeReference.ClrType = typeof(Lang.String);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(AsciiString) &&
+                              rightTypeReference.ClrType == typeof(int))) {
+                        // "string" + 42
+                        expr.TypeReference.ClrType = typeof(AsciiString);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Utf8String) &&
+                              rightTypeReference.ClrType == typeof(int))) {
+                        // "åäö string" + 42
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(int) &&
+                              rightTypeReference.ClrType == typeof(Lang.String))) {
+                        // 42 + "string"
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(int) &&
+                              rightTypeReference.ClrType == typeof(AsciiString))) {
+                        // 42 + "string" + 42
+                        expr.TypeReference.ClrType = typeof(AsciiString);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(int) &&
+                              rightTypeReference.ClrType == typeof(Utf8String))) {
+                        // 42 + "åäö string"
+                        expr.TypeReference.ClrType = typeof(Utf8String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(Lang.String) &&
                               rightTypeReference.ClrType == typeof(double))) {
                         // "string" + 123.45

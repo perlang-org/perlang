@@ -924,15 +924,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 else if (expr.Left.TypeReference.IsStringType() && expr.Right.TypeReference.IsStringType())
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instances
+                    // Parentheses required to workaround "indirection requires pointer operand" errors in the C++ compilation
                     currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
-                }
-                else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType())
-                {
-                    throw new NotImplementedInCompiledModeException($"Concatenation between {expr.Left.TypeReference.ClrType.ToTypeKeyword()} and {expr.Right.TypeReference.ClrType.ToTypeKeyword()} is not yet implemented");
                 }
                 else if (expr.Left.TypeReference.IsStringType() && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    throw new NotImplementedInCompiledModeException($"Concatenation between {expr.Left.TypeReference.ClrType.ToTypeKeyword()} and {expr.Right.TypeReference.ClrType.ToTypeKeyword()} is not yet implemented");
+                    // The dereference operator (*) must be used to dereference the std::shared_ptr instance
+                    currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)})");
+                }
+                else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType())
+                {
+                    // The dereference operator (*) must be used to dereference the std::shared_ptr instance
+                    currentMethod.Append($"({leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
                 }
                 else
                 {

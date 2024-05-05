@@ -87,11 +87,38 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
+    std::shared_ptr<const String> ASCIIString::operator+(long rhs) const
+    {
+        std::string str = std::to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = new char[length + 1];
+
+        memcpy((void*)bytes, this->bytes_, this->length_);
+        memcpy((void*)(bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
     char ASCIIString::char_at(int index) const
     {
         // The reason this method exists is that the construct below would be slightly more awkward to generate from
         // PerlangCompiler.cs. It's easier to just add an extra char_at() method call when it visits the Expr.Index
         // expression.
         return (*this)[index];
+    }
+
+    std::shared_ptr<const ASCIIString> operator+(const long lhs, const ASCIIString& rhs)
+    {
+        std::string str = std::to_string(lhs);
+        size_t length = str.length() + rhs.length();
+        char *bytes = new char[length + 1];
+
+        memcpy((void*)bytes, str.c_str(), str.length());
+        memcpy((void*)(bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return ASCIIString::from_owned_string(bytes, length);
     }
 }
