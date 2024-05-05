@@ -66,12 +66,39 @@ namespace perlang
     std::shared_ptr<const String> UTF8String::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = new char[length + 1];
+        char *bytes = new char[length_ + 1];
 
         memcpy((void*)bytes, this->bytes_, this->length_);
         memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const String> UTF8String::operator+(long rhs) const
+    {
+        std::string str = std::to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = new char[length + 1];
+
+        memcpy((void*)bytes, this->bytes_, this->length_);
+        memcpy((void*)(bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const UTF8String> operator+(const long lhs, const UTF8String& rhs)
+    {
+        std::string str = std::to_string(lhs);
+        size_t length = str.length() + rhs.length();
+        char *bytes = new char[length + 1];
+
+        memcpy((void*)bytes, str.c_str(), str.length());
+        memcpy((void*)(bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return UTF8String::from_owned_string(bytes, length);
     }
 }

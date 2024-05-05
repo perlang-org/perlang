@@ -23,6 +23,7 @@ namespace perlang
         // Creates a new ASCIIString from an "owned string", like a string that has been allocated on the heap. The
         // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
+        [[nodiscard]]
         static std::shared_ptr<const UTF8String> from_owned_string(const char* s, size_t length);
 
         // Private constructor for creating a new UTF8String from a C-style string. The `owned` parameter indicates
@@ -57,6 +58,10 @@ namespace perlang
         [[nodiscard]]
         std::shared_ptr<const String> operator+(const String& rhs) const override;
 
+        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(long rhs) const override;
+
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple UTF8String objects pointing to the same `bytes_`, so modifying one of them
@@ -71,4 +76,9 @@ namespace perlang
         // memory from somewhere else, and should not deallocate it.
         bool owned_;
     };
+
+    // Concatenate an int/long+UTF8String. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not a UTF8String.
+    [[nodiscard]]
+    std::shared_ptr<const UTF8String> operator+(long lhs, const UTF8String& rhs);
 }

@@ -24,6 +24,7 @@ namespace perlang
         // Creates a new ASCIIString from an "owned string", like a string that has been allocated on the heap. The
         // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
+        [[nodiscard]]
         static std::shared_ptr<const ASCIIString> from_owned_string(const char* s, size_t length);
 
      private:
@@ -63,6 +64,10 @@ namespace perlang
         [[nodiscard]]
         std::shared_ptr<const String> operator+(const String& rhs) const override;
 
+        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(long rhs) const override;
+
         // Alias for [], which is easier to use from Perlang-generated C++ code in a pointer context.
         [[nodiscard]]
         char char_at(int index) const;
@@ -81,4 +86,9 @@ namespace perlang
         // memory from somewhere else, and should not deallocate it.
         bool owned_;
     };
+
+    // Concatenate an int/long+ASCIIString. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an ASCIIString.
+    [[nodiscard]]
+    std::shared_ptr<const ASCIIString> operator+(long lhs, const ASCIIString& rhs);
 }

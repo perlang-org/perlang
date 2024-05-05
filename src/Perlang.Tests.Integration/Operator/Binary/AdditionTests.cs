@@ -76,7 +76,10 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Message.Should().Match(expectedResult);
         }
 
-        [SkippableFact]
+        // TODO: There's a clear overlap between these tests and the ones in StringTests.cs. We could consider
+        // TODO: removing some of them at some point. OTOH, the tests in StringTests test more complex
+
+        [Fact]
         void addition_of_strings_performs_concatenation()
         {
             string source = @"
@@ -92,11 +95,9 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("foobar");
         }
 
-        [SkippableFact]
+        [Fact]
         void addition_of_integer_and_string_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             // Some interesting notes on how other languages deal with this:
             //
             // Ruby 2.6: Not supported. TypeError (no implicit conversion of Integer into String)
@@ -121,7 +122,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_bigint_and_string_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "bigint+string is not yet supported in compiled mode");
 
             string source = @"
                 var i = 18446744073709551616;
@@ -136,11 +137,9 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("18446744073709551616xyz");
         }
 
-        [SkippableFact]
+        [Fact]
         void addition_of_string_and_integer_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
-
             string source = @"
                 var s = ""abc"";
                 var i = 123;
@@ -157,7 +156,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [SkippableFact]
         void addition_of_string_and_bigint_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "string+bigint is not yet supported in compiled mode");
 
             string source = @"
                 var s = ""abc"";
@@ -176,7 +175,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [ClassData(typeof(TestCultures))]
         async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "float+string is not yet supported in compiled mode");
 
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -197,7 +196,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         [ClassData(typeof(TestCultures))]
         async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+            Skip.If(PerlangMode.ExperimentalCompilation, "string+float is not yet supported in compiled mode");
 
             CultureInfo.CurrentCulture = cultureInfo;
 
