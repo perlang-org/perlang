@@ -17,10 +17,10 @@ set(libtommath_headers
 add_library(
         stdlib
         src/ascii_string.cc
+        src/Base64.cpp
         src/bigint.cpp
         src/bigint_mod.cpp
         src/bigint_pow.cpp
-        src/Base64.cpp
         src/print.cpp
         src/utf8_string.cc
         src/libtommath/bn_cutoffs.c

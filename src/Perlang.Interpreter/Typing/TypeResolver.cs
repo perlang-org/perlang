@@ -127,36 +127,36 @@ namespace Perlang.Interpreter.Typing
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(Lang.String) &&
-                              rightTypeReference.ClrType == typeof(int))) {
+                              new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))) {
                         // "string" + 42
                         expr.TypeReference.ClrType = typeof(Lang.String);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(AsciiString) &&
-                              rightTypeReference.ClrType == typeof(int))) {
+                              new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))) {
                         // "string" + 42
                         expr.TypeReference.ClrType = typeof(AsciiString);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(Utf8String) &&
-                              rightTypeReference.ClrType == typeof(int))) {
+                              new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(rightTypeReference.ClrType))) {
                         // "åäö string" + 42
                         expr.TypeReference.ClrType = typeof(Utf8String);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
-                             (leftTypeReference.ClrType == typeof(int) &&
+                             (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
                               rightTypeReference.ClrType == typeof(Lang.String))) {
                         // 42 + "string"
                         expr.TypeReference.ClrType = typeof(Lang.String);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
-                             (leftTypeReference.ClrType == typeof(int) &&
+                             (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
                               rightTypeReference.ClrType == typeof(AsciiString))) {
                         // 42 + "string" + 42
                         expr.TypeReference.ClrType = typeof(AsciiString);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
-                             (leftTypeReference.ClrType == typeof(int) &&
+                             (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong) }.Contains(leftTypeReference.ClrType) &&
                               rightTypeReference.ClrType == typeof(Utf8String))) {
                         // 42 + "åäö string"
                         expr.TypeReference.ClrType = typeof(Utf8String);

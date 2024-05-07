@@ -60,7 +60,11 @@ namespace perlang
 
         // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::shared_ptr<const String> operator+(long rhs) const override;
+        std::shared_ptr<const String> operator+(int64_t rhs) const override;
+
+        // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(uint64_t rhs) const override;
 
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
@@ -78,7 +82,12 @@ namespace perlang
     };
 
     // Concatenate an int/long+UTF8String. The memory for the new string is allocated from the heap. This is a free
-    // function, since the left-hand side is not a UTF8String.
+    // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    std::shared_ptr<const UTF8String> operator+(long lhs, const UTF8String& rhs);
+    std::shared_ptr<const UTF8String> operator+(int64_t lhs, const UTF8String& rhs);
+
+    // Concatenate a uint/ulong+UTF8String. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an UTF8String.
+    [[nodiscard]]
+    std::shared_ptr<const UTF8String> operator+(uint64_t lhs, const UTF8String& rhs);
 }

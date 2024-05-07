@@ -1545,23 +1545,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         return VoidObject.Void;
     }
 
-    // public VoidObject VisitPreprocessorDirective(Stmt.PreprocessorDirective preprocessorDirective)
-    // {
-    //     if (preprocessorDirective.Type == PreprocessorDirectiveType.Prototypes) {
-    //         cppPrototypes.Add(preprocessorDirective.Content);
-    //     }
-    //     else if (preprocessorDirective.Type == PreprocessorDirectiveType.Methods) {
-    //         cppMethods.Add(preprocessorDirective.Content);
-    //     }
-    //     else {
-    //         throw new PerlangCompilerException(
-    //             $"Unsupported preprocessor directive {preprocessorDirective.Type} encountered"
-    //         );
-    //     }
-    //
-    //     return VoidObject.Void;
-    // }
-
     private static string Indent(int level) => String.Empty.PadLeft(level * 4);
 
     private record Method(string Name, IImmutableList<Parameter> Parameters, string ReturnType, StringBuilder MethodBody)
