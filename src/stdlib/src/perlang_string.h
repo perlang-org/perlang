@@ -1,5 +1,8 @@
 #pragma once
 
+// Forward declaration to avoid circular dependencies
+class BigInt;
+
 namespace perlang
 {
     // Abstract base class for all String types in Perlang
@@ -40,5 +43,9 @@ namespace perlang
         // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         virtual std::shared_ptr<const String> operator+(uint64_t rhs) const = 0;
+
+        // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(const BigInt& rhs) const = 0;
     };
 }

@@ -4,6 +4,9 @@
 
 #include "perlang_string.h"
 
+// Forward declaration to avoid circular dependencies
+class BigInt;
+
 namespace perlang
 {
     // A class for representing immutable ASCII strings.
@@ -15,22 +18,28 @@ namespace perlang
         // running program. We also extend this to presume that the content of the string remains the same during this
         // whole lifetime.
         //
-        // Because of the above assumptions, we know that we can make the new ASCIIString constructed from the `s`
+        // Because of the above assumptions, we know that we can make the new ASCIIString constructed from the `str`
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
         [[nodiscard]]
-        static std::shared_ptr<const ASCIIString> from_static_string(const char* s);
+        static std::shared_ptr<const ASCIIString> from_static_string(const char* str);
 
-        // Creates a new ASCIIString from an "owned string", like a string that has been allocated on the heap. The
+        // Creates a new ASCIIString from an "owned str", like a str that has been allocated on the heap. The
         // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
-        static std::shared_ptr<const ASCIIString> from_owned_string(const char* s, size_t length);
+        static std::shared_ptr<const ASCIIString> from_owned_string(const char* str, size_t length);
+
+        // Creates a new ASCIIString from an existing string, by copying its content to a new buffer allocated on the
+        // heap. The ASCIIString class takes ownership of the newly allocated buffer, which will be deallocated when the
+        // ASCIIString runs out of scope.
+        [[nodiscard]]
+        static std::shared_ptr<const ASCIIString> from_copied_string(const char* str);
 
      private:
-        // Private constructor for creating a new ASCIIString from a C-style string. The `owned` parameter indicates
-        // whether the ASCIIString should take ownership of the memory it points to, and thus be responsible for
-        // deallocating it when it is no longer needed.
+        // Private constructor for creating a new ASCIIString from a C-style (NUL-terminated) string. The `owned`
+        // parameter indicates whether the ASCIIString should take ownership of the memory it points to, and thus be
+        // responsible for deallocating it when it is no longer needed.
         ASCIIString(const char* string, size_t length, bool owned);
 
      public:
@@ -89,6 +98,10 @@ namespace perlang
         // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         std::shared_ptr<const String> operator+(uint64_t rhs) const override;
+
+        // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(const BigInt& rhs) const override;
 
         // Alias for [], which is easier to use from Perlang-generated C++ code in a pointer context.
         [[nodiscard]]

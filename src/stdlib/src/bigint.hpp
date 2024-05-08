@@ -21,13 +21,17 @@
     Definition for the BigInt class.
 */
 
-#ifndef BIG_INT_HPP
-#define BIG_INT_HPP
+#pragma once
+
+#include <cassert>
+#include <memory>
+#include <string>
 
 #include "libtommath/tommath.h"
 
-#include <string>
-#include <cassert>
+#include "ascii_string.h"
+#include "perlang_string.h"
+#include "utf8_string.h"
 
 class BigInt {
     private:
@@ -63,7 +67,17 @@ class BigInt {
         BigInt operator-() const;   // unary -
 
         // Binary arithmetic operators:
+        [[nodiscard]]
         BigInt operator+(const BigInt&) const;
+
+        // Concatenate this BigInt with an ASCIIString. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const perlang::String> operator+(const perlang::ASCIIString&) const;
+
+        // Concatenate this BigInt with a UTF8String. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const perlang::String> operator+(const perlang::UTF8String&) const;
+
         BigInt operator-(const BigInt&) const;
         BigInt operator*(const BigInt&) const;
         BigInt operator/(const BigInt&) const;
@@ -230,5 +244,3 @@ BigInt operator%(const long long& lhs, const BigInt& rhs);
 void eval_multiply(BigInt& t, const BigInt& o);
 void eval_add(BigInt& t, const BigInt& o);
 int eval_get_sign(const BigInt& val);
-
-#endif  // BIG_INT_HPP
