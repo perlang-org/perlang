@@ -347,9 +347,13 @@ MigrationBackup/
 ##
 ## Project-specific ignores
 ##
-src/Perlang.Common/CommonConstants.Generated.cs
+_exported_templates/
 _site/
+.idea/
 docfx/*.dll
 docfx/docfx.exe
 docfx/docfx.exe.config
 lib/
+src/Perlang.Common/CommonConstants.Generated.cs
+src/stdlib/cmake-build-debug/
+src/stdlib/out/

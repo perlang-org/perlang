@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "ascii_string.h"
-#include "bigint.hpp"
+#include "bigint.h"
 
 namespace perlang
 {

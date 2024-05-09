@@ -519,17 +519,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             using (StreamWriter streamWriter = File.CreateText(targetCppFile))
             {
                 // Write standard file header, which includes everything our transpiled code might expect.
-                streamWriter.Write($@"// Automatically generated code by Perlang {CommonConstants.InformationalVersion} at {DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)}
+                streamWriter.Write($"""
+// Automatically generated code by Perlang {CommonConstants.InformationalVersion} at {DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)}
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
 #include <math.h> // fmod()
 #include <memory> // std::shared_ptr
 #include <stdint.h>
 
-#include ""bigint.hpp"" // BigInt
-#include ""stdlib.hpp""
+#include "perlang_stdlib.h"
 
-");
+""");
 
                 if (cppPrototypes.Count > 0) {
                     streamWriter.WriteLine("//");

@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <memory>
 
-#include "bigint.hpp"
+#include "bigint.h"
 #include "utf8_string.h"
 
 namespace perlang

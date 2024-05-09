@@ -1,7 +1,7 @@
 // print.cc - tests for the perlang::print() overloads
 
-#include "src/stdlib.hpp"
-#include "double-conversion//cctest.h"
+#include "src/perlang_stdlib.h"
+#include "double-conversion/cctest.h"
 
 bool fwrite_mocked = false;
 char* captured_output = NULL;

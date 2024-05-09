@@ -1,10 +1,14 @@
 #pragma once
 
+// This is the Perlang standard library entrypoint, which gets included by the Perlang-generated C++ code. All the
+// public API of the Perlang standard library should be defined here, either directly or indirectly (by #including other
+// header files) so that the generated code will find all the necessary definitions.
+
 #include <memory> // std::shared_ptr
 #include <stdint.h>
 
 #include "ascii_string.h"
-#include "bigint.hpp"
+#include "bigint.h"
 #include "perlang_string.h"
 #include "utf8_string.h"
 

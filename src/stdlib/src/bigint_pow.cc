@@ -1,5 +1,5 @@
-#include "bigint.hpp"
-#include "stdlib.hpp"
+#include "bigint.h"
+#include "perlang_stdlib.h"
 
 namespace perlang
 {
