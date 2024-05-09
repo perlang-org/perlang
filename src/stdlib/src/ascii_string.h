@@ -64,6 +64,10 @@ namespace perlang
         [[nodiscard]]
         std::shared_ptr<const String> operator+(const String& rhs) const override;
 
+        // Concatenates this string with another string. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const ASCIIString> operator+(const ASCIIString& rhs) const;
+
         // Concatenates this string with an int32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         inline std::shared_ptr<const String> operator+(int32_t rhs) const override

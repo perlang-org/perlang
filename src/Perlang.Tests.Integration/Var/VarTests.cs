@@ -103,11 +103,9 @@ namespace Perlang.Tests.Integration.Var
             }, output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void in_middle_of_block()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "C++ type for Perlang.Lang.Utf8String not defined, and compilation errors if we fix that");
-
             string source = @"
                 {
                     var a = ""a"";

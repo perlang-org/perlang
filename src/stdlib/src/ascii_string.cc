@@ -80,6 +80,21 @@ namespace perlang
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
 
+        // TODO: This won't work once we bring in UTF16String into the picture.
+        memcpy((void*)bytes, this->bytes_, this->length_);
+        memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
+    {
+        // The alternative to copy-paste here would be to use a bunch of casting.
+
+        size_t length = this->length_ + rhs.length();
+        char *bytes = new char[length + 1];
+
         memcpy((void*)bytes, this->bytes_, this->length_);
         memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
