@@ -171,7 +171,7 @@ namespace Perlang.Interpreter.Typing
                              (leftTypeReference.ClrType == typeof(AsciiString) &&
                               rightTypeReference.ClrType == typeof(AsciiString))) {
                         // "string" + "string"
-                        expr.TypeReference.ClrType = typeof(Utf8String);
+                        expr.TypeReference.ClrType = typeof(AsciiString);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(Utf8String) &&
