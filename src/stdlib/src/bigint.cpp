@@ -17,6 +17,8 @@
 // Extracted from bigint.hpp, to avoid "multiple definition" errors when linking.
 
 #include "bigint.hpp"
+#include "ascii_string.h"
+#include "perlang_string.h"
 
 #include <iostream>
 #include <cmath>
@@ -943,6 +945,16 @@ BigInt BigInt::operator+(const BigInt& num) const
     check_tommath_result(mp_add(&get_data(), const_cast< ::mp_int*>(&num.get_data()), &result.data));
 
     return result;
+}
+
+std::shared_ptr<const perlang::String> BigInt::operator+(const perlang::ASCIIString& rhs) const
+{
+    return *perlang::ASCIIString::from_copied_string(to_string().c_str()) + rhs;
+}
+
+std::shared_ptr<const perlang::String> BigInt::operator+(const perlang::UTF8String& rhs) const
+{
+    return *perlang::UTF8String::from_copied_string(to_string().c_str()) + rhs;
 }
 
 /*

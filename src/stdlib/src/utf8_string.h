@@ -20,15 +20,22 @@ namespace perlang
         [[nodiscard]]
         static std::shared_ptr<const UTF8String> from_static_string(const char* s);
 
-        // Creates a new ASCIIString from an "owned string", like a string that has been allocated on the heap. The
-        // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
+        // Creates a new UTF8String from an "owned string", like a string that has been allocated on the heap. The
+        // ownership of the memory is transferred to the UTF8String, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
         static std::shared_ptr<const UTF8String> from_owned_string(const char* s, size_t length);
 
-        // Private constructor for creating a new UTF8String from a C-style string. The `owned` parameter indicates
-        // whether the UTF8String should take ownership of the memory it points to, and thus be responsible for
-        // deallocating it when it is no longer needed.
+        // Creates a new UTF8String from an existing string, by copying its content to a new buffer allocated on the
+        // heap. The UTF8String class takes ownership of the newly allocated buffer, which will be deallocated when the
+        // UTF8String runs out of scope.
+        [[nodiscard]]
+        static std::shared_ptr<const UTF8String> from_copied_string(const char* str);
+
+     private:
+        // Private constructor for creating a new UTF8String from a C-style (NUL-terminated) string. The `owned`
+        // parameter indicates whether the UTF8String should take ownership of the memory it points to, and thus be
+        // responsible for deallocating it when it is no longer needed.
         UTF8String(const char* string, size_t length, bool owned);
 
      public:
@@ -69,6 +76,10 @@ namespace perlang
         // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         std::shared_ptr<const String> operator+(uint64_t rhs) const override;
+
+        // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        std::shared_ptr<const String> operator+(const BigInt& rhs) const override;
 
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any

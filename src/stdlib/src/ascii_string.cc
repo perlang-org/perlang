@@ -4,27 +4,47 @@
 #include <memory>
 
 #include "ascii_string.h"
+#include "bigint.hpp"
 
 namespace perlang
 {
-    std::shared_ptr<const ASCIIString> ASCIIString::from_static_string(const char* s)
+    std::shared_ptr<const ASCIIString> ASCIIString::from_static_string(const char* str)
     {
-        if (s == nullptr) {
+        if (str == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
         }
 
-        auto result = new ASCIIString(s, strlen(s), false);
+        // Cannot use std::make_shared() since it forces the ASCIIString constructor to be made public.
+        auto result = new ASCIIString(str, strlen(str), false);
 
         return std::shared_ptr<ASCIIString>(result);
     }
 
-    std::shared_ptr<const ASCIIString> ASCIIString::from_owned_string(const char* s, size_t length)
+    std::shared_ptr<const ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
     {
-        if (s == nullptr) {
-            throw std::invalid_argument("string argument cannot be null");
+        if (str == nullptr) {
+            throw std::invalid_argument("str argument cannot be null");
         }
 
-        auto result = new ASCIIString(s, length, true);
+        auto result = new ASCIIString(str, length, true);
+
+        return std::shared_ptr<ASCIIString>(result);
+    }
+
+    std::shared_ptr<const ASCIIString> ASCIIString::from_copied_string(const char* str)
+    {
+        if (str == nullptr) {
+            throw std::invalid_argument("str argument cannot be null");
+        }
+
+        // Create a new buffer and copy the string into it. Since we need to know the length anyway, we can use
+        // memcpy() instead of strcpy() to avoid an extra iteration over the string.
+        size_t length = strlen(str);
+        char* new_str = (char*)malloc(length + 1);
+        memcpy(new_str, str, length);
+        new_str[length] = '\0';
+
+        auto result = new ASCIIString(new_str, length, true);
 
         return std::shared_ptr<ASCIIString>(result);
     }
@@ -39,7 +59,7 @@ namespace perlang
     ASCIIString::~ASCIIString()
     {
         if (owned_) {
-            delete[] bytes_;
+            free((void*)bytes_);
         }
     }
 
@@ -78,11 +98,11 @@ namespace perlang
     std::shared_ptr<const String> ASCIIString::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
         // TODO: This won't work once we bring in UTF16String into the picture.
-        memcpy((void*)bytes, this->bytes_, this->length_);
-        memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
@@ -90,13 +110,14 @@ namespace perlang
 
     std::shared_ptr<const ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
     {
-        // The alternative to copy-paste here would be to use a bunch of casting.
+        // Copy-paste is a bit ugly, but the alternative would perhaps also not be so pretty, calling the above method
+        // and doing some semi-ugly casting of the result.
 
         size_t length = this->length_ + rhs.length();
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
-        memcpy((void*)bytes, this->bytes_, this->length_);
-        memcpy((void*)(bytes + this->length_), rhs.bytes(), rhs.length());
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes + this->length_, rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
@@ -107,10 +128,10 @@ namespace perlang
         std::string str = std::to_string(rhs);
 
         size_t length = str.length() + this->length_;
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
-        memcpy((void*)bytes, this->bytes_, this->length_);
-        memcpy((void*)(bytes + this->length_), str.c_str(), str.length());
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
@@ -121,10 +142,24 @@ namespace perlang
         std::string str = std::to_string(rhs);
 
         size_t length = str.length() + this->length_;
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
-        memcpy((void*)bytes, this->bytes_, this->length_);
-        memcpy((void*)(bytes + this->length_), str.c_str(), str.length());
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
+    {
+        std::string str = rhs.to_string();
+
+        size_t length = str.length() + this->length_;
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
@@ -142,10 +177,10 @@ namespace perlang
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
-        memcpy((void*)bytes, str.c_str(), str.length());
-        memcpy((void*)(bytes + str.length()), rhs.bytes(), rhs.length());
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return ASCIIString::from_owned_string(bytes, length);
@@ -155,10 +190,10 @@ namespace perlang
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
-        char *bytes = new char[length + 1];
+        char *bytes = (char*)malloc(length + 1);
 
-        memcpy((void*)bytes, str.c_str(), str.length());
-        memcpy((void*)(bytes + str.length()), rhs.bytes(), rhs.length());
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return ASCIIString::from_owned_string(bytes, length);

@@ -167,11 +167,9 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("18446744073709551615abc");
         }
 
-        [SkippableFact]
-        void addition_of_bigint_and_string_coerces_number_to_string()
+        [Fact]
+        void addition_of_bigint_and_ascii_string_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "bigint+string is not yet supported in compiled mode");
-
             string source = @"
                 var i = 18446744073709551616;
                 var s = ""xyz"";
@@ -183,6 +181,22 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Should()
                 .Be("18446744073709551616xyz");
+        }
+
+        [Fact]
+        void addition_of_bigint_and_utf8_string_coerces_number_to_string()
+        {
+            string source = """
+                var i = 18446744073709551616;
+                var s = "åäöÅÄÖéèüÜÿŸïÏすし";
+
+                print i + s;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("18446744073709551616åäöÅÄÖéèüÜÿŸïÏすし");
         }
 
         [Fact]
@@ -249,11 +263,9 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("abc18446744073709551615");
         }
 
-        [SkippableFact]
+        [Fact]
         void addition_of_string_and_bigint_coerces_number_to_string()
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "string+bigint is not yet supported in compiled mode");
-
             string source = @"
                 var s = ""abc"";
                 var i = 18446744073709551616;
