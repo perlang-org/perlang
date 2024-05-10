@@ -3,9 +3,9 @@ project(stdlib VERSION 0.1.0)
 
 set(headers
         src/ascii_string.h
-        src/bigint.hpp
+        src/bigint.h
+        src/perlang_stdlib.h
         src/perlang_string.h
-        src/stdlib.hpp
         src/utf8_string.h
         src/double-conversion/utils.h
 )
@@ -17,11 +17,11 @@ set(libtommath_headers
 add_library(
         stdlib
         src/ascii_string.cc
-        src/Base64.cpp
-        src/bigint.cpp
-        src/bigint_mod.cpp
-        src/bigint_pow.cpp
-        src/print.cpp
+        src/Base64.cc
+        src/bigint.cc
+        src/bigint_mod.cc
+        src/bigint_pow.cc
+        src/print.cc
         src/utf8_string.cc
         src/libtommath/bn_cutoffs.c
         src/libtommath/bn_mp_add.c

@@ -16,7 +16,7 @@
 
 // Extracted from bigint.hpp, to avoid "multiple definition" errors when linking.
 
-#include "bigint.hpp"
+#include "bigint.h"
 #include "ascii_string.h"
 #include "perlang_string.h"
 
