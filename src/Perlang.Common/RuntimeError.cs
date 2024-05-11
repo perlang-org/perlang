@@ -15,11 +15,5 @@ namespace Perlang
         {
             Token = token;
         }
-
-        public RuntimeError(Token? token, string message, Exception innerException)
-            : base(message, innerException)
-        {
-            Token = token;
-        }
     }
 }
