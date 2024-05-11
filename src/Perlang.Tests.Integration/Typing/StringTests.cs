@@ -189,11 +189,9 @@ public class StringTests
             .Be("temperature is 85 degrees fahrenheit");
     }
 
-    [SkippableFact]
+    [Fact]
     public void ascii_string_can_be_concatenated_with_double_and_string()
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "string+double is not yet supported in compiled mode");
-
         string source = """
                 var s1: string = "temperature is ";
                 var i: double = 85.2;
@@ -209,11 +207,9 @@ public class StringTests
             .Be("temperature is 85.2 degrees fahrenheit");
     }
 
-    [SkippableFact]
+    [Fact]
     public void utf8_string_can_be_concatenated_with_double_and_ascii_string()
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "string+double is not yet supported in compiled mode");
-
         string source = """
                 var s1: string = "Den årliga medeltemperaturen i Vasa är ";
                 var d: double = 3.4;

@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(stdlib VERSION 0.1.0)
 
 set(headers
         src/ascii_string.h
         src/bigint.h
+        src/internal/string_utils.h
         src/perlang_stdlib.h
         src/perlang_string.h
         src/utf8_string.h

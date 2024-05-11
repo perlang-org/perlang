@@ -44,6 +44,14 @@ namespace perlang
         [[nodiscard]]
         virtual std::shared_ptr<const String> operator+(uint64_t rhs) const = 0;
 
+        // Concatenates this string with a float. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(float rhs) const = 0;
+
+        // Concatenates this string with a double. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        virtual std::shared_ptr<const String> operator+(double rhs) const = 0;
+
         // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         virtual std::shared_ptr<const String> operator+(const BigInt& rhs) const = 0;

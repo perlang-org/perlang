@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "bigint.h"
+#include "internal/string_utils.h"
 #include "utf8_string.h"
 
 namespace perlang
@@ -135,6 +136,34 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
+    std::shared_ptr<const String> UTF8String::operator+(float rhs) const
+    {
+        std::string str = internal::float_to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const String> UTF8String::operator+(double rhs) const
+    {
+        std::string str = internal::double_to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
     std::shared_ptr<const String> UTF8String::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
@@ -165,6 +194,34 @@ namespace perlang
     std::shared_ptr<const UTF8String> operator+(const uint64_t lhs, const UTF8String& rhs)
     {
         std::string str = std::to_string(lhs);
+        size_t length = str.length() + rhs.length();
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return UTF8String::from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const UTF8String> operator+(const float lhs, const UTF8String& rhs)
+    {
+        std::string str = internal::float_to_string(lhs);
+
+        size_t length = str.length() + rhs.length();
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return UTF8String::from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const UTF8String> operator+(const double lhs, const UTF8String& rhs)
+    {
+        std::string str = internal::double_to_string(lhs);
+
         size_t length = str.length() + rhs.length();
         char *bytes = (char*)malloc(length + 1);
 

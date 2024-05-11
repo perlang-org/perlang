@@ -7,20 +7,21 @@
 
 #include "ascii_string.h"
 #include "bigint.h"
+#include "internal/string_utils.h"
 
 namespace perlang
 {
     void print(const String* str)
     {
-        // Safeguard against both `str` and `str->bytes()` potentially returning `null`
         const char* bytes = str != nullptr ? str->bytes() : nullptr;
 
+        // Safeguard against both `str` and `str->bytes()` potentially returning `null`
         if (bytes == nullptr) {
             puts("null");
         }
         else {
-            // For plain strings, there's no need to use the overhead which `printf` induces. `puts` can potentially be a
-            // tiny bit faster.
+            // For C-style (NUL-terminated, char*) strings, there's no need to use the overhead which `printf` induces.
+            // `puts` can potentially be a tiny bit faster.
             puts(bytes);
         }
     }
@@ -82,13 +83,13 @@ namespace perlang
 
     void print(float f)
     {
-        // Use the same precision as on the C# side
-        fmt::println("{:.7G}", f);
+        const std::string& str = internal::float_to_string(f) + "\n";
+        fwrite(str.c_str(), str.length(), 1, stdout);
     }
 
     void print(double d)
     {
-        // Use the same precision as on the C# side
-        fmt::println("{:.15G}", d);
+        const std::string& str = internal::double_to_string(d) + "\n";
+        fwrite(str.c_str(), str.length(), 1, stdout);
     }
 }

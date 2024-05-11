@@ -5,6 +5,7 @@
 
 #include "ascii_string.h"
 #include "bigint.h"
+#include "internal/string_utils.h"
 
 namespace perlang
 {
@@ -151,6 +152,34 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
+    std::shared_ptr<const String> ASCIIString::operator+(float rhs) const
+    {
+        std::string str = internal::float_to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const String> ASCIIString::operator+(double rhs) const
+    {
+        std::string str = internal::double_to_string(rhs);
+
+        size_t length = str.length() + this->length_;
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, this->bytes_, this->length_);
+        memcpy((bytes + this->length_), str.c_str(), str.length());
+        bytes[length] = '\0';
+
+        return from_owned_string(bytes, length);
+    }
+
     std::shared_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
@@ -189,6 +218,34 @@ namespace perlang
     std::shared_ptr<const ASCIIString> operator+(const uint64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
+        size_t length = str.length() + rhs.length();
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return ASCIIString::from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const ASCIIString> operator+(const float lhs, const ASCIIString& rhs)
+    {
+        std::string str = internal::float_to_string(lhs);
+
+        size_t length = str.length() + rhs.length();
+        char *bytes = (char*)malloc(length + 1);
+
+        memcpy(bytes, str.c_str(), str.length());
+        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
+        bytes[length] = '\0';
+
+        return ASCIIString::from_owned_string(bytes, length);
+    }
+
+    std::shared_ptr<const ASCIIString> operator+(const double lhs, const ASCIIString& rhs)
+    {
+        std::string str = internal::double_to_string(lhs);
+
         size_t length = str.length() + rhs.length();
         char *bytes = (char*)malloc(length + 1);
 

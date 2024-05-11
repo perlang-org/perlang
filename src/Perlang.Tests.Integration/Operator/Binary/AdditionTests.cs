@@ -279,20 +279,18 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("abc18446744073709551616");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_float_and_string_coerces_number_to_string(CultureInfo cultureInfo)
+        async Task addition_of_float_and_ascii_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "float+string is not yet supported in compiled mode");
-
             CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
-                var i = 123.45;
-                var s = ""abc"";
+            string source = """
+                var i = 123.45f;
+                var s = "abc";
 
                 print i + s;
-            ";
+                """;
 
             string result = EvalReturningOutputString(source);
 
@@ -300,25 +298,61 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("123.45abc");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        async Task addition_of_float_and_utf8_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
-            Skip.If(PerlangMode.ExperimentalCompilation, "string+float is not yet supported in compiled mode");
-
             CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
-                var s = ""abc"";
-                var i = 123.45;
+            string source = """
+                var i = 123.45f;
+                var s = "abcåäö";
+
+                print i + s;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("123.45abcåäö");
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        async Task addition_of_ascii_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = """
+                var s = "abc";
+                var i = 123.45f;
 
                 print s + i;
-            ";
+                """;
 
             string result = EvalReturningOutputString(source);
 
             result.Should()
                 .Be("abc123.45");
+        }
+
+        [Theory]
+        [ClassData(typeof(TestCultures))]
+        async Task addition_of_utf8_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        {
+            CultureInfo.CurrentCulture = cultureInfo;
+
+            string source = """
+                var s = "abcåäö";
+                var i = 123.45f;
+
+                print s + i;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("abcåäö123.45");
         }
     }
 }
