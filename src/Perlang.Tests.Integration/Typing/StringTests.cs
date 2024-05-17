@@ -109,7 +109,7 @@ public class StringTests
     public void ascii_string_and_utf8_string_variable_can_be_concatenated()
     {
         string source = """
-                var s1: string = "s1";
+                var s1: string = "this is s1";
                 var s2: string = " and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
                 var s3: string = s1 + s2;
 
@@ -119,7 +119,7 @@ public class StringTests
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("s1 and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
+            .Be("this is s1 and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
     }
 
     [Fact]
@@ -136,6 +136,70 @@ public class StringTests
 
         output.Should()
             .Be("this is s1 and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
+    }
+
+    [Fact]
+    public void ascii_string_literal_and_string_variable_can_be_concatenated()
+    {
+        string source = """
+                var s2: string = "s2";
+                var s3 = "s1 and " + s2;
+
+                print(s3);
+                """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("s1 and s2");
+    }
+
+    [Fact]
+    public void string_variable_and_ascii_string_literal_can_be_concatenated()
+    {
+        string source = """
+                var s1: string = "s1";
+                var s3 = s1 + " and s2";
+
+                print(s3);
+                """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("s1 and s2");
+    }
+
+    [Fact]
+    public void utf8_string_literal_and_string_variable_can_be_concatenated()
+    {
+        string source = """
+                var s2: string = "ASCII string";
+                var s3 = "åäöÅÄÖéèüÜÿŸïÏすし and " + s2;
+
+                print(s3);
+                """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("åäöÅÄÖéèüÜÿŸïÏすし and ASCII string");
+    }
+
+    [Fact]
+    public void string_variable_and_utf8_string_literal_can_be_concatenated()
+    {
+        string source = """
+                var s1: string = "ASCII string";
+                var s3 = s1 + " and åäöÅÄÖéèüÜÿŸïÏすし";
+
+                print(s3);
+                """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("ASCII string and åäöÅÄÖéèüÜÿŸïÏすし");
     }
 
     [Fact]

@@ -126,6 +126,18 @@ namespace Perlang.Interpreter.Typing
                         expr.TypeReference.ClrType = typeof(Lang.String);
                     }
                     else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(AsciiString) &&
+                              rightTypeReference.ClrType == typeof(Lang.String))) {
+                        // "string" literal + string_variable
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
+                             (leftTypeReference.ClrType == typeof(Utf8String) &&
+                              rightTypeReference.ClrType == typeof(Lang.String))) {
+                        // "åäö string" literal + string_variable
+                        expr.TypeReference.ClrType = typeof(Lang.String);
+                    }
+                    else if (expr.Operator.Type == TokenType.PLUS &&
                              (leftTypeReference.ClrType == typeof(Lang.String) &&
                               new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger), typeof(float), typeof(double) }.Contains(rightTypeReference.ClrType))) {
                         // "string" + 42
