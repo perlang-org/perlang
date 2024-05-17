@@ -36,22 +36,24 @@ public class StringIndexing
             .Contain("Index 10 is out-of-bounds for a string with length 6");
     }
 
-    [Fact(Skip = "Not yet supported for UTF8String")]
-    public void UTF8String_indexed_outside_string_returns_expected_error()
+    [Fact]
+    public void UTF8String_indexing_emits_validation_error()
     {
+        // This doesn't work, because strings with non-ASCII characters becomes UTF8Strings. And think about it. What
+        // would indexing a UTF8String mean? It doesn't really "mean" anything. One interesting thing to work around this
+        // would be to convert the string to UTF-16 internally, the first time it is attempted to be indexed. But we need
+        // a length() method which returns the number of UTF-16 code units, in that case. See
+        // https://github.com/perlang-org/perlang/issues/370 for some discussion around this.
         string source = """
-            print "åäöÅÄÖéèüÜÿŸïÏすし"[10];
+            print "åäöÅÄÖéèüÜÿŸïÏすし"[0];
             """;
 
-        var result = EvalWithRuntimeErrorCatch(source);
+        var result = EvalWithValidationErrorCatch(source);
 
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("exited with exit code 134");
-
-        result.OutputAsString.Should()
-            .Contain("Index 10 is out-of-bounds for a string with length 6");
+            .Message.Should().Contain("operation not supported");
     }
 
     [SkippableFact]
