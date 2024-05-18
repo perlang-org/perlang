@@ -524,7 +524,7 @@ namespace Perlang.Parser
             switch (startDirective) {
                 case "c++-prototypes":
                 {
-                    while (Peek() != '#' && PeekNext() != '/' && !IsAtEnd()) {
+                    while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
                         Advance();
                     }
 
@@ -557,7 +557,7 @@ namespace Perlang.Parser
 
                 case "c++-methods":
                 {
-                    while (Peek() != '#' && PeekNext() != '/' && !IsAtEnd()) {
+                    while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
                         Advance();
                     }
 
