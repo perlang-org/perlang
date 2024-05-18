@@ -53,7 +53,7 @@ namespace Perlang.Tests.Integration.InlineCpp
             // TODO: `extern fun native_method(): void;`. This is probably the "easiest" way out of this. As a workaround
             // TODO: for now, we could skip this test and add another test method which just has a C++ `main` function
             // TODO: which prints a message as step 1. We can then fix `extern` in a separate PR.
-            string source = @"
+            string source = """
                 #c++-prototypes
                 static void cpp_method();
                 #/c++prototypes
@@ -71,12 +71,32 @@ namespace Perlang.Tests.Integration.InlineCpp
                     puts(""cpp_method output"");
                 }
                 #/c++methods
-            ";
+                """;
 
             var output = EvalReturningOutput(source);
 
             output.Should()
                 .Equal("cpp_method output");
+        }
+
+        [Fact(DisplayName = "C++ method can contain C++ comment")]
+        public void cpp_method_can_contain_cpp_comment()
+        {
+            string source = """
+                #c++-methods
+                void native_main(int argc, const char **argv)
+                {
+                    // TODO: range check
+                    const char* first_argument = argv[0];
+                }
+                #/c++-methods
+                """;
+
+            // The above code used to give a 'Expected '/c++-methods' but got '// TODO: range check'.' error.
+            var result = EvalWithParseErrorCatch(source);
+
+            result.Errors.Should()
+                .BeEmpty();
         }
     }
 }
