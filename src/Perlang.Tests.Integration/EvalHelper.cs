@@ -76,6 +76,7 @@ namespace Perlang.Tests.Integration
                     result.Value = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         CompilerFlags.None,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
@@ -135,6 +136,7 @@ namespace Perlang.Tests.Integration
                     result.Value = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         CompilerFlags.None,
                         result.ErrorHandler,
                         AssertFailParseErrorHandler,
@@ -191,6 +193,7 @@ namespace Perlang.Tests.Integration
                     result.Value = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         CompilerFlags.None,
                         AssertFailScanErrorHandler,
                         result.ErrorHandler,
@@ -246,6 +249,7 @@ namespace Perlang.Tests.Integration
                     result.Value = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         CompilerFlags.None,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
@@ -301,6 +305,7 @@ namespace Perlang.Tests.Integration
                     result.Value = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         CompilerFlags.None,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
@@ -381,6 +386,7 @@ namespace Perlang.Tests.Integration
                     result.ExecutablePath = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
+                        targetPath: null,
                         compilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
