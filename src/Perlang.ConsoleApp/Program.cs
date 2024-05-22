@@ -92,6 +92,7 @@ namespace Perlang.ConsoleApp
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
             var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");
+            var outputOption = new Option<string>("-o", "Output file name. In normal mode, this controls the name of the executable. In compile-and-assemble mode, this controls the name of the .o file.") { ArgumentHelpName = "output" };
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
 
@@ -115,6 +116,7 @@ namespace Perlang.ConsoleApp
                 versionOption,
                 detailedVersionOption,
                 compileAndAssembleOnlyOption,
+                outputOption,
                 printOption,
                 noWarnAsErrorOption
             };
@@ -178,6 +180,7 @@ namespace Perlang.ConsoleApp
                     else if (parseResult.HasOption(compileAndAssembleOnlyOption))
                     {
                         string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
+                        string? outputFileName = parseResult.GetValueForOption(outputOption);
 
                         var program = new Program(
                             replMode: false,
@@ -186,12 +189,13 @@ namespace Perlang.ConsoleApp
                             experimentalCompilation: PerlangMode.ExperimentalCompilation
                         );
 
-                        int result = program.CompileAndAssembleFile(scriptName);
+                        int result = program.CompileAndAssembleFile(scriptName, outputFileName);
                         return Task.FromResult(result);
                     }
                     else
                     {
                         string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
+                        string? outputFileName = parseResult.GetValueForOption(outputOption);
                         int result;
 
                         if (parseResult.Tokens.Count == 1)
@@ -203,7 +207,7 @@ namespace Perlang.ConsoleApp
                                 experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
 
-                            result = program.RunFile(scriptName);
+                            result = program.RunFile(scriptName, outputFileName);
                         }
                         else
                         {
@@ -217,7 +221,7 @@ namespace Perlang.ConsoleApp
                                 experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
 
-                            result = program.RunFile(scriptName);
+                            result = program.RunFile(scriptName, outputFileName);
                         }
 
                         return Task.FromResult(result);
@@ -271,7 +275,7 @@ namespace Perlang.ConsoleApp
             );
         }
 
-        private int RunFile(string path)
+        private int RunFile(string path, string? outputPath)
         {
             if (!File.Exists(path))
             {
@@ -279,10 +283,10 @@ namespace Perlang.ConsoleApp
                 return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
-            var bytes = File.ReadAllBytes(path);
+            byte[] bytes = File.ReadAllBytes(path);
             string source = Encoding.UTF8.GetString(bytes);
 
-            CompileAndRun(source, path, CompilerWarning);
+            CompileAndRun(source, path, outputPath, CompilerWarning);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -298,7 +302,7 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private int CompileAndAssembleFile(string path)
+        private int CompileAndAssembleFile(string path, string? targetPath)
         {
             if (!File.Exists(path))
             {
@@ -306,10 +310,10 @@ namespace Perlang.ConsoleApp
                 return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
-            var bytes = File.ReadAllBytes(path);
+            byte[] bytes = File.ReadAllBytes(path);
             string source = Encoding.UTF8.GetString(bytes);
 
-            CompileAndAssemble(source, path, CompilerWarning);
+            CompileAndAssemble(source, path, targetPath, CompilerWarning);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -327,14 +331,14 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private void CompileAndRun(string source, string path, CompilerWarningHandler compilerWarningHandler)
+        private void CompileAndRun(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler)
         {
-            compiler.CompileAndRun(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            compiler.CompileAndRun(source, path, targetPath, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
-        private void CompileAndAssemble(string source, string path, CompilerWarningHandler compilerWarningHandler)
+        private void CompileAndAssemble(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler)
         {
-            compiler.CompileAndAssemble(source, path, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            compiler.CompileAndAssemble(source, path, targetPath, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ParseAndPrint(string source)

@@ -201,7 +201,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// Compiles the given Perlang program to an executable, and runs the executable afterwards.
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
-    /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="path">The path to the source file.</param>
+    /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
+    /// on the source path.</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
@@ -214,6 +216,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     public string? CompileAndRun(
         string source,
         string path,
+        string? targetPath,
         CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
         ParseErrorHandler parseErrorHandler,
@@ -225,6 +228,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         string? executablePath = Compile(
             source,
             path,
+            targetPath,
             compilerFlags,
             scanErrorHandler,
             parseErrorHandler,
@@ -279,7 +283,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// Compiles and assembles the given Perlang program to a .o file (ELF object file).
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
-    /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="path">The path to the source file.</param>
+    /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
+    /// on the source path.</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
@@ -292,6 +298,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     public string? CompileAndAssemble(
         string source,
         string path,
+        string? targetPath,
         CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
         ParseErrorHandler parseErrorHandler,
@@ -303,6 +310,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         string? executablePath = Compile(
             source,
             path,
+            targetPath,
             compilerFlags,
             scanErrorHandler,
             parseErrorHandler,
@@ -320,7 +328,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// Compiles the given Perlang program to an executable.
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
-    /// <param name="path">The path to the source file (used for generating error messages).</param>
+    /// <param name="path">The path to the source file.</param>
+    /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
+    /// on the source path.</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
@@ -334,6 +344,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     private string? Compile(
         string source,
         string path,
+        string? targetPath,
         CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
         ParseErrorHandler parseErrorHandler,
@@ -347,9 +358,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
 #if _WINDOWS
         // clang is very unlikely to have been available on Windows anyway, but why not...
-        string targetExecutable = Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "obj" : "exe");
+        string targetExecutable = targetPath ?? Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "obj" : "exe");
 #else
-        string targetExecutable = Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "o" : null);
+        string targetExecutable = targetPath ?? Path.ChangeExtension(targetCppFile, compileAndAssembleOnly ? "o" : null);
 #endif
 
         // TODO: Check the creation time of *all* dependencies here, including the stdlib (both .so/.dll and .h files
