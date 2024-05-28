@@ -17,7 +17,7 @@ At the same time, these concepts (functions, classes<sup>1</sup>, type-parametri
 
 Similarly, we refuse to prematurely force the user to decide whether to use one of the following:
 
-- a "scripting-based" ("rapid prototyping") language, which a great "edit-run" cycle, often at the cost of inferior performance and a weaker (dynamically typed) type system
+- a "scripting-based" ("rapid prototyping") language, with a great "edit-run" cycle, often at the cost of inferior performance and a weaker (dynamically typed) type system
 - a "general-purpose object-oriented language" like Java, C# or Go (which tries to strike a balance in most tradeoffs between e.g. performance and programmer productivity)
 - a "system programming language" like Rust, C or C++, with great performance and features necessary for proper "bare-metal" support
 
