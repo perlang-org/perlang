@@ -92,6 +92,7 @@ namespace Perlang.ConsoleApp
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
             var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");
+            var idempotentOption = new Option<bool>("--idempotent", "Run in idempotent mode, where the output is deterministic and reproducible. This avoids timestamps and other variadic data in the output.");
             var outputOption = new Option<string>("-o", "Output file name. In normal mode, this controls the name of the executable. In compile-and-assemble mode, this controls the name of the .o file.") { ArgumentHelpName = "output" };
             var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
@@ -116,6 +117,7 @@ namespace Perlang.ConsoleApp
                 versionOption,
                 detailedVersionOption,
                 compileAndAssembleOnlyOption,
+                idempotentOption,
                 outputOption,
                 printOption,
                 noWarnAsErrorOption
@@ -157,6 +159,12 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(0);
                     }
 
+                    if (parseResult.HasOption(idempotentOption) && !parseResult.HasOption(compileAndAssembleOnlyOption))
+                    {
+                        Console.Error.WriteLine("ERROR: The --idempotent option can only be used together with the -c option");
+                        return Task.FromResult(1);
+                    }
+
                     if (parseResult.HasOption(printOption))
                     {
                         string source = parseResult.GetValueForOption(printOption)!;
@@ -181,6 +189,7 @@ namespace Perlang.ConsoleApp
                     {
                         string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
                         string? outputFileName = parseResult.GetValueForOption(outputOption);
+                        bool idempotent = parseResult.GetValueForOption(idempotentOption);
 
                         var program = new Program(
                             replMode: false,
@@ -189,7 +198,7 @@ namespace Perlang.ConsoleApp
                             experimentalCompilation: PerlangMode.ExperimentalCompilation
                         );
 
-                        int result = program.CompileAndAssembleFile(scriptName, outputFileName);
+                        int result = program.CompileAndAssembleFile(scriptName, outputFileName, idempotent);
                         return Task.FromResult(result);
                     }
                     else
@@ -302,7 +311,7 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private int CompileAndAssembleFile(string path, string? targetPath)
+        private int CompileAndAssembleFile(string path, string? targetPath, bool idempotent)
         {
             if (!File.Exists(path))
             {
@@ -313,7 +322,7 @@ namespace Perlang.ConsoleApp
             byte[] bytes = File.ReadAllBytes(path);
             string source = Encoding.UTF8.GetString(bytes);
 
-            CompileAndAssemble(source, path, targetPath, CompilerWarning);
+            CompileAndAssemble(source, path, targetPath, CompilerWarning, idempotent);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -336,9 +345,9 @@ namespace Perlang.ConsoleApp
             compiler.CompileAndRun(source, path, targetPath, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
-        private void CompileAndAssemble(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler)
+        private void CompileAndAssemble(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler, bool idempotent)
         {
-            compiler.CompileAndAssemble(source, path, targetPath, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            compiler.CompileAndAssemble(source, path, targetPath, CompilerFlags.None | (idempotent ? CompilerFlags.Idempotent : 0), ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ParseAndPrint(string source)

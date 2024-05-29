@@ -527,11 +527,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             // The AST traverser writes its output to the transpiledSource field.
             Compile(statements);
 
-            using (StreamWriter streamWriter = File.CreateText(targetCppFile))
-            {
+            using (StreamWriter streamWriter = File.CreateText(targetCppFile)) {
+                string headerLine;
+
+                if (compilerFlags.HasFlag(CompilerFlags.Idempotent)) {
+                    headerLine = "Automatically generated code by Perlang";
+                }
+                else {
+                    headerLine = $"Automatically generated code by Perlang {CommonConstants.InformationalVersion} at {DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)}";
+                }
+
                 // Write standard file header, which includes everything our transpiled code might expect.
                 streamWriter.Write($"""
-// Automatically generated code by Perlang {CommonConstants.InformationalVersion} at {DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)}
+// {headerLine}
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
 #include <math.h> // fmod()
