@@ -43,7 +43,9 @@ namespace Perlang
             clrType = value;
         }
 
-        public bool? IsArray => clrType?.IsArray;
+        private readonly bool isArray;
+
+        public bool IsArray => clrType?.IsArray ?? isArray;
 
         public string CppType =>
             clrType switch
@@ -136,9 +138,11 @@ namespace Perlang
         /// specifier can be null, in which case type inference will be attempted.
         /// </summary>
         /// <param name="typeSpecifier">The token providing the type specifier (e.g. 'int' or 'string').</param>
-        public TypeReference(Token? typeSpecifier)
+        /// <param name="isArray">Whether the type is an array or not.</param>
+        public TypeReference(Token? typeSpecifier, bool isArray)
         {
             TypeSpecifier = typeSpecifier;
+            this.isArray = isArray;
         }
 
         /// <summary>

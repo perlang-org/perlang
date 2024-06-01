@@ -386,7 +386,7 @@ namespace Perlang.Interpreter.NameResolution
             foreach (Parameter param in function.Parameters)
             {
                 Declare(param.Name);
-                Define(param.Name, new TypeReference(param.TypeSpecifier));
+                Define(param.Name, new TypeReference(param.TypeSpecifier, param.IsArray));
             }
 
             Resolve(function.Body);
