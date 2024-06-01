@@ -438,7 +438,7 @@ namespace Perlang.Interpreter.NameResolution
                 Resolve(stmt.Initializer);
             }
 
-            Define(stmt.Name, stmt.TypeReference ?? new TypeReference(stmt.Name));
+            Define(stmt.Name, stmt.TypeReference);
 
             return VoidObject.Void;
         }

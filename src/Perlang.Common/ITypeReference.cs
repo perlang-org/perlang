@@ -15,6 +15,11 @@ namespace Perlang
         Type? ClrType { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this type represents an array type, e.g. `string[]` or `int[]`.
+        /// </summary>
+        bool? IsArray { get; }
+
+        /// <summary>
         /// Gets the C++ type that this <see cref="ITypeReference"/> refers to.
         /// </summary>
         string CppType { get; }

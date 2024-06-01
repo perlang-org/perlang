@@ -43,10 +43,14 @@ namespace Perlang
             clrType = value;
         }
 
+        public bool? IsArray => clrType?.IsArray;
+
         public string CppType =>
             clrType switch
             {
-                // TODO: Add the other Perlang-supported types as well
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // Value types
                 var t when t == typeof(Int32) => "int32_t",
                 var t when t == typeof(UInt32) => "uint32_t",
                 var t when t == typeof(Int64) => "int64_t",
@@ -55,8 +59,12 @@ namespace Perlang
                 var t when t == typeof(Double) => "double",
                 var t when t == typeof(bool) => "bool",
                 var t when t == typeof(void) => "void",
+
+                // Arrays of value types
+                var t when t == typeof(Int32[]) => "perlang::IntArray",
+
+                // Reference types
                 var t when t == typeof(BigInteger) => "BigInt",
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
                 // TODO: Handle UTF-8 strings here too
                 var t when t.FullName == "Perlang.Lang.AsciiString" => "perlang::ASCIIString",
@@ -68,7 +76,9 @@ namespace Perlang
         public string PossiblyWrappedCppType =>
             clrType switch
             {
-                // TODO: Add the other Perlang-supported types as well
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // Value types
                 var t when t == typeof(Int32) => "int32_t",
                 var t when t == typeof(UInt32) => "uint32_t",
                 var t when t == typeof(Int64) => "int64_t",
@@ -77,8 +87,14 @@ namespace Perlang
                 var t when t == typeof(Double) => "double",
                 var t when t == typeof(bool) => "bool",
                 var t when t == typeof(void) => "void",
+
+                // Arrays of value types
+                var t when t == typeof(Int32[]) => "std::shared_ptr<const perlang::IntArray>",
+
+                // Reference types. BigInt is the outlier here, since it's actually used as a value type. This could
+                // actually be one reason why the performance of using our BigInts are so bad; there may be implicit
+                // copying happening behind the scenes.
                 var t when t == typeof(BigInteger) => "BigInt",
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
 
                 // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
                 // long-term solution, see https://github.com/perlang-org/perlang/issues/378.
@@ -92,6 +108,9 @@ namespace Perlang
         public bool CppWrapInSharedPtr =>
             clrType switch
             {
+                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // Value types
                 var t when t == typeof(Int32) => false,
                 var t when t == typeof(UInt32) => false,
                 var t when t == typeof(Int64) => false,
@@ -101,7 +120,9 @@ namespace Perlang
                 var t when t == typeof(bool) => false,
                 var t when t == typeof(void) => false,
                 var t when t == typeof(BigInteger) => true,
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+
+                // Arrays of value types
+                var t when t == typeof(Int32[]) => true,
 
                 // TODO: Handle UTF-8 strings here too
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,

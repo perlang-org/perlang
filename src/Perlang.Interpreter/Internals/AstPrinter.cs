@@ -67,6 +67,11 @@ namespace Perlang.Interpreter.Internals
             return Parenthesize("group", expr.Expression);
         }
 
+        public string VisitCollectionInitializerExpr(Expr.CollectionInitializer expr)
+        {
+            return Parenthesize("collection", expr.Elements.ToArray());
+        }
+
         public string VisitLiteralExpr(Expr.Literal expr)
         {
             if (expr.Value == null)

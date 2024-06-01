@@ -1211,6 +1211,36 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         return VoidObject.Void;
     }
 
+    public object? VisitCollectionInitializerExpr(Expr.CollectionInitializer collectionInitializer)
+    {
+        currentMethod.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType}>(");
+
+        // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
+        // to guess the correct type for us.
+        if (collectionInitializer.TypeReference.CppType == "perlang::IntArray") {
+            currentMethod.Append("std::initializer_list<int32_t> ");
+        }
+        else {
+            throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.ClrType.ToTypeKeyword()} is not supported for collection initializers");
+        }
+
+        currentMethod.Append('{');
+
+        for (int index = 0; index < collectionInitializer.Elements.Count; index++) {
+            Expr element = collectionInitializer.Elements[index];
+            element.Accept(this);
+
+            if (index < collectionInitializer.Elements.Count - 1) {
+                currentMethod.Append(", ");
+            }
+        }
+
+        currentMethod.Append('}');
+        currentMethod.Append(')');
+
+        return VoidObject.Void;
+    }
+
     public object VisitLiteralExpr(Expr.Literal expr)
     {
         if (expr.Value is AsciiString)

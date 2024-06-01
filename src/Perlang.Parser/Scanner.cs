@@ -465,7 +465,7 @@ namespace Perlang.Parser
 
             // Note that numbers are not parsed at this stage. We deliberately postpone it to the parsing stage, to be
             // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
-            // from Lox) worked poorly with our idea of "narrowing down" constants to smallest possible integer. See
+            // from Lox) worked poorly with our idea of "narrowing down" constants to the smallest possible integer. See
             // #302 for some more details.
             AddToken(new NumericToken(source[start..current], line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
         }

@@ -4,6 +4,7 @@ project(stdlib VERSION 0.1.0)
 set(headers
         src/ascii_string.h
         src/bigint.h
+        src/int_array.h
         src/internal/string_utils.h
         src/perlang_stdlib.h
         src/perlang_string.h
@@ -22,6 +23,7 @@ add_library(
         src/bigint.cc
         src/bigint_mod.cc
         src/bigint_pow.cc
+        src/int_array.cc
         src/print.cc
         src/utf8_string.cc
         src/libtommath/bn_cutoffs.c

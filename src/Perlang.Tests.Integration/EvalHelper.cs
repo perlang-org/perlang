@@ -513,8 +513,9 @@ namespace Perlang.Tests.Integration
 
         private static void AssertFailParseErrorHandler(ParseError parseError)
         {
-            // Note: does not contain stack trace, so no point in wrapping in Exception() at this point.
-            throw parseError;
+            // Note: does not contain stack trace, but wrapping in Exception here means we can use the ToString() method
+            // which provides valuable debugging information to the caller.
+            throw new Exception(parseError.ToString());
         }
 
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
