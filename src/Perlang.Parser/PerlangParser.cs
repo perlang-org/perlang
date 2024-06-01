@@ -370,10 +370,14 @@ namespace Perlang.Parser
             // Support optional typing on this form:
             // var s: String;
             Token typeSpecifier = null;
+            bool isArray = false;
 
             if (Match(COLON))
             {
                 typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+                if (IsAtArray())
+                    isArray = true;
             }
 
             Expr initializer = null;
@@ -388,7 +392,7 @@ namespace Perlang.Parser
                 Consume(SEMICOLON, "Expect ';' after variable declaration.");
             }
 
-            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier));
+            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, isArray));
         }
 
         private Stmt WhileStatement()
@@ -446,15 +450,19 @@ namespace Perlang.Parser
                     BlockReservedIdentifiers(parameterName);
 
                     Token parameterTypeSpecifier = null;
+                    bool isArray = false;
 
                     // Parameters can optionally use a specific type. If the type is not provided, the compiler will
                     // try to infer the type based on the usage.
                     if (Match(COLON))
                     {
                         parameterTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+                        if (IsAtArray())
+                            isArray = true;
                     }
 
-                    parameters.Add(new Parameter(parameterName, new TypeReference(parameterTypeSpecifier)));
+                    parameters.Add(new Parameter(parameterName, new TypeReference(parameterTypeSpecifier, isArray)));
                 }
                 while (Match(COMMA));
             }
@@ -462,6 +470,7 @@ namespace Perlang.Parser
             Consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
             Token returnTypeSpecifier = null;
+            bool isReturnTypeArray = false;
 
             if (Match(COLON))
             {
@@ -477,13 +486,16 @@ namespace Perlang.Parser
                 else
                 {
                     returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+                    if (IsAtArray())
+                        isReturnTypeArray = true;
                 }
             }
 
             Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
             List<Stmt> body = Block();
 
-            return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier));
+            return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier, isReturnTypeArray));
         }
 
         private List<Stmt> Block()
@@ -906,6 +918,25 @@ namespace Perlang.Parser
             Peek().Type == EOF;
 
         /// <summary>
+        /// Are we currently at an `[]` array specifier? (appendix used in type specifiers like `string[]` and so forth).
+        /// </summary>
+        /// <returns>`true` if we are currently at an `[]` specifier, `false` otherwise.</returns>
+        private bool IsAtArray()
+        {
+            if (Peek().Type == LEFT_SQUARE_BRACKET && PeekNext().Type == RIGHT_SQUARE_BRACKET) {
+                // Skip over the brackets
+                Advance();
+                Advance();
+
+                // This is a array definition, e.g. "a[]". We include this in the type reference.
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Returns the token at the current position.
         /// </summary>
         /// <returns>A token.</returns>
@@ -913,6 +944,16 @@ namespace Perlang.Parser
         private Token Peek()
         {
             return tokens[current];
+        }
+
+        private Token PeekNext()
+        {
+            if (tokens.Count > current + 1) {
+                return tokens[current + 1];
+            }
+            else {
+                throw new InvalidOperationException("No more tokens available");
+            }
         }
 
         /// <summary>

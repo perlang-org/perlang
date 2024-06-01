@@ -20,7 +20,7 @@ namespace perlang
     int IntArray::operator[](size_t index) const
     {
         if (index >= length_) {
-            throw std::out_of_range("index out of range");
+            throw std::out_of_range("index out of range (" + std::to_string(index) + " > " + std::to_string(length_ - 1) + ")");
         }
 
         return arr_[index];
