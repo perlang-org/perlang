@@ -498,7 +498,7 @@ namespace Perlang.Interpreter.Typing
 
             switch (type)
             {
-                // TODO: Remove once the migration to AsciiString and Utf8String is complete
+                // TODO: This code path is still used when indexing e.g. Libc.environ() (which is a Dictionary<string, string>)
                 case { } when type == typeof(string):
                     if (!argumentType.IsAssignableTo(typeof(int)))
                     {

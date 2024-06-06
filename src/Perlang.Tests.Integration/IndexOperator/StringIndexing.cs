@@ -7,7 +7,29 @@ namespace Perlang.Tests.Integration.IndexOperator;
 public class StringIndexing
 {
     [Fact]
-    public void ASCIIString_can_be_indexed_by_integer()
+    public void string_variable_indexing_emits_validation_error()
+    {
+        // As for UTF-8 strings, this cannot work because we don't *know* whether a `string` variable can be indexed or
+        // not; it could be a UTF-8 string. However, this uglifies the language _significantly_ to the point where I'm
+        // even considering changing `UTF8String` to not be a `string`... It is perhaps best to treat it as its own
+        // animal, and just make it easy to convert to/from `UTF16String` when needed. The really sad part about this
+        // though is that it hampers the usage of UTF-8 strings in Perlang greatly...
+        string source = """
+            var s: string;
+            s = "foobar";
+            print s[1];
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("operation not supported");
+    }
+
+    [Fact]
+    public void ASCIIString_literal_can_be_indexed_by_integer()
     {
         string source = """
             print "foobar"[0];
@@ -19,7 +41,7 @@ public class StringIndexing
     }
 
     [Fact]
-    public void ASCIIString_indexed_outside_string_returns_expected_error()
+    public void ASCIIString_literal_indexed_outside_string_returns_expected_error()
     {
         string source = """
             print "foobar"[10];
