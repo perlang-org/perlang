@@ -10,10 +10,9 @@ namespace Perlang
         Token? TypeSpecifier { get; }
 
         /// <summary>
-        /// Gets or sets the CLR/.NET type that this <see cref="ITypeReference"/> refers to.
+        /// Gets the CLR/.NET type that this <see cref="ITypeReference"/> refers to.
         /// </summary>
-        // TODO: Remove setter to make this interface and class be fully immutable, for debuggability.
-        Type? ClrType { get; set; }
+        Type? ClrType { get; }
 
         /// <summary>
         /// Gets the C++ type that this <see cref="ITypeReference"/> refers to.
@@ -84,5 +83,15 @@ namespace Perlang
 
                 _ => false
             };
+
+        /// <summary>
+        /// Sets the ClrType for the type reference. This method is typically called when type inference is performed.
+        /// </summary>
+        /// <remarks>This method may only be called a single time for a given <see cref="ITypeReference"/> instance.
+        /// Calling it multiple times will emit an exception.</remarks>
+        /// <param name="value">The new CLR (.NET) type for this type reference.</param>
+        /// <exception cref="ArgumentException">The method is called when <see cref="ClrType"/> has already been
+        /// set.</exception>
+        void SetClrType(Type? value);
     }
 }
