@@ -196,7 +196,7 @@ namespace Perlang.Interpreter.Internals
 
         public string VisitVarStmt(Stmt.Var stmt)
         {
-            if (!stmt.HasInitializer)
+            if (stmt.Initializer == null)
             {
                 return Parenthesize2("var", stmt.Name);
             }

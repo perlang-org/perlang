@@ -150,12 +150,10 @@ namespace Perlang
         public class Var : Stmt
         {
             public Token Name { get; }
-            public Expr Initializer { get; }
+            public Expr? Initializer { get; }
             public ITypeReference TypeReference { get; }
 
-            public bool HasInitializer => Initializer != null;
-
-            public Var(Token name, Expr initializer, TypeReference typeReference)
+            public Var(Token name, Expr? initializer, TypeReference typeReference)
             {
                 Name = name;
                 Initializer = initializer;

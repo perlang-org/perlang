@@ -1542,7 +1542,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         currentMethod.Append($"{Indent(indentationLevel)}{stmt.TypeReference.PossiblyWrappedCppType} {variableName}");
 
-        if (stmt.HasInitializer)
+        if (stmt.Initializer != null)
         {
             currentMethod.AppendLine($" = {stmt.Initializer.Accept(this)};");
         }

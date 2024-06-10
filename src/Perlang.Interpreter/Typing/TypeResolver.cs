@@ -777,7 +777,7 @@ namespace Perlang.Interpreter.Typing
 
             if (!stmt.TypeReference.IsResolved &&
                 !stmt.TypeReference.ExplicitTypeSpecified &&
-                stmt.HasInitializer)
+                stmt.Initializer != null)
             {
                 // An explicit type has not been provided. Try inferring it from the type of value provided.
                 stmt.TypeReference.ClrType = stmt.Initializer.TypeReference.ClrType;
