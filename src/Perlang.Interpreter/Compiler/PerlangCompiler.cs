@@ -837,8 +837,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 break;
 
             case BANG_EQUAL:
-                if (expr.Left.TypeReference.IsStringType() && expr.Left.TypeReference.CppWrapInSharedPtr &&
-                    expr.Right.TypeReference.IsStringType() && expr.Right.TypeReference.CppWrapInSharedPtr)
+                if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                    expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 != *s2
                     currentMethod.Append($"*{expr.Left.Accept(this)} != *{expr.Right.Accept(this)}");
@@ -851,8 +851,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 break;
 
             case EQUAL_EQUAL:
-                if (expr.Left.TypeReference.IsStringType() && expr.Left.TypeReference.CppWrapInSharedPtr &&
-                    expr.Right.TypeReference.IsStringType() && expr.Right.TypeReference.CppWrapInSharedPtr)
+                if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                    expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 == *s2
                     currentMethod.Append($"*{expr.Left.Accept(this)} == *{expr.Right.Accept(this)}");
@@ -940,18 +940,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 {
                     currentMethod.Append($"{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)}");
                 }
-                else if (expr.Left.TypeReference.IsStringType() && expr.Right.TypeReference.IsStringType())
+                else if (expr.Left.TypeReference.IsStringType && expr.Right.TypeReference.IsStringType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instances
                     // Parentheses required to workaround "indirection requires pointer operand" errors in the C++ compilation
                     currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
                 }
-                else if (expr.Left.TypeReference.IsStringType() && expr.Right.TypeReference.IsValidNumberType)
+                else if (expr.Left.TypeReference.IsStringType && expr.Right.TypeReference.IsValidNumberType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instance
                     currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)})");
                 }
-                else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType())
+                else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instance
                     currentMethod.Append($"({leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
@@ -1184,7 +1184,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         ITypeReference indexeeTypeReference = expr.Indexee.TypeReference;
 
-        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType())
+        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType)
         {
             // This object is wrapped in a std::shared_ptr<T>, which cannot be indexed as a non-wrapped type. We call the
             // char_at() method to help us solve this.
@@ -1197,7 +1197,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         expr.Argument.Accept(this);
 
-        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType())
+        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType)
         {
             currentMethod.Append(')');
         }
