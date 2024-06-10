@@ -71,7 +71,7 @@ namespace Perlang
                 _ => false
             };
 
-        bool IsStringType() =>
+        bool IsStringType =>
             ClrType switch
             {
                 null => false,
