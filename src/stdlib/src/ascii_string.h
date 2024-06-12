@@ -111,10 +111,6 @@ namespace perlang
         [[nodiscard]]
         std::shared_ptr<const String> operator+(const BigInt& rhs) const override;
 
-        // Alias for [], which is easier to use from Perlang-generated C++ code in a pointer context.
-        [[nodiscard]]
-        char char_at(int index) const;
-
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple ASCIIString objects pointing to the same `bytes_`, so modifying one of them

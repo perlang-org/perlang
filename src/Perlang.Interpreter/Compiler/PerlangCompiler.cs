@@ -396,8 +396,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         if (result.HasStatements)
         {
             statements = result.Statements!.ToImmutableList();
-            cppPrototypes = result.CppPrototypes!.ToImmutableList();
-            cppMethods = result.CppMethods!.ToImmutableList();
+            cppPrototypes = result.CppPrototypes.ToImmutableList();
+            cppMethods = result.CppMethods.ToImmutableList();
         }
         else if (result.HasExpr)
         {
@@ -1180,31 +1180,24 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         // TODO:
         // TODO: One way to deal with this: make `foo[bar]` be safe and add an "unsafe" indexing operator `foo[[bar]]`
         // TODO: which can be used when the user believes he knows best. Investigate how Rust is doing this.
-        expr.Indexee.Accept(this);
 
         ITypeReference indexeeTypeReference = expr.Indexee.TypeReference;
 
-        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType)
+        if (indexeeTypeReference.CppWrapInSharedPtr)
         {
-            // This object is wrapped in a std::shared_ptr<T>, which cannot be indexed as a non-wrapped type. We call the
-            // char_at() method to help us solve this.
-            currentMethod.Append("->char_at(");
-        }
-        else
-        {
-            currentMethod.Append('[');
+            currentMethod.Append("(*");
         }
 
-        expr.Argument.Accept(this);
+        expr.Indexee.Accept(this);
 
-        if (indexeeTypeReference.CppWrapInSharedPtr && indexeeTypeReference.IsStringType)
+        if (indexeeTypeReference.CppWrapInSharedPtr)
         {
             currentMethod.Append(')');
         }
-        else
-        {
-            currentMethod.Append(']');
-        }
+
+        currentMethod.Append('[');
+        expr.Argument.Accept(this);
+        currentMethod.Append(']');
 
         return VoidObject.Void;
     }
