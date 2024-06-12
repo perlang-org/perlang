@@ -194,14 +194,6 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    char ASCIIString::char_at(int index) const
-    {
-        // The reason this method exists is that the construct below would be slightly more awkward to generate from
-        // PerlangCompiler.cs. It's easier to just add an extra char_at() method call when it visits the Expr.Index
-        // expression.
-        return (*this)[index];
-    }
-
     std::shared_ptr<const ASCIIString> operator+(const int64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
