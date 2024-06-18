@@ -9,6 +9,7 @@
 
 #include "ascii_string.h"
 #include "bigint.h"
+#include "int_array.h"
 #include "perlang_string.h"
 #include "utf8_string.h"
 

@@ -84,6 +84,15 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        public virtual VoidObject VisitCollectionInitializerExpr(Expr.CollectionInitializer collectionInitializer)
+        {
+            foreach (Expr element in collectionInitializer.Elements) {
+                Visit(element);
+            }
+
+            return VoidObject.Void;
+        }
+
         /// <summary>
         /// Visits a Literal expression. This method does not need to be called in child classes.
         /// </summary>

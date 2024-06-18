@@ -542,10 +542,31 @@ namespace Perlang.Interpreter.Typing
                     expr.TypeReference.SetClrType(valueType);
                     break;
 
+                case { } when type.IsArray:
+                    Type elementType = type.GetElementType()!;
+
+                    if (elementType != typeof(int)) {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"Array of type '{elementType}' cannot be indexed'")
+                        );
+                    }
+
+                    if (!argumentType.IsAssignableTo(typeof(int)))
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"Array of type '{elementType}' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
+                        );
+                    }
+
+                    expr.TypeReference.SetClrType(elementType);
+                    break;
+
                 case { } when type == typeof(NullObject):
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.ClosingBracket,
-                        $"'null' reference cannot be indexed")
+                        "'null' reference cannot be indexed")
                     );
                     break;
 
@@ -565,6 +586,31 @@ namespace Perlang.Interpreter.Typing
             base.VisitGroupingExpr(expr);
 
             expr.TypeReference.SetClrType(expr.Expression.TypeReference.ClrType);
+
+            return VoidObject.Void;
+        }
+
+        public override VoidObject VisitCollectionInitializerExpr(Expr.CollectionInitializer expr)
+        {
+            base.VisitCollectionInitializerExpr(expr);
+
+            // In the future, the idea is to loosen this restriction and figure out the most specific base type instead,
+            // and use that as the inferred type of the collection initializer.
+            if (expr.Elements.Select(e => e.TypeReference.ClrType).Distinct().Count() > 1)
+            {
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Token,
+                    "All elements in a collection initializer must have the same type")
+                );
+
+                return VoidObject.Void;
+            }
+
+            // Infer the type of the collection initializer from the first element, since we have now validated that all
+            // elements have the same type.
+            Type elementType = expr.Elements.First().TypeReference.ClrType!;
+            Type collectionType = elementType.MakeArrayType();
+            expr.TypeReference.SetClrType(collectionType);
 
             return VoidObject.Void;
         }

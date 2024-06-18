@@ -23,6 +23,7 @@ namespace Perlang
             TR VisitCallExpr(Call expr);
             TR VisitIndexExpr(Index expr);
             TR VisitGroupingExpr(Grouping expr);
+            TR VisitCollectionInitializerExpr(CollectionInitializer collectionInitializer);
             TR VisitLiteralExpr(Literal expr);
             TR VisitLogicalExpr(Logical expr);
             TR VisitUnaryPrefixExpr(UnaryPrefix expr);
@@ -220,6 +221,24 @@ namespace Perlang
             public Token? Token => (Expression as ITokenAware)?.Token;
         }
 
+        public class CollectionInitializer : Expr, ITokenAware
+        {
+            public ImmutableList<Expr> Elements { get; }
+
+            public CollectionInitializer(List<Expr> elements, Token token)
+            {
+                Elements = elements.ToImmutableList();
+                Token = token;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitCollectionInitializerExpr(this);
+            }
+
+            public Token Token { get; }
+        }
+
         /// <summary>
         /// A literal string or number.
         /// </summary>
@@ -325,10 +344,12 @@ namespace Perlang
         public class Identifier : Expr, ITokenAware
         {
             public Token Name { get; }
+            public bool IsCollection { get; }
 
-            public Identifier(Token name)
+            public Identifier(Token name, bool isCollection = false)
             {
                 Name = name;
+                IsCollection = isCollection;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)

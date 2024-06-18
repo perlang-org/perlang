@@ -370,12 +370,14 @@ namespace Perlang.Parser
             // Support optional typing on this form:
             // var s: String;
             Token typeSpecifier = null;
+
             if (Match(COLON))
             {
                 typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
             }
 
             Expr initializer = null;
+
             if (Match(EQUAL))
             {
                 initializer = Expression();
@@ -793,6 +795,30 @@ namespace Perlang.Parser
                 Expr expr = Expression();
                 Consume(RIGHT_PAREN, "Expect ')' after expression.");
                 return new Expr.Grouping(expr);
+            }
+
+            if (Match(LEFT_SQUARE_BRACKET))
+            {
+                var startToken = Previous();
+                var elements = new List<Expr>();
+
+                while (!Peek().Type.Equals(RIGHT_SQUARE_BRACKET) && !IsAtEnd)
+                {
+                    elements.Add(Expression());
+
+                    if (Match(COMMA))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                Consume(RIGHT_SQUARE_BRACKET, "Expect ']' at end of collection initializer.");
+
+                return new Expr.CollectionInitializer(elements, startToken);
             }
 
             if (Check(SEMICOLON))

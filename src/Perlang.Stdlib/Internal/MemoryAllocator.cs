@@ -23,7 +23,7 @@ internal static class MemoryAllocator
         // TODO: some prior art.
 
         // We keep a local track of all memory allocated using this allocator, for a poor-man's "garbage collection"
-        // when the process exits. In the future we may attempt to do better: #
+        // when the process exits. In the future we may attempt to do better: #378
         void* result = NativeMemory.Alloc(count);
         AllocatedChunks.Add((IntPtr)result);
         return result;
