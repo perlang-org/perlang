@@ -6,6 +6,7 @@ namespace Perlang
         public ITypeReference TypeReference { get; }
 
         public Token TypeSpecifier => TypeReference.TypeSpecifier;
+        public bool IsArray => TypeReference.IsArray;
 
         public Parameter(Token name, ITypeReference typeReference)
         {

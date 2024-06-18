@@ -832,7 +832,7 @@ namespace Perlang.Interpreter.Typing
             return VoidObject.Void;
         }
 
-        private static void ResolveExplicitTypes(ITypeReference typeReference)
+        private void ResolveExplicitTypes(ITypeReference typeReference)
         {
             if (typeReference.TypeSpecifier == null)
             {
@@ -853,41 +853,48 @@ namespace Perlang.Interpreter.Typing
                 // `Scanner.ReservedKeywordStrings` should be updated. (Adding unit tests for the new
                 // types in ReservedKeywordsTests is a good way to ensure this is not forgotten.)
                 case "int" or "Int32":
-                    typeReference.SetClrType(typeof(int));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(int[]) : typeof(int));
                     break;
 
                 case "long" or "Int64":
-                    typeReference.SetClrType(typeof(long));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(long[]) : typeof(long));
                     break;
 
                 case "bigint" or "BigInteger":
-                    typeReference.SetClrType(typeof(BigInteger));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(BigInteger[]) : typeof(BigInteger));
                     break;
 
                 case "uint" or "UInt32":
-                    typeReference.SetClrType(typeof(uint));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(uint[]) : typeof(uint));
                     break;
 
                 case "ulong" or "UInt64":
-                    typeReference.SetClrType(typeof(ulong));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(ulong[]) : typeof(ulong));
                     break;
 
                 // "Float" is called "Single" in C#/.NET, but Java uses `float` and `Float`. In this case, I think it
                 // makes little sense to make them inconsistent.
                 case "float" or "Float":
-                    typeReference.SetClrType(typeof(float));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(float[]) : typeof(float));
                     break;
 
                 case "double" or "Double":
-                    typeReference.SetClrType(typeof(double));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(double[]) : typeof(double));
                     break;
 
                 case "string" or "String":
                     // Perlang String is NOT the same as the .NET String class.
-                    typeReference.SetClrType(typeof(Lang.String));
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(Lang.String[]) : typeof(Lang.String));
                     break;
 
                 case "void":
+                    if (typeReference.IsArray) {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            typeReference.TypeSpecifier,
+                            $"void arrays are not supported")
+                        );
+                    }
+
                     typeReference.SetClrType(typeof(void));
                     break;
 

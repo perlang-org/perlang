@@ -2,6 +2,7 @@
 
 #include "src/perlang_stdlib.h"
 #include "double-conversion/cctest.h"
+#include "src/int_array.h"
 
 bool fwrite_mocked = false;
 char* captured_output = NULL;

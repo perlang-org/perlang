@@ -12,7 +12,7 @@ namespace Perlang
 
         private Expr()
         {
-            TypeReference = new TypeReference(typeSpecifier: null);
+            TypeReference = new TypeReference(typeSpecifier: null, isArray: false);
         }
 
         public interface IVisitor<out TR>
