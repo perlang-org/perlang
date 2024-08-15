@@ -74,7 +74,7 @@ $ sudo apt-get install \
 #### Building the Perlang tooling
 
 ```shell
-$ git clone https://github.com/perlang-org/perlang.git
+$ git clone https://gitlab.perlang.org/perlang/perlang.git
 $ cd perlang
 $ make
 ```
