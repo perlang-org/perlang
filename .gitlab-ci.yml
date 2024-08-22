@@ -1,0 +1,10 @@
+test:
+  # TODO: Run on other operating systems too. Only Debian as far as Linux is concerned is fine, but we should really try
+  # TODO: to reintroduce Windows and macOS support at some point.
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:7.0
+  script:
+    - make auto-generated
+    - make stdlib
+    - dotnet test --configuration Release --verbosity minimal
+  variables:
+    PERLANG_ROOT: $CI_PROJECT_DIR
