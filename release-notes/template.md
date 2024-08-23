@@ -18,5 +18,5 @@
 
 ### Tests
 
-<!-- Kept as an example; remove this comment the first time you reference a pull request -->
-[yyy]: https://github.com/perlang-org/perlang/pull/yyy
+<!-- Kept as an example; remove this comment the first time you reference a merge request -->
+[yyy]: https://gitlab.com/perlang-org/perlang/merge_requests/yyy
