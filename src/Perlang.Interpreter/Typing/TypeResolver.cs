@@ -731,7 +731,7 @@ namespace Perlang.Interpreter.Typing
                 // than not being able to call them at all. If/when we support Foo.bar syntax for calling property
                 // getters, we might want to exclude property getters and setters in this code.
                 //
-                // Tracking issue: https://github.com/perlang-org/perlang/issues/114
+                // Tracking issue: https://gitlab.perlang.org/perlang/perlang/-/issues/114
                 string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
 
                 // TODO: Move this logic to new ReflectionHelper class
@@ -772,7 +772,7 @@ namespace Perlang.Interpreter.Typing
         {
             if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
             {
-                // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
+                // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                 typeValidationErrorCallback(new TypeValidationError(
                     stmt.Name,
                     $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
@@ -788,7 +788,7 @@ namespace Perlang.Interpreter.Typing
             {
                 if (!parameter.TypeReference.ExplicitTypeSpecified)
                 {
-                    // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
+                    // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                     typeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for function parameter '{parameter}'")

@@ -65,7 +65,7 @@ public class StringIndexing
         // would indexing a UTF8String mean? It doesn't really "mean" anything. One interesting thing to work around this
         // would be to convert the string to UTF-16 internally, the first time it is attempted to be indexed. But we need
         // a length() method which returns the number of UTF-16 code units, in that case. See
-        // https://github.com/perlang-org/perlang/issues/370 for some discussion around this.
+        // https://gitlab.perlang.org/perlang/perlang/-/issues/370 for some discussion around this.
         string source = """
             print "åäöÅÄÖéèüÜÿŸïÏすし"[0];
             """;

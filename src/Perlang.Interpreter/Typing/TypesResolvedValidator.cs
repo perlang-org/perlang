@@ -262,7 +262,7 @@ namespace Perlang.Interpreter.Typing
                 // add support for function return type inference.
                 if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
                 {
-                    // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
+                    // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                     TypeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
@@ -281,7 +281,7 @@ namespace Perlang.Interpreter.Typing
             {
                 if (parameter.TypeSpecifier == null)
                 {
-                    // TODO: Remove once https://github.com/perlang-org/perlang/issues/43 is fully resolved.
+                    // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                     TypeValidationErrorCallback(new TypeValidationError(
                         stmt.Name,
                         $"Inferred typing is not yet supported for parameter '{parameter.Name.Lexeme}' to function '{stmt.Name.Lexeme}'")

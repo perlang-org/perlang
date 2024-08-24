@@ -21,7 +21,7 @@ namespace Perlang.Tests.Integration.Stdlib
         }
 
         // TODO: Simplify this to Time.now.ticks once we have property getter support in place
-        // TODO: https://github.com/perlang-org/perlang/issues/114
+        // TODO: https://gitlab.perlang.org/perlang/perlang/-/issues/114
         [SkippableFact]
         public void Time_now_get_Ticks_returns_a_value_greater_than_zero()
         {

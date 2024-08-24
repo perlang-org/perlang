@@ -157,7 +157,7 @@ namespace Perlang.Tests.Integration.Assignment
             Assert.Matches("Invalid assignment target.", exception.Message);
         }
 
-        [Fact(Skip = "Blocked pending https://github.com/perlang-org/perlang/issues/66")]
+        [Fact(Skip = "Blocked pending https://gitlab.perlang.org/perlang/perlang/-/issues/66")]
         public void this_is_not_a_valid_assignment_target()
         {
             string source = @"

@@ -59,7 +59,7 @@ public abstract class String
                 // Non-ASCII character encountered => use Utf8String instead
                 // TODO: think about whether Utf16String would be a better default here. Could be Utf16 by
                 // TODO: default and opt-in to Utf8 (or the other way around). See
-                // TODO: https://github.com/perlang-org/perlang/issues/370
+                // TODO: https://gitlab.perlang.org/perlang/perlang/-/issues/370
                 return Utf8String.from(s);
             }
         }

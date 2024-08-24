@@ -99,7 +99,7 @@ namespace Perlang
                 var t when t == typeof(BigInteger) => "BigInt",
 
                 // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
-                // long-term solution, see https://github.com/perlang-org/perlang/issues/378.
+                // long-term solution, see https://gitlab.perlang.org/perlang/perlang/-/issues/378.
                 var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<const perlang::ASCIIString>",
                 var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const perlang::String>",
                 var t when t.FullName == "Perlang.Lang.Utf8String" => "std::shared_ptr<const perlang::UTF8String>",
@@ -151,7 +151,7 @@ namespace Perlang
         /// <param name="clrType">The CLR type.</param>
         public TypeReference(Type clrType)
         {
-            // TODO: Remove once we are done with https://github.com/perlang-org/perlang/issues/39
+            // TODO: Remove once we are done with https://gitlab.perlang.org/perlang/perlang/-/issues/39
             this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
         }
 
