@@ -31,7 +31,7 @@ namespace Perlang.Stdlib
     /// </summary>
     /// <remarks>
     /// The XML method descriptions are based on `man` pages in [the NetBSD source code](https://github.com/NetBSD/src).
-    /// The full license of these man pages can be found at https://github.com/perlang-org/perlang/blob/master/NOTICE.md
+    /// The full license of these man pages can be found at https://gitlab.perlang.org/perlang/perlang/-/blob/master/NOTICE.md
     ///
     /// There might be subtle differences between systems on some of these functions. For information on how these work
     /// on e.g. GNU/Linux, use a command like `man 2 getgid` (replace `getgid` with the name of the function you are

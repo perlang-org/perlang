@@ -26,7 +26,7 @@ namespace Perlang.Stdlib
     /// code](https://github.com/dotnet/dotnet-api-docs/blob/main/xml/System/Environment.xml), licensed
     /// under the MIT license. Copyright (c) .NET Foundation and Contributors. Some method descriptions are also based
     /// on `man` pages in [the NetBSD source code](https://github.com/NetBSD/src). The full license of these man pages
-    /// can be found at https://github.com/perlang-org/perlang/blob/master/NOTICE.md.
+    /// can be found at https://gitlab.perlang.org/perlang/perlang/-/blob/master/NOTICE.md.
     ///
     /// Portions may also be inspired by Donald Lewine's great book "POSIX Programmer's Guide" (O'Reilly 1991).
     /// </remarks>
