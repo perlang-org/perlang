@@ -5,7 +5,7 @@
 ### Breaking changes
 
 ### Added
-#### Experimental compilation
+#### Compiled mode
 
 ### Changed
 #### Data types
