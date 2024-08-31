@@ -523,8 +523,19 @@ namespace Perlang.Interpreter.Typing
                     expr.TypeReference.SetClrType(typeof(char));
                     break;
 
-                // TODO: arrays
-                // TODO: support lists
+                case { } when type.IsArray:
+                    Type elementType = type.GetElementType()!;
+
+                    if (!argumentType.IsAssignableTo(typeof(int)))
+                    {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.ClosingBracket,
+                            $"Array of type '{elementType}' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
+                        );
+                    }
+
+                    expr.TypeReference.SetClrType(elementType);
+                    break;
 
                 case { } when type.IsGenericType && type.IsAssignableTo(typeof(IDictionary)):
                     Type[] genericArguments = type.GetGenericArguments();
@@ -540,27 +551,6 @@ namespace Perlang.Interpreter.Typing
                     }
 
                     expr.TypeReference.SetClrType(valueType);
-                    break;
-
-                case { } when type.IsArray:
-                    Type elementType = type.GetElementType()!;
-
-                    if (elementType != typeof(int)) {
-                        typeValidationErrorCallback(new TypeValidationError(
-                            expr.ClosingBracket,
-                            $"Array of type '{elementType}' cannot be indexed'")
-                        );
-                    }
-
-                    if (!argumentType.IsAssignableTo(typeof(int)))
-                    {
-                        typeValidationErrorCallback(new TypeValidationError(
-                            expr.ClosingBracket,
-                            $"Array of type '{elementType}' cannot be indexed by '{argumentType.ToTypeKeyword()}'")
-                        );
-                    }
-
-                    expr.TypeReference.SetClrType(elementType);
                     break;
 
                 case { } when type == typeof(NullObject):

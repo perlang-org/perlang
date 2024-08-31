@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 namespace perlang
 {
     // A class for representing mutable, fixed-size arrays of 32-bit integers.

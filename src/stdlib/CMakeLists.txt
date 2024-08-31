@@ -8,6 +8,7 @@ set(headers
         src/internal/string_utils.h
         src/perlang_stdlib.h
         src/perlang_string.h
+        src/string_array.h
         src/utf8_string.h
         src/double-conversion/utils.h
 )
@@ -25,7 +26,9 @@ add_library(
         src/bigint_pow.cc
         src/int_array.cc
         src/print.cc
+        src/string_array.cc
         src/utf8_string.cc
+
         src/libtommath/bn_cutoffs.c
         src/libtommath/bn_mp_add.c
         src/libtommath/bn_mp_clamp.c

@@ -72,6 +72,11 @@ namespace Perlang
                 var t when t.FullName == "Perlang.Lang.AsciiString" => "perlang::ASCIIString",
                 var t when t.FullName == "Perlang.Lang.String" => "perlang::String",
 
+                // Arrays of reference types
+                var t when t.FullName == "Perlang.Lang.String[]" => "perlang::StringArray",
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "perlang::StringArray",
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "perlang::StringArray",
+
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
 
@@ -104,6 +109,12 @@ namespace Perlang
                 var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const perlang::String>",
                 var t when t.FullName == "Perlang.Lang.Utf8String" => "std::shared_ptr<const perlang::UTF8String>",
 
+                // Arrays of reference types. Note how the array types are StringArray for all of these, because it is much
+                // more complex to use different types here.
+                var t when t.FullName == "Perlang.Lang.String[]" => "std::shared_ptr<const perlang::StringArray>",
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "std::shared_ptr<const perlang::StringArray>",
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "std::shared_ptr<const perlang::StringArray>",
+
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
 
@@ -129,6 +140,11 @@ namespace Perlang
                 // TODO: Handle UTF-8 strings here too
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,
                 var t when t.FullName == "Perlang.Lang.String" => true,
+
+                // Arrays of reference types
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => true,
+                var t when t.FullName == "Perlang.Lang.String[]" => true,
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => true,
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ reference handling for {clrType} not defined")
             };

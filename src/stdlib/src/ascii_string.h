@@ -43,7 +43,7 @@ namespace perlang
         ASCIIString(const char* string, size_t length, bool owned);
 
      public:
-        virtual ~ASCIIString();
+        ~ASCIIString();
 
         // Returns the backing byte array for this ASCIIString. This method is generally to be avoided; it is safer to
         // use the ASCIIString throughout the code and only call this when you really must.

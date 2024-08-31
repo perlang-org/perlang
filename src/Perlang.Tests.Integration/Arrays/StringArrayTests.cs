@@ -6,11 +6,11 @@ namespace Perlang.Tests.Integration.Arrays;
 
 public class StringArrayTests
 {
-    [Fact(Skip = "Requires string array support")]
-    public void string_array_can_be_indexed()
+    [Fact]
+    public void string_array_with_ascii_content_can_be_indexed()
     {
         string source = """
-                var a: string[] = [""a"", ""b"", ""c""];
+                var a: string[] = ["a", "b", "c"];
 
                 print a[0];
                 print a[1];
@@ -24,6 +24,73 @@ public class StringArrayTests
                 "a",
                 "b",
                 "c"
+            );
+    }
+
+    [Fact]
+    public void string_array_with_utf8_content_can_be_indexed()
+    {
+        string source = """
+                var a: string[] = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
+
+                print a[0];
+                print a[1];
+                print a[2];
+                print a[7];
+                """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "å",
+                "ä",
+                "ö",
+                "し"
+            );
+    }
+
+    [Fact]
+    public void implicitly_typed_string_array_with_ascii_content_can_be_indexed()
+    {
+        string source = """
+                var a = ["a", "b", "c"];
+
+                print a[0];
+                print a[1];
+                print a[2];
+                """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "a",
+                "b",
+                "c"
+            );
+    }
+
+    [Fact]
+    public void implicitly_typed_string_array_with_utf8_content_can_be_indexed()
+    {
+        string source = """
+                var a = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
+
+                print a[0];
+                print a[1];
+                print a[2];
+                print a[7];
+                """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "å",
+                "ä",
+                "ö",
+                "し"
             );
     }
 }

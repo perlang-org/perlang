@@ -11,6 +11,7 @@
 #include "bigint.h"
 #include "int_array.h"
 #include "perlang_string.h"
+#include "string_array.h"
 #include "utf8_string.h"
 
 namespace perlang
