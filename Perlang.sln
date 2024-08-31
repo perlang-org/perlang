@@ -57,7 +57,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\publish-release-packages.yml = .github\workflows\publish-release-packages.yml
 		.github\workflows\publish-snapshot-packages.yml = .github\workflows\publish-snapshot-packages.yml
 		.github\workflows\publish-website.yml = .github\workflows\publish-website.yml
-		.github\workflows\test.yml = .github\workflows\test.yml
 		.github\workflows\website.yml = .github\workflows\website.yml
 	EndProjectSection
 EndProject
