@@ -8,3 +8,6 @@ test:
     - dotnet test --configuration Release --verbosity minimal
   variables:
     PERLANG_ROOT: $CI_PROJECT_DIR
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
