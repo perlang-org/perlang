@@ -2,7 +2,7 @@
 
 Perlang is at a very early state in its infancy, but do not let this scare you away from contributing anyway. Here are some suggestions:
 
-- Proof-read this documentation web site. Find out obvious mistakes and submit fixes as GitLab merge requests. There is a convenient "Improve this Doc" link at the right-hand side of each page that simplifies the process of doing simple edits. (**Update*: This doesn't work since [the move to GitLab](https://gitlab.perlang.org/perlang/perlang/-/issues/423)) For more extensive changes, making a proper fork & pulling down the repo locally is probably more practical.
+- Proof-read this documentation web site. Find out obvious mistakes and submit fixes as GitLab merge requests. There is a convenient "Improve this Doc" link at the right-hand side of each page that simplifies the process of doing simple edits. (*Update*: This doesn't work since [the move to GitLab](https://gitlab.perlang.org/perlang/perlang/-/issues/423)) For more extensive changes, making a proper fork & pulling down the repo locally is probably more practical.
 
 - Download the Perlang source code and try to build it on your local machine. Run the unit tests, to see if they work correctly with your operating system/.NET SDK version. If you have ideas for new unit tests, feel free to submit an MR. Smaller things are fine to just hack up and then submit an MR about. For larger things, to avoid wasting both your and our time, make sure to file an issue (see below) first and get an indication from the team that this is indeed a test that we should have.
 
