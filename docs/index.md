@@ -29,7 +29,7 @@ Perlang aims to be just that. Welcome to [join our journey](contribute/index.md)
 
 ## License
 
-[MIT](https://github.com/perlang-org/perlang/blob/master/LICENSE)
+[MIT](https://gitlab.perlang.org/perlang/perlang/-/blob/master/LICENSE)
 
 ## Thanks
 
@@ -40,5 +40,5 @@ A special thanks to our following corporate sponsors. Your contributions are hig
 
 ## Footnotes
 
-<sup>1</sup>: Classes are not [fully supported yet](https://github.com/perlang-org/perlang/issues/66).<br/>
+<sup>1</sup>: Classes are not [fully supported yet](https://gitlab.perlang.org/perlang/perlang/-/issues/66).<br/>
 <sup>2</sup> Type-parametric polymorphism (generics) has not even been started. :-)

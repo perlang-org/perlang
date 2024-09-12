@@ -5,7 +5,7 @@
 _The text is currently a draft of the text which we provide as a "public preview". Once the document describes all aspects of Perlang in a satisfiable way, we will remove the "draft" status._
 
 <!--
-For some of the functionality where the documentation is missing, we have added links to the corresponding tests; these provide real-world examples on how the functionality is being used. Pull requests that add proper examples to this page are highly welcome and appreciated.
+For some of the functionality where the documentation is missing, we have added links to the corresponding tests; these provide real-world examples on how the functionality is being used. Merge requests that add proper examples to this page are highly welcome and appreciated.
 -->
 
 ## Language features
@@ -119,7 +119,7 @@ The standard library is in a very early stage of development. Read more about it
 
 > _The future is not set_ (John & Sarah Connor, _Terminator 2: Judgment Day_)
 
-There is currently no road map as for exactly "when" and "if" various features will be implemented into the language and its standard library. Your best bet for now is looking at [the milestones](https://github.com/perlang-org/perlang/milestones) in the GitHub repo, where various ideas are roughly categorized into projected releases, depending on when we imagine that they may get introduced into the language.
+There is currently no road map as for exactly "when" and "if" various features will be implemented into the language and its standard library. Your best bet for now is looking at [the milestones](https://gitlab.perlang.org/perlang/perlang/-/milestones) in the GitLab repo, where various ideas are roughly categorized into projected releases, depending on when we imagine that they may get introduced into the language.
 
 ## Footnotes
 
