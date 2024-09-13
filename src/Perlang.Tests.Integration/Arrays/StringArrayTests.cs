@@ -93,4 +93,40 @@ public class StringArrayTests
                 "し"
             );
     }
+
+    [Fact]
+    public void string_array_length_property_returns_expected_value()
+    {
+        string source = """
+                var a: string[] = ["a", "b", "c"];
+
+                print a.length;
+                """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "3"
+            );
+    }
+
+    [Fact]
+    public void string_array_nonexistent_property_raises_expected_error()
+    {
+        string source = """
+                var a: string[] = ["a", "b", "c"];
+
+                print a.non_existent_property;
+                """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        // Worth pointing out here is that the error comes from TypeResolver, which relies on some CLR reflection at the
+        // moment. Once we have migrated away from this, we should be able to get a slightly different error message. :)
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Failed to locate method 'non_existent_property'");
+    }
 }

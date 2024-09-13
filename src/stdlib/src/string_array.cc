@@ -36,4 +36,9 @@ namespace perlang
 
         return arr_[index];
     }
+
+    size_t StringArray::length() const
+    {
+        return length_;
+    }
 }

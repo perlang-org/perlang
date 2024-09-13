@@ -20,6 +20,10 @@ namespace perlang
 
         std::shared_ptr<const perlang::String> operator[](size_t index) const;
 
+        // The length of the array.
+        [[nodiscard]]
+        size_t length() const;
+
      private:
         std::shared_ptr<const perlang::String>* arr_;
         size_t length_;

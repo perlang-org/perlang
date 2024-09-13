@@ -1414,6 +1414,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 currentMethod.Append("::");
                 currentMethod.Append(expr.Name.Lexeme);
             }
+            else if (identifier.TypeReference.IsArray)
+            {
+                // Arrays support a `length` property in Perlang, which is similar to other languages.
+                if (expr.Name.Lexeme == "length")
+                {
+                    currentMethod.Append($"{identifier.Name.Lexeme}->length()");
+                }
+                else
+                {
+                    throw new PerlangCompilerException($"Unsupported property {expr.Name.Lexeme} on array {identifier.Name.Lexeme}");
+                }
+            }
             else
             {
                 // TODO: Should support global constants here at least! We just need to make them exist in the C++ based
