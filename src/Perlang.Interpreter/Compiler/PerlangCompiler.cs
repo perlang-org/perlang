@@ -328,9 +328,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     /// Compiles the given Perlang program to an executable.
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
-    /// <param name="path">The path to the source file.</param>
+    /// <param name="path">The path and file name of the source file.</param>
     /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
-    /// on the source path.</param>
+    /// on the source file name.</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
@@ -354,7 +354,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         CompilerWarningHandler compilerWarningHandler,
         bool compileAndAssembleOnly = false)
     {
-        string targetCppFile = Path.ChangeExtension(path, ".cc");
+        string targetCppFile = Path.ChangeExtension(targetPath ?? path, ".cc");
 
 #if _WINDOWS
         // clang is very unlikely to have been available on Windows anyway, but why not...

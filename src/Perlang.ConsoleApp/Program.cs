@@ -185,9 +185,12 @@ namespace Perlang.ConsoleApp
                         Console.Error.WriteLine("ERROR: One of the -p <script> or <script-name> arguments must be provided");
                         return Task.FromResult(1);
                     }
-                    else if (parseResult.HasOption(compileAndAssembleOnlyOption))
-                    {
-                        string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
+                    else if (parseResult.HasOption(compileAndAssembleOnlyOption)) {
+                        string[] scriptNames = new[] {
+                            parseResult.GetValueForArgument(scriptNameArgument) }.Concat(
+                            parseResult.GetValueForArgument(scriptArguments)
+                        ).ToArray();
+
                         string? outputFileName = parseResult.GetValueForOption(outputOption);
                         bool idempotent = parseResult.GetValueForOption(idempotentOption);
 
@@ -198,7 +201,7 @@ namespace Perlang.ConsoleApp
                             experimentalCompilation: PerlangMode.ExperimentalCompilation
                         );
 
-                        int result = program.CompileAndAssembleFile(scriptName, outputFileName, idempotent);
+                        int result = program.CompileAndAssembleFile(scriptNames, outputFileName, idempotent);
                         return Task.FromResult(result);
                     }
                     else
@@ -311,18 +314,30 @@ namespace Perlang.ConsoleApp
             return (int)ExitCodes.SUCCESS;
         }
 
-        private int CompileAndAssembleFile(string path, string? targetPath, bool idempotent)
+        private int CompileAndAssembleFile(string[] scriptFiles, string? targetPath, bool idempotent)
         {
-            if (!File.Exists(path))
+            var completeSource = new StringBuilder();
+
+            foreach (string scriptFile in scriptFiles)
             {
-                standardErrorHandler(Lang.String.from($"Error: File {path} not found"));
-                return (int)ExitCodes.FILE_NOT_FOUND;
+                if (!File.Exists(scriptFile))
+                {
+                    standardErrorHandler(Lang.String.from($"Error: File {scriptFile} not found"));
+                    return (int)ExitCodes.FILE_NOT_FOUND;
+                }
+
+                byte[] bytes = File.ReadAllBytes(scriptFile);
+                string source = Encoding.UTF8.GetString(bytes);
+
+                completeSource.Append(source);
+                completeSource.AppendLine();
             }
 
-            byte[] bytes = File.ReadAllBytes(path);
-            string source = Encoding.UTF8.GetString(bytes);
+            // Note: path here is a bit of a simplification. It means that if you specify multiple .per files as the
+            // input, the output .cc/executable name will always be based on the first file name provided.
+            string path = scriptFiles.First();
 
-            CompileAndAssemble(source, path, targetPath, CompilerWarning, idempotent);
+            CompileAndAssemble(completeSource.ToString(), path, targetPath, CompilerWarning, idempotent);
 
             // Indicate an error in the exit code.
             if (hadError)
