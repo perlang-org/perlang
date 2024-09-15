@@ -1,3 +1,7 @@
+variables:
+  # Enable coloured output from CMake (https://bixense.com/clicolors/)
+  CLICOLOR_FORCE: 1
+
 test:
   stage: test
 
