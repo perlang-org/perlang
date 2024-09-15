@@ -45,11 +45,11 @@ docs-test-examples:
 docs-serve:
 	live-server _site
 
-# See #344 for the background of why this was added.
+# See https://gitlab.perlang.org/perlang/perlang/-/issues/344 for the background of why this was added.
 docs-validate-api-docs:
 	@api_files=$$(find _site/api | wc -l); \
 	if [ $$api_files -lt 5 ]; then \
-		echo -e "\e[31;1mERROR:\e[0m _site/api contains an unxpectedly low number of files ($$api_files). Is DocFX API doc generation broken?"; \
+		echo -e "\e[31;1mERROR:\e[0m _site/api contains an unexpectedly low number of files ($$api_files). Is DocFX API doc generation broken?"; \
 		exit 1; \
 	fi
 

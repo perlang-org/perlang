@@ -1,4 +1,6 @@
 test:
+  stage: test
+
   # TODO: Run on other operating systems too. Only Debian as far as Linux is concerned is fine, but we should really try
   # TODO: to reintroduce Windows and macOS support at some point.
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:7.0
@@ -8,6 +10,36 @@ test:
     - dotnet test --configuration Release --verbosity minimal
   variables:
     PERLANG_ROOT: $CI_PROJECT_DIR
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+docs-test-examples:
+  stage: test
+
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:7.0
+  script:
+    #
+    # Technically, this part is very different from the other part which
+    # rebuilds the website. The reason for doing this is two-fold:
+    #
+    # 1) We want to ensure that the examples work, with the current (master)
+    #    version of Perlang. Executing the examples with the newly built
+    #    interpreter is the easiest way to accomplish this.
+    #
+    # 2) We want to ensure that a release build of Perlang actually _works_
+    #    and can run a Perlang script at all. There has been bugs (#199, I'm
+    #    looking at you!) where the release builds have been so badly broken
+    #    that _all_ scripts were broken. By specifically making a _release_
+    #    build here (which is self-contained and R2R-enhanced), we can help
+    #    prevent regressions in this area with very little extra work.
+    #
+    - make auto-generated
+    - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
+
+    # Ensure examples execute without errors
+    - make docs-test-examples SHELL="sh -x -e"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

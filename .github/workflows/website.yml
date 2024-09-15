@@ -19,33 +19,6 @@ jobs:
         with:
           dotnet-version: 7.0.x
 
-        #
-        # Technically, this part is very different from the later part which
-        # rebuilds the web site. The reason for doing this is two-fold:
-        #
-        # 1) We want to ensure that the examples work, with the current (master)
-        #    version of Perlang. Executing the examples with the newly built
-        #    interpreter is the easiest way to accomplish this.
-        #
-        # 2) We want to ensure that a release build of Perlang actually _works_
-        #    and can run a Perlang script at all. There has been bugs (#199, I'm
-        #    looking at you!) where the release builds have been so badly broken
-        #    that _all_ scripts were broken. By specifically making a _release_
-        #    build here (which is self-contained and R2R-enhanced), we can help
-        #    prevent regressions in this area with very little extra work.
-        #
-      - name: Re-generate auto-generated files
-        run: make auto-generated
-
-      - name: Build Perlang (in release mode)
-        run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-
-      - name: Rebuild stdlib
-        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
-
-      - name: Ensure examples execute without errors
-        run: make docs-test-examples SHELL="sh -x -e"
-
       #
       # Build web site
       #
