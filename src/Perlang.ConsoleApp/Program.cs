@@ -89,6 +89,11 @@ namespace Perlang.ConsoleApp
         /// <returns>Zero if the program executed successfully; non-zero otherwise.</returns>
         public static int Main(string[] args)
         {
+            // Let the Perlang native method handle options first. When it returns, we handle the options which are still
+            // handled by the C# code. The quirks here are because C# excludes the program name from the args, while
+            // getopt_long on the native side of the fence expects it to be present.
+            NativeProgram.native_main(args.Length + 1, new string[] { Environment.GetCommandLineArgs()[0] }.Concat(args).ToArray());
+
             var versionOption = new Option<bool>(new[] { "--version", "-v" }, "Show version information");
             var detailedVersionOption = new Option<bool>("-V", "Show detailed version information");
             var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");

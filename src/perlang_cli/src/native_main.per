@@ -1,0 +1,39 @@
+#c++-prototypes
+#include <getopt.h>
+
+extern "C" void native_main(int argc, char* const* argv);
+#/c++-prototypes
+
+fun perlang_version(): void
+{
+    print get_git_describe_version();
+}
+
+#c++-methods
+extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
+{
+    // This is the entry pint for the perlang CLI. It is currently C++-based and is called by the C# code. Because of
+    // the parameter it takes, it cannot be replaced by pure Perlang for now.
+    //
+    // C++ code can quite easily call into Perlang code though, so what we can do is to call Perlang functions to
+    // handle various options.
+    struct option* longopts = nullptr;
+    int* longindex = nullptr;
+    int opt;
+    while ((opt = getopt_long(argc, argv, "v", longopts, longindex)) != -1) {
+        switch (opt) {
+            case 'v':
+                perlang_version();
+                exit(0);
+                break;
+            default:
+                // Once we have the whole option parsing rewritten in C++/Perlang, we can enable this. Until then,
+                // it will produce false positives about options that are handled on the C# side.
+                //printf("?? getopt_long returned unexpected character code 0%o ??\n", opt);
+                break;
+        }
+    }
+
+    // Pass control back to the C# code
+}
+#/c++-methods

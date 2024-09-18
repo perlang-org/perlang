@@ -2,15 +2,25 @@
 # to force it to be regenerated.
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	docs-validate-api-docs install install-latest-snapshot publish-release \
-	release run test src/Perlang.Common/CommonConstants.Generated.cs
+	docs-validate-api-docs install install-latest-snapshot perlang_cli \
+	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release \
+	publish-release release run test \
+	src/Perlang.Common/CommonConstants.Generated.cs
 
-RELEASE_PERLANG=src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish/perlang
+.PRECIOUS: %.cc
+
+DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net7.0
+DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
+
+RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
+RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
 
-all: auto-generated
+CLANGPP=clang++-14
+
+all: auto-generated perlang_cli
 	dotnet build
 
 release:
@@ -25,6 +35,8 @@ clean:
 	dotnet clean
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
 	rm -rf src/Perlang.ConsoleApp/bin/Release
+	rm *.o
+	rm -rf lib/
 
 docs-clean:
 	rm -rf _site
@@ -38,7 +50,7 @@ docs/templates/darkerfx/styles/main.css: docs/templates/darkerfx/styles/main.scs
 docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
 
-docs-test-examples:
+docs-test-examples: perlang_cli_install_release
 	for e in docs/examples/quickstart/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
 	for e in docs/examples/the-language/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
 
@@ -69,16 +81,39 @@ install: auto-generated stdlib
 install-latest-snapshot:
 	curl -sSL https://perlang.org/install.sh | sh -s -- --force
 
-run: auto-generated
+# Performing an unconditional "perlang_cli_clean" here is sometimes redundant, but without it the .cc files will not
+# always be rebuilt which can be confusing during development. The Perlang compilation is idempotent, so this should
+# hopefully not cause any unnecessary noise in the generated C++ files.
+run: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
 	# Cannot use 'dotnet run' at the moment, since it's impossible to pass
 	# /p:SolutionDir=$(pwd)/ to it.
 	dotnet build
-	src/Perlang.ConsoleApp/bin/Debug/net7.0/perlang
+	$(DEBUG_PERLANG) -v
 
+# Creating a subdirectory is important in these targets, since cmake will otherwise clutter the stdlib directory with
+# its auto-generated build scripts
 stdlib:
-# Creating a subdirectory is important, since cmake will otherwise clutter the stdlib directory with its auto-generated
-# build scripts
 	cd src/stdlib && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && make stdlib install
+
+# perlang_cli depends on stdlib, so it must be built before this can be successfully built
+perlang_cli: stdlib
+# Precompile the Perlang files to C++ if needed, so that they can be picked up by the CMake build
+	cd src/perlang_cli/src && make
+
+	cd src/perlang_cli && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && make perlang_cli install
+
+# Note that this removes all auto-generated files, including the C++ files which
+# are normally committed to git. This makes it easy to regenerate them from the
+# Perlang sources.
+perlang_cli_clean:
+	cd src/perlang_cli/src && make clean
+	cd src/perlang_cli && rm -rf out
+
+perlang_cli_install_debug: perlang_cli
+	cp lib/perlang_cli/lib/perlang_cli.so $(DEBUG_PERLANG_DIRECTORY)
+
+perlang_cli_install_release: perlang_cli
+	cp lib/perlang_cli/lib/perlang_cli.so $(RELEASE_PERLANG_DIRECTORY)
 
 test:
 	dotnet test --configuration Release

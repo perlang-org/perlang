@@ -60,6 +60,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\website.yml = .github\workflows\website.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645CCD64-1CD1-40DA-866E-1EE16BF5136F}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\update_common_constants.rb = scripts\update_common_constants.rb
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,5 +121,6 @@ Global
 		{3223DBA6-64AE-41B5-8864-6FDD232FCE7F} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 		{74DEE88F-82F6-49CB-A019-E527D293E0B4} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 		{0220A61B-85BE-4076-9FDA-0467E6971F40} = {74DEE88F-82F6-49CB-A019-E527D293E0B4}
+		{645CCD64-1CD1-40DA-866E-1EE16BF5136F} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,21 @@
+// AUTO-GENERATED FILE, do not edit manually. Edit the scripts/update_common_constants.rb file instead.
+
+// The <PLACEHOLDER> part is here because we have a challenging problem: The file is automatically generated, *but* at
+// the same time we consider the .cc file we generate from this something that we want to check into the git repo. To
+// workaround this, we commit the file using this <PLACEHOLDER> stuff. Then, when we generate the file we simply
+// overwrite the contents with the real data. This way, we can embed real version data in the Perlang executable
+// without committing that specific part into the repo.
+//
+// The kludgy part about this is that it means we have to exclude differences to this file when we perform "have all .cc
+// files been regenerated" checks".
+fun get_git_tag_version(): string {
+    return "<PLACEHOLDER>";
+}
+
+fun get_git_describe_version(): string {
+    return "<PLACEHOLDER>";
+}
+
+fun get_git_commit(): string {
+    return "<PLACEHOLDER>";
+}
