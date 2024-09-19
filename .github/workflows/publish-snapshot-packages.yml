@@ -50,8 +50,16 @@ jobs:
       - name: Build host-compatible release
         run: dotnet build
 
+      # This is needed to be able to run `perlang -v` a few commands below
+      - name: Build Perlang CLI shared library and copy to debug directory
+        run: make perlang_cli_install_debug
+
       - name: Build ${{ matrix.arch }} release
         run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r ${{ matrix.arch }} --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+
+      # We need perlang_cli.so to be present in the published snapshot
+      - name: Build Perlang CLI shared library and copy to release directory
+        run: make perlang_cli_install_release ARCH=${{ matrix.arch }}
 
       - name: Rebuild stdlib
         run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/${{ matrix.arch }}/publish
