@@ -55,15 +55,15 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 // Method declarations
 //
 std::shared_ptr<const perlang::String> get_git_tag_version() {
-    return perlang::ASCIIString::from_static_string("0.6.0");
+    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
 }
 
 std::shared_ptr<const perlang::String> get_git_describe_version() {
-    return perlang::ASCIIString::from_static_string("0.6.0-dev.22");
+    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
 }
 
 std::shared_ptr<const perlang::String> get_git_commit() {
-    return perlang::ASCIIString::from_static_string("feba4bf");
+    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
 }
 
 void perlang_version() {
