@@ -9,10 +9,13 @@
 
 .PRECIOUS: %.cc
 
+# This gets overridden in CI when building for another architecture
+ARCH=linux-x64
+
 DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net7.0
 DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
 
-RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
+RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net7.0/$(ARCH)/publish
 RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 
 # Enable fail-fast in case of errors
@@ -24,7 +27,7 @@ all: auto-generated perlang_cli
 	dotnet build
 
 release:
-	dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$$(pwd)/
+	dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $(ARCH) --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$$(pwd)/
 
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 
