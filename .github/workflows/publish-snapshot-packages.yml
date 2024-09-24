@@ -50,9 +50,22 @@ jobs:
       - name: Build host-compatible release
         run: dotnet build
 
+      # How's this for an interesting chicken-and-egg: we need the latest Perlang snapshot to be able to build the
+      # Perlang CLI shared library. :) This if of course completely intentional, since we write Perlang in Perlang.
+      # Fortunately for us, we don't really *need* the Perlang snapshot to bootstrap a new platform, only for
+      # rebuilding the CLI solib for when the version.per file has been modified.
+      #
+      # This chicken-and-egg problem _can_ cause real problems though. At times, we might need a newer snapshot than the
+      # one currently available to properly build our code for the snapshot; this happened to me right now because I
+      # needed some special semantics only available in a very recent snapshot, and no such snapshot was available
+      # (because of an unrelated CI problem). The most reasonable way to evade such problems may be to manually
+      # build and publish a snapshot from a developer machine if/when this happens.
+      - name: Install a Perlang snapshot build
+        run: scripts/perlang-install
+
       # This is needed to be able to run `perlang -v` a few commands below
       - name: Build Perlang CLI shared library and copy to debug directory
-        run: make perlang_cli_install_debug
+        run: make perlang_cli_clean perlang_cli_install_debug
 
       - name: Build ${{ matrix.arch }} release
         run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r ${{ matrix.arch }} --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
