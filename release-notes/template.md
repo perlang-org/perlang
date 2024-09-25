@@ -19,4 +19,4 @@
 ### Tests
 
 <!-- Kept as an example; remove this comment the first time you reference a merge request -->
-[yyy]: https://gitlab.com/perlang-org/perlang/merge_requests/yyy
+[yyy]: https://gitlab.perlang.org/perlang/perlang/merge_requests/yyy
