@@ -35,7 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Perlang.Compiler\Perlang.Compiler.csproj" />
       <ProjectReference Include="..\Perlang.Interpreter\Perlang.Interpreter.csproj" />
     </ItemGroup>
 
