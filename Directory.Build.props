@@ -2,7 +2,7 @@
     <!-- C# analyzers configuration -->
     <PropertyGroup>
         <CodeAnalysisRuleSet>$(SolutionDir)global.ruleset</CodeAnalysisRuleSet>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
     </PropertyGroup>
 

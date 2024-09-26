@@ -12,10 +12,10 @@
 # This gets overridden in CI when building for another architecture
 ARCH=linux-x64
 
-DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net7.0
+DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net8.0
 DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
 
-RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net7.0/$(ARCH)/publish
+RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net8.0/$(ARCH)/publish
 RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 
 # Enable fail-fast in case of errors

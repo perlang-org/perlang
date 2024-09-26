@@ -5,9 +5,10 @@ variables:
 test:
   stage: test
 
-  # TODO: Run on other operating systems too. Only Debian as far as Linux is concerned is fine, but we should really try
-  # TODO: to reintroduce Windows and macOS support at some point.
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:7.0
+  # TODO: Run on other operating systems too, when we are ready for it. It's
+  # probably not worth it until we are a proper LLVM language, independent
+  # of clang for generating binaries.
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
     - make auto-generated
     - make stdlib
@@ -21,7 +22,7 @@ test:
 docs-test-examples:
   stage: test
 
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:7.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
     #
     # Technically, this part is very different from the other part which
@@ -40,7 +41,7 @@ docs-test-examples:
     #
     - make auto-generated
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/linux-x64/publish
+    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish
 
     # Ensure examples execute without errors
     - make docs-test-examples SHELL="sh -x -e"

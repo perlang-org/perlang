@@ -47,18 +47,18 @@ jobs:
         run: dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r ${{ matrix.arch }} --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
 
       - name: Rebuild stdlib
-        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net7.0/${{ matrix.arch }}/publish
+        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/publish
         if: runner.os == 'Linux'
 
       #
       # Create .tar.gz archives
       #
       - name: Create ${{ matrix.arch }} .tar.gz file
-        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net7.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net7.0/${{ matrix.arch }}/publish
+        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/publish
 
       - name: List .tar.gz files
-        run: ls -l src/Perlang.ConsoleApp/bin/Release/net7.0/*/*.tar.gz
+        run: ls -l src/Perlang.ConsoleApp/bin/Release/net8.0/*/*.tar.gz
 
       #
       # Upload archive to GitHub artifacts
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.arch }}-release
-          path: src/Perlang.ConsoleApp/bin/Release/net7.0/${{ matrix.arch }}/*.tar.gz
+          path: src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/*.tar.gz
 
   create-release:
     needs: publish-release-packages
