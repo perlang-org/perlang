@@ -17,6 +17,12 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
     //
     // C++ code can quite easily call into Perlang code though, so what we can do is to call Perlang functions to
     // handle various options.
+
+    // Disable warnings on unknown options in getopt_long(). This is a temporary remedy until we have converted all the
+    // option parsing to C++/Perlang, at which point we should remove this to reenable those warnings. Until then, the
+    // C# lib we use for option parsing will handle them anyway.
+    opterr = 0;
+
     struct option* longopts = nullptr;
     int* longindex = nullptr;
     int opt;
