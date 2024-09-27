@@ -1,3 +1,6 @@
+default:
+  interruptible: true
+
 variables:
   # Enable coloured output from CMake (https://bixense.com/clicolors/)
   CLICOLOR_FORCE: 1
