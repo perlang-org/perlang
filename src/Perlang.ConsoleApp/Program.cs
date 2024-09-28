@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable S112
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -148,8 +149,7 @@ namespace Perlang.ConsoleApp
                 {
                     if (parseResult.HasOption(versionOption))
                     {
-                        Console.Out.WriteLine(CommonConstants.InformationalVersion);
-                        return Task.FromResult(0);
+                        throw new ApplicationException("INTERNAL ERROR: This should already have been handled by the native code");
                     }
 
                     if (parseResult.HasOption(detailedVersionOption))

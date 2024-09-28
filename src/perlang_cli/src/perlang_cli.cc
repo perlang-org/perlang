@@ -37,10 +37,14 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
     // C# lib we use for option parsing will handle them anyway.
     opterr = 0;
 
-    struct option* longopts = nullptr;
+    static struct option long_options[] = {
+         { "version", no_argument,       nullptr,  'v' },
+         { nullptr,   0,                 nullptr,  0   }
+    };
+
     int* longindex = nullptr;
     int opt;
-    while ((opt = getopt_long(argc, argv, "v", longopts, longindex)) != -1) {
+    while ((opt = getopt_long(argc, argv, "v", long_options, longindex)) != -1) {
         switch (opt) {
             case 'v':
                 perlang_version();
