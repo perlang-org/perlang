@@ -36,22 +36,3 @@ path = File.join('src', 'Perlang.Common', 'CommonConstants.Generated.cs')
 File.write(path, common_constants)
 
 puts("#{path} updated with version #{GIT_DESCRIBE_VERSION}")
-
-path = File.join('src', 'perlang_cli', 'src', 'version.per')
-File.write(path, <<~EOF)
-// AUTO-GENERATED FILE, do not edit manually. Edit the scripts/update_common_constants.rb file instead.
-
-fun get_git_tag_version(): string {
-    return "#{GIT_TAG_VERSION}";
-}
-
-fun get_git_describe_version(): string {
-    return "#{GIT_DESCRIBE_VERSION}";
-}
-
-fun get_git_commit(): string {
-    return "#{GIT_COMMIT}";
-}
-EOF
-
-puts("#{path} updated with version #{GIT_DESCRIBE_VERSION}")

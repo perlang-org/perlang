@@ -16,7 +16,6 @@ extern "C" void native_main(int argc, char* const* argv);
 //
 // Method definitions
 //
-std::shared_ptr<const perlang::String> get_git_tag_version();
 std::shared_ptr<const perlang::String> get_git_describe_version();
 std::shared_ptr<const perlang::String> get_git_commit();
 void perlang_version();
@@ -64,19 +63,14 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 //
 // Method declarations
 //
-std::shared_ptr<const perlang::String> get_git_tag_version() {
-    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
-}
-
 std::shared_ptr<const perlang::String> get_git_describe_version() {
-    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
+    return perlang::ASCIIString::from_static_string("##GIT_DESCRIBE_VERSION##");
 }
 
 std::shared_ptr<const perlang::String> get_git_commit() {
-    return perlang::ASCIIString::from_static_string("<PLACEHOLDER>");
+    return perlang::ASCIIString::from_static_string("##GIT_COMMIT##");
 }
 
 void perlang_version() {
     perlang::print(get_git_describe_version());
 }
-

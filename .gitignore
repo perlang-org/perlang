@@ -356,5 +356,6 @@ docfx/docfx.exe
 docfx/docfx.exe.config
 lib/
 src/Perlang.Common/CommonConstants.Generated.cs
+src/perlang_cli/src/perlang_cli_preprocessed.cc
 src/*/cmake-build-debug/
 src/*/out/

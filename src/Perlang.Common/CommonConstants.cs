@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Reflection;
-
 namespace Perlang
 {
     /// <summary>
@@ -16,12 +13,5 @@ namespace Perlang
     {
         public const string Version = GitTagVersion;
         public const string InformationalVersion = GitDescribeVersion;
-
-        public static string GetFullVersion() =>
-            ((AssemblyInformationalVersionAttribute)Assembly
-                .GetAssembly(typeof(CommonConstants))
-                .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), inherit: false)
-                .First())
-            .InformationalVersion;
     }
 }

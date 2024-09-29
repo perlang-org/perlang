@@ -4,6 +4,14 @@
 extern "C" void native_main(int argc, char* const* argv);
 #/c++-prototypes
 
+fun get_git_describe_version(): string {
+    return "##GIT_DESCRIBE_VERSION##";
+}
+
+fun get_git_commit(): string {
+    return "##GIT_COMMIT##";
+}
+
 fun perlang_version(): void
 {
     print get_git_describe_version();
