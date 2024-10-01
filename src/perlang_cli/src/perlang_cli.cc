@@ -74,3 +74,4 @@ std::shared_ptr<const perlang::String> get_git_commit() {
 void perlang_version() {
     perlang::print(get_git_describe_version());
 }
+

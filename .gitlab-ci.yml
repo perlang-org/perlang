@@ -5,8 +5,22 @@ variables:
   # Enable coloured output from CMake (https://bixense.com/clicolors/)
   CLICOLOR_FORCE: 1
 
+build-perlang-cli:
+  stage: build
+
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  script:
+    - 'scripts/perlang-install'
+    - 'make perlang_cli_clean perlang_cli'
+    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources:" && git diff --color=always && exit 1)'
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 test:
   stage: test
+  needs: []
 
   # TODO: Run on other operating systems too, when we are ready for it. It's
   # probably not worth it until we are a proper LLVM language, independent
@@ -24,6 +38,7 @@ test:
 
 docs-test-examples:
   stage: test
+  needs: []
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
