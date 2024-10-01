@@ -18,7 +18,11 @@ extern "C" void native_main(int argc, char* const* argv);
 //
 std::shared_ptr<const perlang::String> get_git_describe_version();
 std::shared_ptr<const perlang::String> get_git_commit();
+std::shared_ptr<const perlang::String> get_build_timestamp();
+std::shared_ptr<const perlang::String> get_build_user();
+std::shared_ptr<const perlang::String> get_build_host();
 void perlang_version();
+void perlang_detailed_version();
 
 //
 // C++ methods
@@ -43,10 +47,14 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 
     int* longindex = nullptr;
     int opt;
-    while ((opt = getopt_long(argc, argv, "v", long_options, longindex)) != -1) {
+    while ((opt = getopt_long(argc, argv, "vV", long_options, longindex)) != -1) {
         switch (opt) {
             case 'v':
                 perlang_version();
+                exit(0);
+                break;
+            case 'V':
+                perlang_detailed_version();
                 exit(0);
                 break;
             default:
@@ -71,7 +79,24 @@ std::shared_ptr<const perlang::String> get_git_commit() {
     return perlang::ASCIIString::from_static_string("##GIT_COMMIT##");
 }
 
+std::shared_ptr<const perlang::String> get_build_timestamp() {
+    return perlang::ASCIIString::from_static_string("##BUILD_TIMESTAMP##");
+}
+
+std::shared_ptr<const perlang::String> get_build_user() {
+    return perlang::ASCIIString::from_static_string("##BUILD_USER##");
+}
+
+std::shared_ptr<const perlang::String> get_build_host() {
+    return perlang::ASCIIString::from_static_string("##BUILD_HOST##");
+}
+
 void perlang_version() {
     perlang::print(get_git_describe_version());
+}
+
+void perlang_detailed_version() {
+    perlang::print((*perlang::ASCIIString::from_static_string("Perlang version: ") + *get_git_describe_version()));
+    perlang::print((*(*(*(*(*(*(*perlang::ASCIIString::from_static_string("Built from git commit ") + *get_git_commit()) + *perlang::ASCIIString::from_static_string(", ")) + *get_build_timestamp()) + *perlang::ASCIIString::from_static_string(" by ")) + *get_build_user()) + *perlang::ASCIIString::from_static_string("@")) + *get_build_host()));
 }
 

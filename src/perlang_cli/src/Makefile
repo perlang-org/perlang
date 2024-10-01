@@ -4,7 +4,7 @@ SHELL := /bin/bash -e -o pipefail
 
 CPP_SOURCES = perlang_cli_preprocessed.cc
 
-GIT_COMMIT := $(shell git rev-parse HEAD)
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
 
 # The input to these sed operations is something like `dev/0.1.0-224-g09f4704`. The output is expected to produce a
 # SemVer-compliant version number. For snapshots, it will be something like 0.1.0-dev.224
@@ -21,6 +21,9 @@ perlang_cli_preprocessed.cc: perlang_cli.cc
 	sed \
 		-e 's/##GIT_COMMIT##/$(GIT_COMMIT)/g' \
 		-e 's/##GIT_DESCRIBE_VERSION##/$(GIT_DESCRIBE_VERSION)/g' \
+		-e 's/##BUILD_TIMESTAMP##/$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')/g' \
+		-e 's/##BUILD_USER##/$(shell whoami)/g' \
+		-e 's/##BUILD_HOST##/$(shell hostname)/g' \
 		$< > $@
 
 # Note: this deliberately uses the Perlang installed using install-latest-snapshot, to avoid depending on a Perlang

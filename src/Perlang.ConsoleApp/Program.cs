@@ -154,14 +154,7 @@ namespace Perlang.ConsoleApp
 
                     if (parseResult.HasOption(detailedVersionOption))
                     {
-                        Console.Out.WriteLine($"Perlang {CommonConstants.InformationalVersion} (built from git commit {CommonConstants.GitCommit}) on .NET {Environment.Version}");
-                        Console.Out.WriteLine();
-                        Console.Out.WriteLine($"  Number of detected (v)CPUs: {Environment.ProcessorCount}");
-                        Console.Out.WriteLine($"  Running in 64-bit mode: {Environment.Is64BitProcess}");
-                        Console.Out.WriteLine($"  Operating system info: {Environment.OSVersion.VersionString}");
-                        Console.Out.WriteLine();
-
-                        return Task.FromResult(0);
+                        throw new ApplicationException("INTERNAL ERROR: This should already have been handled by the native code");
                     }
 
                     if (parseResult.HasOption(idempotentOption) && !parseResult.HasOption(compileAndAssembleOnlyOption))
