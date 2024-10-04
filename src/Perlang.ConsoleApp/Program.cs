@@ -100,7 +100,6 @@ namespace Perlang.ConsoleApp
             var compileAndAssembleOnlyOption = new Option<bool>("-c", "Compile and assemble to a .o file, but do not produce and execute an executable");
             var idempotentOption = new Option<bool>("--idempotent", "Run in idempotent mode, where the output is deterministic and reproducible. This avoids timestamps and other variadic data in the output.");
             var outputOption = new Option<string>("-o", "Output file name. In normal mode, this controls the name of the executable. In compile-and-assemble mode, this controls the name of the .o file.") { ArgumentHelpName = "output" };
-            var printOption = new Option<string>("-p", "Parse a single-line script and output a human-readable version of the AST") { ArgumentHelpName = "script" };
             var noWarnAsErrorOption = new Option<string>("-Wno-error", "Treats specified warning as a warning instead of an error.") { ArgumentHelpName = "error" };
 
             var disabledWarningsAsErrorsList = new List<WarningType>();
@@ -125,7 +124,6 @@ namespace Perlang.ConsoleApp
                 compileAndAssembleOnlyOption,
                 idempotentOption,
                 outputOption,
-                printOption,
                 noWarnAsErrorOption
             };
 
@@ -163,24 +161,12 @@ namespace Perlang.ConsoleApp
                         return Task.FromResult(1);
                     }
 
-                    if (parseResult.HasOption(printOption))
-                    {
-                        string source = parseResult.GetValueForOption(printOption)!;
-
-                        new Program(
-                            replMode: true,
-                            standardOutputHandler: Console.WriteLine,
-                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
-                        ).ParseAndPrint(source);
-
-                        return Task.FromResult(0);
-                    }
-                    else if (parseResult.Tokens.Count == 0)
+                    if (parseResult.Tokens.Count == 0)
                     {
                         // TODO: Tried to fix this using some logic in the rootCommand.AddValidator() lambda, but I
                         // TODO: couldn't get it working. Since this is going to be rewritten in Perlang at some point
                         // TODO: anyway, let's not spend too much time thinking about it.
-                        Console.Error.WriteLine("ERROR: One of the -p <script> or <script-name> arguments must be provided");
+                        Console.Error.WriteLine("ERROR: The <script-name> argument must be provided");
                         return Task.FromResult(1);
                     }
                     else if (parseResult.HasOption(compileAndAssembleOnlyOption)) {
@@ -231,6 +217,7 @@ namespace Perlang.ConsoleApp
                                 experimentalCompilation: PerlangMode.ExperimentalCompilation
                             );
 
+                            // FIXME: The remainingArguments should be passed here instead into the Program constructor.
                             result = program.RunFile(scriptName, outputFileName);
                         }
 
@@ -238,14 +225,6 @@ namespace Perlang.ConsoleApp
                     }
                 })
             };
-
-            rootCommand.AddValidator(result =>
-            {
-                if (result.HasOption(compileAndAssembleOnlyOption) && result.HasOption(printOption))
-                {
-                    result.ErrorMessage = "Error: the -c and -p options are mutually exclusive";
-                }
-            });
 
             rootCommand.AddArgument(scriptNameArgument);
             rootCommand.AddArgument(scriptArguments);
@@ -361,22 +340,6 @@ namespace Perlang.ConsoleApp
         private void CompileAndAssemble(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler, bool idempotent)
         {
             compiler.CompileAndAssemble(source, path, targetPath, CompilerFlags.None | (idempotent ? CompilerFlags.Idempotent : 0), ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
-        }
-
-        private void ParseAndPrint(string source)
-        {
-            // TODO: Implement this in PerlangCompiler. Should definitely be doable, and could be taken in a nice little
-            // TODO: isolated PR of its own.
-            string? result = compiler.Parse(source, ScanError, ParseError);
-
-            if (result == null)
-            {
-                // Parse() returns `null` when one or more errors occurred. These errors have already been reported to
-                // the user at this point, so we can safely just return here.
-                return;
-            }
-
-            standardOutputHandler(Lang.String.from(result));
         }
 
         private void ScanError(ScanError scanError)

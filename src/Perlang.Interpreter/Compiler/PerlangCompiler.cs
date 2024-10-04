@@ -1617,9 +1617,4 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             )
         );
     }
-
-    public string? Parse(string source, Action<ScanError> scanError, Action<ParseError> parseError)
-    {
-        throw new NotImplementedException();
-    }
 }
