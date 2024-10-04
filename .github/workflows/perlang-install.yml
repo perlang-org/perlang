@@ -10,7 +10,9 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
-          - macos-13
+
+          # Disabled since macOS builds are broken since https://gitlab.perlang.org/perlang/perlang/-/merge_requests/506
+          #- macos-13
 
     steps:
       - uses: actions/checkout@v1
@@ -25,7 +27,7 @@ jobs:
   # any POSIX compliant shell.
 
 # Temporary disabled because Windows builds are currently broken:
-# https://github.com/perlang-org/perlang/issues/398
+# https://gitlab.perlang.org/perlang/perlang/-/issues/398
 #  install_windows:
 #    runs-on: windows-2019
 #
