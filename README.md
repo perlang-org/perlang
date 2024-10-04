@@ -1,4 +1,4 @@
-![Tests](https://github.com/perlang-org/perlang/actions/workflows/test.yml/badge.svg)
+![CI pipeline](https://gitlab.perlang.org/perlang/perlang/badges/master/pipeline.svg?ignore_skipped=true)
 ![perlang-install](https://github.com/perlang-org/perlang/actions/workflows/perlang-install.yml/badge.svg)
 ![Website](https://github.com/perlang-org/perlang/actions/workflows/website.yml/badge.svg)
 
