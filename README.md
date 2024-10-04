@@ -49,6 +49,26 @@ $ perlang hello_world.per
 Hello World
 ```
 
+## Printing the first 1000 digits of pi
+
+The first digit printed is `3`, and the first 999 decimals is then printed immediately after.
+
+```perlang
+var digits = 1000;
+
+var i = 1;
+var x = 3 * (10 ** (digits + 20));
+var pi = x;
+
+while (x > 0) {
+    x = x * i / ((i + 1) * 4);
+    pi += (x / (i + 2));
+    i += 2;
+}
+
+print(pi / (10 ** 20));
+```
+
 ### Further reading
 
 * https://perlang.org/learn/quickstart/index.html - this page contains more
