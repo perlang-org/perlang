@@ -99,7 +99,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
 
-    private StringBuilder currentMethod;
+    /// <summary>
+    /// The location in the output we are currently writing to. Can be an enum, function, etc.
+    /// </summary>
+    private StringBuilder currentLocation;
 
     private int indentationLevel = 1;
 
@@ -121,10 +124,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         this.standardOutputHandler = standardOutputHandler;
         this.BindingHandler = bindingHandler ?? new BindingHandler();
 
-        this.currentMethod = new StringBuilder();
+        this.currentLocation = new StringBuilder();
         this.methods = new Dictionary<string, Method>();
 
-        methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", currentMethod);
+        methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", currentLocation);
 
         var argumentsList = (arguments ?? Array.Empty<string>()).ToImmutableList();
 
@@ -798,7 +801,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public object VisitAssignExpr(Expr.Assign expr)
     {
-        currentMethod.Append($"{expr.Identifier.Name.Lexeme} = {expr.Value.Accept(this)}");
+        currentLocation.Append($"{expr.Identifier.Name.Lexeme} = {expr.Value.Accept(this)}");
         return VoidObject.Void;
     }
 
@@ -821,19 +824,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
             case GREATER:
                 // TODO: We might need something like CheckNumberOperands() in PerlangInterpreter here, but we can obviously not do any value-based checking since we are a compiler and no
-                currentMethod.Append($"{expr.Left.Accept(this)} > {expr.Right.Accept(this)}");
+                currentLocation.Append($"{expr.Left.Accept(this)} > {expr.Right.Accept(this)}");
                 break;
 
             case GREATER_EQUAL:
-                currentMethod.Append($"{expr.Left.Accept(this)} >= {expr.Right.Accept(this)}");
+                currentLocation.Append($"{expr.Left.Accept(this)} >= {expr.Right.Accept(this)}");
                 break;
 
             case LESS:
-                currentMethod.Append($"{expr.Left.Accept(this)} < {expr.Right.Accept(this)}");
+                currentLocation.Append($"{expr.Left.Accept(this)} < {expr.Right.Accept(this)}");
                 break;
 
             case LESS_EQUAL:
-                currentMethod.Append($"{expr.Left.Accept(this)} <= {expr.Right.Accept(this)}");
+                currentLocation.Append($"{expr.Left.Accept(this)} <= {expr.Right.Accept(this)}");
                 break;
 
             case BANG_EQUAL:
@@ -841,11 +844,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 != *s2
-                    currentMethod.Append($"*{expr.Left.Accept(this)} != *{expr.Right.Accept(this)}");
+                    currentLocation.Append($"*{expr.Left.Accept(this)} != *{expr.Right.Accept(this)}");
                 }
                 else
                 {
-                    currentMethod.Append($"{expr.Left.Accept(this)} != {expr.Right.Accept(this)}");
+                    currentLocation.Append($"{expr.Left.Accept(this)} != {expr.Right.Accept(this)}");
                 }
 
                 break;
@@ -855,11 +858,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 == *s2
-                    currentMethod.Append($"*{expr.Left.Accept(this)} == *{expr.Right.Accept(this)}");
+                    currentLocation.Append($"*{expr.Left.Accept(this)} == *{expr.Right.Accept(this)}");
                 }
                 else
                 {
-                    currentMethod.Append($"{expr.Left.Accept(this)} == {expr.Right.Accept(this)}");
+                    currentLocation.Append($"{expr.Left.Accept(this)} == {expr.Right.Accept(this)}");
                 }
 
                 break;
@@ -888,7 +891,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{leftCast}{expr.Left.Accept(this)} - {rightCast}{expr.Right.Accept(this)}");
+                    currentLocation.Append($"{leftCast}{expr.Left.Accept(this)} - {rightCast}{expr.Right.Accept(this)}");
                 }
                 else
                 {
@@ -901,7 +904,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             case MINUS_EQUAL:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{expr.Left.Accept(this)} -= {expr.Right.Accept(this)}");
+                    currentLocation.Append($"{expr.Left.Accept(this)} -= {expr.Right.Accept(this)}");
                 }
                 else
                 {
@@ -938,23 +941,23 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)}");
+                    currentLocation.Append($"{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)}");
                 }
                 else if (expr.Left.TypeReference.IsStringType && expr.Right.TypeReference.IsStringType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instances
                     // Parentheses required to workaround "indirection requires pointer operand" errors in the C++ compilation
-                    currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"(*{leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (expr.Left.TypeReference.IsStringType && expr.Right.TypeReference.IsValidNumberType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instance
-                    currentMethod.Append($"(*{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"(*{leftCast}{expr.Left.Accept(this)} + {rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsStringType)
                 {
                     // The dereference operator (*) must be used to dereference the std::shared_ptr instance
-                    currentMethod.Append($"({leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"({leftCast}{expr.Left.Accept(this)} + *{rightCast}{expr.Right.Accept(this)})");
                 }
                 else
                 {
@@ -970,7 +973,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             case PLUS_EQUAL:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{expr.Left.Accept(this)} += {expr.Right.Accept(this)}");
+                    currentLocation.Append($"{expr.Left.Accept(this)} += {expr.Right.Accept(this)}");
                 }
                 else
                 {
@@ -983,7 +986,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             case SLASH:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{expr.Left.Accept(this)} / {expr.Right.Accept(this)}");
+                    currentLocation.Append($"{expr.Left.Accept(this)} / {expr.Right.Accept(this)}");
                 }
                 else
                 {
@@ -1010,7 +1013,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    currentMethod.Append($"{leftCast}{expr.Left.Accept(this)} * {rightCast}{expr.Right.Accept(this)}");
+                    currentLocation.Append($"{leftCast}{expr.Left.Accept(this)} * {rightCast}{expr.Right.Accept(this)}");
                 }
                 else
                 {
@@ -1024,19 +1027,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(expr.Left.TypeReference.ClrType) &&
                     expr.Right.TypeReference.ClrType == typeof(int))
                 {
-                    currentMethod.Append($"{leftCast}perlang::BigInt_pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"{leftCast}perlang::BigInt_pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
                          new[] { typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
                 {
                     // Normal math.h-based pow(), returning a double
-                    currentMethod.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
                 else if (new[] { typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
                          new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
                 {
                     // Normal math.h-based pow(), returning a double
-                    currentMethod.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                    currentLocation.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
                 else
                 {
@@ -1052,23 +1055,23 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     if (expr.Left.TypeReference.ClrType == typeof(BigInteger) ||
                         expr.Right.TypeReference.ClrType == typeof(BigInteger))
                     {
-                        currentMethod.Append($"{leftCast}perlang::BigInt_mod({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
+                        currentLocation.Append($"{leftCast}perlang::BigInt_mod({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                     }
                     else if (expr.Left.TypeReference.ClrType == typeof(double) ||
                              expr.Right.TypeReference.ClrType == typeof(double))
                     {
                         // C and C++ does not support the % operator for double; we must use `fmod()` instead
-                        currentMethod.Append($"fmod({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
+                        currentLocation.Append($"fmod({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
                     }
                     else if (expr.Left.TypeReference.ClrType == typeof(float) ||
                              expr.Right.TypeReference.ClrType == typeof(float))
                     {
                         // Likewise, but with `float` instead of `double` as arguments and return type
-                        currentMethod.Append($"fmodf({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
+                        currentLocation.Append($"fmodf({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
                     }
                     else
                     {
-                        currentMethod.Append($"{expr.Left.Accept(this)} % {expr.Right.Accept(this)}");
+                        currentLocation.Append($"{expr.Left.Accept(this)} % {expr.Right.Accept(this)}");
                     }
                 }
                 else
@@ -1084,7 +1087,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                 {
                     // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
                     // precedence for the shift left operator, which clang is kind enough to warn us about.
-                    currentMethod.Append($"({expr.Left.Accept(this)} << {expr.Right.Accept(this)})");
+                    currentLocation.Append($"({expr.Left.Accept(this)} << {expr.Right.Accept(this)})");
                 }
                 else
                 {
@@ -1124,7 +1127,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
                     // Additional parentheses emitted since C and C++ have the "wrong" (from a Perlang and K&R POV)
                     // precedence for the shift left operator, which clang is kind enough to warn us about.
-                    currentMethod.Append($"({expr.Left.Accept(this)} >> ({expr.Right.Accept(this)} {shiftCountBitMask}))");
+                    currentLocation.Append($"({expr.Left.Accept(this)} >> ({expr.Right.Accept(this)} {shiftCountBitMask}))");
                 }
                 else
                 {
@@ -1152,8 +1155,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         // TODO: binding at an earlier stage and e.g. validate the number and type of arguments with the method
         // TODO: definition. Right now, we'll leave this to the C++ compiler to deal with...
 
-        currentMethod.Append(expr.Callee.Accept(this));
-        currentMethod.Append('(');
+        currentLocation.Append(expr.Callee.Accept(this));
+        currentLocation.Append('(');
 
         for (int index = 0; index < expr.Arguments.Count; index++)
         {
@@ -1162,11 +1165,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
             if (index < expr.Arguments.Count - 1)
             {
-                currentMethod.Append(", ");
+                currentLocation.Append(", ");
             }
         }
 
-        currentMethod.Append(')');
+        currentLocation.Append(')');
 
         return VoidObject.Void;
     }
@@ -1185,62 +1188,62 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         if (indexeeTypeReference.CppWrapInSharedPtr)
         {
-            currentMethod.Append("(*");
+            currentLocation.Append("(*");
         }
 
         expr.Indexee.Accept(this);
 
         if (indexeeTypeReference.CppWrapInSharedPtr)
         {
-            currentMethod.Append(')');
+            currentLocation.Append(')');
         }
 
-        currentMethod.Append('[');
+        currentLocation.Append('[');
         expr.Argument.Accept(this);
-        currentMethod.Append(']');
+        currentLocation.Append(']');
 
         return VoidObject.Void;
     }
 
     public object? VisitGroupingExpr(Expr.Grouping expr)
     {
-        currentMethod.Append('(');
+        currentLocation.Append('(');
         expr.Expression.Accept(this);
-        currentMethod.Append(')');
+        currentLocation.Append(')');
 
         return VoidObject.Void;
     }
 
     public object? VisitCollectionInitializerExpr(Expr.CollectionInitializer collectionInitializer)
     {
-        currentMethod.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType}>(");
+        currentLocation.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType}>(");
 
         switch (collectionInitializer.TypeReference.CppType) {
             // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
             // to guess the correct type for us.
             case "perlang::IntArray":
-                currentMethod.Append("std::initializer_list<int32_t> ");
+                currentLocation.Append("std::initializer_list<int32_t> ");
                 break;
             case "perlang::StringArray":
-                currentMethod.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
+                currentLocation.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
                 break;
             default:
                 throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType} is not supported for collection initializers");
         }
 
-        currentMethod.Append("{ ");
+        currentLocation.Append("{ ");
 
         for (int index = 0; index < collectionInitializer.Elements.Count; index++) {
             Expr element = collectionInitializer.Elements[index];
             element.Accept(this);
 
             if (index < collectionInitializer.Elements.Count - 1) {
-                currentMethod.Append(", ");
+                currentLocation.Append(", ");
             }
         }
 
-        currentMethod.Append(" }");
-        currentMethod.Append(')');
+        currentLocation.Append(" }");
+        currentLocation.Append(')');
 
         return VoidObject.Void;
     }
@@ -1253,9 +1256,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
-            currentMethod.Append("perlang::ASCIIString::from_static_string(\"");
-            currentMethod.Append(expr);
-            currentMethod.Append("\")");
+            currentLocation.Append("perlang::ASCIIString::from_static_string(\"");
+            currentLocation.Append(expr);
+            currentLocation.Append("\")");
         }
         else if (expr.Value is Utf8String)
         {
@@ -1263,32 +1266,32 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
-            currentMethod.Append("perlang::UTF8String::from_static_string(\"");
-            currentMethod.Append(expr);
-            currentMethod.Append("\")");
+            currentLocation.Append("perlang::UTF8String::from_static_string(\"");
+            currentLocation.Append(expr);
+            currentLocation.Append("\")");
         }
         else if (expr.Value == null)
         {
             // C++11 defines nullptr as a keyword
-            currentMethod.Append("nullptr");
+            currentLocation.Append("nullptr");
         }
         else if (expr.Value is IntegerLiteral<uint> uintLiteral)
         {
             // TODO: should be UL when targeting 32-bit platforms and U for 64-bit.
-            currentMethod.Append(uintLiteral.Value);
-            currentMethod.Append('U'); // unsigned
+            currentLocation.Append(uintLiteral.Value);
+            currentLocation.Append('U'); // unsigned
         }
         else if (expr.Value is IntegerLiteral<ulong> ulongLiteral)
         {
             // FIXME: should be ULL for 32-bit platforms
-            currentMethod.Append(ulongLiteral.Value);
-            currentMethod.Append("UL"); // unsigned long
+            currentLocation.Append(ulongLiteral.Value);
+            currentLocation.Append("UL"); // unsigned long
         }
         else if (expr.Value is IFloatingPointLiteral floatingPointLiteral)
         {
             // We want to be careful to avoid using Value for floating point literals, since we we want to preserve the
             // exact value that the user entered as-is, without any potential loss of precision
-            currentMethod.Append(floatingPointLiteral.NumberCharacters);
+            currentLocation.Append(floatingPointLiteral.NumberCharacters);
 
             if (floatingPointLiteral is FloatingPointLiteral<double>)
             {
@@ -1296,7 +1299,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             }
             else if (floatingPointLiteral is FloatingPointLiteral<float>)
             {
-                currentMethod.Append('f');
+                currentLocation.Append('f');
             }
             else
             {
@@ -1305,19 +1308,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         }
         else if (expr.Value is IntegerLiteral<BigInteger> bigintLiteral)
         {
-            currentMethod.Append("BigInt(\"");
-            currentMethod.Append(bigintLiteral.Value.ToString());
-            currentMethod.Append("\")");
+            currentLocation.Append("BigInt(\"");
+            currentLocation.Append(bigintLiteral.Value.ToString());
+            currentLocation.Append("\")");
         }
         else if (expr.Value is INumericLiteral numericLiteral)
         {
             // This will work for all other numeric types we support
-            currentMethod.Append(numericLiteral.Value);
+            currentLocation.Append(numericLiteral.Value);
         }
         else if (expr.Value is bool boolLiteral)
         {
             // true.ToString() == "True", which is why we need this manual logic.
-            currentMethod.Append(boolLiteral ? "true" : "false");
+            currentLocation.Append(boolLiteral ? "true" : "false");
         }
         else
         {
@@ -1333,13 +1336,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         {
             case PIPE_PIPE:
                 expr.Left.Accept(this);
-                currentMethod.Append("||");
+                currentLocation.Append("||");
                 expr.Right.Accept(this);
                 break;
 
             case AMPERSAND_AMPERSAND:
                 expr.Left.Accept(this);
-                currentMethod.Append("&&");
+                currentLocation.Append("&&");
                 expr.Right.Accept(this);
                 break;
 
@@ -1356,12 +1359,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         switch (expr.Operator.Type)
         {
             case BANG:
-                currentMethod.Append('!');
+                currentLocation.Append('!');
                 expr.Right.Accept(this);
                 break;
 
             case MINUS:
-                currentMethod.Append('-');
+                currentLocation.Append('-');
                 expr.Right.Accept(this);
                 break;
 
@@ -1379,12 +1382,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         {
             case PLUS_PLUS:
                 expr.Left.Accept(this);
-                currentMethod.Append("++");
+                currentLocation.Append("++");
                 break;
 
             case MINUS_MINUS:
                 expr.Left.Accept(this);
-                currentMethod.Append("--");
+                currentLocation.Append("--");
                 break;
 
             default:
@@ -1397,7 +1400,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public object? VisitIdentifierExpr(Expr.Identifier expr)
     {
-        currentMethod.Append(expr.Name.Lexeme);
+        currentLocation.Append(expr.Name.Lexeme);
         return VoidObject.Void;
     }
 
@@ -1408,18 +1411,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             if (globalClasses.ContainsKey(identifier.Name.Lexeme))
             {
                 // These classes are put in the `perlang::stdlib` namespace in the C++ world
-                currentMethod.Append($"perlang::stdlib::{identifier.Name.Lexeme}");
+                currentLocation.Append($"perlang::stdlib::{identifier.Name.Lexeme}");
 
                 // Static methods are called with `class::method(params)` syntax in C++
-                currentMethod.Append("::");
-                currentMethod.Append(expr.Name.Lexeme);
+                currentLocation.Append("::");
+                currentLocation.Append(expr.Name.Lexeme);
             }
             else if (identifier.TypeReference.IsArray)
             {
                 // Arrays support a `length` property in Perlang, which is similar to other languages.
                 if (expr.Name.Lexeme == "length")
                 {
-                    currentMethod.Append($"{identifier.Name.Lexeme}->length()");
+                    currentLocation.Append($"{identifier.Name.Lexeme}->length()");
                 }
                 else
                 {
@@ -1443,8 +1446,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             // TODO: in the Perlang world.
             expr.Object.Accept(this);
 
-            currentMethod.Append('.');
-            currentMethod.Append(expr.Name.Lexeme);
+            currentLocation.Append('.');
+            currentLocation.Append(expr.Name.Lexeme);
         }
         else
         {
@@ -1456,8 +1459,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public VoidObject VisitBlockStmt(Stmt.Block block)
     {
-        currentMethod.Append(Indent(indentationLevel));
-        currentMethod.AppendLine("{");
+        currentLocation.Append(Indent(indentationLevel));
+        currentLocation.AppendLine("{");
         indentationLevel++;
 
         foreach (Stmt stmt in block.Statements)
@@ -1466,8 +1469,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         }
 
         indentationLevel--;
-        currentMethod.Append(Indent(indentationLevel));
-        currentMethod.AppendLine("}");
+        currentLocation.Append(Indent(indentationLevel));
+        currentLocation.AppendLine("}");
 
         return VoidObject.Void;
     }
@@ -1481,18 +1484,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
         // We only emit the "wrapping" (whitespace before + semicolon and newline after expression)  in this case; the
         // rest comes from visiting the expression itself
-        currentMethod.Append(Indent(indentationLevel));
+        currentLocation.Append(Indent(indentationLevel));
         stmt.Expression.Accept(this);
-        currentMethod.AppendLine(";");
+        currentLocation.AppendLine(";");
 
         return VoidObject.Void;
     }
 
     public VoidObject VisitFunctionStmt(Stmt.Function functionStmt)
     {
-        StringBuilder previousMethod = currentMethod;
+        StringBuilder previousMethod = currentLocation;
 
-        currentMethod = new StringBuilder();
+        currentLocation = new StringBuilder();
 
         if (methods.ContainsKey(functionStmt.Name.Lexeme))
         {
@@ -1505,7 +1508,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? "std::shared_ptr<const " : "")}" +
             $"{functionStmt.ReturnTypeReference.CppType}" +
             $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? ">" : "")}",
-            currentMethod
+            currentLocation
         );
 
         // Loop over the statements in the method body and visit them, recursively
@@ -1514,19 +1517,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             stmt.Accept(this);
         }
 
-        currentMethod = previousMethod;
+        currentLocation = previousMethod;
 
         return VoidObject.Void;
     }
 
     public VoidObject VisitIfStmt(Stmt.If stmt)
     {
-        currentMethod.Append(Indent(indentationLevel));
-        currentMethod.Append($"if ({stmt.Condition.Accept(this)}) ");
+        currentLocation.Append(Indent(indentationLevel));
+        currentLocation.Append($"if ({stmt.Condition.Accept(this)}) ");
 
         if (!(stmt.ThenBranch is Stmt.Block))
         {
-            currentMethod.AppendLine();
+            currentLocation.AppendLine();
         }
 
         indentationLevel++;
@@ -1535,12 +1538,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         if (stmt.ElseBranch != null)
         {
-            currentMethod.Append(Indent(indentationLevel));
-            currentMethod.Append("else ");
+            currentLocation.Append(Indent(indentationLevel));
+            currentLocation.Append("else ");
 
             if (!(stmt.ElseBranch is Stmt.Block))
             {
-                currentMethod.AppendLine();
+                currentLocation.AppendLine();
             }
 
             indentationLevel++;
@@ -1553,7 +1556,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public VoidObject VisitPrintStmt(Stmt.Print stmt)
     {
-        currentMethod.AppendLine($"{Indent(indentationLevel)}perlang::print({stmt.Expression.Accept(this)});");
+        currentLocation.AppendLine($"{Indent(indentationLevel)}perlang::print({stmt.Expression.Accept(this)});");
 
         return VoidObject.Void;
     }
@@ -1563,13 +1566,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
         if (stmt.Value == null)
         {
             // void return
-            currentMethod.AppendLine($"{Indent(indentationLevel)}return;");
+            currentLocation.AppendLine($"{Indent(indentationLevel)}return;");
         }
         else
         {
-            currentMethod.Append($"{Indent(indentationLevel)}return ");
+            currentLocation.Append($"{Indent(indentationLevel)}return ");
             stmt.Value.Accept(this);
-            currentMethod.AppendLine(";");
+            currentLocation.AppendLine(";");
         }
 
         return VoidObject.Void;
@@ -1579,15 +1582,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     {
         string variableName = stmt.Name.Lexeme;
 
-        currentMethod.Append($"{Indent(indentationLevel)}{stmt.TypeReference.PossiblyWrappedCppType} {variableName}");
+        currentLocation.Append($"{Indent(indentationLevel)}{stmt.TypeReference.PossiblyWrappedCppType} {variableName}");
 
         if (stmt.Initializer != null)
         {
-            currentMethod.AppendLine($" = {stmt.Initializer.Accept(this)};");
+            currentLocation.AppendLine($" = {stmt.Initializer.Accept(this)};");
         }
         else
         {
-            currentMethod.AppendLine(";");
+            currentLocation.AppendLine(";");
         }
 
         return VoidObject.Void;
@@ -1595,10 +1598,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     public VoidObject VisitWhileStmt(Stmt.While whileStmt)
     {
-        currentMethod.Append(Indent(indentationLevel));
-        currentMethod.Append($"while ({whileStmt.Condition.Accept(this)}) ");
+        currentLocation.Append(Indent(indentationLevel));
+        currentLocation.Append($"while ({whileStmt.Condition.Accept(this)}) ");
         whileStmt.Body.Accept(this);
-        currentMethod.AppendLine(";");
+        currentLocation.AppendLine(";");
 
         return VoidObject.Void;
     }
