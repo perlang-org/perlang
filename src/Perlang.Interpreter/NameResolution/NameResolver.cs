@@ -9,452 +9,451 @@ using System.Linq;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Internals;
 
-namespace Perlang.Interpreter.NameResolution
+namespace Perlang.Interpreter.NameResolution;
+
+/// <summary>
+/// The `NameResolver` is responsible for resolving names of local and global variable/function names.
+/// </summary>
+internal class NameResolver : VisitorBase
 {
+    private readonly IBindingHandler bindingHandler;
+    private readonly Action<string, PerlangClass> addGlobalClassCallback;
+    private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
+
     /// <summary>
-    /// The `NameResolver` is responsible for resolving names of local and global variable/function names.
+    /// An instance-local list of scopes. The innermost scope is always the last entry in this list. As the code is
+    /// being traversed, scopes are created and removed as blocks are opened/closed.
     /// </summary>
-    internal class NameResolver : VisitorBase
+    private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
+
+    /// <summary>
+    /// An instance-local list of global symbols (variables, functions etc).
+    /// </summary>
+    private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
+
+    internal IDictionary<string, IBindingFactory> Globals => globals;
+
+    private FunctionType currentFunction = FunctionType.NONE;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NameResolver"/> class.
+    /// </summary>
+    /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
+    /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
+    /// from outside of the program itself.</param>
+    /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
+    /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
+    /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
+    /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
+    internal NameResolver(
+        IImmutableDictionary<string, Type> globalClasses,
+        IImmutableDictionary<string, Type> superGlobals,
+        IBindingHandler bindingHandler,
+        Action<string, PerlangClass> addGlobalClassCallback,
+        NameResolutionErrorHandler nameResolutionErrorHandler)
     {
-        private readonly IBindingHandler bindingHandler;
-        private readonly Action<string, PerlangClass> addGlobalClassCallback;
-        private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
+        this.bindingHandler = bindingHandler;
+        this.addGlobalClassCallback = addGlobalClassCallback;
+        this.nameResolutionErrorHandler = nameResolutionErrorHandler;
 
-        /// <summary>
-        /// An instance-local list of scopes. The innermost scope is always the last entry in this list. As the code is
-        /// being traversed, scopes are created and removed as blocks are opened/closed.
-        /// </summary>
-        private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
-
-        /// <summary>
-        /// An instance-local list of global symbols (variables, functions etc).
-        /// </summary>
-        private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
-
-        internal IDictionary<string, IBindingFactory> Globals => globals;
-
-        private FunctionType currentFunction = FunctionType.NONE;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NameResolver"/> class.
-        /// </summary>
-        /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
-        /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
-        /// from outside of the program itself.</param>
-        /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
-        /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
-        /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
-        /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
-        internal NameResolver(
-            IImmutableDictionary<string, Type> globalClasses,
-            IImmutableDictionary<string, Type> superGlobals,
-            IBindingHandler bindingHandler,
-            Action<string, PerlangClass> addGlobalClassCallback,
-            NameResolutionErrorHandler nameResolutionErrorHandler)
+        foreach ((string key, Type value) in globalClasses)
         {
-            this.bindingHandler = bindingHandler;
-            this.addGlobalClassCallback = addGlobalClassCallback;
-            this.nameResolutionErrorHandler = nameResolutionErrorHandler;
-
-            foreach ((string key, Type value) in globalClasses)
-            {
-                globals[key] = new NativeClassBindingFactory(value);
-            }
-
-            foreach ((string key, Type value) in superGlobals)
-            {
-                globals[key] = new NativeObjectBindingFactory(value);
-            }
+            globals[key] = new NativeClassBindingFactory(value);
         }
 
-        internal void Resolve(IEnumerable<Stmt> statements)
+        foreach ((string key, Type value) in superGlobals)
         {
-            foreach (Stmt statement in statements)
-            {
-                Resolve(statement);
-            }
+            globals[key] = new NativeObjectBindingFactory(value);
+        }
+    }
+
+    internal void Resolve(IEnumerable<Stmt> statements)
+    {
+        foreach (Stmt statement in statements)
+        {
+            Resolve(statement);
+        }
+    }
+
+    internal void Resolve(Expr expr)
+    {
+        expr.Accept(this);
+    }
+
+    private void BeginScope()
+    {
+        scopes.Add(new Dictionary<string, IBindingFactory>());
+    }
+
+    private void EndScope()
+    {
+        scopes.RemoveAt(scopes.Count - 1);
+    }
+
+    /// <summary>
+    /// Declares a variable or function as existing (but not yet initialized) in the innermost scope. This allows
+    /// the variable to shadow variables in outer scopes with the same name.
+    /// </summary>
+    /// <param name="name">The name of the variable or function.</param>
+    private void Declare(Token name)
+    {
+        if (IsEmpty(scopes))
+        {
+            return;
         }
 
-        internal void Resolve(Expr expr)
+        // This adds the variable to the innermost scope so that it shadows any outer one and so that we know the
+        // variable exists.
+        var scope = scopes.Last();
+
+        if (scope.ContainsKey(name.Lexeme))
         {
-            expr.Accept(this);
+            nameResolutionErrorHandler(new NameResolutionError("Variable with this name already declared in this scope.", name));
         }
 
-        private void BeginScope()
+        // We mark it as “not ready yet” by binding a known None-value in the scope map. Each value in the scope
+        // map means “is finished being initialized”, at this stage of traversing the tree. Being able to
+        // distinguish between uninitialized and initialized values is critical to be able to detect erroneous code
+        // like "var a = a".
+        scope[name.Lexeme] = VariableBindingFactory.None;
+    }
+
+    private static bool IsEmpty(ICollection stack)
+    {
+        return stack.Count == 0;
+    }
+
+    /// <summary>
+    /// Defines a previously declared variable as initialized, available for use.
+    /// </summary>
+    /// <param name="name">The variable or function name.</param>
+    /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
+    /// <exception cref="ArgumentException">`typeReference` is null.</exception>
+    private void Define(Token name, ITypeReference typeReference)
+    {
+        if (typeReference == null)
         {
-            scopes.Add(new Dictionary<string, IBindingFactory>());
+            throw new ArgumentException("typeReference cannot be null");
         }
 
-        private void EndScope()
+        if (IsEmpty(scopes))
         {
-            scopes.RemoveAt(scopes.Count - 1);
+            globals[name.Lexeme] = new VariableBindingFactory(typeReference);
+            return;
         }
 
-        /// <summary>
-        /// Declares a variable or function as existing (but not yet initialized) in the innermost scope. This allows
-        /// the variable to shadow variables in outer scopes with the same name.
-        /// </summary>
-        /// <param name="name">The name of the variable or function.</param>
-        private void Declare(Token name)
+        // We set the variable’s value in the scope map to mark it as fully initialized and available for
+        // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
+        // function return type and function statement (in case of a function being defined). These details are
+        // useful later on, in the static type analysis.
+        scopes.Last()[name.Lexeme] = new VariableBindingFactory(typeReference);
+    }
+
+    /// <summary>
+    /// Defines a previously declared function as defined, available for use.
+    /// </summary>
+    /// <param name="name">The variable or function name.</param>
+    /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
+    /// <param name="function">The function statement should be provided here.</param>
+    private void DefineFunction(Token name, ITypeReference typeReference, Stmt.Function function)
+    {
+        if (typeReference == null)
         {
-            if (IsEmpty(scopes))
-            {
-                return;
-            }
-
-            // This adds the variable to the innermost scope so that it shadows any outer one and so that we know the
-            // variable exists.
-            var scope = scopes.Last();
-
-            if (scope.ContainsKey(name.Lexeme))
-            {
-                nameResolutionErrorHandler(new NameResolutionError("Variable with this name already declared in this scope.", name));
-            }
-
-            // We mark it as “not ready yet” by binding a known None-value in the scope map. Each value in the scope
-            // map means “is finished being initialized”, at this stage of traversing the tree. Being able to
-            // distinguish between uninitialized and initialized values is critical to be able to detect erroneous code
-            // like "var a = a".
-            scope[name.Lexeme] = VariableBindingFactory.None;
+            throw new ArgumentException("typeReference cannot be null");
         }
 
-        private static bool IsEmpty(ICollection stack)
+        if (IsEmpty(scopes))
         {
-            return stack.Count == 0;
+            globals[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
+            return;
         }
 
-        /// <summary>
-        /// Defines a previously declared variable as initialized, available for use.
-        /// </summary>
-        /// <param name="name">The variable or function name.</param>
-        /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
-        /// <exception cref="ArgumentException">`typeReference` is null.</exception>
-        private void Define(Token name, ITypeReference typeReference)
+        // We set the variable’s value in the scope map to mark it as fully initialized and available for
+        // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
+        // function return type and function statement (in case of a function being defined). These details are
+        // useful later on, in the static type analysis.
+        scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
+    }
+
+    private void DefineClass(Token name, PerlangClass perlangClass)
+    {
+        if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
-            if (typeReference == null)
-            {
-                throw new ArgumentException("typeReference cannot be null");
-            }
-
-            if (IsEmpty(scopes))
-            {
-                globals[name.Lexeme] = new VariableBindingFactory(typeReference);
-                return;
-            }
-
-            // We set the variable’s value in the scope map to mark it as fully initialized and available for
-            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
-            // function return type and function statement (in case of a function being defined). These details are
-            // useful later on, in the static type analysis.
-            scopes.Last()[name.Lexeme] = new VariableBindingFactory(typeReference);
+            nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
+            return;
         }
 
-        /// <summary>
-        /// Defines a previously declared function as defined, available for use.
-        /// </summary>
-        /// <param name="name">The variable or function name.</param>
-        /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
-        /// <param name="function">The function statement should be provided here.</param>
-        private void DefineFunction(Token name, ITypeReference typeReference, Stmt.Function function)
+        globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
+        addGlobalClassCallback(name.Lexeme, perlangClass);
+    }
+
+    private void ResolveLocalOrGlobal(Expr referringExpr, Token name)
+    {
+        // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
+        // that matches this name.
+        for (int i = scopes.Count - 1; i >= 0; i--)
         {
-            if (typeReference == null)
+            if (scopes[i].ContainsKey(name.Lexeme))
             {
-                throw new ArgumentException("typeReference cannot be null");
-            }
+                IBindingFactory bindingFactory = scopes[i][name.Lexeme];
 
-            if (IsEmpty(scopes))
-            {
-                globals[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
-                return;
-            }
-
-            // We set the variable’s value in the scope map to mark it as fully initialized and available for
-            // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
-            // function return type and function statement (in case of a function being defined). These details are
-            // useful later on, in the static type analysis.
-            scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
-        }
-
-        private void DefineClass(Token name, PerlangClass perlangClass)
-        {
-            if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
-            {
-                nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
-                return;
-            }
-
-            globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
-            addGlobalClassCallback(name.Lexeme, perlangClass);
-        }
-
-        private void ResolveLocalOrGlobal(Expr referringExpr, Token name)
-        {
-            // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
-            // that matches this name.
-            for (int i = scopes.Count - 1; i >= 0; i--)
-            {
-                if (scopes[i].ContainsKey(name.Lexeme))
+                if (bindingFactory == VariableBindingFactory.None)
                 {
-                    IBindingFactory bindingFactory = scopes[i][name.Lexeme];
-
-                    if (bindingFactory == VariableBindingFactory.None)
-                    {
-                        nameResolutionErrorHandler(
-                            new NameResolutionError("Cannot read local variable in its own initializer.", name));
-                        return;
-                    }
-
-                    bindingHandler.AddLocalExpr(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
-
+                    nameResolutionErrorHandler(
+                        new NameResolutionError("Cannot read local variable in its own initializer.", name));
                     return;
                 }
-            }
 
-            // The identifier was not found in any of the local scopes. If it cannot be found in the globals, we can
-            // safely assume it is non-existent.
-            if (!globals.ContainsKey(name.Lexeme))
-            {
+                bindingHandler.AddLocalExpr(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
+
                 return;
             }
-
-            // Note: the extra block here is actually not just "for fun". We get a conflict with the bindingFactory
-            // in the for-loop above if we skip it.
-            {
-                IBindingFactory bindingFactory = globals[name.Lexeme];
-                bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(-1, referringExpr));
-            }
         }
 
-        public override VoidObject VisitEmptyExpr(Expr.Empty expr)
+        // The identifier was not found in any of the local scopes. If it cannot be found in the globals, we can
+        // safely assume it is non-existent.
+        if (!globals.ContainsKey(name.Lexeme))
         {
-            return VoidObject.Void;
+            return;
         }
 
-        public override VoidObject VisitAssignExpr(Expr.Assign expr)
+        // Note: the extra block here is actually not just "for fun". We get a conflict with the bindingFactory
+        // in the for-loop above if we skip it.
         {
-            Resolve(expr.Value);
-            ResolveLocalOrGlobal(expr, expr.Name);
-
-            return VoidObject.Void;
+            IBindingFactory bindingFactory = globals[name.Lexeme];
+            bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(-1, referringExpr));
         }
+    }
 
-        public override VoidObject VisitBinaryExpr(Expr.Binary expr)
+    public override VoidObject VisitEmptyExpr(Expr.Empty expr)
+    {
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitAssignExpr(Expr.Assign expr)
+    {
+        Resolve(expr.Value);
+        ResolveLocalOrGlobal(expr, expr.Name);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitBinaryExpr(Expr.Binary expr)
+    {
+        Resolve(expr.Left);
+        Resolve(expr.Right);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitCallExpr(Expr.Call expr)
+    {
+        Resolve(expr.Callee);
+
+        foreach (Expr argument in expr.Arguments)
         {
-            Resolve(expr.Left);
-            Resolve(expr.Right);
-
-            return VoidObject.Void;
+            Resolve(argument);
         }
 
-        public override VoidObject VisitCallExpr(Expr.Call expr)
+        if (expr.Callee is Expr.Identifier identifierExpr)
         {
-            Resolve(expr.Callee);
-
-            foreach (Expr argument in expr.Arguments)
-            {
-                Resolve(argument);
-            }
-
-            if (expr.Callee is Expr.Identifier identifierExpr)
-            {
-                ResolveLocalOrGlobal(expr, identifierExpr.Name);
-            }
-
-            return VoidObject.Void;
+            ResolveLocalOrGlobal(expr, identifierExpr.Name);
         }
 
-        public override VoidObject VisitIndexExpr(Expr.Index expr)
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitIndexExpr(Expr.Index expr)
+    {
+        Resolve(expr.Indexee);
+        Resolve(expr.Argument);
+
+        if (expr.Indexee is Expr.Identifier identifierExpr)
         {
-            Resolve(expr.Indexee);
-            Resolve(expr.Argument);
-
-            if (expr.Indexee is Expr.Identifier identifierExpr)
-            {
-                ResolveLocalOrGlobal(expr, identifierExpr.Name);
-            }
-
-            return VoidObject.Void;
+            ResolveLocalOrGlobal(expr, identifierExpr.Name);
         }
 
-        public override VoidObject VisitGroupingExpr(Expr.Grouping expr)
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitGroupingExpr(Expr.Grouping expr)
+    {
+        Resolve(expr.Expression);
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitLiteralExpr(Expr.Literal expr)
+    {
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitLogicalExpr(Expr.Logical expr)
+    {
+        Resolve(expr.Left);
+        Resolve(expr.Right);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
+    {
+        Resolve(expr.Right);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
+    {
+        Resolve(expr.Left);
+        ResolveLocalOrGlobal(expr, expr.Name);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
+    {
+        // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must be able
+        // to distinguish between "set to null" and "not set at all".
+        if (!IsEmpty(scopes) &&
+            scopes.Last().TryGetObjectValue(expr.Name.Lexeme, VariableBindingFactory.None) == null)
         {
-            Resolve(expr.Expression);
-            return VoidObject.Void;
+            nameResolutionErrorHandler(new NameResolutionError("Cannot read local variable in its own initializer.", expr.Name));
         }
 
-        public override VoidObject VisitLiteralExpr(Expr.Literal expr)
+        ResolveLocalOrGlobal(expr, expr.Name);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitGetExpr(Expr.Get expr)
+    {
+        Resolve(expr.Object);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitBlockStmt(Stmt.Block stmt)
+    {
+        BeginScope();
+        Resolve(stmt.Statements);
+        EndScope();
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitClassStmt(Stmt.Class stmt)
+    {
+        // TODO: Implement resolution related to classes: handle fields defined in the class, resolve method
+        // TODO: arguments, etc.
+
+        Declare(stmt.Name);
+
+        var perlangClass = new PerlangClass(stmt.Name.Lexeme, stmt.Methods);
+
+        DefineClass(stmt.Name, perlangClass);
+
+        return VoidObject.Void;
+    }
+
+    private void Resolve(Stmt stmt)
+    {
+        stmt.Accept(this);
+    }
+
+    public override VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
+    {
+        Resolve(stmt.Expression);
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
+    {
+        Declare(stmt.Name);
+        DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
+
+        ResolveFunction(stmt, FunctionType.FUNCTION);
+
+        return VoidObject.Void;
+    }
+
+    private void ResolveFunction(Stmt.Function function, FunctionType type)
+    {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = type;
+
+        BeginScope();
+
+        foreach (Parameter param in function.Parameters)
         {
-            return VoidObject.Void;
+            Declare(param.Name);
+            Define(param.Name, new TypeReference(param.TypeSpecifier, param.IsArray));
         }
 
-        public override VoidObject VisitLogicalExpr(Expr.Logical expr)
+        Resolve(function.Body);
+        EndScope();
+
+        currentFunction = enclosingFunction;
+    }
+
+    public override VoidObject VisitIfStmt(Stmt.If stmt)
+    {
+        Resolve(stmt.Condition);
+        Resolve(stmt.ThenBranch);
+
+        if (stmt.ElseBranch != null)
         {
-            Resolve(expr.Left);
-            Resolve(expr.Right);
-
-            return VoidObject.Void;
+            Resolve(stmt.ElseBranch);
         }
 
-        public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitPrintStmt(Stmt.Print stmt)
+    {
+        Resolve(stmt.Expression);
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitReturnStmt(Stmt.Return stmt)
+    {
+        if (currentFunction == FunctionType.NONE)
         {
-            Resolve(expr.Right);
-
-            return VoidObject.Void;
+            nameResolutionErrorHandler(new NameResolutionError("Cannot return from top-level code.", stmt.Keyword));
         }
 
-        public override VoidObject VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
+        if (stmt.Value != null)
         {
-            Resolve(expr.Left);
-            ResolveLocalOrGlobal(expr, expr.Name);
-
-            return VoidObject.Void;
+            Resolve(stmt.Value);
         }
 
-        public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitVarStmt(Stmt.Var stmt)
+    {
+        Declare(stmt.Name);
+
+        if (stmt.Initializer != null)
         {
-            // Note: providing the defaultValue in the TryGetObjectValue() call here is critical, since we must be able
-            // to distinguish between "set to null" and "not set at all".
-            if (!IsEmpty(scopes) &&
-                scopes.Last().TryGetObjectValue(expr.Name.Lexeme, VariableBindingFactory.None) == null)
-            {
-                nameResolutionErrorHandler(new NameResolutionError("Cannot read local variable in its own initializer.", expr.Name));
-            }
-
-            ResolveLocalOrGlobal(expr, expr.Name);
-
-            return VoidObject.Void;
+            Resolve(stmt.Initializer);
         }
 
-        public override VoidObject VisitGetExpr(Expr.Get expr)
-        {
-            Resolve(expr.Object);
+        Define(stmt.Name, stmt.TypeReference);
 
-            return VoidObject.Void;
-        }
+        return VoidObject.Void;
+    }
 
-        public override VoidObject VisitBlockStmt(Stmt.Block stmt)
-        {
-            BeginScope();
-            Resolve(stmt.Statements);
-            EndScope();
+    public override VoidObject VisitWhileStmt(Stmt.While stmt)
+    {
+        Resolve(stmt.Condition);
+        Resolve(stmt.Body);
 
-            return VoidObject.Void;
-        }
+        return VoidObject.Void;
+    }
 
-        public override VoidObject VisitClassStmt(Stmt.Class stmt)
-        {
-            // TODO: Implement resolution related to classes: handle fields defined in the class, resolve method
-            // TODO: arguments, etc.
-
-            Declare(stmt.Name);
-
-            var perlangClass = new PerlangClass(stmt.Name.Lexeme, stmt.Methods);
-
-            DefineClass(stmt.Name, perlangClass);
-
-            return VoidObject.Void;
-        }
-
-        private void Resolve(Stmt stmt)
-        {
-            stmt.Accept(this);
-        }
-
-        public override VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
-        {
-            Resolve(stmt.Expression);
-            return VoidObject.Void;
-        }
-
-        public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
-        {
-            Declare(stmt.Name);
-            DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
-
-            ResolveFunction(stmt, FunctionType.FUNCTION);
-
-            return VoidObject.Void;
-        }
-
-        private void ResolveFunction(Stmt.Function function, FunctionType type)
-        {
-            FunctionType enclosingFunction = currentFunction;
-            currentFunction = type;
-
-            BeginScope();
-
-            foreach (Parameter param in function.Parameters)
-            {
-                Declare(param.Name);
-                Define(param.Name, new TypeReference(param.TypeSpecifier, param.IsArray));
-            }
-
-            Resolve(function.Body);
-            EndScope();
-
-            currentFunction = enclosingFunction;
-        }
-
-        public override VoidObject VisitIfStmt(Stmt.If stmt)
-        {
-            Resolve(stmt.Condition);
-            Resolve(stmt.ThenBranch);
-
-            if (stmt.ElseBranch != null)
-            {
-                Resolve(stmt.ElseBranch);
-            }
-
-            return VoidObject.Void;
-        }
-
-        public override VoidObject VisitPrintStmt(Stmt.Print stmt)
-        {
-            Resolve(stmt.Expression);
-            return VoidObject.Void;
-        }
-
-        public override VoidObject VisitReturnStmt(Stmt.Return stmt)
-        {
-            if (currentFunction == FunctionType.NONE)
-            {
-                nameResolutionErrorHandler(new NameResolutionError("Cannot return from top-level code.", stmt.Keyword));
-            }
-
-            if (stmt.Value != null)
-            {
-                Resolve(stmt.Value);
-            }
-
-            return VoidObject.Void;
-        }
-
-        public override VoidObject VisitVarStmt(Stmt.Var stmt)
-        {
-            Declare(stmt.Name);
-
-            if (stmt.Initializer != null)
-            {
-                Resolve(stmt.Initializer);
-            }
-
-            Define(stmt.Name, stmt.TypeReference);
-
-            return VoidObject.Void;
-        }
-
-        public override VoidObject VisitWhileStmt(Stmt.While stmt)
-        {
-            Resolve(stmt.Condition);
-            Resolve(stmt.Body);
-
-            return VoidObject.Void;
-        }
-
-        private enum FunctionType
-        {
-            NONE,
-            FUNCTION
-        }
+    private enum FunctionType
+    {
+        NONE,
+        FUNCTION
     }
 }
