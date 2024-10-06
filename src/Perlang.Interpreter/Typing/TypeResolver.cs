@@ -746,6 +746,22 @@ namespace Perlang.Interpreter.Typing
                 // This is actually safe, since return-type-based polymorphism isn't allowed in .NET.
                 expr.TypeReference.SetClrType(methods.First().ReturnType);
             }
+            else if (binding is EnumBinding enumBinding)
+            {
+                PerlangEnum perlangEnum = enumBinding.PerlangEnum;
+
+                if (!perlangEnum.EnumMembers.ContainsKey(expr.Name.Lexeme))
+                {
+                    typeValidationErrorCallback(new TypeValidationError(
+                        expr.Name,
+                        $"Enum member '{expr.Name.Lexeme}' not found in enum '{perlangEnum.Name.Lexeme}'")
+                    );
+
+                    return VoidObject.Void;
+                }
+
+                expr.TypeReference.SetClrType(binding.TypeReference!.ClrType);
+            }
             else
             {
                 throw new NotSupportedException($"Unsupported binding type encountered: {binding}");

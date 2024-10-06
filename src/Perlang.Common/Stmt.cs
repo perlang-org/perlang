@@ -10,6 +10,7 @@ namespace Perlang
         {
             TR VisitBlockStmt(Block stmt);
             TR VisitClassStmt(Class stmt);
+            TR VisitEnumStmt(Enum stmt);
             TR VisitExpressionStmt(ExpressionStmt stmt);
             TR VisitFunctionStmt(Function stmt);
             TR VisitIfStmt(If stmt);
@@ -169,7 +170,7 @@ namespace Perlang
             {
                 if (Initializer != null)
                 {
-                    if (TypeReference?.TypeSpecifier?.Lexeme != null)
+                    if (TypeReference.TypeSpecifier?.Lexeme != null)
                     {
                         return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme} = {Initializer};";
                     }
@@ -180,7 +181,7 @@ namespace Perlang
                 }
                 else
                 {
-                    if (TypeReference?.TypeSpecifier?.Lexeme != null)
+                    if (TypeReference.TypeSpecifier?.Lexeme != null)
                     {
                         return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme};";
                     }
@@ -206,6 +207,23 @@ namespace Perlang
             public override TR Accept<TR>(IVisitor<TR> visitor)
             {
                 return visitor.VisitWhileStmt(this);
+            }
+        }
+
+        public class Enum : Stmt
+        {
+            public Token Name { get; }
+            public Dictionary<string, Expr?> Members { get; }
+
+            public Enum(Token name, Dictionary<string, Expr?> members)
+            {
+                Members = members;
+                Name = name;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitEnumStmt(this);
             }
         }
 

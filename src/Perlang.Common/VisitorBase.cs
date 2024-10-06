@@ -172,6 +172,18 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        public virtual VoidObject VisitEnumStmt(Stmt.Enum stmt)
+        {
+            foreach ((string _, Expr value) in stmt.Members) {
+                // This helps make sure that expression-based values are evaluated.
+                if (value != null) {
+                    Visit(value);
+                }
+            }
+
+            return VoidObject.Void;
+        }
+
         public virtual VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)
         {
             Visit(stmt.Expression);

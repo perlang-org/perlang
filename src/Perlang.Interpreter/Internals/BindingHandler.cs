@@ -30,11 +30,6 @@ namespace Perlang.Interpreter.Internals
             localBindings[binding.ReferringExpr] = binding;
         }
 
-        public bool GetLocalBinding(Expr expr, out Binding? binding)
-        {
-            return localBindings.TryGetValue(expr, out binding);
-        }
-
         public Binding? GetVariableOrFunctionBinding(Expr expr)
         {
             if (localBindings.ContainsKey(expr))

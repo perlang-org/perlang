@@ -113,6 +113,64 @@ namespace Perlang.Tests.Integration
         ///
         /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
         ///
+        /// This method will propagate all errors apart from  <see cref="PerlangCompilerException"/> to the caller.
+        /// PerlangCompilerException errors will be available in the returned <see cref="EvalResult{T}"/>.
+        ///
+        /// If any warnings are emitted, they will be available in the returned <see
+        /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
+        /// </summary>
+        /// <param name="source">A valid Perlang program.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
+        /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
+        /// will be set to `null`.</returns>
+        internal static EvalResult<PerlangCompilerException> EvalWithCppCompilationErrorCatch(string source, params string[] arguments)
+        {
+            if (PerlangMode.ExperimentalCompilation) {
+                var result = new EvalResult<PerlangCompilerException>();
+
+                var compiler = new PerlangCompiler(
+                    AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments
+                );
+
+                try {
+                    result.Value = compiler.CompileAndRun(
+                        source,
+                        CreateTemporaryPath(source),
+                        targetPath: null,
+                        CompilerFlags.None,
+                        AssertFailScanErrorHandler,
+                        AssertFailParseErrorHandler,
+                        AssertFailNameResolutionErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        AssertFailValidationErrorHandler,
+                        result.WarningHandler
+                    );
+                }
+                catch (PerlangCompilerException e) {
+                    result.ErrorHandler(e);
+                    return result;
+                }
+
+                // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
+                // (with no native "result") is being used, if needed.
+                result.Value = VoidObject.Void;
+
+                return result;
+            }
+            else {
+                // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
+                // become a special mode or not. If it does, the code for handling it should be added here.
+                throw new NotImplementedException("EvalWithRuntimeErrorCatch is not yet supported in interpreted mode");
+            }
+        }
+
+        /// <summary>
+        /// Evaluates the provided expression or list of statements, returning an <see cref="EvalResult{T}"/> with <see
+        /// cref="EvalResult{T}.Value"/> set to the evaluated value.
+        ///
+        /// Output printed to the standard output stream will be available in <see cref="EvalResult{T}.Output"/>.
+        ///
         /// This method will propagate all errors apart from  <see cref="ScanError"/> to the caller. Scan errors
         /// will be available in the returned <see cref="EvalResult{T}.Errors"/> property.
         ///

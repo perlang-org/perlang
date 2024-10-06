@@ -6,7 +6,6 @@ namespace Perlang.Interpreter.Internals
 {
     public interface IBindingHandler
     {
-        bool GetLocalBinding(Expr expr, out Binding? binding);
         Binding? GetVariableOrFunctionBinding(Expr expr);
 
         /// <summary>

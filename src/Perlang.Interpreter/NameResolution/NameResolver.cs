@@ -187,6 +187,19 @@ internal class NameResolver : VisitorBase
         addGlobalClassCallback(name.Lexeme, perlangClass);
     }
 
+    // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
+    private void DefineEnum(Token name, Dictionary<string, Expr?> enumMembers)
+    {
+        if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
+        {
+            nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
+            return;
+        }
+
+        var perlangEnum = new PerlangEnum(name, enumMembers);
+        globals[name.Lexeme] = new EnumBindingFactory(perlangEnum);
+    }
+
     private void ResolveLocalOrGlobal(Expr referringExpr, Token name)
     {
         // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
@@ -358,6 +371,12 @@ internal class NameResolver : VisitorBase
     private void Resolve(Stmt stmt)
     {
         stmt.Accept(this);
+    }
+
+    public override VoidObject VisitEnumStmt(Stmt.Enum stmt)
+    {
+        DefineEnum(stmt.Name, stmt.Members);
+        return VoidObject.Void;
     }
 
     public override VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)

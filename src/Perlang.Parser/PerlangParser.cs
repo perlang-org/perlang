@@ -215,6 +215,7 @@ namespace Perlang.Parser
             {
                 if (Match(FUN)) return Function("function");
                 if (Match(VAR)) return VarDeclaration();
+                if (Match(ENUM)) return Enum();
 
                 return Statement();
             }
@@ -234,7 +235,6 @@ namespace Perlang.Parser
             if (Match(WHILE)) return WhileStatement();
             if (Match(LEFT_BRACE)) return new Stmt.Block(Block());
 
-            // TODO: Continue here the next time. Try to return something sensible here, like an empty
             if (Check(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES)) {
                 cppPrototypes.Add(Advance());
                 return new Stmt.ExpressionStmt(new Expr.Empty());
@@ -496,6 +496,34 @@ namespace Perlang.Parser
             List<Stmt> body = Block();
 
             return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier, isReturnTypeArray));
+        }
+
+        private Stmt.Enum Enum()
+        {
+            Token name = Consume(IDENTIFIER, "Enum name expected.");
+            Consume(LEFT_BRACE, "Expect '{' after enum keyword.");
+
+            Dictionary<string, Expr> members = new Dictionary<string, Expr>();
+
+            do {
+                Token enumValue = Consume(IDENTIFIER, "Expect identifier for enum value.");
+
+                // Enum values can optionally have a value assigned to them.
+                Expr value = null;
+
+                if (Match(EQUAL))
+                {
+                    value = Expression();
+                }
+
+                // TODO: Could we evaluate the value here somehow? We only want to support compile-time constants. I guess
+                // forward-referencing will be simpler if we don't try to evaluate it this early...
+                members[enumValue.Lexeme] = value;
+            } while (Match(COMMA));
+
+            Consume(RIGHT_BRACE, "Expect '}' at end of enum declaration.");
+
+            return new Stmt.Enum(name, members);
         }
 
         private List<Stmt> Block()

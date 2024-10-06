@@ -57,6 +57,7 @@ namespace Perlang
 
         // Keywords.
         ELSE,
+        ENUM,
         FALSE,
         FUN,
         FOR,

@@ -53,7 +53,10 @@ namespace Perlang.Interpreter.Compiler;
 /// aesthetically pleasing.
 /// <remarks>Note: must **NOT** be a <see cref="VisitorBase"/>, because we use different return types than the base class'
 /// methods. Using the `new` keyword for these overloads will not work, since the base class will then not call the
-/// methods in this class as expected.</remarks>
+/// methods in this class as expected.
+///
+/// Also, this class is not thread safe. A single instance of this class cannot safely be used from multiple
+/// threads.</remarks>
 /// </summary>
 public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 {
@@ -98,6 +101,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
+    private readonly IDictionary<string, string> enums;
 
     /// <summary>
     /// The location in the output we are currently writing to. Can be an enum, function, etc.
@@ -126,6 +130,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         this.currentLocation = new StringBuilder();
         this.methods = new Dictionary<string, Method>();
+        this.enums = new Dictionary<string, string>();
 
         methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", currentLocation);
 
@@ -564,6 +569,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     }
 
                     streamWriter.WriteLine();
+                }
+
+                if (enums.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Enum definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach ((string _, string value) in enums) {
+                        streamWriter.WriteLine(value);
+                        streamWriter.WriteLine();
+                    }
                 }
 
                 if (methods.Count > 0) {
@@ -1429,6 +1445,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
                     throw new PerlangCompilerException($"Unsupported property {expr.Name.Lexeme} on array {identifier.Name.Lexeme}");
                 }
             }
+            else if (identifier.TypeReference.ClrType == typeof(PerlangEnum))
+            {
+                // Enums are represented as C++ enum classes, so we can just use the enum name directly
+                currentLocation.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
+            }
             else
             {
                 // TODO: Should support global constants here at least! We just need to make them exist in the C++ based
@@ -1478,6 +1499,57 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
     public VoidObject VisitClassStmt(Stmt.Class stmt)
     {
         throw new NotImplementedException();
+    }
+
+    public VoidObject VisitEnumStmt(Stmt.Enum stmt)
+    {
+        var stringBuilder = new StringBuilder();
+        int localIndentationLevel = 0;
+
+        // The "enum class" concept as defined in C++11 would be preferable here since it provides better type safety, but
+        // it makes it much more awkward to support things like `print MyEnum.Value` (since the enum values are not
+        // implicitly convertible to int). We use a hack suggested in https://stackoverflow.com/a/46294875/227779 for now;
+        // preventing implicit conversions between int/enum types can be handled on the Perlang level rather than in the
+        // C++ transpilation.
+        stringBuilder.Append(Indent(localIndentationLevel));
+        stringBuilder.AppendLine($"namespace {stmt.Name.Lexeme} {{");
+        localIndentationLevel++;
+
+        stringBuilder.Append(Indent(localIndentationLevel));
+        stringBuilder.AppendLine($"enum {stmt.Name.Lexeme} {{");
+        localIndentationLevel++;
+
+        foreach (KeyValuePair<string, Expr?> enumMember in stmt.Members)
+        {
+            stringBuilder.Append(Indent(localIndentationLevel));
+            stringBuilder.Append(enumMember.Key);
+
+            if (enumMember.Value != null)
+            {
+                stringBuilder.Append(" = ");
+
+                // Ugly as it is, but we need to override the writing location to ensure that integer literals are written
+                // to the correct place in the output.
+                StringBuilder previousLocation = currentLocation;
+                currentLocation = stringBuilder;
+                enumMember.Value.Accept(this);
+                currentLocation = previousLocation;
+            }
+
+            stringBuilder.AppendLine(",");
+        }
+
+        localIndentationLevel--;
+        stringBuilder.Append(Indent(localIndentationLevel));
+        stringBuilder.AppendLine("};");
+
+        localIndentationLevel--;
+        stringBuilder.Append(Indent(localIndentationLevel));
+        stringBuilder.AppendLine("};");
+
+        enums[stmt.Name.Lexeme] = stringBuilder.ToString();
+
+        return VoidObject.Void;
     }
 
     public VoidObject VisitExpressionStmt(Stmt.ExpressionStmt stmt)

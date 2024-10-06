@@ -28,7 +28,9 @@ namespace Perlang.Parser
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
+                // Currently support keywords
                 { "else", ELSE },
+                { "enum", ENUM },
                 { "false", FALSE },
                 { "for", FOR },
                 { "fun", FUN },
@@ -41,9 +43,6 @@ namespace Perlang.Parser
                 { "true", TRUE },
                 { "var", VAR },
                 { "while", WHILE },
-
-                // Reserved keywords
-                { "class", RESERVED_WORD }, // Pending #66 to be resolved.
 
                 // Type names
                 //
@@ -94,13 +93,13 @@ namespace Perlang.Parser
                 { "lock", RESERVED_WORD },
                 { "synchronized", RESERVED_WORD },
 
-                // Others
+                // Reserved keywords "for future use"
+                { "class", RESERVED_WORD }, // Pending #66 to be resolved.
                 { "new", RESERVED_WORD },
                 { "mut", RESERVED_WORD },
                 { "let", RESERVED_WORD },
                 { "const", RESERVED_WORD },
                 { "struct", RESERVED_WORD },
-                { "enum", RESERVED_WORD },
                 { "sizeof", RESERVED_WORD },
                 { "nameof", RESERVED_WORD },
                 { "typeof", RESERVED_WORD },
