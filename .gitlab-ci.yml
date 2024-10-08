@@ -5,6 +5,8 @@ variables:
   # Enable coloured output from CMake (https://bixense.com/clicolors/)
   CLICOLOR_FORCE: 1
 
+  PERLANG_ROOT: $CI_PROJECT_DIR
+
 build-perlang-cli:
   stage: build
 
@@ -14,6 +16,20 @@ build-perlang-cli:
     - 'make perlang_cli_clean perlang_cli'
     - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources:" && git diff --color=always && exit 1)'
 
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Initial Valgrind CI job, until we have even more extensive Valgrind coverage. This will at least cover the most
+# obvious violations triggered by perlang_cli.
+valgrind-run-hello-world-example:
+  stage: test
+  needs: []
+
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  script:
+    - make stdlib
+    - make valgrind-run-hello-world-example
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -30,8 +46,6 @@ test:
     - make auto-generated
     - make stdlib
     - dotnet test --configuration Release --verbosity minimal
-  variables:
-    PERLANG_ROOT: $CI_PROJECT_DIR
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

@@ -4,8 +4,8 @@
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
 	docs-validate-api-docs install install-latest-snapshot perlang_cli \
 	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release \
-	publish-release release run test \
-	src/Perlang.Common/CommonConstants.Generated.cs
+	publish-release release run valgrind-run-hello-world-example \
+	test src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
 
@@ -17,6 +17,11 @@ DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
 
 RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net8.0/$(ARCH)/publish
 RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
+
+# --undef-value-errors are caused by the .NET runtime, so we ignore them for now to avoid noise. Can also not use
+# --leak-check=full because .NET has some existing Valgrind issues preventing this:
+# https://github.com/dotnet/runtime/issues/52872
+VALGRIND=COMPlus_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail
@@ -93,6 +98,10 @@ run: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
 	dotnet build
 	$(DEBUG_PERLANG) -v
 
+valgrind-run-hello-world-example: auto-generated perlang_cli perlang_cli_install_debug
+	dotnet build
+	$(VALGRIND) $(DEBUG_PERLANG) docs/examples/quickstart/hello_world.per
+
 # Creating a subdirectory is important in these targets, since cmake will otherwise clutter the stdlib directory with
 # its auto-generated build scripts
 stdlib:
@@ -113,9 +122,11 @@ perlang_cli_clean:
 	cd src/perlang_cli && rm -rf out
 
 perlang_cli_install_debug: perlang_cli
+	mkdir -p $(DEBUG_PERLANG_DIRECTORY)
 	cp lib/perlang_cli/lib/perlang_cli.so $(DEBUG_PERLANG_DIRECTORY)
 
 perlang_cli_install_release: perlang_cli
+	mkdir -p $(RELEASE_PERLANG_DIRECTORY)
 	cp lib/perlang_cli/lib/perlang_cli.so $(RELEASE_PERLANG_DIRECTORY)
 
 test:
