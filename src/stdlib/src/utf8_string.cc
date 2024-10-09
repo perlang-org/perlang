@@ -8,7 +8,7 @@
 
 namespace perlang
 {
-    std::shared_ptr<const UTF8String> UTF8String::from_static_string(const char* s)
+    std::unique_ptr<const UTF8String> UTF8String::from_static_string(const char* s)
     {
         if (s == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
@@ -16,10 +16,10 @@ namespace perlang
 
         auto result = new UTF8String(s, strlen(s), false);
 
-        return std::shared_ptr<UTF8String>(result);
+        return std::unique_ptr<UTF8String>(result);
     }
 
-    std::shared_ptr<const UTF8String> UTF8String::from_owned_string(const char* s, size_t length)
+    std::unique_ptr<const UTF8String> UTF8String::from_owned_string(const char* s, size_t length)
     {
         if (s == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
@@ -27,10 +27,10 @@ namespace perlang
 
         auto result = new UTF8String(s, length, true);
 
-        return std::shared_ptr<UTF8String>(result);
+        return std::unique_ptr<UTF8String>(result);
     }
 
-    std::shared_ptr<const UTF8String> UTF8String::from_copied_string(const char* str)
+    std::unique_ptr<const UTF8String> UTF8String::from_copied_string(const char* str)
     {
         if (str == nullptr) {
             throw std::invalid_argument("str argument cannot be null");
@@ -45,7 +45,7 @@ namespace perlang
 
         auto result = new UTF8String(new_str, length, true);
 
-        return std::shared_ptr<UTF8String>(result);
+        return std::unique_ptr<UTF8String>(result);
     }
 
     UTF8String::UTF8String(const char* string, size_t length, bool owned)
@@ -83,7 +83,7 @@ namespace perlang
         return !(rhs == *this);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(const String& rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = (char*)malloc(length + 1);
@@ -96,7 +96,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const UTF8String> UTF8String::operator+(const UTF8String& rhs) const
+    std::unique_ptr<const UTF8String> UTF8String::operator+(const UTF8String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = (char*)malloc(length + 1);
@@ -108,7 +108,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(const int64_t rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(const int64_t rhs) const
     {
         std::string str = std::to_string(rhs);
 
@@ -122,7 +122,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(const uint64_t rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(const uint64_t rhs) const
     {
         std::string str = std::to_string(rhs);
 
@@ -136,7 +136,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(float rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(float rhs) const
     {
         std::string str = internal::float_to_string(rhs);
 
@@ -150,7 +150,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(double rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(double rhs) const
     {
         std::string str = internal::double_to_string(rhs);
 
@@ -164,7 +164,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> UTF8String::operator+(const BigInt& rhs) const
+    std::unique_ptr<const String> UTF8String::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
 
@@ -178,7 +178,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const UTF8String> operator+(const int64_t lhs, const UTF8String& rhs)
+    std::unique_ptr<const UTF8String> operator+(const int64_t lhs, const UTF8String& rhs)
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
@@ -191,7 +191,7 @@ namespace perlang
         return UTF8String::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const UTF8String> operator+(const uint64_t lhs, const UTF8String& rhs)
+    std::unique_ptr<const UTF8String> operator+(const uint64_t lhs, const UTF8String& rhs)
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
@@ -204,7 +204,7 @@ namespace perlang
         return UTF8String::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const UTF8String> operator+(const float lhs, const UTF8String& rhs)
+    std::unique_ptr<const UTF8String> operator+(const float lhs, const UTF8String& rhs)
     {
         std::string str = internal::float_to_string(lhs);
 
@@ -218,7 +218,7 @@ namespace perlang
         return UTF8String::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const UTF8String> operator+(const double lhs, const UTF8String& rhs)
+    std::unique_ptr<const UTF8String> operator+(const double lhs, const UTF8String& rhs)
     {
         std::string str = internal::double_to_string(lhs);
 

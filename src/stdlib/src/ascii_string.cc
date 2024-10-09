@@ -9,7 +9,7 @@
 
 namespace perlang
 {
-    std::shared_ptr<const ASCIIString> ASCIIString::from_static_string(const char* str)
+    std::unique_ptr<const ASCIIString> ASCIIString::from_static_string(const char* str)
     {
         if (str == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
@@ -18,10 +18,10 @@ namespace perlang
         // Cannot use std::make_shared() since it forces the ASCIIString constructor to be made public.
         auto result = new ASCIIString(str, strlen(str), false);
 
-        return std::shared_ptr<ASCIIString>(result);
+        return std::unique_ptr<ASCIIString>(result);
     }
 
-    std::shared_ptr<const ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
+    std::unique_ptr<const ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
     {
         if (str == nullptr) {
             throw std::invalid_argument("str argument cannot be null");
@@ -29,10 +29,10 @@ namespace perlang
 
         auto result = new ASCIIString(str, length, true);
 
-        return std::shared_ptr<ASCIIString>(result);
+        return std::unique_ptr<ASCIIString>(result);
     }
 
-    std::shared_ptr<const ASCIIString> ASCIIString::from_copied_string(const char* str)
+    std::unique_ptr<const ASCIIString> ASCIIString::from_copied_string(const char* str)
     {
         if (str == nullptr) {
             throw std::invalid_argument("str argument cannot be null");
@@ -47,7 +47,7 @@ namespace perlang
 
         auto result = new ASCIIString(new_str, length, true);
 
-        return std::shared_ptr<ASCIIString>(result);
+        return std::unique_ptr<ASCIIString>(result);
     }
 
     ASCIIString::ASCIIString(const char* string, size_t length, bool owned)
@@ -96,7 +96,7 @@ namespace perlang
         }
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(const String& rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = (char*)malloc(length + 1);
@@ -109,7 +109,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
+    std::unique_ptr<const ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
     {
         // Copy-paste is a bit ugly, but the alternative would perhaps also not be so pretty, calling the above method
         // and doing some semi-ugly casting of the result.
@@ -124,7 +124,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(int64_t rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(int64_t rhs) const
     {
         std::string str = std::to_string(rhs);
 
@@ -138,7 +138,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(uint64_t rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(uint64_t rhs) const
     {
         std::string str = std::to_string(rhs);
 
@@ -152,7 +152,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(float rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(float rhs) const
     {
         std::string str = internal::float_to_string(rhs);
 
@@ -166,7 +166,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(double rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(double rhs) const
     {
         std::string str = internal::double_to_string(rhs);
 
@@ -180,7 +180,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
+    std::unique_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
 
@@ -194,7 +194,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const ASCIIString> operator+(const int64_t lhs, const ASCIIString& rhs)
+    std::unique_ptr<const ASCIIString> operator+(const int64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
@@ -207,7 +207,7 @@ namespace perlang
         return ASCIIString::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const ASCIIString> operator+(const uint64_t lhs, const ASCIIString& rhs)
+    std::unique_ptr<const ASCIIString> operator+(const uint64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
         size_t length = str.length() + rhs.length();
@@ -220,7 +220,7 @@ namespace perlang
         return ASCIIString::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const ASCIIString> operator+(const float lhs, const ASCIIString& rhs)
+    std::unique_ptr<const ASCIIString> operator+(const float lhs, const ASCIIString& rhs)
     {
         std::string str = internal::float_to_string(lhs);
 
@@ -234,7 +234,7 @@ namespace perlang
         return ASCIIString::from_owned_string(bytes, length);
     }
 
-    std::shared_ptr<const ASCIIString> operator+(const double lhs, const ASCIIString& rhs)
+    std::unique_ptr<const ASCIIString> operator+(const double lhs, const ASCIIString& rhs)
     {
         std::string str = internal::double_to_string(lhs);
 

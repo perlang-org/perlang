@@ -29,8 +29,11 @@ namespace perlang
     // for all the existing String types instead of just receiving `const String`-type parameters.
     void print(const String* str);
     void print(const ASCIIString& str);
+    void print(const std::unique_ptr<const String>& str);
+    void print(const std::unique_ptr<const ASCIIString>& str);
+    void print(const std::unique_ptr<const UTF8String>& str);
     void print(const std::shared_ptr<const String>& str);
-    void print(const std::shared_ptr<const ASCIIString>& str);
+    void print(const std::shared_ptr<const UTF8String>& str);
 
     void print(bool b);
     void print(char c);

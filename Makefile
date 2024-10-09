@@ -4,7 +4,7 @@
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
 	docs-validate-api-docs install install-latest-snapshot perlang_cli \
 	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release \
-	publish-release release run valgrind-run-hello-world-example \
+	publish-release release run run-hello-world-example valgrind-run-hello-world-example \
 	test src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
@@ -101,6 +101,10 @@ run: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
 valgrind-run-hello-world-example: auto-generated perlang_cli perlang_cli_install_debug
 	dotnet build
 	$(VALGRIND) $(DEBUG_PERLANG) docs/examples/quickstart/hello_world.per
+
+run-hello-world-example: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
+	dotnet build
+	$(DEBUG_PERLANG) docs/examples/quickstart/hello_world.per
 
 # Creating a subdirectory is important in these targets, since cmake will otherwise clutter the stdlib directory with
 # its auto-generated build scripts
