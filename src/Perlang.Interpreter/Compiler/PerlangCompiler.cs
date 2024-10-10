@@ -265,6 +265,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             processStartInfo.ArgumentList.Add("--error-exitcode=1");
             processStartInfo.ArgumentList.Add("--track-origins=yes");
             processStartInfo.ArgumentList.Add("--show-leak-kinds=all");
+            processStartInfo.ArgumentList.Add("--show-error-list=yes");
             processStartInfo.ArgumentList.Add("--errors-for-leak-kinds=all");
             processStartInfo.ArgumentList.Add(executablePath);
         }

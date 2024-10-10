@@ -467,13 +467,10 @@ namespace Perlang.Tests.Integration
                     // is known to not yet work.
                     throw new SkipException(e.Message, e);
                 }
-                catch (EvalException) {
-                    // We must make sure to output any output already written by the CompileAndRun() method here, since
+                catch (EvalException e) {
+                    // We must make sure to include any output already written by the CompileAndRun() method here, since
                     // it'll otherwise be indefinitely lost.
-                    Console.Error.WriteLine("Process output/error follows:");
-                    Console.Error.WriteLine(result.OutputAsString);
-
-                    throw;
+                    throw new EvalException($"An exception occurred during evaluation. Process output:\n\n{result.OutputAsString}", e);
                 }
 
                 // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
