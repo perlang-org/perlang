@@ -27,5 +27,11 @@ public enum CompilerFlags
     /// This flag makes the compiler avoid writing timestamps and the Perlang compiler version to generated C++ files.
     /// This is useful when these files are committed to version control, to avoid redundant diffs.
     /// </summary>
-    Idempotent = 4
+    Idempotent = 4,
+
+    /// <summary>
+    /// This flag makes the compiler execute the generated binary with Valgrind, to find potential memory leaks and
+    /// similar memory-related problems.
+    /// </summary>
+    RunWithValgrind = 8
 }

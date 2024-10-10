@@ -252,12 +252,28 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             return null;
         }
 
-        Process? process = Process.Start(new ProcessStartInfo
+        var processStartInfo = new ProcessStartInfo
         {
-            FileName = executablePath,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-        });
+        };
+
+        if (compilerFlags.HasFlag(CompilerFlags.RunWithValgrind))
+        {
+            processStartInfo.FileName = "valgrind";
+            processStartInfo.ArgumentList.Add("--leak-check=full");
+            processStartInfo.ArgumentList.Add("--error-exitcode=1");
+            processStartInfo.ArgumentList.Add("--track-origins=yes");
+            processStartInfo.ArgumentList.Add("--show-leak-kinds=all");
+            processStartInfo.ArgumentList.Add("--errors-for-leak-kinds=all");
+            processStartInfo.ArgumentList.Add(executablePath);
+        }
+        else
+        {
+            processStartInfo.FileName = executablePath;
+        }
+
+        Process? process = Process.Start(processStartInfo);
 
         if (process == null)
         {

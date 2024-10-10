@@ -5,6 +5,8 @@ namespace Perlang;
 
 public static class PerlangMode
 {
+    private static bool? runThroughValgrind;
+
     public static bool ExperimentalCompilation => !ExperimentalInterpretation;
 
     private static bool ExperimentalInterpretation
@@ -28,4 +30,7 @@ public static class PerlangMode
             return File.Exists(Path.Combine(homeDirectory, ".perlang_experimental_interpretation"));
         }
     }
+
+    public static bool RunWithValgrind =>
+        runThroughValgrind ??= Boolean.Parse(Environment.GetEnvironmentVariable("PERLANG_RUN_WITH_VALGRIND") ?? "false");
 }

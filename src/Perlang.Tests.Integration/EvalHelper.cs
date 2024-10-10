@@ -1,3 +1,4 @@
+#pragma warning disable S3963
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +15,16 @@ namespace Perlang.Tests.Integration
 {
     internal static class EvalHelper
     {
+        private static readonly CompilerFlags DefaultCompilerFlags = CompilerFlags.None;
+
+        static EvalHelper()
+        {
+            if (PerlangMode.RunWithValgrind)
+            {
+                DefaultCompilerFlags |= CompilerFlags.RunWithValgrind;
+            }
+        }
+
         /// <summary>
         /// Evaluates the provided expression or list of statements, returning the evaluated value.
         ///
@@ -77,7 +88,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -138,7 +149,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -195,7 +206,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         result.ErrorHandler,
                         AssertFailParseErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -252,7 +263,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
                         result.ErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -308,7 +319,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
                         result.ErrorHandler,
@@ -364,7 +375,7 @@ namespace Perlang.Tests.Integration
                         source,
                         CreateTemporaryPath(source),
                         targetPath: null,
-                        CompilerFlags.None,
+                        DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
                         AssertFailParseErrorHandler,
                         AssertFailNameResolutionErrorHandler,
@@ -410,7 +421,7 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<Exception> EvalWithResult(string source, params string[] arguments)
         {
-            return EvalWithResult(source, CompilerFlags.None, arguments);
+            return EvalWithResult(source, DefaultCompilerFlags, arguments);
         }
 
         /// <summary>
@@ -433,14 +444,11 @@ namespace Perlang.Tests.Integration
         /// will be set to `null`.</returns>
         internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, params string[] arguments)
         {
-            if (PerlangMode.ExperimentalCompilation)
-            {
+            if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<Exception>();
                 var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
 
-                try
-                {
-                    // TODO: include the name of the test method here, to make it easier to know what executable correspond to which test
+                try {
                     result.ExecutablePath = compiler.CompileAndRun(
                         source,
                         CreateTemporaryPath(source),
@@ -454,11 +462,18 @@ namespace Perlang.Tests.Integration
                         result.WarningHandler
                     );
                 }
-                catch (NotImplementedInCompiledModeException e)
-                {
+                catch (NotImplementedInCompiledModeException e) {
                     // This exception is thrown to make it possible for integration tests to skip tests for code which
                     // is known to not yet work.
                     throw new SkipException(e.Message, e);
+                }
+                catch (EvalException) {
+                    // We must make sure to output any output already written by the CompileAndRun() method here, since
+                    // it'll otherwise be indefinitely lost.
+                    Console.Error.WriteLine("Process output/error follows:");
+                    Console.Error.WriteLine(result.OutputAsString);
+
+                    throw;
                 }
 
                 // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode
@@ -467,8 +482,7 @@ namespace Perlang.Tests.Integration
 
                 return result;
             }
-            else
-            {
+            else {
                 // Interpreted mode no longer exists. We may re-introduce it based on LLVM, but it's uncertain if it will
                 // become a special mode or not. If it does, the code for handling it should be added here.
                 throw new NotImplementedException("EvalWithResult is not yet supported in interpreted mode");
@@ -504,7 +518,7 @@ namespace Perlang.Tests.Integration
         /// <returns>The output from the provided expression/statements.</returns>
         internal static IEnumerable<string> EvalReturningOutput(string source, params string[] arguments)
         {
-            return EvalReturningOutput(source, CompilerFlags.None, arguments);
+            return EvalReturningOutput(source, DefaultCompilerFlags, arguments);
         }
 
         /// <summary>
