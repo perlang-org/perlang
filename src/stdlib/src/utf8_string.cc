@@ -39,7 +39,7 @@ namespace perlang
         // Create a new buffer and copy the string into it. Since we need to know the length anyway, we can use
         // memcpy() instead of strcpy() to avoid an extra iteration over the string.
         size_t length = strlen(str);
-        char* new_str = (char*)malloc(length + 1);
+        char* new_str = new char[length + 1];
         memcpy(new_str, str, length);
         new_str[length] = '\0';
 
@@ -58,7 +58,7 @@ namespace perlang
     UTF8String::~UTF8String()
     {
         if (owned_) {
-            free((void*)bytes_);
+            delete[] bytes_;
         }
     }
 
@@ -88,7 +88,7 @@ namespace perlang
     std::unique_ptr<const String> UTF8String::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
+        char *bytes = new char[length + 1];
 
         // TODO: This won't work once we bring in UTF16String into the picture.
         memcpy(bytes, this->bytes_, this->length_);
@@ -101,7 +101,7 @@ namespace perlang
     std::unique_ptr<const UTF8String> UTF8String::operator+(const UTF8String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
+        char *bytes = new char[length + 1];
 
         memcpy(bytes, this->bytes_, this->length_);
         memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
@@ -137,7 +137,7 @@ namespace perlang
     std::unique_ptr<const String> UTF8String::operator+(const std::string& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
+        char *bytes = new char[length + 1];
 
         memcpy(bytes, this->bytes_, this->length_);
         memcpy((bytes + this->length_), rhs.c_str(), rhs.length());
@@ -179,7 +179,7 @@ namespace perlang
     std::unique_ptr<const UTF8String> operator+(const std::string& lhs, const UTF8String& rhs)
     {
         size_t length = lhs.length() + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
+        char *bytes = new char[length + 1];
 
         memcpy(bytes, lhs.c_str(), lhs.length());
         memcpy((bytes + lhs.length()), rhs.bytes(), rhs.length());
