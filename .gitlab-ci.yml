@@ -22,6 +22,11 @@ build-perlang-cli:
 
 # Initial Valgrind CI job, until we have even more extensive Valgrind coverage. This will at least cover the most
 # obvious violations triggered by perlang_cli.
+#
+# Note: in contrast to other CI jobs which set PERLANG_RUN_WITH_VALGRIND, this job runs the Perlang *compilation* with
+# Valgrind enabled, rather than the execution of the actual compiled result. In practice, this means that it's the .NET
+# runtime that is executed with Valgrind which means different environment variables and Valgrind flags need to be set,
+# for reasons mentioned in the Makefile.
 valgrind-run-hello-world-example:
   stage: test
   needs: []
@@ -38,6 +43,10 @@ test:
   stage: test
   needs: []
 
+  parallel:
+    matrix:
+      - TEST_MODE: ['valgrind', '']
+
   # TODO: Run on other operating systems too, when we are ready for it. It's
   # probably not worth it until we are a proper LLVM language, independent
   # of clang for generating binaries.
@@ -45,7 +54,12 @@ test:
   script:
     - make auto-generated
     - make stdlib
-    - dotnet test --configuration Release --verbosity minimal
+    - >
+        if [[ "$TEST_MODE" == 'valgrind' ]]; then
+          PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal;
+        else
+          dotnet test --configuration Release --verbosity minimal;
+        fi
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
