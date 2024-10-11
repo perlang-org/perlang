@@ -589,17 +589,17 @@ namespace Perlang.Tests.Integration
 
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
-            throw new EvalException($"NameResolutionError occurred: {nameResolutionError.Message}", nameResolutionError);
+            throw new EvalException($"NameResolutionError occurred. See inner exception for details.", nameResolutionError);
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
-            throw new EvalException($"RuntimeError occurred: {runtimeError.Message}", runtimeError);
+            throw new EvalException($"RuntimeError occurred. See inner exception for details.", runtimeError);
         }
 
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
-            throw new EvalException($"ValidationError occurred: {validationError.Message}", validationError);
+            throw new EvalException($"ValidationError occurred. See inner exception for details.", validationError);
         }
     }
 }
