@@ -279,6 +279,22 @@ namespace Perlang.Tests.Integration.Operator.Binary
                 .Be("abc18446744073709551616");
         }
 
+        [Fact]
+        void addition_of_utf8_string_and_bigint_coerces_number_to_string()
+        {
+            string source = """
+                var s = "åäöÅÄÖéèüÜÿŸïÏすし";
+                var i = 18446744073709551616;
+
+                print s + i;
+                """;
+
+            string result = EvalReturningOutputString(source);
+
+            result.Should()
+                .Be("åäöÅÄÖéèüÜÿŸïÏすし18446744073709551616");
+        }
+
         [Theory]
         [ClassData(typeof(TestCultures))]
         async Task addition_of_float_and_ascii_string_coerces_number_to_string(CultureInfo cultureInfo)

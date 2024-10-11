@@ -111,6 +111,10 @@ namespace perlang
         [[nodiscard]]
         std::unique_ptr<const String> operator+(const BigInt& rhs) const override;
 
+        // Concatenates this string with a std::string. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        inline std::unique_ptr<const String> operator+(const std::string& rhs) const;
+
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple ASCIIString objects pointing to the same `bytes_`, so modifying one of them
@@ -145,6 +149,11 @@ namespace perlang
     // function, since the left-hand side is not an ASCIIString.
     [[nodiscard]]
     std::unique_ptr<const ASCIIString> operator+(double lhs, const ASCIIString& rhs);
+
+    // Concatenate an std::string + ASCIIString. The memory for the new string is allocated from the heap. This is a
+    // free function, since the left-hand side is not an ASCIIString.
+    [[nodiscard]]
+    inline std::unique_ptr<const ASCIIString> operator+(const std::string& lhs, const ASCIIString& rhs);
 
     // Note: must come after the operator+ declarations above, since they are used in the following declarations. In
     // C++, the order of function declaration matters.

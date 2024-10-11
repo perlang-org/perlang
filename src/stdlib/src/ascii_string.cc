@@ -127,68 +127,40 @@ namespace perlang
     std::unique_ptr<const String> ASCIIString::operator+(int64_t rhs) const
     {
         std::string str = std::to_string(rhs);
-
-        size_t length = str.length() + this->length_;
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, this->bytes_, this->length_);
-        memcpy((bytes + this->length_), str.c_str(), str.length());
-        bytes[length] = '\0';
-
-        return from_owned_string(bytes, length);
+        return *this + str;
     }
 
     std::unique_ptr<const String> ASCIIString::operator+(uint64_t rhs) const
     {
         std::string str = std::to_string(rhs);
-
-        size_t length = str.length() + this->length_;
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, this->bytes_, this->length_);
-        memcpy((bytes + this->length_), str.c_str(), str.length());
-        bytes[length] = '\0';
-
-        return from_owned_string(bytes, length);
+        return *this + str;
     }
 
     std::unique_ptr<const String> ASCIIString::operator+(float rhs) const
     {
         std::string str = internal::float_to_string(rhs);
-
-        size_t length = str.length() + this->length_;
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, this->bytes_, this->length_);
-        memcpy((bytes + this->length_), str.c_str(), str.length());
-        bytes[length] = '\0';
-
-        return from_owned_string(bytes, length);
+        return *this + str;
     }
 
     std::unique_ptr<const String> ASCIIString::operator+(double rhs) const
     {
         std::string str = internal::double_to_string(rhs);
-
-        size_t length = str.length() + this->length_;
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, this->bytes_, this->length_);
-        memcpy((bytes + this->length_), str.c_str(), str.length());
-        bytes[length] = '\0';
-
-        return from_owned_string(bytes, length);
+        return *this + str;
     }
 
     std::unique_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
+        return *this + str;
+    }
 
-        size_t length = str.length() + this->length_;
+    std::unique_ptr<const String> ASCIIString::operator+(const std::string& rhs) const
+    {
+        size_t length = this->length_ + rhs.length();
         char *bytes = (char*)malloc(length + 1);
 
         memcpy(bytes, this->bytes_, this->length_);
-        memcpy((bytes + this->length_), str.c_str(), str.length());
+        memcpy((bytes + this->length_), rhs.c_str(), rhs.length());
         bytes[length] = '\0';
 
         return from_owned_string(bytes, length);
@@ -197,52 +169,34 @@ namespace perlang
     std::unique_ptr<const ASCIIString> operator+(const int64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
-        size_t length = str.length() + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, str.c_str(), str.length());
-        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
-        bytes[length] = '\0';
-
-        return ASCIIString::from_owned_string(bytes, length);
+        return str + rhs;
     }
 
     std::unique_ptr<const ASCIIString> operator+(const uint64_t lhs, const ASCIIString& rhs)
     {
         std::string str = std::to_string(lhs);
-        size_t length = str.length() + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, str.c_str(), str.length());
-        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
-        bytes[length] = '\0';
-
-        return ASCIIString::from_owned_string(bytes, length);
+        return str + rhs;
     }
 
     std::unique_ptr<const ASCIIString> operator+(const float lhs, const ASCIIString& rhs)
     {
         std::string str = internal::float_to_string(lhs);
-
-        size_t length = str.length() + rhs.length();
-        char *bytes = (char*)malloc(length + 1);
-
-        memcpy(bytes, str.c_str(), str.length());
-        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
-        bytes[length] = '\0';
-
-        return ASCIIString::from_owned_string(bytes, length);
+        return str + rhs;
     }
 
     std::unique_ptr<const ASCIIString> operator+(const double lhs, const ASCIIString& rhs)
     {
         std::string str = internal::double_to_string(lhs);
+        return str + rhs;
+    }
 
-        size_t length = str.length() + rhs.length();
+    std::unique_ptr<const ASCIIString> operator+(const std::string& lhs, const ASCIIString& rhs)
+    {
+        size_t length = lhs.length() + rhs.length();
         char *bytes = (char*)malloc(length + 1);
 
-        memcpy(bytes, str.c_str(), str.length());
-        memcpy((bytes + str.length()), rhs.bytes(), rhs.length());
+        memcpy(bytes, lhs.c_str(), lhs.length());
+        memcpy((bytes + lhs.length()), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
         return ASCIIString::from_owned_string(bytes, length);

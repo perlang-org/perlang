@@ -89,6 +89,10 @@ namespace perlang
         [[nodiscard]]
         std::unique_ptr<const String> operator+(const BigInt& rhs) const override;
 
+        // Concatenates this string with a std::string. The memory for the new string is allocated from the heap.
+        [[nodiscard]]
+        inline std::unique_ptr<const String> operator+(const std::string& rhs) const;
+
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple UTF8String objects pointing to the same `bytes_`, so modifying one of them
@@ -125,4 +129,9 @@ namespace perlang
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
     std::unique_ptr<const UTF8String> operator+(double lhs, const UTF8String& rhs);
+
+    // Concatenate a double+UTF8String. The memory for the new string is allocated from the heap. This is a free
+    // function, since the left-hand side is not an UTF8String.
+    [[nodiscard]]
+    inline std::unique_ptr<const UTF8String> operator+(const std::string& lhs, const UTF8String& rhs);
 }
