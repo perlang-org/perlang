@@ -258,8 +258,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             RedirectStandardError = true,
         };
 
+        string? valgrindLogFile = null;
+
         if (compilerFlags.HasFlag(CompilerFlags.RunWithValgrind))
         {
+            valgrindLogFile = $"valgrind-{Path.ChangeExtension(Path.GetFileName(path), "")}log";
+
             processStartInfo.FileName = "valgrind";
             processStartInfo.ArgumentList.Add("--leak-check=full");
             processStartInfo.ArgumentList.Add("--error-exitcode=1");
@@ -267,6 +271,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
             processStartInfo.ArgumentList.Add("--show-leak-kinds=all");
             processStartInfo.ArgumentList.Add("--show-error-list=yes");
             processStartInfo.ArgumentList.Add("--errors-for-leak-kinds=all");
+            processStartInfo.ArgumentList.Add($"--log-file={valgrindLogFile}");
             processStartInfo.ArgumentList.Add(executablePath);
         }
         else
@@ -298,7 +303,14 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<VoidObject>
 
         if (process.ExitCode != 0)
         {
-            runtimeErrorHandler(new RuntimeError(null, $"Process {executablePath} exited with exit code {process.ExitCode}"));
+            if (valgrindLogFile == null)
+            {
+                runtimeErrorHandler(new RuntimeError(null, $"Process {executablePath} exited with exit code {process.ExitCode}"));
+            }
+            else
+            {
+                runtimeErrorHandler(new RuntimeError(null, $"Process {executablePath} exited with exit code {process.ExitCode}. Valgrind output:\n\n{File.ReadAllText(valgrindLogFile)}"));
+            }
         }
 
         return executablePath;
