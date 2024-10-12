@@ -14,6 +14,8 @@
 #include "string_array.h"
 #include "utf8_string.h"
 
+#include "io/file.h"
+
 namespace perlang
 {
     namespace stdlib

@@ -21,7 +21,7 @@ RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 # --undef-value-errors are caused by the .NET runtime, so we ignore them for now to avoid noise. Can also not use
 # --leak-check=full because .NET has some existing Valgrind issues preventing this:
 # https://github.com/dotnet/runtime/issues/52872
-VALGRIND=COMPlus_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all
+VALGRIND=DOTNET_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail

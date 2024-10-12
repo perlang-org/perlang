@@ -4,6 +4,7 @@ project(perlang_cli VERSION 0.1.0)
 add_library(
         perlang_cli SHARED
         src/perlang_cli_preprocessed.cc
+        src/stdlib_wrappers.cc
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13

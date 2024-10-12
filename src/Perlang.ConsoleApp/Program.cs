@@ -272,8 +272,7 @@ namespace Perlang.ConsoleApp
                 return (int)ExitCodes.FILE_NOT_FOUND;
             }
 
-            byte[] bytes = File.ReadAllBytes(path);
-            string source = Encoding.UTF8.GetString(bytes);
+            string source = NativeFile.read_all_text(path);
 
             CompileAndRun(source, path, outputPath, CompilerWarning);
 
@@ -303,8 +302,7 @@ namespace Perlang.ConsoleApp
                     return (int)ExitCodes.FILE_NOT_FOUND;
                 }
 
-                byte[] bytes = File.ReadAllBytes(scriptFile);
-                string source = Encoding.UTF8.GetString(bytes);
+                string source = NativeFile.read_all_text(scriptFile);
 
                 completeSource.Append(source);
                 completeSource.AppendLine();

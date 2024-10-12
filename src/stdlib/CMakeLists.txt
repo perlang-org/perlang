@@ -9,12 +9,19 @@ set(headers
         src/ascii_string.h
         src/bigint.h
         src/int_array.h
-        src/internal/string_utils.h
         src/perlang_stdlib.h
         src/perlang_string.h
         src/string_array.h
         src/utf8_string.h
-        src/double-conversion/utils.h
+
+#        src/double-conversion/utils.h
+#
+#        src/internal/string_utils.h
+
+)
+
+set(io_headers
+        src/io/file.h
 )
 
 set(libtommath_headers
@@ -32,6 +39,8 @@ add_library(
         src/print.cc
         src/string_array.cc
         src/utf8_string.cc
+
+        src/io/file.cc
 
         src/libtommath/bn_cutoffs.c
         src/libtommath/bn_mp_add.c
@@ -91,7 +100,7 @@ set_property(TARGET stdlib PROPERTY CXX_STANDARD 17)
 
 target_include_directories(
         stdlib PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
 target_compile_options(
@@ -115,6 +124,11 @@ install(
 install(
         FILES ${headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+        FILES ${io_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/io"
 )
 
 install(
