@@ -26,6 +26,8 @@
 
         <!-- Dependency needed by Moq/Moq.Analyzers; our reflection code fails without this being listed explicitly -->
         <PackageReference Include="Microsoft.CodeAnalysis" Version="4.9.2" />
+
+        <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
     </ItemGroup>
 
     <ItemGroup>
