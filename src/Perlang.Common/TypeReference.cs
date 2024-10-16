@@ -137,9 +137,9 @@ namespace Perlang
                 // Arrays of value types
                 var t when t == typeof(Int32[]) => true,
 
-                // TODO: Handle UTF-8 strings here too
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,
                 var t when t.FullName == "Perlang.Lang.String" => true,
+                var t when t.FullName == "Perlang.Lang.Utf8String" => true,
 
                 // Arrays of reference types
                 var t when t.FullName == "Perlang.Lang.AsciiString[]" => true,

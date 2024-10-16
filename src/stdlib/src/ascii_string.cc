@@ -76,9 +76,17 @@ namespace perlang
 
     bool ASCIIString::operator==(const ASCIIString& rhs) const
     {
-        // TODO: Should return true for strings with different bytes_ values, as long as the bytes are equal!
-        return bytes_ == rhs.bytes_ &&
-               length_ == rhs.length_;
+        if (bytes_ == rhs.bytes_ &&
+            length_ == rhs.length_) {
+            return true;
+        }
+
+        if (length_ != rhs.length_) {
+            return false;
+        }
+
+        // ASCII strings cannot contain NUL characters, so strcmp() should be safe for this case.
+        return strcmp(bytes_, rhs.bytes_) == 0;
     }
 
     bool ASCIIString::operator!=(const ASCIIString& rhs) const

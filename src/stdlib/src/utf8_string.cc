@@ -74,10 +74,17 @@ namespace perlang
 
     bool UTF8String::operator==(const UTF8String& rhs) const
     {
-        // TODO: This will fail for dynamically constructed strings, if we want to retain C#-like semantics (where
-        // TODO: "foo" == "foo")
-        return bytes_ == rhs.bytes_ &&
-               length_ == rhs.length_;
+        if (bytes_ == rhs.bytes_ &&
+            length_ == rhs.length_) {
+            return true;
+        }
+
+        if (length_ != rhs.length_) {
+            return false;
+        }
+
+        // We must make sure to use a NUL-safe method here, since UTF8 strings can regretfully contain NUL characters.
+        return memcmp(bytes_, rhs.bytes_, length_) == 0;
     }
 
     bool UTF8String::operator!=(const UTF8String& rhs) const
