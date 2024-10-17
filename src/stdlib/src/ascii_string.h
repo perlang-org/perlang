@@ -50,6 +50,10 @@ namespace perlang
         [[nodiscard]]
         const char* bytes() const override;
 
+        // Returns the backing byte array, and releases ownership of it. The caller is now responsible for freeing the
+        // memory.
+        std::unique_ptr<const char[]> release_bytes() override;
+
         // The length of the string in bytes, excluding the terminating `NUL` character.
         [[nodiscard]]
         size_t length() const override;
@@ -119,7 +123,7 @@ namespace perlang
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple ASCIIString objects pointing to the same `bytes_`, so modifying one of them
         // would unintentionally spread the modifications to these other objects too.
-        const char* bytes_;
+        std::unique_ptr<const char[]> bytes_;
 
         // The length of the string in bytes, excluding the terminating `NUL` character.
         size_t length_;

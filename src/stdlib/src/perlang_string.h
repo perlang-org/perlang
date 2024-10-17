@@ -11,11 +11,17 @@ namespace perlang
      public:
         virtual ~String() = default;
 
+        // TODO: Make this "internal" somehow. It should never be called from (Perlang) user code.
+
         // Returns the backing byte array for this String. This method is generally to be avoided; it is safer to use
         // the String throughout the code and only call this when you really must. If you call it, you
         // **MUST MUST MUST** not modify the data in any way, or use it after the lifetime of the String object.
         [[nodiscard]]
         virtual const char* bytes() const = 0;
+
+        // Returns the backing byte array, and release ownership of it. The caller is now responsible for freeing the
+        // memory.
+        virtual std::unique_ptr<const char[]> release_bytes() = 0;
 
         // The length of the string in bytes, excluding the terminating `NUL` character.
         [[nodiscard]]

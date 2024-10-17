@@ -7,11 +7,12 @@
 namespace perlang::io
 {
     [[nodiscard]]
-    std::unique_ptr<const String> File::read_all_text(const String& path)
+    std::unique_ptr<String> File::read_all_text(const String& path)
     {
         FILE *file = fopen(path.bytes(), "r");
 
         if (file == nullptr) {
+            // TODO: Should we throw an exception at this point?
             return nullptr;
         }
 
@@ -24,10 +25,10 @@ namespace perlang::io
             return nullptr;
         }
 
-        // Go back to the beginning and read the file into a buffer
+        // Go back to the beginning and read the file into a newly allocated buffer
         fseek(file, 0, SEEK_SET);
 
-        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(length + 1);
+        auto buffer = std::make_unique<char[]>(length + 1);
 
         if (buffer == nullptr) {
             fclose(file);
@@ -45,7 +46,7 @@ namespace perlang::io
         // Create a Perlang string based on the newly read data. Releasing the buffer afterwards is crucial to avoid
         // double-free()ing the memory.
         buffer[length] = '\0';
-        std::unique_ptr<const String> ptr = UTF8String::from_owned_string(buffer.release(), length);
+        std::unique_ptr<String> ptr = UTF8String::from_owned_string(buffer.release(), length);
 
         return ptr;
     }

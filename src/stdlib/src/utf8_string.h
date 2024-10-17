@@ -24,7 +24,7 @@ namespace perlang
         // ownership of the memory is transferred to the UTF8String, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
-        static std::unique_ptr<const UTF8String> from_owned_string(const char* s, size_t length);
+        static std::unique_ptr<UTF8String> from_owned_string(const char* s, size_t length);
 
         // Creates a new UTF8String from an existing string, by copying its content to a new buffer allocated on the
         // heap. The UTF8String class takes ownership of the newly allocated buffer, which will be deallocated when the
@@ -39,12 +39,16 @@ namespace perlang
         UTF8String(const char* string, size_t length, bool owned);
 
      public:
-        virtual ~UTF8String();
+        ~UTF8String() override;
 
         // Returns the backing byte array for this UTF8String. This method is generally to be avoided; it is safer to
         // use the UTF8String throughout the code and only call this when you really must.
         [[nodiscard]]
         const char* bytes() const override;
+
+        // Returns the backing byte array, and releases ownership of it. The caller is now responsible for freeing the
+        // memory.
+        std::unique_ptr<const char[]> release_bytes() override;
 
         // The length of the string in bytes, excluding the terminating `NUL` character.
         [[nodiscard]]
@@ -97,7 +101,7 @@ namespace perlang
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
         // point. There might be multiple UTF8String objects pointing to the same `bytes_`, so modifying one of them
         // would unintentionally spread the modifications to these other objects too.
-        const char* bytes_;
+        std::unique_ptr<const char[]> bytes_;
 
         // The length of the string in bytes, excluding the terminating `NUL` character.
         size_t length_;

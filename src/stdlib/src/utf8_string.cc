@@ -19,7 +19,7 @@ namespace perlang
         return std::unique_ptr<UTF8String>(result);
     }
 
-    std::unique_ptr<const UTF8String> UTF8String::from_owned_string(const char* s, size_t length)
+    std::unique_ptr<UTF8String> UTF8String::from_owned_string(const char* s, size_t length)
     {
         if (s == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
@@ -50,21 +50,28 @@ namespace perlang
 
     UTF8String::UTF8String(const char* string, size_t length, bool owned)
     {
-        bytes_ = string;
+        bytes_ = std::unique_ptr<const char[]>(string);
         length_ = length;
         owned_ = owned;
     }
 
     UTF8String::~UTF8String()
     {
-        if (owned_) {
-            delete[] bytes_;
+        // HACK: This is an incredible hack... Because unique_ptr<> doesn't give us a way to override the deleter
+        // function, we manually release control of the pointed-to memory here if we don't own it... :)
+        if (!owned_) {
+            bytes_.release();
         }
     }
 
     const char* UTF8String::bytes() const
     {
-        return bytes_;
+        return bytes_.get();
+    }
+
+    std::unique_ptr<const char[]> UTF8String::release_bytes()
+    {
+        return std::move(bytes_);
     }
 
     size_t UTF8String::length() const
@@ -84,7 +91,7 @@ namespace perlang
         }
 
         // We must make sure to use a NUL-safe method here, since UTF8 strings can regretfully contain NUL characters.
-        return memcmp(bytes_, rhs.bytes_, length_) == 0;
+        return memcmp(bytes_.get(), rhs.bytes_.get(), length_) == 0;
     }
 
     bool UTF8String::operator!=(const UTF8String& rhs) const
@@ -98,7 +105,7 @@ namespace perlang
         char *bytes = new char[length + 1];
 
         // TODO: This won't work once we bring in UTF16String into the picture.
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
@@ -110,7 +117,7 @@ namespace perlang
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
 
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
@@ -146,7 +153,7 @@ namespace perlang
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
 
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.c_str(), rhs.length());
         bytes[length] = '\0';
 

@@ -52,21 +52,28 @@ namespace perlang
 
     ASCIIString::ASCIIString(const char* string, size_t length, bool owned)
     {
-        bytes_ = string;
+        bytes_ = std::unique_ptr<const char[]>(string);
         length_ = length;
         owned_ = owned;
     }
 
     ASCIIString::~ASCIIString()
     {
-        if (owned_) {
-            delete[] bytes_;
+        // HACK: This is an incredible hack... Because unique_ptr<> doesn't give us a way to override the deleter
+        // function, we manually release control of the pointed-to memory here if we don't own it... :)
+        if (!owned_) {
+            bytes_.release();
         }
     }
 
     const char* ASCIIString::bytes() const
     {
-        return bytes_;
+        return bytes_.get();
+    }
+
+    std::unique_ptr<const char[]> ASCIIString::release_bytes()
+    {
+        return std::move(bytes_);
     }
 
     size_t ASCIIString::length() const
@@ -76,7 +83,7 @@ namespace perlang
 
     bool ASCIIString::operator==(const ASCIIString& rhs) const
     {
-        if (bytes_ == rhs.bytes_ &&
+        if (bytes_.get() == rhs.bytes_.get() &&
             length_ == rhs.length_) {
             return true;
         }
@@ -86,7 +93,7 @@ namespace perlang
         }
 
         // ASCII strings cannot contain NUL characters, so strcmp() should be safe for this case.
-        return strcmp(bytes_, rhs.bytes_) == 0;
+        return strcmp(bytes_.get(), rhs.bytes_.get()) == 0;
     }
 
     bool ASCIIString::operator!=(const ASCIIString& rhs) const
@@ -97,7 +104,7 @@ namespace perlang
     char ASCIIString::operator[](size_t index) const
     {
         if (index < length_) {
-            return bytes_[index];
+            return bytes_.get()[index];
         }
         else {
             throw std::out_of_range("Index " + std::to_string(index) + " is out-of-bounds for a string with length " + std::to_string(this->length_));
@@ -110,7 +117,7 @@ namespace perlang
         char *bytes = new char[length + 1];
 
         // TODO: This won't work once we bring in UTF16String into the picture.
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
@@ -125,7 +132,7 @@ namespace perlang
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
 
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy(bytes + this->length_, rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
@@ -167,7 +174,7 @@ namespace perlang
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
 
-        memcpy(bytes, this->bytes_, this->length_);
+        memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.c_str(), rhs.length());
         bytes[length] = '\0';
 
