@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using Perlang.Compiler;
@@ -33,7 +34,7 @@ namespace Perlang.Tests.Integration
         ///
         /// Output printed to the standard output stream will be silently discarded by this method. For tests which need
         /// to make assertions based on the output printed, see e.g. the
-        /// <see cref="EvalReturningOutput(string, string[])"/> method.
+        /// <see cref="EvalReturningOutput(string, string[], string)"/> method.
         ///
         /// Note that compiler warnings will be propagated as exceptions to the caller; in other words, this resembles
         /// the `-Werror` flag being enabled.
@@ -69,10 +70,11 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, string[] arguments = null)
+        internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation)
             {
@@ -86,7 +88,7 @@ namespace Perlang.Tests.Integration
                 {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
@@ -132,10 +134,11 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<PerlangCompilerException> EvalWithCppCompilationErrorCatch(string source, string[] arguments = null)
+        internal static EvalResult<PerlangCompilerException> EvalWithCppCompilationErrorCatch(string source, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<PerlangCompilerException>();
@@ -147,7 +150,7 @@ namespace Perlang.Tests.Integration
                 try {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
@@ -189,10 +192,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<ScanError> EvalWithScanErrorCatch(string source)
+        internal static EvalResult<ScanError> EvalWithScanErrorCatch(string source, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation)
             {
@@ -204,7 +208,7 @@ namespace Perlang.Tests.Integration
                 {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         result.ErrorHandler,
@@ -248,10 +252,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<ParseError> EvalWithParseErrorCatch(string source)
+        internal static EvalResult<ParseError> EvalWithParseErrorCatch(string source, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<ParseError>();
@@ -261,7 +266,7 @@ namespace Perlang.Tests.Integration
                 try {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
@@ -304,10 +309,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<NameResolutionError> EvalWithNameResolutionErrorCatch(string source)
+        internal static EvalResult<NameResolutionError> EvalWithNameResolutionErrorCatch(string source, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<NameResolutionError>();
@@ -317,7 +323,7 @@ namespace Perlang.Tests.Integration
                 try {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
@@ -360,10 +366,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<ValidationError> EvalWithValidationErrorCatch(string source)
+        internal static EvalResult<ValidationError> EvalWithValidationErrorCatch(string source, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<ValidationError>();
@@ -373,7 +380,7 @@ namespace Perlang.Tests.Integration
                 try {
                     result.Value = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         DefaultCompilerFlags,
                         AssertFailScanErrorHandler,
@@ -416,12 +423,13 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<Exception> EvalWithResult(string source, string[] arguments = null)
+        internal static EvalResult<Exception> EvalWithResult(string source, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
-            return EvalWithResult(source, DefaultCompilerFlags, arguments);
+            return EvalWithResult(source, DefaultCompilerFlags, arguments, callerMethod);
         }
 
         /// <summary>
@@ -439,10 +447,11 @@ namespace Perlang.Tests.Integration
         /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use if compilation is
         /// enabled.</param>
         /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, string[] arguments = null)
+        internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<Exception>();
@@ -451,7 +460,7 @@ namespace Perlang.Tests.Integration
                 try {
                     result.ExecutablePath = compiler.CompileAndRun(
                         source,
-                        CreateTemporaryPath(source),
+                        CreateTemporaryPath(callerMethod, source),
                         targetPath: null,
                         compilerFlags,
                         AssertFailScanErrorHandler,
@@ -486,7 +495,7 @@ namespace Perlang.Tests.Integration
             }
         }
 
-        private static string CreateTemporaryPath(string source)
+        private static string CreateTemporaryPath(string testMethodName, string source)
         {
             // Note: this is obviously very Linux-specific. We need to figure out a good way to do this on macOS and
             // Windows as well.
@@ -495,12 +504,15 @@ namespace Perlang.Tests.Integration
 
             Directory.CreateDirectory(perlangTempDir);
 
-            // The idea is to use a hashed version of the source as the file name, which means that a given Perlang
+            // The idea is to include a hashed version of the source as the file name, which means that a given Perlang
             // program will reliably always produce the same hash => can use the caching mechanism already in place to
             // avoid meaningless recompilation. (Might want to add a `make cache_clear` target or similar.)
+            //
+            // The calling method is also included in the file name, to make it easier to find the matching .cc file for
+            // a particular test case.
             byte[] sourceAsBytes = Encoding.UTF8.GetBytes(source);
             byte[] sourceHash = SHA256.HashData(sourceAsBytes);
-            return Path.Join(perlangTempDir, Convert.ToHexString(sourceHash) + ".per");
+            return Path.Join(perlangTempDir, $"{testMethodName}-{Convert.ToHexString(sourceHash)}.per");
         }
 
         /// <summary>
@@ -511,11 +523,12 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static IEnumerable<string> EvalReturningOutput(string source, string[] arguments = null)
+        internal static IEnumerable<string> EvalReturningOutput(string source, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
-            return EvalReturningOutput(source, DefaultCompilerFlags, arguments);
+            return EvalReturningOutput(source, DefaultCompilerFlags, arguments, callerMethod);
         }
 
         /// <summary>
@@ -527,11 +540,12 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="compilerFlags">The <see cref="CompilerFlags"/> to use when performing the compilation.</param>
-        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static IEnumerable<string> EvalReturningOutput(string source, CompilerFlags compilerFlags, string[] arguments = null)
+        internal static IEnumerable<string> EvalReturningOutput(string source, CompilerFlags compilerFlags, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
-            var result = EvalWithResult(source, compilerFlags, arguments);
+            var result = EvalWithResult(source, compilerFlags, arguments, callerMethod);
 
             if (result.CompilerWarnings.Count > 0)
             {
@@ -552,11 +566,12 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static string EvalReturningOutputString(string source, string[] arguments = null)
+        internal static string EvalReturningOutputString(string source, string[] arguments = null, [CallerMemberName]string callerMethod = null)
         {
-            return String.Join("\n", EvalReturningOutput(source, arguments));
+            return String.Join("\n", EvalReturningOutput(source, arguments, callerMethod));
         }
 
         /// <summary>
@@ -566,12 +581,13 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
+        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="callerMethod">The name of the calling method.</param>
         /// <returns>The result of evaluating the provided expression, or `null` if provided a list of statements or
         /// an invalid program.</returns>
-        internal static object EvalWithArguments(string source, string[] arguments)
+        internal static object EvalWithArguments(string source, string[] arguments, [CallerMemberName]string callerMethod = null)
         {
-            return EvalWithResult(source, arguments).Value;
+            return EvalWithResult(source, arguments, callerMethod).Value;
         }
 
         private static void AssertFailScanErrorHandler(ScanError scanError)
