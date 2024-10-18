@@ -68,11 +68,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, params string[] arguments)
+        internal static EvalResult<RuntimeError> EvalWithRuntimeErrorCatch(string source, string[] arguments = null)
         {
             if (PerlangMode.ExperimentalCompilation)
             {
@@ -131,11 +131,11 @@ namespace Perlang.Tests.Integration
         /// cref="EvalResult{T}.CompilerWarnings"/> property. "Warnings as errors" will be disabled for all warnings.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<PerlangCompilerException> EvalWithCppCompilationErrorCatch(string source, params string[] arguments)
+        internal static EvalResult<PerlangCompilerException> EvalWithCppCompilationErrorCatch(string source, string[] arguments = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<PerlangCompilerException>();
@@ -415,11 +415,11 @@ namespace Perlang.Tests.Integration
         /// for all warnings; the caller need to explicitly check for warnings and fail if appropriate.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<Exception> EvalWithResult(string source, params string[] arguments)
+        internal static EvalResult<Exception> EvalWithResult(string source, string[] arguments = null)
         {
             return EvalWithResult(source, DefaultCompilerFlags, arguments);
         }
@@ -438,11 +438,11 @@ namespace Perlang.Tests.Integration
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use if compilation is
         /// enabled.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>An <see cref="EvalResult{T}"/> with the <see cref="EvalResult{T}.Value"/> property set to the
         /// result of the provided expression. If not provided a valid expression, <see cref="EvalResult{T}.Value"/>
         /// will be set to `null`.</returns>
-        internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, params string[] arguments)
+        internal static EvalResult<Exception> EvalWithResult(string source, CompilerFlags compilerFlags, string[] arguments = null)
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<Exception>();
@@ -511,9 +511,9 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static IEnumerable<string> EvalReturningOutput(string source, params string[] arguments)
+        internal static IEnumerable<string> EvalReturningOutput(string source, string[] arguments = null)
         {
             return EvalReturningOutput(source, DefaultCompilerFlags, arguments);
         }
@@ -527,9 +527,9 @@ namespace Perlang.Tests.Integration
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
         /// <param name="compilerFlags">The <see cref="CompilerFlags"/> to use when performing the compilation.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static IEnumerable<string> EvalReturningOutput(string source, CompilerFlags compilerFlags, params string[] arguments)
+        internal static IEnumerable<string> EvalReturningOutput(string source, CompilerFlags compilerFlags, string[] arguments = null)
         {
             var result = EvalWithResult(source, compilerFlags, arguments);
 
@@ -552,9 +552,9 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>The output from the provided expression/statements.</returns>
-        internal static string EvalReturningOutputString(string source, params string[] arguments)
+        internal static string EvalReturningOutputString(string source, string[] arguments = null)
         {
             return String.Join("\n", EvalReturningOutput(source, arguments));
         }
@@ -566,10 +566,10 @@ namespace Perlang.Tests.Integration
         /// exceptions to the caller; in other words, this resembles the `-Werror` flag being enabled.
         /// </summary>
         /// <param name="source">A valid Perlang program.</param>
-        /// <param name="arguments">Zero or more arguments to be passed to the program.</param>
+        /// <param name="arguments">An optional array of arguments to be passed to the program.</param>
         /// <returns>The result of evaluating the provided expression, or `null` if provided a list of statements or
         /// an invalid program.</returns>
-        internal static object EvalWithArguments(string source, params string[] arguments)
+        internal static object EvalWithArguments(string source, string[] arguments)
         {
             return EvalWithResult(source, arguments).Value;
         }
