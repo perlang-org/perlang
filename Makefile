@@ -5,7 +5,7 @@
 	docs-validate-api-docs install install-latest-snapshot perlang_cli \
 	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release \
 	publish-release release run run-hello-world-example valgrind-run-hello-world-example \
-	test src/Perlang.Common/CommonConstants.Generated.cs
+	test test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
 
@@ -135,6 +135,9 @@ perlang_cli_install_release: perlang_cli
 
 test:
 	dotnet test --configuration Release
+
+test-stdlib: stdlib
+	src/stdlib/out/tests
 
 #
 # Steps for publishing a new release:

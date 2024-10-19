@@ -59,6 +59,7 @@ test:
           PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=perlang-junit-log.xml";
         else
           dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=perlang-junit-log.xml";
+          make test-stdlib;
         fi
   artifacts:
     when: always

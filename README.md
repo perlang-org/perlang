@@ -169,15 +169,15 @@ Copyright (c) 2017 - 2018 Syed Faheel Ahmad.
 libtommath (https://github.com/libtom/libtommath), licensed under the Unlicense
 (http://unlicense.org).
 
-[src/stdlib/src/double-conversion](src/stdlib/src/double-conversion) includes
-content from the Google `double-conversion` library, available at
-https://github.com/google/double-conversion, licensed under the BSD 3-Clause
-"New" or "Revised" License. Copyright 2006-2011, the V8 project authors.
-
 [src/stdlib/src/fmt](src/stdlib/src/fmt) includes content from the `{fmt}`
 library, available at https://github.com/fmtlib/fmt, licensed under the MIT
 license. Copyright (c) 2012 - present, Victor Zverovich and `{fmt}`
 contributors.
+
+### Third-party libraries
+
+The `src/stdlib` directory uses [Catch2](https://github.com/catchorg/Catch2)
+for unit testing, which is available under the Boost Software License 1.0.
 
 ## Disclaimer
 

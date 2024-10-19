@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 project(stdlib VERSION 0.1.0)
 
+Include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.7.1
+)
+
+FetchContent_MakeAvailable(Catch2)
+
 # This is needed to get CMake to use -fPIC. Without this, linking the Perlang stdlib into a .so shared library will fail
 # with relocation errors.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -13,11 +23,6 @@ set(headers
         src/perlang_string.h
         src/string_array.h
         src/utf8_string.h
-
-#        src/double-conversion/utils.h
-#
-#        src/internal/string_utils.h
-
 )
 
 set(io_headers
@@ -136,38 +141,25 @@ install(
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libtommath"
 )
 
-# The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap. We'll
-# live with only building/running the tests on other platforms for now.
+# The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap.
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    enable_testing()
-    include(CTest)
-
-    set(CCTEST_SRC
+    set(TEST_SRC
             test/print.cc
-            test/double-conversion/cctest.cc
     )
 
     add_executable(
-            cctest
-            ${CCTEST_SRC}
+            tests
+            ${TEST_SRC}
     )
 
     target_include_directories(
-            cctest
-            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+            tests
+            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     )
 
-    target_link_libraries(cctest stdlib)
+    target_link_libraries(tests PRIVATE stdlib)
+    target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 
-    # We enable wrapping for fwrite(), to be able to capture its output in tests. The reason why we don't do this on
-    # macOS is because it does not use GNU ld, so the --wrap linker option isn't available.
-    target_link_options(cctest PRIVATE -Wl,--wrap=fwrite)
-
-    add_test(NAME test_fast_dtoa
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMAND $<TARGET_FILE:cctest> test-fast-dtoa)
-
-    add_test(NAME test_print
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMAND $<TARGET_FILE:cctest> print)
+    # We enable wrapping for fwrite(), to be able to capture its output in tests.
+    target_link_options(tests PRIVATE -Wl,--wrap=fwrite)
 endif()
