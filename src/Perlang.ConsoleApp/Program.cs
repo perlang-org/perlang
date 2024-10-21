@@ -14,6 +14,7 @@ using Perlang.Compiler;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
+using Perlang.Native;
 using Perlang.Parser;
 using ParseError = Perlang.Parser.ParseError;
 

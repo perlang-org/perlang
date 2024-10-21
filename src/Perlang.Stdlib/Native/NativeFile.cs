@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Perlang.ConsoleApp;
+namespace Perlang.Native;
 
 internal static partial class NativeFile
 {
