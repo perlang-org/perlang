@@ -29,40 +29,40 @@ namespace perlang
 
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(const String& rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(const String& rhs) const = 0;
 
         // Concatenates this string with an int32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(int32_t rhs) const
+        virtual std::unique_ptr<String> operator+(int32_t rhs) const
         {
             return this->operator+(static_cast<int64_t>(rhs));
         }
 
         // Concatenates this string with an int64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(int64_t rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(int64_t rhs) const = 0;
 
         // Concatenates this string with a uint32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(uint32_t rhs) const
+        virtual std::unique_ptr<String> operator+(uint32_t rhs) const
         {
             return this->operator+(static_cast<uint64_t>(rhs));
         }
 
         // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(uint64_t rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(uint64_t rhs) const = 0;
 
         // Concatenates this string with a float. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(float rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(float rhs) const = 0;
 
         // Concatenates this string with a double. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(double rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(double rhs) const = 0;
 
         // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        virtual std::unique_ptr<const String> operator+(const BigInt& rhs) const = 0;
+        virtual std::unique_ptr<String> operator+(const BigInt& rhs) const = 0;
     };
 }

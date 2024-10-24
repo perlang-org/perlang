@@ -9,7 +9,7 @@
 
 namespace perlang
 {
-    std::unique_ptr<const ASCIIString> ASCIIString::from_static_string(const char* str)
+    std::unique_ptr<ASCIIString> ASCIIString::from_static_string(const char* str)
     {
         if (str == nullptr) {
             throw std::invalid_argument("string argument cannot be null");
@@ -21,7 +21,7 @@ namespace perlang
         return std::unique_ptr<ASCIIString>(result);
     }
 
-    std::unique_ptr<const ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
+    std::unique_ptr<ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
     {
         if (str == nullptr) {
             throw std::invalid_argument("str argument cannot be null");
@@ -32,7 +32,7 @@ namespace perlang
         return std::unique_ptr<ASCIIString>(result);
     }
 
-    std::unique_ptr<const ASCIIString> ASCIIString::from_copied_string(const char* str)
+    std::unique_ptr<ASCIIString> ASCIIString::from_copied_string(const char* str)
     {
         if (str == nullptr) {
             throw std::invalid_argument("str argument cannot be null");
@@ -111,7 +111,7 @@ namespace perlang
         }
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(const String& rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(const String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
@@ -124,7 +124,7 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::unique_ptr<const ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
+    std::unique_ptr<ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const
     {
         // Copy-paste is a bit ugly, but the alternative would perhaps also not be so pretty, calling the above method
         // and doing some semi-ugly casting of the result.
@@ -139,37 +139,37 @@ namespace perlang
         return from_owned_string(bytes, length);
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(int64_t rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(int64_t rhs) const
     {
         std::string str = std::to_string(rhs);
         return *this + str;
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(uint64_t rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(uint64_t rhs) const
     {
         std::string str = std::to_string(rhs);
         return *this + str;
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(float rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(float rhs) const
     {
         std::string str = internal::float_to_string(rhs);
         return *this + str;
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(double rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(double rhs) const
     {
         std::string str = internal::double_to_string(rhs);
         return *this + str;
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(const BigInt& rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(const BigInt& rhs) const
     {
         std::string str = rhs.to_string();
         return *this + str;
     }
 
-    std::unique_ptr<const String> ASCIIString::operator+(const std::string& rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(const std::string& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];

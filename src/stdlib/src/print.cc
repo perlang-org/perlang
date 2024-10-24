@@ -31,12 +31,27 @@ namespace perlang
         print(&str);
     }
 
+    void print(const std::unique_ptr<String>& str)
+    {
+        print(str.get());
+    }
+
     void print(const std::unique_ptr<const String>& str)
     {
         print(str.get());
     }
 
+    void print(const std::unique_ptr<ASCIIString>& str)
+    {
+        print(str.get());
+    }
+
     void print(const std::unique_ptr<const ASCIIString>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::unique_ptr<UTF8String>& str)
     {
         print(str.get());
     }

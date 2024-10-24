@@ -22,19 +22,19 @@ namespace perlang
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
         [[nodiscard]]
-        static std::unique_ptr<const ASCIIString> from_static_string(const char* str);
+        static std::unique_ptr<ASCIIString> from_static_string(const char* str);
 
         // Creates a new ASCIIString from an "owned str", like a str that has been allocated on the heap. The
         // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
         // memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
-        static std::unique_ptr<const ASCIIString> from_owned_string(const char* str, size_t length);
+        static std::unique_ptr<ASCIIString> from_owned_string(const char* str, size_t length);
 
         // Creates a new ASCIIString from an existing string, by copying its content to a new buffer allocated on the
         // heap. The ASCIIString class takes ownership of the newly allocated buffer, which will be deallocated when the
         // ASCIIString runs out of scope.
         [[nodiscard]]
-        static std::unique_ptr<const ASCIIString> from_copied_string(const char* str);
+        static std::unique_ptr<ASCIIString> from_copied_string(const char* str);
 
      private:
         // Private constructor for creating a new ASCIIString from a C-style (NUL-terminated) string. The `owned`
@@ -75,49 +75,49 @@ namespace perlang
 
         // Concatenates this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(const String& rhs) const override;
+        std::unique_ptr<String> operator+(const String& rhs) const override;
 
         // Concatenates this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const ASCIIString> operator+(const ASCIIString& rhs) const;
+        std::unique_ptr<ASCIIString> operator+(const ASCIIString& rhs) const;
 
         // Concatenates this string with an int32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        inline std::unique_ptr<const String> operator+(int32_t rhs) const override
+        inline std::unique_ptr<String> operator+(int32_t rhs) const override
         {
             return this->operator+(static_cast<int64_t>(rhs));
         }
 
         // Concatenates this string with an int64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(int64_t rhs) const override;
+        std::unique_ptr<String> operator+(int64_t rhs) const override;
 
         // Concatenates this string with a uint32. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        inline std::unique_ptr<const String> operator+(uint32_t rhs) const override
+        inline std::unique_ptr<String> operator+(uint32_t rhs) const override
         {
             return this->operator+(static_cast<uint64_t>(rhs));
         }
 
         // Concatenates this string with a uint64. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(uint64_t rhs) const override;
+        std::unique_ptr<String> operator+(uint64_t rhs) const override;
 
         // Concatenates this string with a float. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(float rhs) const override;
+        std::unique_ptr<String> operator+(float rhs) const override;
 
         // Concatenates this string with a double. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(double rhs) const override;
+        std::unique_ptr<String> operator+(double rhs) const override;
 
         // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(const BigInt& rhs) const override;
+        std::unique_ptr<String> operator+(const BigInt& rhs) const override;
 
         // Concatenates this string with a std::string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        inline std::unique_ptr<const String> operator+(const std::string& rhs) const;
+        inline std::unique_ptr<String> operator+(const std::string& rhs) const;
 
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any

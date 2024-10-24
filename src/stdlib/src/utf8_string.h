@@ -18,7 +18,7 @@ namespace perlang
         // parameter "borrow" the actual bytes_ used by the string. Since no deallocation will take place, and no
         // mutation, copying the string at this point would just waste CPU cycles for no added benefit.
         [[nodiscard]]
-        static std::unique_ptr<const UTF8String> from_static_string(const char* s);
+        static std::unique_ptr<UTF8String> from_static_string(const char* s);
 
         // Creates a new UTF8String from an "owned string", like a string that has been allocated on the heap. The
         // ownership of the memory is transferred to the UTF8String, which is then responsible for deallocating the
@@ -30,7 +30,7 @@ namespace perlang
         // heap. The UTF8String class takes ownership of the newly allocated buffer, which will be deallocated when the
         // UTF8String runs out of scope.
         [[nodiscard]]
-        static std::unique_ptr<const UTF8String> from_copied_string(const char* str);
+        static std::unique_ptr<UTF8String> from_copied_string(const char* str);
 
      private:
         // Private constructor for creating a new UTF8String from a C-style (NUL-terminated) string. The `owned`
@@ -67,35 +67,35 @@ namespace perlang
 
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(const String& rhs) const override;
+        std::unique_ptr<String> operator+(const String& rhs) const override;
 
         // Concatenates this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const UTF8String> operator+(const UTF8String& rhs) const;
+        std::unique_ptr<UTF8String> operator+(const UTF8String& rhs) const;
 
         // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(int64_t rhs) const override;
+        std::unique_ptr<String> operator+(int64_t rhs) const override;
 
         // Concatenates this string with an int or long. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(uint64_t rhs) const override;
+        std::unique_ptr<String> operator+(uint64_t rhs) const override;
 
         // Concatenates this string with a float. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(float rhs) const override;
+        std::unique_ptr<String> operator+(float rhs) const override;
 
         // Concatenates this string with a double. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(double rhs) const override;
+        std::unique_ptr<String> operator+(double rhs) const override;
 
         // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        std::unique_ptr<const String> operator+(const BigInt& rhs) const override;
+        std::unique_ptr<String> operator+(const BigInt& rhs) const override;
 
         // Concatenates this string with a std::string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
-        inline std::unique_ptr<const String> operator+(const std::string& rhs) const;
+        inline std::unique_ptr<String> operator+(const std::string& rhs) const;
 
      private:
         // The backing byte array for this string. This is to be considered immutable and MUST NOT be modified at any
@@ -115,27 +115,27 @@ namespace perlang
     // Concatenate an int/long+UTF8String. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    std::unique_ptr<const UTF8String> operator+(int64_t lhs, const UTF8String& rhs);
+    std::unique_ptr<UTF8String> operator+(int64_t lhs, const UTF8String& rhs);
 
     // Concatenate a uint/ulong+UTF8String. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    std::unique_ptr<const UTF8String> operator+(uint64_t lhs, const UTF8String& rhs);
+    std::unique_ptr<UTF8String> operator+(uint64_t lhs, const UTF8String& rhs);
 
     // TODO: missing + operator for int32_t and uint32_t
 
     // Concatenate a float+UTF8String. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    std::unique_ptr<const UTF8String> operator+(float lhs, const UTF8String& rhs);
+    std::unique_ptr<UTF8String> operator+(float lhs, const UTF8String& rhs);
 
     // Concatenate a double+UTF8String. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    std::unique_ptr<const UTF8String> operator+(double lhs, const UTF8String& rhs);
+    std::unique_ptr<UTF8String> operator+(double lhs, const UTF8String& rhs);
 
     // Concatenate a double+UTF8String. The memory for the new string is allocated from the heap. This is a free
     // function, since the left-hand side is not an UTF8String.
     [[nodiscard]]
-    inline std::unique_ptr<const UTF8String> operator+(const std::string& lhs, const UTF8String& rhs);
+    inline std::unique_ptr<UTF8String> operator+(const std::string& lhs, const UTF8String& rhs);
 }
