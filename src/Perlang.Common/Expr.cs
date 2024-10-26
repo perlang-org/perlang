@@ -260,7 +260,6 @@ namespace Perlang
             {
                 if (Value is string s)
                 {
-                    // Surround with quotes to make it more distinguishable when debugging.
                     return '"' + s + '"';
                 }
                 else
