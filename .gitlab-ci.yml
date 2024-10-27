@@ -34,7 +34,7 @@ valgrind-run-hello-world-example:
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
     - make stdlib
-    - make valgrind-run-hello-world-example
+    - make valgrind-perlang-run-hello-world-example
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

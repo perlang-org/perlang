@@ -4,7 +4,7 @@
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
 	docs-validate-api-docs install install-latest-snapshot perlang_cli \
 	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release perlang_cli_install_integration_test_debug \
-	publish-release release run run-hello-world-example valgrind-run-hello-world-example \
+	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
 	test test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
@@ -98,9 +98,15 @@ run: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
 	dotnet build
 	$(DEBUG_PERLANG) -v
 
-valgrind-run-hello-world-example: auto-generated perlang_cli perlang_cli_install_debug
+valgrind-perlang-run-hello-world-example: auto-generated perlang_cli perlang_cli_install_debug
 	dotnet build
 	$(VALGRIND) $(DEBUG_PERLANG) docs/examples/quickstart/hello_world.per
+
+valgrind-hello-world-example: auto-generated perlang_cli perlang_cli_install_debug
+	dotnet build
+# The PERLANG_RUN_WITH_VALGRIND environment variable is not honoured by the Perlang CLI, only EvalHelper at the moment
+	$(DEBUG_PERLANG) docs/examples/quickstart/hello_world.per
+	$(VALGRIND) docs/examples/quickstart/hello_world
 
 run-hello-world-example: auto-generated perlang_cli_clean perlang_cli perlang_cli_install_debug
 	dotnet build
