@@ -3,7 +3,7 @@
 .PHONY: \
 	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
 	docs-validate-api-docs install install-latest-snapshot perlang_cli \
-	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release \
+	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release perlang_cli_install_integration_test_debug \
 	publish-release release run run-hello-world-example valgrind-run-hello-world-example \
 	test test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
@@ -132,6 +132,10 @@ perlang_cli_install_debug: perlang_cli
 perlang_cli_install_release: perlang_cli
 	mkdir -p $(RELEASE_PERLANG_DIRECTORY)
 	cp lib/perlang_cli/lib/perlang_cli.so $(RELEASE_PERLANG_DIRECTORY)
+
+perlang_cli_install_integration_test_debug: perlang_cli
+	mkdir -p src/Perlang.Tests.Integration/bin/Debug/net8.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Debug/net8.0
 
 test:
 	dotnet test --configuration Release
