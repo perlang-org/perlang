@@ -18,10 +18,9 @@ DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
 RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net8.0/$(ARCH)/publish
 RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 
-# --undef-value-errors are caused by the .NET runtime, so we ignore them for now to avoid noise. Can also not use
-# --leak-check=full because .NET has some existing Valgrind issues preventing this:
-# https://github.com/dotnet/runtime/issues/52872
-VALGRIND=DOTNET_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all --leak-check=summary
+# --undef-value-errors are caused by the .NET runtime, so we ignore them for now to avoid noise. Must also use
+# --suppressions because .NET runtime has some existing Valgrind issues: https://github.com/dotnet/runtime/issues/52872
+VALGRIND=DOTNET_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all --leak-check=full --suppressions=scripts/valgrind-suppressions.txt
 
 # Enable fail-fast in case of errors
 SHELL=/bin/bash -e -o pipefail

@@ -61,6 +61,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645CCD64-1CD1-40DA-866E-1EE16BF5136F}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\update_common_constants.rb = scripts\update_common_constants.rb
+		scripts\valgrind-suppressions.txt = scripts\valgrind-suppressions.txt
 	EndProjectSection
 EndProject
 Global

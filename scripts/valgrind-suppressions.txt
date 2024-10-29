@@ -1,0 +1,151 @@
+{
+    calloc_from_libcoreclr.so
+    Memcheck:Leak
+    fun:calloc
+    ...
+    obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+    malloc_from_libcoreclr.so
+    Memcheck:Leak
+    fun:malloc
+    ...
+    obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+   new_operator_from_libcoreclr.so
+   Memcheck:Leak
+   fun:_ZnwmRKSt9nothrow_t
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+    malloc_from_libSystem.Native.so
+    Memcheck:Leak
+    fun:malloc
+    ...
+    obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libSystem.Native.so
+}
+# These are overly broad, but are presumed to be fine as long as we never call into this library ourselves.
+{
+   malloc_from_libicuuc.so.72.1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.72.1
+}
+{
+   realloc_from_libicuuc.so.72.1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.72.1
+}
+{
+   malloc_from_libicui18n.so.72.1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libicui18n.so.72.1
+}
+{
+   realloc_from_libicui18n.so.72.1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libicui18n.so.72.1
+}
+{
+   SystemNative_CreateSocketEventBuffer_from_libcoreclr.so
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:SystemNative_CreateSocketEventBuffer
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/System.Net.Sockets.dll
+   ...
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+   malloc_from_jitStartup
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:jitStartup
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+   tls_get_addr
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:malloc
+   fun:allocate_dtv_entry
+   fun:allocate_and_init
+   fun:tls_get_addr_tail
+   fun:__tls_get_addr
+   # Called from both libclrjit.so and perlang (with some unknown intermediaries), so can't specify the exact object
+   # here without duplicating the whole suppression.
+}
+{
+   SystemNative_InitializeTerminalAndSignalHandling_from_System.Diagnostics.Process.dll
+   Memcheck:Leak
+   fun:calloc
+   ...
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libSystem.Native.so
+   fun:SystemNative_InitializeTerminalAndSignalHandling
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/System.Diagnostics.Process.dll
+}
+{
+   dlopen_from_libcoreclr.so
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:malloc
+   fun:resize_scopes
+   fun:dl_open_worker_begin
+   fun:_dl_catch_exception
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_exception
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen_implementation
+   fun:dlopen@@GLIBC_2.34
+   obj:/usr/share/dotnet/shared/Microsoft.NETCore.App/8.*/libcoreclr.so
+}
+{
+   malloc_from_dlopen_doit
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:dlopen_doit
+}
+{
+   calloc_from_dlopen_doit
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   ...
+   fun:dlopen_doit
+}
+{
+   calloc_from_dl_open_worker
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   ...
+   fun:dl_open_worker
+}
+{
+   malloc_from_dl_open_worker
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:dl_open_worker
+}
