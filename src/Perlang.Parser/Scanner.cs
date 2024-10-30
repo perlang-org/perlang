@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Text;
+using Perlang.Native;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -471,7 +471,7 @@ namespace Perlang.Parser
 
         private static string RemoveUnderscores(string s)
         {
-            var sb = new StringBuilder();
+            using var sb = NativeStringBuilder.Create();
 
             foreach (char c in s.Where(c => c != '_'))
             {

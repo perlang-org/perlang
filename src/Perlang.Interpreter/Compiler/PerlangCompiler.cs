@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 using Perlang.Attributes;
 using Perlang.Compiler;
 using Perlang.Exceptions;
@@ -22,6 +21,7 @@ using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Lang;
+using Perlang.Native;
 using Perlang.Parser;
 using Perlang.Stdlib;
 using static Perlang.TokenType;
@@ -58,7 +58,7 @@ namespace Perlang.Interpreter.Compiler;
 /// Also, this class is not thread safe. A single instance of this class cannot safely be used from multiple
 /// threads.</remarks>
 /// </summary>
-public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
+public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IDisposable
 {
     /// <summary>
     /// Gets a value indicating whether caching of compiled results should be disabled or not.
@@ -106,7 +106,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
     /// <summary>
     /// The location in the output we are currently writing to. Can be an enum, function, etc.
     /// </summary>
-    private readonly StringBuilder mainMethodContent;
+    private readonly NativeStringBuilder mainMethodContent;
 
     private int indentationLevel = 1;
 
@@ -128,7 +128,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
         this.standardOutputHandler = standardOutputHandler;
         this.BindingHandler = bindingHandler ?? new BindingHandler();
 
-        this.mainMethodContent = new StringBuilder();
+        this.mainMethodContent = NativeStringBuilder.Create();
+
         this.methods = new Dictionary<string, Method>();
         this.enums = new Dictionary<string, string>();
 
@@ -140,6 +141,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
         LoadStdlib();
         nativeClasses = RegisterGlobalFunctionsAndClasses();
+    }
+
+    public void Dispose()
+    {
+        mainMethodContent.Dispose();
+
+        foreach (Method method in methods.Values) {
+            method.MethodBody.Dispose();
+        }
     }
 
     private IImmutableDictionary<string, Type> CreateSuperGlobals(ImmutableList<string> argumentsList)
@@ -824,7 +834,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
     /// <returns>The C++ source for the given statements.</returns>
     private string Compile(IEnumerable<Stmt> statements)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         foreach (Stmt statement in statements)
         {
@@ -857,7 +867,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitBinaryExpr(Expr.Binary expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
         string? leftCast = null;
         string? rightCast = null;
 
@@ -1206,7 +1216,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
         // TODO: binding at an earlier stage and e.g. validate the number and type of arguments with the method
         // TODO: definition. Right now, we'll leave this to the C++ compiler to deal with...
 
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append(expr.Callee.Accept(this));
         result.Append('(');
@@ -1237,7 +1247,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
         // TODO: One way to deal with this: make `foo[bar]` be safe and add an "unsafe" indexing operator `foo[[bar]]`
         // TODO: which can be used when the user believes he knows best. Investigate how Rust is doing this.
 
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         ITypeReference indexeeTypeReference = expr.Indexee.TypeReference;
 
@@ -1262,7 +1272,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitGroupingExpr(Expr.Grouping expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append('(');
         result.Append(expr.Expression.Accept(this));
@@ -1273,7 +1283,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitCollectionInitializerExpr(Expr.CollectionInitializer collectionInitializer)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType}>(");
 
@@ -1309,7 +1319,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitLiteralExpr(Expr.Literal expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         if (expr.Value is AsciiString)
         {
@@ -1393,7 +1403,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitLogicalExpr(Expr.Logical expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         switch (expr.Operator.Type)
         {
@@ -1419,7 +1429,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         switch (expr.Operator.Type)
         {
@@ -1443,7 +1453,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitUnaryPostfixExpr(Expr.UnaryPostfix expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         switch (expr.Operator.Type)
         {
@@ -1470,7 +1480,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitGetExpr(Expr.Get expr)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         if (expr.Object is Expr.Identifier identifier)
         {
@@ -1530,7 +1540,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitBlockStmt(Stmt.Block block)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append(Indent(indentationLevel));
         result.AppendLine("{");
@@ -1555,7 +1565,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitEnumStmt(Stmt.Enum stmt)
     {
-        var stringBuilder = new StringBuilder();
+        using var stringBuilder = NativeStringBuilder.Create();
+
         int localIndentationLevel = 0;
 
         // The "enum class" concept as defined in C++11 would be preferable here since it provides better type safety, but
@@ -1571,8 +1582,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
         stringBuilder.AppendLine($"enum {stmt.Name.Lexeme} {{");
         localIndentationLevel++;
 
-        foreach (KeyValuePair<string, Expr?> enumMember in stmt.Members)
-        {
+        foreach (KeyValuePair<string, Expr?> enumMember in stmt.Members) {
             stringBuilder.Append(Indent(localIndentationLevel));
             stringBuilder.Append(enumMember.Key);
 
@@ -1594,15 +1604,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
         enums[stmt.Name.Lexeme] = stringBuilder.ToString();
 
-        // Does not need to return the StringBuilder here, since it's been stored in the methods dictionary already.
+        // Does not need to return the StringBuilder here, since it's been stored in the enums dictionary already.
         return VoidObject.Void;
     }
 
     public object VisitExpressionStmt(Stmt.ExpressionStmt stmt)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
-        // We only emit the "wrapping" (whitespace before + semicolon and newline after expression)  in this case; the
+        // We only emit the "wrapping" (whitespace before + semicolon and newline after expression) in this case; the
         // rest comes from visiting the expression itself
         result.Append(Indent(indentationLevel));
         result.Append(stmt.Expression.Accept(this));
@@ -1613,7 +1623,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitFunctionStmt(Stmt.Function functionStmt)
     {
-        var functionContent = new StringBuilder();
+        // Disposed via Dispose() method for class
+#pragma warning disable CA2000
+        var functionContent = NativeStringBuilder.Create();
+#pragma warning restore CA2000
 
         if (methods.ContainsKey(functionStmt.Name.Lexeme))
         {
@@ -1641,7 +1654,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitIfStmt(Stmt.If stmt)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append(Indent(indentationLevel));
         result.Append($"if ({stmt.Condition.Accept(this)}) ");
@@ -1678,7 +1691,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitReturnStmt(Stmt.Return stmt)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         if (stmt.Value == null)
         {
@@ -1697,7 +1710,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitVarStmt(Stmt.Var stmt)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         string variableName = stmt.Name.Lexeme;
 
@@ -1717,7 +1730,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     public object VisitWhileStmt(Stmt.While whileStmt)
     {
-        var result = new StringBuilder();
+        using var result = NativeStringBuilder.Create();
 
         result.Append(Indent(indentationLevel));
         result.Append($"while ({whileStmt.Condition.Accept(this)}) ");
@@ -1729,7 +1742,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>
 
     private static string Indent(int level) => String.Empty.PadLeft(level * 4);
 
-    private record Method(string Name, IImmutableList<Parameter> Parameters, string ReturnType, StringBuilder MethodBody)
+    private record Method(string Name, IImmutableList<Parameter> Parameters, string ReturnType, NativeStringBuilder MethodBody)
     {
         /// <summary>
         /// Gets the method parameters as a comma-separated string, in C++ format. Example: `int foo, int bar`.

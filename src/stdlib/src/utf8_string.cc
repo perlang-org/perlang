@@ -36,9 +36,13 @@ namespace perlang
             throw std::invalid_argument("str argument cannot be null");
         }
 
-        // Create a new buffer and copy the string into it. Since we need to know the length anyway, we can use
-        // memcpy() instead of strcpy() to avoid an extra iteration over the string.
-        size_t length = strlen(str);
+        return from_copied_string(str, strlen(str));
+    }
+
+    std::unique_ptr<UTF8String> UTF8String::from_copied_string(const char* str, size_t length)
+    {
+        // Create a new buffer and copy the string into it. Since we know the length anyway, we can use memcpy() instead
+        // of strcpy() to avoid an extra iteration over the string.
         char* new_str = new char[length + 1];
         memcpy(new_str, str, length);
         new_str[length] = '\0';

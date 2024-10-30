@@ -8,7 +8,6 @@ using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Perlang.Compiler;
 using Perlang.Interpreter;
@@ -24,7 +23,7 @@ using System.Diagnostics;
 
 namespace Perlang.ConsoleApp
 {
-    public class Program
+    public class Program : IDisposable
     {
         internal enum ExitCodes
         {
@@ -179,7 +178,7 @@ namespace Perlang.ConsoleApp
                         string? outputFileName = parseResult.GetValueForOption(outputOption);
                         bool idempotent = parseResult.GetValueForOption(idempotentOption);
 
-                        var program = new Program(
+                        using var program = new Program(
                             replMode: false,
                             standardOutputHandler: Console.WriteLine,
                             disabledWarningsAsErrors: disabledWarningsAsErrorsList,
@@ -197,7 +196,7 @@ namespace Perlang.ConsoleApp
 
                         if (parseResult.Tokens.Count == 1)
                         {
-                            var program = new Program(
+                            using var program = new Program(
                                 replMode: false,
                                 standardOutputHandler: Console.WriteLine,
                                 disabledWarningsAsErrors: disabledWarningsAsErrorsList,
@@ -210,7 +209,7 @@ namespace Perlang.ConsoleApp
                         {
                             var remainingArguments = parseResult.GetValueForArgument(scriptArguments);
 
-                            var program = new Program(
+                            using var program = new Program(
                                 replMode: false,
                                 arguments: remainingArguments,
                                 standardOutputHandler: Console.WriteLine,
@@ -241,7 +240,7 @@ namespace Perlang.ConsoleApp
                 .Invoke(args);
         }
 
-        internal Program(
+        private Program(
             bool replMode,
             Action<Lang.String> standardOutputHandler,
             IEnumerable<string>? arguments = null,
@@ -263,6 +262,11 @@ namespace Perlang.ConsoleApp
                 runtimeErrorHandler ?? RuntimeError,
                 this.standardOutputHandler
             );
+        }
+
+        public void Dispose()
+        {
+            compiler.Dispose();
         }
 
         private int RunFile(string path, string? outputPath)
@@ -293,7 +297,7 @@ namespace Perlang.ConsoleApp
 
         private int CompileAndAssembleFile(string[] scriptFiles, string? targetPath, bool idempotent)
         {
-            var completeSource = new StringBuilder();
+            using var completeSource = NativeStringBuilder.Create();
 
             foreach (string scriptFile in scriptFiles)
             {

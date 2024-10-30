@@ -121,7 +121,7 @@ namespace Perlang.Tests.Interpreter.Typing
 
         private static (List<Stmt> Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveStatements(string program)
         {
-            var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
+            using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
                 program,

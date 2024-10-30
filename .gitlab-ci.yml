@@ -54,6 +54,7 @@ test:
   script:
     - make auto-generated
     - make stdlib
+    - make perlang_cli_install_integration_test_release
     - >
         if [[ "$TEST_MODE" == 'valgrind' ]]; then
           PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=perlang-junit-log.xml";

@@ -16,6 +16,8 @@
 
 #include "io/file.h"
 
+#include "text/string_builder.h"
+
 namespace perlang
 {
     namespace stdlib

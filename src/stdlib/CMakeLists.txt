@@ -33,6 +33,10 @@ set(libtommath_headers
         src/libtommath/tommath.h
 )
 
+set(text_headers
+        src/text/string_builder.h
+)
+
 add_library(
         stdlib
         src/ascii_string.cc
@@ -98,6 +102,8 @@ add_library(
         src/libtommath/bn_s_mp_sub.c
         src/libtommath/bn_s_mp_toom_mul.c
         src/libtommath/bn_s_mp_toom_sqr.c
+
+        src/text/string_builder.cc
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13
@@ -139,6 +145,11 @@ install(
 install(
         FILES ${libtommath_headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/libtommath"
+)
+
+install(
+        FILES ${text_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/text"
 )
 
 # The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap.

@@ -1,9 +1,9 @@
 # src/Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
 .PHONY: \
-	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples \
-	docs-validate-api-docs install install-latest-snapshot perlang_cli \
-	perlang_cli_clean perlang_cli_install_debug perlang_cli_install_release perlang_cli_install_integration_test_debug \
+	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples valgrind-docs-test-examples \
+	docs-validate-api-docs install install-latest-snapshot perlang_cli perlang_cli_clean perlang_cli_install_debug \
+	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
 	test test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
@@ -60,6 +60,10 @@ docs-autobuild:
 docs-test-examples: perlang_cli_install_release
 	for e in docs/examples/quickstart/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
 	for e in docs/examples/the-language/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(RELEASE_PERLANG) $$e ; done
+
+valgrind-docs-test-examples: perlang_cli_install_release
+	for e in docs/examples/quickstart/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(VALGRIND) $(DEBUG_PERLANG) $$e ; done
+	for e in docs/examples/the-language/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(VALGRIND) $(DEBUG_PERLANG) $$e ; done
 
 docs-serve:
 	live-server _site
@@ -141,6 +145,12 @@ perlang_cli_install_release: perlang_cli
 perlang_cli_install_integration_test_debug: perlang_cli
 	mkdir -p src/Perlang.Tests.Integration/bin/Debug/net8.0
 	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Debug/net8.0
+
+perlang_cli_install_integration_test_release: perlang_cli
+	mkdir -p src/Perlang.Tests/bin/Release/net8.0
+	mkdir -p src/Perlang.Tests.Integration/bin/Release/net8.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Release/net8.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Release/net8.0
 
 test:
 	dotnet test --configuration Release

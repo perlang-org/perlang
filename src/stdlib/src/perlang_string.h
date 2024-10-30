@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory> // std::unique_ptr
+
 // Forward declaration to avoid circular dependencies
 class BigInt;
 
@@ -19,7 +21,7 @@ namespace perlang
         [[nodiscard]]
         virtual const char* bytes() const = 0;
 
-        // Returns the backing byte array, and release ownership of it. The caller is now responsible for freeing the
+        // Returns the backing byte array, and releases ownership of it. The caller is now responsible for freeing the
         // memory.
         virtual std::unique_ptr<const char[]> release_bytes() = 0;
 

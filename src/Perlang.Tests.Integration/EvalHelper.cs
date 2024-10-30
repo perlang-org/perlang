@@ -80,7 +80,7 @@ namespace Perlang.Tests.Integration
             {
                 var result = new EvalResult<RuntimeError>();
 
-                var compiler = new PerlangCompiler(
+                using var compiler = new PerlangCompiler(
                     result.ErrorHandler, result.OutputHandler, null, arguments
                 );
 
@@ -143,7 +143,7 @@ namespace Perlang.Tests.Integration
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<PerlangCompilerException>();
 
-                var compiler = new PerlangCompiler(
+                using var compiler = new PerlangCompiler(
                     AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments
                 );
 
@@ -202,7 +202,7 @@ namespace Perlang.Tests.Integration
             {
                 var result = new EvalResult<ScanError>();
 
-                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
+                using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
                 try
                 {
@@ -261,7 +261,7 @@ namespace Perlang.Tests.Integration
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<ParseError>();
 
-                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
+                using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
                 try {
                     result.Value = compiler.CompileAndRun(
@@ -318,7 +318,7 @@ namespace Perlang.Tests.Integration
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<NameResolutionError>();
 
-                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
+                using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
                 try {
                     result.Value = compiler.CompileAndRun(
@@ -375,7 +375,7 @@ namespace Perlang.Tests.Integration
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<ValidationError>();
 
-                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
+                using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler);
 
                 try {
                     result.Value = compiler.CompileAndRun(
@@ -455,7 +455,7 @@ namespace Perlang.Tests.Integration
         {
             if (PerlangMode.ExperimentalCompilation) {
                 var result = new EvalResult<Exception>();
-                var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
+                using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, result.OutputHandler, null, arguments);
 
                 try {
                     result.ExecutablePath = compiler.CompileAndRun(

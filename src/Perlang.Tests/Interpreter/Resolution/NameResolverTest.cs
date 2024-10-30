@@ -29,7 +29,7 @@ namespace Perlang.Tests.Interpreter.Resolution
 
         private static (Stmt Stmt, NameResolver Resolver) ScanParseAndResolveSingleStatement(string program)
         {
-            var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
+            using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
                 program,

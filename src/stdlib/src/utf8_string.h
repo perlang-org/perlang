@@ -29,8 +29,18 @@ namespace perlang
         // Creates a new UTF8String from an existing string, by copying its content to a new buffer allocated on the
         // heap. The UTF8String class takes ownership of the newly allocated buffer, which will be deallocated when the
         // UTF8String runs out of scope.
+        //
+        // Note that this method presumes the string to be NUL-terminated, which means that not all UTF-8 strings can be
+        // used with this function (much like ASCII strings with NUL characters are unable to be used with the C
+        // standard library).
         [[nodiscard]]
         static std::unique_ptr<UTF8String> from_copied_string(const char* str);
+
+        // Creates a new UTF8String from an existing string, by copying its content to a new buffer allocated on the
+        // heap. The UTF8String class takes ownership of the newly allocated buffer, which will be deallocated when the
+        // UTF8String runs out of scope.
+        [[nodiscard]]
+        static std::unique_ptr<UTF8String> from_copied_string(const char* str, size_t length);
 
      private:
         // Private constructor for creating a new UTF8String from a C-style (NUL-terminated) string. The `owned`

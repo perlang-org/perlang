@@ -1,0 +1,5 @@
+root = true
+
+[*.cs]
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = error
