@@ -156,6 +156,7 @@ install(
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(TEST_SRC
             test/print.cc
+            test/string_builder.cc
     )
 
     add_executable(

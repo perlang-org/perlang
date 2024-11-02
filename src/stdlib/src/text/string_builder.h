@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "perlang_string.h"
 
 namespace perlang::text
@@ -13,7 +15,8 @@ namespace perlang::text
         // TODO: to make the implementation be thread safe.
         const uint DEFAULT_BUFFER_SIZE = 1024;
 
-        char* buffer_;
+        std::vector<char>* buffer_;
+        uint buffer_capacity_;
         uint current_position_ = 0;
         uint length_ = 0;
 
