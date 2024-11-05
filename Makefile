@@ -42,7 +42,6 @@ clean:
 	dotnet clean
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
 	rm -rf src/Perlang.ConsoleApp/bin/Release
-	rm *.o
 	rm -rf lib/
 
 docs-clean:
@@ -85,7 +84,7 @@ docfx/docfx.exe:
 darkerfx-push:
 	rsync -av docs/templates/darkerfx/ ../darkerfx/darkerfx/
 
-install: auto-generated stdlib
+install: auto-generated stdlib perlang_cli
 	./scripts/local_install_linux.sh
 
 # Downloads and installs the latest snapshot from https://builds.perlang.org

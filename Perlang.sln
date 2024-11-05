@@ -62,6 +62,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645C
 	ProjectSection(SolutionItems) = preProject
 		scripts\update_common_constants.rb = scripts\update_common_constants.rb
 		scripts\valgrind-suppressions.txt = scripts\valgrind-suppressions.txt
+		scripts\local_install_linux.sh = scripts\local_install_linux.sh
 	EndProjectSection
 EndProject
 Global

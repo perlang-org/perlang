@@ -14,3 +14,6 @@ cp -r src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish/* $HOME/.perla
 
 # Copy the precompiled stdlib binaries as well, so that experimental compiled mode can find them
 cp -r lib/ $HOME/.perlang/nightly/bin
+
+# perlang_cli.so is also required by the Perlang C# binary nowadays
+cp lib/perlang_cli/lib/perlang_cli.so $HOME/.perlang/nightly/bin
