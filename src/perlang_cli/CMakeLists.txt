@@ -20,7 +20,7 @@ target_include_directories(
 )
 
 target_compile_options(
-        perlang_cli PRIVATE -Wall -Wextra -Werror
+        perlang_cli PRIVATE -Wall -Wextra -Werror -ggdb
 )
 
 target_link_directories(

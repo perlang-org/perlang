@@ -115,7 +115,7 @@ target_include_directories(
 )
 
 target_compile_options(
-        stdlib PRIVATE -Wall -Wextra -Werror
+        stdlib PRIVATE -Wall -Wextra -Werror -ggdb
 
         # TODO: Remove this. We have some current issues with %lld (long long int vs int64_t) that needs to be
         # TODO: resolved for this. The problem is IIRC that Linux and macOS treated this differently.
