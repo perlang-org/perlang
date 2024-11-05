@@ -19,7 +19,10 @@ namespace perlang::text
     void StringBuilder::append(const String& str)
     {
         if (current_position_ + str.length() >= buffer_capacity_) {
-            buffer_capacity_ = buffer_capacity_ * 2;
+            // Give the buffer enough size to fit the whole of str, and round it up to the closest 1KB boundary. For
+            // some applications (adding large strings  to the StringBuilder), this will lead to a large number of
+            // reallocations, but let's attempt to optimize for conserving memory consumption for now.
+            buffer_capacity_ = ((buffer_capacity_ + str.length()) | 1023) + 1;
             buffer_->resize(buffer_capacity_);
         }
 
