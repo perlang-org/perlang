@@ -11,10 +11,10 @@ public class StringTests
     public void string_variable_can_be_printed()
     {
         string source = """
-                var s: string = "this is a string";
+            var s: string = "this is a string";
 
-                print(s);
-                """;
+            print(s);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -26,11 +26,11 @@ public class StringTests
     public void string_variable_can_be_reassigned()
     {
         string source = """
-                var s: string = "this is a string";
-                s = "this is another string";
+            var s: string = "this is a string";
+            s = "this is another string";
 
-                print(s);
-                """;
+            print(s);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -42,11 +42,11 @@ public class StringTests
     public void ascii_string_inferred_variable_can_be_reassigned_with_non_ascii_value()
     {
         string source = """
-                var s: string = "this is a string";
-                s = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s: string = "this is a string";
+            s = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
 
-                print(s);
-                """;
+            print(s);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -59,11 +59,11 @@ public class StringTests
     {
         // Same as the ASCIIString to UTF8String above, but the other way around
         string source = """
-                var s: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-                s = "this is a string";
+            var s: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            s = "this is a string";
 
-                print(s);
-                """;
+            print(s);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -75,12 +75,12 @@ public class StringTests
     public void ascii_string_and_ascii_string_variable_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1";
-                var s2: string = " and this is s2";
-                var s3: string = s1 + s2;
+            var s1: string = "this is s1";
+            var s2: string = " and this is s2";
+            var s3: string = s1 + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -92,12 +92,12 @@ public class StringTests
     public void ascii_string_and_ascii_string_literal_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1";
-                var s2: string = "and this is s2";
-                var s3: string = s1 + " " + s2;
+            var s1: string = "this is s1";
+            var s2: string = "and this is s2";
+            var s3: string = s1 + " " + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -109,12 +109,12 @@ public class StringTests
     public void ascii_string_and_utf8_string_variable_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1";
-                var s2: string = " and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-                var s3: string = s1 + s2;
+            var s1: string = "this is s1";
+            var s2: string = " and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s3: string = s1 + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -126,11 +126,11 @@ public class StringTests
     public void ascii_string_and_utf8_string_literal_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1";
-                var s3: string = s1 + " and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s1: string = "this is s1";
+            var s3: string = s1 + " and this is s2 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -142,11 +142,11 @@ public class StringTests
     public void ascii_string_literal_and_string_variable_can_be_concatenated()
     {
         string source = """
-                var s2: string = "s2";
-                var s3 = "s1 and " + s2;
+            var s2: string = "s2";
+            var s3 = "s1 and " + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -158,11 +158,11 @@ public class StringTests
     public void string_variable_and_ascii_string_literal_can_be_concatenated()
     {
         string source = """
-                var s1: string = "s1";
-                var s3 = s1 + " and s2";
+            var s1: string = "s1";
+            var s3 = s1 + " and s2";
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -174,11 +174,11 @@ public class StringTests
     public void utf8_string_literal_and_string_variable_can_be_concatenated()
     {
         string source = """
-                var s2: string = "ASCII string";
-                var s3 = "åäöÅÄÖéèüÜÿŸïÏすし and " + s2;
+            var s2: string = "ASCII string";
+            var s3 = "åäöÅÄÖéèüÜÿŸïÏすし and " + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -190,11 +190,11 @@ public class StringTests
     public void string_variable_and_utf8_string_literal_can_be_concatenated()
     {
         string source = """
-                var s1: string = "ASCII string";
-                var s3 = s1 + " and åäöÅÄÖéèüÜÿŸïÏすし";
+            var s1: string = "ASCII string";
+            var s3 = s1 + " and åäöÅÄÖéèüÜÿŸïÏすし";
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -206,12 +206,12 @@ public class StringTests
     public void utf8_string_and_ascii_string_variable_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-                var s2: string = " and this is s2";
-                var s3: string = s1 + s2;
+            var s1: string = "this is s1 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s2: string = " and this is s2";
+            var s3: string = s1 + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -223,11 +223,11 @@ public class StringTests
     public void utf8_string_and_ascii_string_literal_can_be_concatenated()
     {
         string source = """
-                var s1: string = "this is s1 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-                var s3: string = s1 + " and this is s2";
+            var s1: string = "this is s1 with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s3: string = s1 + " and this is s2";
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -239,13 +239,13 @@ public class StringTests
     public void ascii_string_can_be_concatenated_with_int_and_ascii_string()
     {
         string source = """
-                var s1: string = "temperature is ";
-                var i: int = 85;
-                var s2: string = " degrees fahrenheit";
-                var s3: string = s1 + i + s2;
+            var s1: string = "temperature is ";
+            var i: int = 85;
+            var s2: string = " degrees fahrenheit";
+            var s3: string = s1 + i + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -257,13 +257,13 @@ public class StringTests
     public void ascii_string_can_be_concatenated_with_double_and_string()
     {
         string source = """
-                var s1: string = "temperature is ";
-                var i: double = 85.2;
-                var s2: string = " degrees fahrenheit";
-                var s3: string = s1 + i + s2;
+            var s1: string = "temperature is ";
+            var i: double = 85.2;
+            var s2: string = " degrees fahrenheit";
+            var s3: string = s1 + i + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -275,13 +275,13 @@ public class StringTests
     public void utf8_string_can_be_concatenated_with_double_and_ascii_string()
     {
         string source = """
-                var s1: string = "Den årliga medeltemperaturen i Vasa är ";
-                var d: double = 3.4;
-                var s2: string = " grader Celsius";
-                var s3: string = s1 + d + s2;
+            var s1: string = "Den årliga medeltemperaturen i Vasa är ";
+            var d: double = 3.4;
+            var s2: string = " grader Celsius";
+            var s3: string = s1 + d + s2;
 
-                print(s3);
-                """;
+            print(s3);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -293,12 +293,12 @@ public class StringTests
     public void utf8_string_can_be_concatenated_with_int()
     {
         string source = """
-                var s1: string = "Årets varmaste temperatur (Celsius): ";
-                var i: int = 32;
-                var s2: string = s1 + i;
+            var s1: string = "Årets varmaste temperatur (Celsius): ";
+            var i: int = 32;
+            var s2: string = s1 + i;
 
-                print(s2);
-                """;
+            print(s2);
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -310,10 +310,10 @@ public class StringTests
     public void ascii_string_variable_has_expected_type()
     {
         string source = """
-                var s: string = "this is an ASCII string";
+            var s: string = "this is an ASCII string";
 
-                print(s.get_type());
-                """;
+            print(s.get_type());
+            """;
 
         var output = EvalReturningOutputString(source);
 

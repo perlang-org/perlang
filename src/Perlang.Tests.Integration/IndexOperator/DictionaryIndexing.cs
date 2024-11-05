@@ -15,10 +15,10 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_by_string()
     {
-        string source = @$"
+        string source = $"""
             var env = Libc.environ();
-            print env[""{PathKey}""];
-        ";
+            print env["{PathKey}"];
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -35,10 +35,10 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_multiple_times()
     {
-        string source = @$"
+        string source = $"""
             var env = Libc.environ();
-            print env[""{PathKey}""][0];
-        ";
+            print env["{PathKey}"][0];
+            """;
 
         var output = EvalReturningOutputString(source);
 
@@ -56,10 +56,10 @@ public class DictionaryIndexing
     {
         Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
 
-        string source = @"
+        string source = """
             var env = Libc.environ();
             print env[""NOT_PRESENT_DICTIONARY_KEY""];
-        ";
+            """;
 
         var result = EvalWithRuntimeErrorCatch(source);
 
@@ -73,10 +73,10 @@ public class DictionaryIndexing
     [Fact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_null()
     {
-        string source = @"
+        string source = """
             var env = Libc.environ();
             print env[null];
-        ";
+            """;
 
         var result = EvalWithValidationErrorCatch(source);
 
@@ -88,10 +88,10 @@ public class DictionaryIndexing
     [Fact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_integer()
     {
-        string source = @"
+        string source = """
             var env = Libc.environ();
             print env[123];
-        ";
+            """;
 
         var result = EvalWithValidationErrorCatch(source);
 

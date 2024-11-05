@@ -10,12 +10,12 @@ public class StringArrayTests
     public void string_array_with_ascii_content_can_be_indexed()
     {
         string source = """
-                var a: string[] = ["a", "b", "c"];
+            var a: string[] = ["a", "b", "c"];
 
-                print a[0];
-                print a[1];
-                print a[2];
-                """;
+            print a[0];
+            print a[1];
+            print a[2];
+            """;
 
         var output = EvalReturningOutput(source);
 
@@ -31,13 +31,13 @@ public class StringArrayTests
     public void string_array_with_utf8_content_can_be_indexed()
     {
         string source = """
-                var a: string[] = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
+            var a: string[] = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
 
-                print a[0];
-                print a[1];
-                print a[2];
-                print a[7];
-                """;
+            print a[0];
+            print a[1];
+            print a[2];
+            print a[7];
+            """;
 
         var output = EvalReturningOutput(source);
 
@@ -54,12 +54,12 @@ public class StringArrayTests
     public void implicitly_typed_string_array_with_ascii_content_can_be_indexed()
     {
         string source = """
-                var a = ["a", "b", "c"];
+            var a = ["a", "b", "c"];
 
-                print a[0];
-                print a[1];
-                print a[2];
-                """;
+            print a[0];
+            print a[1];
+            print a[2];
+            """;
 
         var output = EvalReturningOutput(source);
 
@@ -75,13 +75,13 @@ public class StringArrayTests
     public void implicitly_typed_string_array_with_utf8_content_can_be_indexed()
     {
         string source = """
-                var a = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
+            var a = ["å", "ä", "ö", "ü", "ÿ", "Ÿ", "す", "し"];
 
-                print a[0];
-                print a[1];
-                print a[2];
-                print a[7];
-                """;
+            print a[0];
+            print a[1];
+            print a[2];
+            print a[7];
+            """;
 
         var output = EvalReturningOutput(source);
 
@@ -98,10 +98,10 @@ public class StringArrayTests
     public void string_array_length_property_returns_expected_value()
     {
         string source = """
-                var a: string[] = ["a", "b", "c"];
+            var a: string[] = ["a", "b", "c"];
 
-                print a.length;
-                """;
+            print a.length;
+            """;
 
         var output = EvalReturningOutput(source);
 
@@ -115,10 +115,10 @@ public class StringArrayTests
     public void string_array_nonexistent_property_raises_expected_error()
     {
         string source = """
-                var a: string[] = ["a", "b", "c"];
+            var a: string[] = ["a", "b", "c"];
 
-                print a.non_existent_property;
-                """;
+            print a.non_existent_property;
+            """;
 
         var result = EvalWithValidationErrorCatch(source);
 
