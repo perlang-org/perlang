@@ -155,7 +155,8 @@ test:
 	dotnet test --configuration Release
 
 test-stdlib: stdlib
-	src/stdlib/out/tests
+# We need --colour-mode since colour support is not auto-detected in CI.
+	src/stdlib/out/tests --colour-mode ansi
 
 #
 # Steps for publishing a new release:
