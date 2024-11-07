@@ -58,6 +58,7 @@ test:
     - >
         if [[ "$TEST_MODE" == 'valgrind' ]]; then
           PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
+          make valgrind-test-stdlib;
         else
           dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
           make test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
