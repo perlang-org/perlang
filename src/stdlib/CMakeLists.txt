@@ -45,6 +45,7 @@ add_library(
         src/bigint_mod.cc
         src/bigint_pow.cc
         src/int_array.cc
+        src/perlang_string.cc
         src/print.cc
         src/string_array.cc
         src/utf8_string.cc
@@ -155,6 +156,7 @@ install(
 # The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap.
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(TEST_SRC
+            test/perlang_string.cc
             test/print.cc
             test/string_builder.cc
     )

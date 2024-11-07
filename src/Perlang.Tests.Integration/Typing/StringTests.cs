@@ -306,6 +306,70 @@ public class StringTests
             .Be("Årets varmaste temperatur (Celsius): 32");
     }
 
+    [Fact]
+    public void ascii_strings_can_be_compared()
+    {
+        string source = """
+            var s1: string = "this is a string";
+            var s2: string = "this is a string";
+
+            print(s1 == s2);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("true");
+    }
+
+    [Fact]
+    public void utf8_strings_can_be_compared()
+    {
+        string source = """
+            var s1: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s2: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+
+            print(s1 == s2);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("true");
+    }
+
+    [Fact]
+    public void ascii_string_can_be_compared_with_utf8_string()
+    {
+        string source = """
+            var s1: string = "this is a string";
+            var s2: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+
+            print(s1 == s2);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("false");
+    }
+
+    [Fact]
+    public void utf8_string_can_be_compared_with_ascii_string()
+    {
+        string source = """
+            var s1: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+            var s2: string = "this is a string";
+
+            print(s1 == s2);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("false");
+    }
+
     [SkippableFact]
     public void ascii_string_variable_has_expected_type()
     {

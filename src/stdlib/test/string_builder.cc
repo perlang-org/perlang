@@ -52,3 +52,23 @@ TEST_CASE( "perlang::text::StringBuilder::append, a string longer than 2048 char
     // Assert
     REQUIRE(sb2.length() == 2500);
 }
+
+TEST_CASE( "perlang::text::StringBuilder::append, ASCII string" )
+{
+    // Arrange & Act
+    perlang::text::StringBuilder sb;
+    sb.append(*perlang::ASCIIString::from_static_string("this is an ASCII string"));
+
+    // Assert
+    REQUIRE(*sb.to_string() == *perlang::UTF8String::from_static_string("this is an ASCII string"));
+}
+
+TEST_CASE( "perlang::text::StringBuilder::append, UTF8 string" )
+{
+    // Arrange & Act
+    perlang::text::StringBuilder sb;
+    sb.append(*perlang::UTF8String::from_static_string("this is a UTF8 string: åäöÅÄÖéèüÜÿŸïÏすし"));
+
+    // Assert
+    REQUIRE(*sb.to_string() == *perlang::UTF8String::from_static_string("this is a UTF8 string: åäöÅÄÖéèüÜÿŸïÏすし"));
+}

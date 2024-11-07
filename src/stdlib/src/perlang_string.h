@@ -2,11 +2,13 @@
 
 #include <memory> // std::unique_ptr
 
-// Forward declaration to avoid circular dependencies
+// Forward declarations to avoid circular dependencies
 class BigInt;
 
 namespace perlang
 {
+    class UTF8String;
+
     // Abstract base class for all String types in Perlang
     class String
     {
@@ -66,5 +68,43 @@ namespace perlang
         // Concatenates this string with a BigInt. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         virtual std::unique_ptr<String> operator+(const BigInt& rhs) const = 0;
+
+        // Compares this string to another string, returning true if they are equal.
+        [[nodiscard]]
+        inline bool operator==(const String& rhs) const
+        {
+            return *this == const_cast<String&>(rhs);
+        }
+
+        // Compares this string to another string, returning true if they are equal.
+        [[nodiscard]]
+        inline bool operator==(String& rhs) const
+        {
+            return *this == &rhs;
+        }
+
+        // Compares this string to another string, returning true if they are equal.
+        [[nodiscard]]
+        bool operator==(UTF8String& rhs) const;
+
+        // Compares this string to another string, returning true if they are equal.
+        [[nodiscard]]
+        bool operator==(String* rhs) const;
+
+        // Compares this string to another string, returning true if they are not equal.
+        [[nodiscard]]
+        bool operator!=(const String& rhs) const;
+
+        // Compares this string to another string, returning true if they are not equal.
+        [[nodiscard]]
+        bool operator!=(String& rhs) const;
+
+        // Compares this string to another string, returning true if they are not equal.
+        [[nodiscard]]
+        bool operator!=(UTF8String& rhs) const;
+
+        // Compares this string to another string, returning true if they are not equal.
+        [[nodiscard]]
+        bool operator!=(String* rhs) const;
     };
 }
