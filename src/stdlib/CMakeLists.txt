@@ -159,6 +159,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             test/perlang_string.cc
             test/print.cc
             test/string_builder.cc
+            test/utf8_string.cc
     )
 
     add_executable(

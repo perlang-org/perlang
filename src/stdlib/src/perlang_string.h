@@ -71,40 +71,40 @@ namespace perlang
 
         // Compares this string to another string, returning true if they are equal.
         [[nodiscard]]
-        inline bool operator==(const String& rhs) const
+        inline bool operator==(const String& rhs)
         {
             return *this == const_cast<String&>(rhs);
         }
 
         // Compares this string to another string, returning true if they are equal.
         [[nodiscard]]
-        inline bool operator==(String& rhs) const
+        inline bool operator==(String& rhs)
         {
             return *this == &rhs;
         }
 
         // Compares this string to another string, returning true if they are equal.
         [[nodiscard]]
-        bool operator==(UTF8String& rhs) const;
+        bool operator==(UTF8String& rhs);
 
         // Compares this string to another string, returning true if they are equal.
         [[nodiscard]]
-        bool operator==(String* rhs) const;
+        bool operator==(String* rhs);
 
         // Compares this string to another string, returning true if they are not equal.
         [[nodiscard]]
-        bool operator!=(const String& rhs) const;
+        bool operator!=(const String& rhs);
 
         // Compares this string to another string, returning true if they are not equal.
         [[nodiscard]]
-        bool operator!=(String& rhs) const;
+        bool operator!=(String& rhs);
 
         // Compares this string to another string, returning true if they are not equal.
         [[nodiscard]]
-        bool operator!=(UTF8String& rhs) const;
+        bool operator!=(UTF8String& rhs);
 
         // Compares this string to another string, returning true if they are not equal.
         [[nodiscard]]
-        bool operator!=(String* rhs) const;
+        bool operator!=(String* rhs);
     };
 }

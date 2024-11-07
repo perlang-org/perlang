@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <atomic>
 
 #include "perlang_string.h"
 
@@ -42,6 +43,10 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<UTF8String> from_copied_string(const char* str, size_t length);
 
+        // Determines if the string is ASCII safe or not. Multiple subsequent calls to this method may return a cached
+        // result from a previous run. The first call may use a pre-calculated value, but this is not guaranteed by
+        // this method.
+        bool is_ascii();
      private:
         // Private constructor for creating a new UTF8String from a C-style (NUL-terminated) string. The `owned`
         // parameter indicates whether the UTF8String should take ownership of the memory it points to, and thus be
@@ -120,6 +125,10 @@ namespace perlang
         // responsible for deallocating the memory when it is no longer needed. If false, the string is borrowing the
         // memory from somewhere else, and should not deallocate it.
         bool owned_;
+
+        // A flag indicating whether this string contains only ASCII characters or not. Characters containing ASCII-only
+        // can trivially be compared to ASCIIString instances.
+        std::unique_ptr<bool> is_ascii_;
     };
 
     // Concatenate an int/long+UTF8String. The memory for the new string is allocated from the heap. This is a free

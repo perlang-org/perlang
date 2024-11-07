@@ -1636,7 +1636,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         methods[functionStmt.Name.Lexeme] = new Method(
             functionStmt.Name.Lexeme,
             functionStmt.Parameters,
-            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? "std::shared_ptr<const " : "")}" +
+            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? "std::shared_ptr<" : "")}" +
             $"{functionStmt.ReturnTypeReference.CppType}" +
             $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? ">" : "")}",
             functionContent

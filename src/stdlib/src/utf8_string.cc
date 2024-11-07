@@ -1,6 +1,6 @@
 #include <cstring>
-#include <stdexcept>
 #include <memory>
+#include <stdexcept>
 
 #include "bigint.h"
 #include "internal/string_utils.h"
@@ -168,6 +168,27 @@ namespace perlang
     {
         std::string str = rhs.to_string();
         return *this + str;
+    }
+
+    bool UTF8String::is_ascii()
+    {
+        // Note that this is susceptible to data races; two threads could enter this method simultaneously. However,
+        // this is considered tolerable. Either one of them will "win" and set the is_ascii_ value accordingly; the data
+        // is immutable, so they will inevitably end up with the same result anyway.
+
+        if (is_ascii_ != nullptr)
+            return *is_ascii_.get();
+
+        for (size_t i = 0; i < length_; i++) {
+            if ((uint8_t)bytes_[i] > 127) {
+                is_ascii_ = std::make_unique<bool>(false);
+                return *is_ascii_.get();
+            }
+        }
+
+        // No bytes with bit 7 (value 128) encountered => this is an ASCII string.
+        is_ascii_ = std::make_unique<bool>(true);
+        return *is_ascii_.get();
     }
 
     std::unique_ptr<UTF8String> operator+(const int64_t lhs, const UTF8String& rhs)

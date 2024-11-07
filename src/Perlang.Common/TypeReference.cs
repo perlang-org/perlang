@@ -105,15 +105,15 @@ namespace Perlang
 
                 // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
                 // long-term solution, see https://gitlab.perlang.org/perlang/perlang/-/issues/378.
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<const perlang::ASCIIString>",
-                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<const perlang::String>",
-                var t when t.FullName == "Perlang.Lang.Utf8String" => "std::shared_ptr<const perlang::UTF8String>",
+                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<perlang::ASCIIString>",
+                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<perlang::String>",
+                var t when t.FullName == "Perlang.Lang.Utf8String" => "std::shared_ptr<perlang::UTF8String>",
 
                 // Arrays of reference types. Note how the array types are StringArray for all of these, because it is much
                 // more complex to use different types here.
-                var t when t.FullName == "Perlang.Lang.String[]" => "std::shared_ptr<const perlang::StringArray>",
-                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "std::shared_ptr<const perlang::StringArray>",
-                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "std::shared_ptr<const perlang::StringArray>",
+                var t when t.FullName == "Perlang.Lang.String[]" => "std::shared_ptr<perlang::StringArray>",
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "std::shared_ptr<perlang::StringArray>",
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "std::shared_ptr<perlang::StringArray>",
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
