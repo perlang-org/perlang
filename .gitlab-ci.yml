@@ -57,22 +57,24 @@ test:
     - make perlang_cli_install_integration_test_release
     - >
         if [[ "$TEST_MODE" == 'valgrind' ]]; then
-          PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=perlang-junit-log.xml";
+          PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
         else
-          dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=perlang-junit-log.xml";
-          make test-stdlib;
+          dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
+          make test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
         fi
   artifacts:
     when: always
     paths:
-      - src/Perlang.Tests.Integration/perlang-junit-log.xml
-      - src/Perlang.Tests/perlang-junit-log.xml
-      - src/Perlang.Tests.Architecture/perlang-junit-log.xml
+      - native-stdlib-junit-log.xml
+      - src/Perlang.Tests.Integration/junit-log.xml
+      - src/Perlang.Tests/junit-log.xml
+      - src/Perlang.Tests.Architecture/junit-log.xml
     reports:
       junit:
-        - src/Perlang.Tests.Integration/perlang-junit-log.xml
-        - src/Perlang.Tests/perlang-junit-log.xml
-        - src/Perlang.Tests.Architecture/perlang-junit-log.xml
+        - native-stdlib-junit-log.xml
+        - src/Perlang.Tests.Integration/junit-log.xml
+        - src/Perlang.Tests/junit-log.xml
+        - src/Perlang.Tests.Architecture/junit-log.xml
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

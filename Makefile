@@ -156,7 +156,7 @@ test:
 
 test-stdlib: stdlib
 # We need --colour-mode since colour support is not auto-detected in CI.
-	src/stdlib/out/tests --colour-mode ansi
+	src/stdlib/out/tests --reporter console::out=-::colour-mode=ansi $(EXTRA_CATCH_REPORTER)
 
 #
 # Steps for publishing a new release:
