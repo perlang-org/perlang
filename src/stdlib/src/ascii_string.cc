@@ -52,7 +52,17 @@ namespace perlang
 
     ASCIIString::ASCIIString(const char* string, size_t length, bool owned)
     {
-        bytes_ = std::unique_ptr<const char[]>(string);
+        for (size_t i = 0; i < length; i++) {
+            // The uint8_t cast here is not pretty, but doing the "right" thing and accepting a const uint8_t* parameter
+            // instead makes things more awkward (since C string literals are const char* by definition).
+            if ((uint8_t)string[i] > 127) {
+                // TODO: Try to include some content from the string in the exception here. It feels non-trivial since a
+                // TODO: single 'char' is not a full UTF-8 character.
+                throw std::invalid_argument("Non-ASCII character encountered at index " + std::to_string(i) + ". ASCIIStrings can only contain ASCII characters.");
+            }
+        }
+
+        bytes_ = std::unique_ptr<const char[]>((const char*)string);
         length_ = length;
         owned_ = owned;
     }
@@ -111,17 +121,29 @@ namespace perlang
         }
     }
 
-    std::unique_ptr<String> ASCIIString::operator+(const String& rhs) const
+    std::unique_ptr<String> ASCIIString::operator+(String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
-        char *bytes = new char[length + 1];
+        char* bytes = new char[length + 1];
 
         // TODO: This won't work once we bring in UTF16String into the picture.
         memcpy(bytes, this->bytes_.get(), this->length_);
         memcpy((bytes + this->length_), rhs.bytes(), rhs.length());
         bytes[length] = '\0';
 
-        return from_owned_string(bytes, length);
+        auto* utf8_rhs = dynamic_cast<UTF8String*>(&rhs);
+
+        // Depending on whether the right-hand string is ASCII-only or not, we need to construct different target types
+        // here.
+        if (rhs.is_ascii()) {
+            return from_owned_string(bytes, length);
+        }
+        else if (utf8_rhs != nullptr) {
+            return UTF8String::from_owned_string(bytes, length);
+        }
+        else {
+            throw std::runtime_error("Unsupported string type encountered");
+        }
     }
 
     std::unique_ptr<ASCIIString> ASCIIString::operator+(const ASCIIString& rhs) const

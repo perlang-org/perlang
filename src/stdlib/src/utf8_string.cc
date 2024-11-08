@@ -83,6 +83,27 @@ namespace perlang
         return length_;
     }
 
+    bool UTF8String::is_ascii()
+    {
+        // Note that this is susceptible to data races; two threads could enter this method simultaneously. However,
+        // this is considered tolerable. Either one of them will "win" and set the is_ascii_ value accordingly; the data
+        // is immutable, so they will inevitably end up with the same result anyway.
+
+        if (is_ascii_ != nullptr)
+            return *is_ascii_;
+
+        for (size_t i = 0; i < length_; i++) {
+            if ((uint8_t)bytes_[i] > 127) {
+                is_ascii_ = std::make_unique<bool>(false);
+                return *is_ascii_;
+            }
+        }
+
+        // No bytes with bit 7 (value 128) set => this is an ASCII string.
+        is_ascii_ = std::make_unique<bool>(true);
+        return *is_ascii_;
+    }
+
     bool UTF8String::operator==(const UTF8String& rhs) const
     {
         if (bytes_ == rhs.bytes_ &&
@@ -103,7 +124,7 @@ namespace perlang
         return !(rhs == *this);
     }
 
-    std::unique_ptr<String> UTF8String::operator+(const String& rhs) const
+    std::unique_ptr<String> UTF8String::operator+(String& rhs) const
     {
         size_t length = this->length_ + rhs.length();
         char *bytes = new char[length + 1];
@@ -168,27 +189,6 @@ namespace perlang
     {
         std::string str = rhs.to_string();
         return *this + str;
-    }
-
-    bool UTF8String::is_ascii()
-    {
-        // Note that this is susceptible to data races; two threads could enter this method simultaneously. However,
-        // this is considered tolerable. Either one of them will "win" and set the is_ascii_ value accordingly; the data
-        // is immutable, so they will inevitably end up with the same result anyway.
-
-        if (is_ascii_ != nullptr)
-            return *is_ascii_.get();
-
-        for (size_t i = 0; i < length_; i++) {
-            if ((uint8_t)bytes_[i] > 127) {
-                is_ascii_ = std::make_unique<bool>(false);
-                return *is_ascii_.get();
-            }
-        }
-
-        // No bytes with bit 7 (value 128) encountered => this is an ASCII string.
-        is_ascii_ = std::make_unique<bool>(true);
-        return *is_ascii_.get();
     }
 
     std::unique_ptr<UTF8String> operator+(const int64_t lhs, const UTF8String& rhs)

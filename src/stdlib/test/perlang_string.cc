@@ -24,9 +24,17 @@ TEST_CASE( "perlang::String, comparing ASCIIString with equal UTF8String" )
 
 TEST_CASE( "perlang::String, comparing ASCIIString with unequal UTF8String" )
 {
-    std::shared_ptr<perlang::String> s1 = perlang::ASCIIString::from_static_string("this is an ASCII-clean string");
+    std::shared_ptr<perlang::String> s1 = perlang::ASCIIString::from_static_string("this is a string");
     std::shared_ptr<perlang::String> s2 = perlang::UTF8String::from_static_string("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
 
     // Assert
     REQUIRE(*s1 != *s2);
+}
+
+TEST_CASE( "perlang::String, concatenating ASCIIString with UTF8String" )
+{
+    std::shared_ptr<perlang::String> s1 = perlang::ASCIIString::from_static_string("this is an ASCII string");
+    std::shared_ptr<perlang::String> s3 = (*s1 + *perlang::UTF8String::from_static_string(" with some non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし"));
+
+    REQUIRE(*s3 == *perlang::UTF8String::from_static_string("this is an ASCII string with some non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし"));
 }

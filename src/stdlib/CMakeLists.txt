@@ -156,6 +156,7 @@ install(
 # The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap.
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(TEST_SRC
+            test/ascii_string.cc
             test/perlang_string.cc
             test/print.cc
             test/string_builder.cc
