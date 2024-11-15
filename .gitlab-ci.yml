@@ -8,12 +8,22 @@ variables:
   PERLANG_ROOT: $CI_PROJECT_DIR
 
 build-perlang-cli:
-  stage: build
+  stage: test
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
-    - 'scripts/perlang-install'
-    - 'make perlang_cli_clean perlang_cli'
+    # First, install the latest 'nightly' snapshot and build Perlang CLI one time. This ensures that the latest nightly
+    # "works" at least as far as producing some output is concerned.
+    - scripts/perlang-install
+    - make perlang_cli_clean perlang_cli
+
+    # Then, build the rest of the Perlang compiler and install it in-place of the existing 'nightly' snapshot. Once this
+    # is done, rebuild the Perlang CLI one more time. This ensures that the current commit can produce some output.
+    - make install
+    - make perlang_cli_clean perlang_cli
+
+    # Finally, ensure that the generated C++ is identical to the file(s) in the repo. These should never diff; if they
+    # do, the developer must run 'make perlang_cli_clean perlang_cli' locally and commit the changes.
     - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources:" && git diff --color=always && exit 1)'
 
   rules:
