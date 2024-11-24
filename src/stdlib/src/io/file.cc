@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 
 #include "io/file.h"
 #include "utf8_string.h"

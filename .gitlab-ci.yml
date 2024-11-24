@@ -37,9 +37,9 @@ build-netbsd:
     - netbsd
 
   script:
-    - make perlang_cli
-    - make stdlib
-    - make test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
+    - gmake perlang_cli
+    - gmake stdlib
+    - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
     when: always
     paths:

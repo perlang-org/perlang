@@ -1,5 +1,6 @@
 #include <memory.h>
 #include <stdexcept>
+#include <string>
 
 #include "int_array.h"
 

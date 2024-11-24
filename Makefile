@@ -22,8 +22,18 @@ RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 # --suppressions because .NET runtime has some existing Valgrind issues: https://github.com/dotnet/runtime/issues/52872
 VALGRIND=DOTNET_GCHeapHardLimit=C800000 valgrind --undef-value-errors=no --error-exitcode=1 --show-leak-kinds=all --leak-check=full --suppressions=scripts/valgrind-suppressions.txt
 
-# Enable fail-fast in case of errors
-SHELL=/bin/bash -e -o pipefail
+UNAME := $(shell uname -s)
+
+# bash is located in different directories on different systems. Also, enable fail-fast in case of errors.
+ifeq ($(UNAME), Linux)
+    SHELL := /bin/bash -e -o pipefail
+else ifeq ($(UNAME), NetBSD)
+    SHELL := /usr/pkg/bin/bash -e -o pipefail
+else ifeq ($(UNAME), OpenBSD)
+    SHELL := /usr/local/bin/bash -e -o pipefail
+else
+    $(error Unsupported operating system $(UNAME) encountered)
+endif
 
 CLANGPP=clang++-14
 
@@ -122,7 +132,7 @@ stdlib:
 # perlang_cli depends on stdlib, so it must be built before this can be successfully built
 perlang_cli: stdlib
 # Precompile the Perlang files to C++ if needed, so that they can be picked up by the CMake build
-	cd src/perlang_cli/src && make
+	cd src/perlang_cli/src && $(MAKE)
 
 	cd src/perlang_cli && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && make perlang_cli install
 
@@ -130,7 +140,7 @@ perlang_cli: stdlib
 # are normally committed to git. This makes it easy to regenerate them from the
 # Perlang sources.
 perlang_cli_clean:
-	cd src/perlang_cli/src && make clean
+	cd src/perlang_cli/src && $(MAKE) clean
 	cd src/perlang_cli && rm -rf out
 
 perlang_cli_install_debug: perlang_cli

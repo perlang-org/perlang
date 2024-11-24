@@ -1,5 +1,6 @@
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 #include "ascii_string.h"
 #include "string_array.h"

@@ -1,6 +1,17 @@
 .PHONY: all clean
 
-SHELL := /bin/bash -e -o pipefail
+UNAME := $(shell uname -s)
+
+# bash is located in different directories on different systems. Also, enable fail-fast in case of errors.
+ifeq ($(UNAME), Linux)
+    SHELL := /bin/bash -e -o pipefail
+else ifeq ($(UNAME), NetBSD)
+    SHELL := /usr/pkg/bin/bash -e -o pipefail
+else ifeq ($(UNAME), OpenBSD)
+    SHELL := /usr/local/bin/bash -e -o pipefail
+else
+    $(error Unsupported operating system $(UNAME) encountered)
+endif
 
 CPP_SOURCES = perlang_cli_preprocessed.cc
 
@@ -24,7 +35,7 @@ perlang_cli_preprocessed.cc: perlang_cli.cc
 		-e 's/##BUILD_TIMESTAMP##/$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')/g' \
 		-e 's/##BUILD_USER##/$(shell whoami)/g' \
 		-e 's/##BUILD_HOST##/$(shell hostname)/g' \
-		$< > $@
+		perlang_cli.cc > $@
 
 # Note: this deliberately uses the Perlang installed using install-latest-snapshot, to avoid depending on a Perlang
 # toolchain built in this repo (which depends on perlang_cli.so, built using these rules). The latest snapshot is
