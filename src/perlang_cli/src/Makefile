@@ -5,6 +5,11 @@ UNAME := $(shell uname -s)
 # bash is located in different directories on different systems. Also, enable fail-fast in case of errors.
 ifeq ($(UNAME), Linux)
     SHELL := /bin/bash -e -o pipefail
+else ifeq ($(UNAME), FreeBSD)
+    SHELL := /usr/local/bin/bash -e -o pipefail
+
+    # Workaround for Clang 18 warnings triggered by deprecated declarations in the libc++ LLVM C++ library.
+    export CXXFLAGS=-Wno-deprecated-declarations
 else ifeq ($(UNAME), NetBSD)
     SHELL := /usr/pkg/bin/bash -e -o pipefail
 else ifeq ($(UNAME), OpenBSD)

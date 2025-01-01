@@ -30,6 +30,28 @@ build-perlang-cli:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Special job which builds and tests all parts of Perlang which are currently platform-independent on FreeBSD.
+build-freebsd:
+  stage: test
+  tags:
+    - freebsd
+
+  script:
+    - gmake perlang_cli
+    - gmake stdlib
+    - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
+  artifacts:
+    when: always
+    paths:
+      - native-stdlib-junit-log.xml
+    reports:
+      junit:
+        - native-stdlib-junit-log.xml
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # Special job which builds and tests all parts of Perlang which are currently platform-independent on NetBSD.
 build-netbsd:
   stage: test

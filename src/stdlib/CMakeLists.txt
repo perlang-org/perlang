@@ -121,6 +121,9 @@ target_compile_options(
         # TODO: Remove this. We have some current issues with %lld (long long int vs int64_t) that needs to be
         # TODO: resolved for this. The problem is IIRC that Linux and macOS treated this differently.
         -Wno-error=format
+
+        # Needed so that our top-level Makefile can add extra flags for particular platforms if necessary.
+        $ENV{CXXFLAGS}
 )
 
 include(GNUInstallDirs)
