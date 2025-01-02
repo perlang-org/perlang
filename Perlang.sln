@@ -63,6 +63,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645C
 		scripts\update_common_constants.rb = scripts\update_common_constants.rb
 		scripts\valgrind-suppressions.txt = scripts\valgrind-suppressions.txt
 		scripts\local_install_linux.sh = scripts\local_install_linux.sh
+		scripts\perlang-install = scripts\perlang-install
 	EndProjectSection
 EndProject
 Global

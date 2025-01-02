@@ -39,7 +39,7 @@ OPTIONS:
                                                        include the latest improvements)
 
 Issues with this installer can be reported at the following address:
-https://github.com/perlang-org/perlang/issues
+https://gitlab.perlang.org/perlang/perlang/-/issues
 EOF
 }
 
@@ -178,7 +178,7 @@ main() {
     echo 'negative comments are welcome. Use the issue tracker at the following address'
     echo 'to get in touch with us:'
     echo
-    echo '    https://github.com/perlang-org/perlang/issues'
+    echo '    https://gitlab.perlang.org/perlang/perlang/-/issues'
     echo
 
     return "$_retval"
