@@ -238,15 +238,49 @@ get_architecture() {
 
         FreeBSD)
             if $ansi_escapes_are_valid; then
-                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: FreeBSD" 1>&2
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: $_ostype" 1>&2
             else
-                printf 'error: %s\n' "Unsupported OS type: FreeBSD" 1>&2
+                printf 'error: %s\n' "Unsupported OS type: $_ostype" 1>&2
             fi
 
             echo
-            echo 'FreeBSD is unfortunately not yet supported by Perlang. This is dependent on'
-            echo 'upstream support in the .NET platform. See this issue for more details:'
-            echo 'https://github.com/perlang-org/perlang/issues/272'
+            echo 'FreeBSD is unfortunately not yet supported by Perlang, but we hope to support'
+            echo 'it in the future. See this issue for up-to-date details:'
+            echo 'https://gitlab.perlang.org/perlang/perlang/-/issues/504'
+            echo
+
+            exit 1
+
+            ;;
+
+        NetBSD)
+            if $ansi_escapes_are_valid; then
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: $_ostype" 1>&2
+            else
+                printf 'error: %s\n' "Unsupported OS type: $_ostype" 1>&2
+            fi
+
+            echo
+            echo 'NetBSD is unfortunately not yet supported by Perlang, but we hope to support'
+            echo 'it in the future. See this issue for up-to-date details:'
+            echo 'https://gitlab.perlang.org/perlang/perlang/-/issues/502'
+            echo
+
+            exit 1
+
+            ;;
+
+        OpenBSD)
+            if $ansi_escapes_are_valid; then
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: $_ostype" 1>&2
+            else
+                printf 'error: %s\n' "Unsupported OS type: $_ostype" 1>&2
+            fi
+
+            echo
+            echo 'OpenBSD is unfortunately not yet supported by Perlang, but we hope to support'
+            echo 'it in the future. See this issue for up-to-date details:'
+            echo 'https://gitlab.perlang.org/perlang/perlang/-/issues/503'
             echo
 
             exit 1
