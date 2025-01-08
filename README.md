@@ -13,6 +13,12 @@ or machine code), while still remaining low-barrier and low-entry. You should
 never have to _install_ a lot of packages/complex tooling to be able to start
 writing Perlang code; it should always remain just a single command away.
 
+> Note that if you are reading this on GitHub, the canonical source of truth
+> for this repo can be found here: https://gitlab.perlang.org/perlang/perlang.
+> For the background on why we went through the hassle of migrating to a
+> self-hosted GitLab instance, see
+> [this issue (#423)](https://gitlab.perlang.org/perlang/perlang/-/issues/423).
+
 ## Installation
 
 The Perlang tools are installed using
