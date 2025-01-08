@@ -183,9 +183,9 @@ valgrind-test-stdlib: stdlib
 #
 # 1. Ensure release-notes/v($NEXT_RELEASE_VERSION).md is polished and contains
 #   today's date. Remember that this file will be automatically used in the
-#   GitHub Release created in the next step.
+#   GitLab Release created in the next step.
 #
-# 2. `make publish-release` - this creates a release in GitHub automatically.
+# 2. `make publish-release` - this creates a release in GitLab automatically.
 #
 # 3. Bump NEXT_RELEASE_VERSION below.
 #
