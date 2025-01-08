@@ -53,7 +53,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{0220A61B-85BE-4076-9FDA-0467E6971F40}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\perlang-install.yml = .github\workflows\perlang-install.yml
-		.github\workflows\publish-release-packages.yml = .github\workflows\publish-release-packages.yml
 		.github\workflows\publish-snapshot-packages.yml = .github\workflows\publish-snapshot-packages.yml
 		.github\workflows\publish-website.yml = .github\workflows\publish-website.yml
 		.github\workflows\website.yml = .github\workflows\website.yml
