@@ -19,12 +19,11 @@ set -u
 # If PERLANG_BUILDS_ROOT is unset or empty, use a default
 PERLANG_BUILDS_ROOT="${PERLANG_BUILDS_ROOT:-https://builds.perlang.org}"
 
-PERLANG_RELEASES_ROOT=https://github.com/perlang-org/perlang/releases/download
+PERLANG_RELEASES_ROOT=https://gitlab.perlang.org/perlang/perlang/-/releases
 
 usage() {
     cat 1>&2 <<EOF
-perlang-install (e55e0e0 2020-10-18)
-The installer for the perlang compiler and runtime.
+perlang-install - The installer for the perlang compiler and runtime.
 
 USAGE:
     perlang-install [FLAGS] [OPTIONS]
@@ -117,7 +116,7 @@ main() {
     info "downloading toolchain '$_toolchain' for ${_arch}"
 
     if [ "$_toolchain" = "release" ]; then
-        local _metadata_url="https://raw.githubusercontent.com/perlang-org/perlang/master/.metadata/latest-release.txt"
+        local _metadata_url="https://gitlab.perlang.org/perlang/perlang/-/raw/master/.metadata/latest-release.txt"
 
         # mktemp is not POSIX, but exists on at least Linux and FreeBSD. (How about Git Bash on Windows?)
         local _temp_file=$(mktemp)
@@ -127,7 +126,7 @@ main() {
         local _tag=$(cat $_temp_file)
         local _version=$(echo $_tag | sed s/^v//)
 
-        local _url="${PERLANG_RELEASES_ROOT}/${_tag}/perlang-${_version}-${_arch}.tar.gz"
+        local _url="${PERLANG_RELEASES_ROOT}/${_tag}/downloads/perlang-${_version}-${_arch}.tar.gz"
     else
         local _url="${PERLANG_BUILDS_ROOT}/perlang-${_toolchain_slug}-${_arch}.tar.gz"
     fi
