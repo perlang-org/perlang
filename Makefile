@@ -56,7 +56,7 @@ src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants
 clean:
 	dotnet clean
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
-	rm -rf src/Perlang.ConsoleApp/bin/Release
+	rm -rf src/Perlang.ConsoleApp/bin/Debug src/Perlang.ConsoleApp/bin/Release
 	rm -rf lib/
 	rm -rf src/stdlib/out
 	rm -rf src/perlang_cli/out
@@ -207,3 +207,12 @@ prepare-new-dev-version:
 publish-release:
 	echo $(NEXT_RELEASE_TAG) > .metadata/latest-release.txt
 	git release $(NEXT_RELEASE_TAG)
+
+# Targets used to support CI
+.PHONY: upload-release
+upload-release:
+	scripts/ci/upload-release.sh
+
+.PHONY: create-gitlab-release
+create-gitlab-release:
+	scripts/ci/create-gitlab-release.sh

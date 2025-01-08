@@ -66,6 +66,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645C
 		scripts\perlang-install = scripts\perlang-install
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{DE2D5B3C-1C11-4646-B279-C34FB5945225}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\ci\upload-release.sh = scripts\ci\upload-release.sh
+		scripts\ci\create-gitlab-release.sh = scripts\ci\create-gitlab-release.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,5 +124,6 @@ Global
 		{74DEE88F-82F6-49CB-A019-E527D293E0B4} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 		{0220A61B-85BE-4076-9FDA-0467E6971F40} = {74DEE88F-82F6-49CB-A019-E527D293E0B4}
 		{645CCD64-1CD1-40DA-866E-1EE16BF5136F} = {47B4A37F-6999-4510-9815-418E03D7B39E}
+		{DE2D5B3C-1C11-4646-B279-C34FB5945225} = {645CCD64-1CD1-40DA-866E-1EE16BF5136F}
 	EndGlobalSection
 EndGlobal

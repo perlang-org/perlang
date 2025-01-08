@@ -1,3 +1,9 @@
+stages:
+  - build
+  - test
+  - upload
+  - release
+
 default:
   interruptible: true
 
@@ -6,6 +12,8 @@ variables:
   CLICOLOR_FORCE: 1
 
   PERLANG_ROOT: $CI_PROJECT_DIR
+
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/releases"
 
 build-perlang-cli:
   stage: test
@@ -186,3 +194,74 @@ docs-test-examples:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# The 'binaries', 'upload-binaries' and 'release' jobs are heavily inspired by the approach taken by the aws fleeting
+# plugin:
+# https://gitlab.com/gitlab-org/fleeting/plugins/aws/-/blob/7328e430d0ce9896770417d8cd7317f66342cbc0/.gitlab/ci/release.gitlab-ci.yml
+binaries:
+  stage: build
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - export PROJECT_ROOT_DIR=$(pwd)
+    - mkdir -p out/
+
+    - make auto-generated
+    - dotnet build
+
+    # Required for the 'perlang -v' call to succeed
+    - make perlang_cli_install_debug
+
+    # Must avoid exporting in the same line as the command, because otherwise the command will never fail (even if
+    # executing the perlang binary fails)
+    - PERLANG_VERSION=$(src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v)
+    - export PERLANG_VERSION
+
+    # Compile .NET and native libraries
+    - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $ARCH --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
+    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
+    - make perlang_cli && cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
+
+    # Create an archive from the compiled binaries
+    - (pushd src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish && tar cvzf ${PROJECT_ROOT_DIR}/out/perlang-${PERLANG_VERSION}-$ARCH.tar.gz *)
+    - ls -l out/*.tar.gz
+  artifacts:
+    paths:
+      - out/*.tar.gz
+    expire_in: 30 days
+  parallel:
+    matrix:
+      - ARCH:
+          # Only one arch for now, until we are ready to add more. Note: once we have moved away from the .NET SDK
+          # dependency for building Perlang, we should try utilizing Zig here since it means we can cross-compile the
+          # C++-generated Perlang compiler for any zig-supported platform easily.
+          - linux-x64
+  needs: []
+
+upload-binaries:
+  stage: upload
+  image: debian:bookworm
+  rules:
+    - if: $CI_COMMIT_TAG
+  dependencies:
+    - binaries
+  script:
+    - apt-get update && apt-get install -y curl gnupg make
+    - make upload-release
+  environment:
+    name: upload
+  artifacts:
+    paths:
+      - manifest.txt
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  dependencies:
+    - upload-binaries
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - apk add make bash curl
+    - make create-gitlab-release
