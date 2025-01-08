@@ -24,14 +24,9 @@ jobs:
     strategy:
       matrix:
         arch:
-          # Note: make sure to keep this list in sync with the list in
-          # publish-release-packages.yml
-          - linux-arm
-          - linux-arm64
+          # Note: All other platforms disabled for now, since supporting them is not as simple as cross-building with
+          # .NET anymore (because we rely on native parts)
           - linux-x64
-          - osx-arm64
-          - osx-x64
-          - win-x64
 
     steps:
       - uses: actions/checkout@v1
