@@ -58,8 +58,8 @@ clean:
 	rm -f src/Perlang.Common/CommonConstants.Generated.cs
 	rm -rf src/Perlang.ConsoleApp/bin/Debug src/Perlang.ConsoleApp/bin/Release
 	rm -rf lib/
-	rm -rf src/stdlib/out
-	rm -rf src/perlang_cli/out
+	rm -rf src/stdlib/out src/stdlib/cmake-build-debug
+	rm -rf src/perlang_cli/out src/perlang_cli/cmake-build-debug
 
 docs-clean:
 	rm -rf _site
