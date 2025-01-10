@@ -7,18 +7,18 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\Perlang.Common.xml</DocumentationFile>
-      <NoWarn>1591;1701;1702</NoWarn>
-      <WarningsAsErrors>CS8618;NU1605;SYSLIB0011</WarningsAsErrors>
+        <DocumentationFile>bin\Debug\Perlang.Common.xml</DocumentationFile>
+        <NoWarn>1591;1701;1702</NoWarn>
+        <WarningsAsErrors>CS8618;NU1605;SYSLIB0011</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\Perlang.Common.xml</DocumentationFile>
-      <NoWarn>1591;1701;1702</NoWarn>
+        <DocumentationFile>bin\Release\Perlang.Common.xml</DocumentationFile>
+        <NoWarn>1591;1701;1702</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
     </ItemGroup>
 
 </Project>
