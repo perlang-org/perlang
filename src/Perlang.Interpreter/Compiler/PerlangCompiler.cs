@@ -1574,12 +1574,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         // implicitly convertible to int). We use a hack suggested in https://stackoverflow.com/a/46294875/227779 for now;
         // preventing implicit conversions between int/enum types can be handled on the Perlang level rather than in the
         // C++ transpilation.
+        //
+        // The added Enum suffix (<enum-name>Enum) to the actual enum is done to make the C++ code easier to consume wth
+        // C# using CppSharp, since type names inside a namespace with the same name does not play well with C#.
         stringBuilder.Append(Indent(localIndentationLevel));
         stringBuilder.AppendLine($"namespace {stmt.Name.Lexeme} {{");
         localIndentationLevel++;
 
         stringBuilder.Append(Indent(localIndentationLevel));
-        stringBuilder.AppendLine($"enum {stmt.Name.Lexeme} {{");
+        stringBuilder.AppendLine($"enum {stmt.Name.Lexeme}Enum {{");
         localIndentationLevel++;
 
         foreach (KeyValuePair<string, Expr?> enumMember in stmt.Members) {
