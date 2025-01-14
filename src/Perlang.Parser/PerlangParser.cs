@@ -806,7 +806,7 @@ namespace Perlang.Parser
         {
             if (Match(FALSE)) return new Expr.Literal(false);
             if (Match(TRUE)) return new Expr.Literal(true);
-            if (Match(NULL)) return new Expr.Literal(null);
+            if (Match(PERLANG_NULL)) return new Expr.Literal(null);
 
             if (Match(NUMBER))
             {
@@ -943,7 +943,7 @@ namespace Perlang.Parser
         }
 
         private bool IsAtEnd =>
-            Peek().Type == EOF;
+            Peek().Type == PERLANG_EOF;
 
         /// <summary>
         /// Are we currently at an `[]` array specifier? (appendix used in type specifiers like `string[]` and so forth).

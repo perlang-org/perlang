@@ -1,7 +1,7 @@
 # src/Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
 .PHONY: \
-	all auto-generated clean darkerfx-push docs docs-serve docs-test-examples valgrind-docs-test-examples \
+	all clean darkerfx-push docs docs-serve docs-test-examples valgrind-docs-test-examples \
 	docs-validate-api-docs install install-latest-snapshot perlang_cli perlang_cli_clean perlang_cli_install_debug \
 	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
@@ -48,7 +48,13 @@ all: auto-generated perlang_cli
 release:
 	dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $(ARCH) --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$$(pwd)/
 
+.PHONY: auto-generated
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
+
+.PHONY: auto-generated-bindings
+auto-generated-bindings: src/perlang_cli/src/perlang_cli.cc
+	dotnet build src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
+	dotnet run --project src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
 
 src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants.rb
 	scripts/update_common_constants.rb

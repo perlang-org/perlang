@@ -35,7 +35,7 @@ namespace Perlang.Parser
                 { "for", FOR },
                 { "fun", FUN },
                 { "if", IF },
-                { "null", NULL },
+                { "null", PERLANG_NULL },
                 { "print", PRINT },
                 { "return", RETURN },
                 { "super", SUPER },
@@ -177,7 +177,7 @@ namespace Perlang.Parser
                 ScanToken();
             }
 
-            tokens.Add(new Token(EOF, System.String.Empty, null, line));
+            tokens.Add(new Token(PERLANG_EOF, System.String.Empty, null, line));
             return tokens;
         }
 

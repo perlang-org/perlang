@@ -72,6 +72,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{DE2D5B3C-1C11-
 		scripts\ci\create-gitlab-release.sh = scripts\ci\create-gitlab-release.sh
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SourceGeneration", "SourceGeneration", "{2564ECA8-DA17-4820-88C6-5545AEAFFE6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perlang.GenerateCppSharpBindings", "src\Perlang.GenerateCppSharpBindings\Perlang.GenerateCppSharpBindings.csproj", "{49C8DF45-1DEC-4882-A307-5548CDFB3FF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +114,10 @@ Global
 		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9D632CB-E520-4868-9E64-A4A70ACD713C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49C8DF45-1DEC-4882-A307-5548CDFB3FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49C8DF45-1DEC-4882-A307-5548CDFB3FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49C8DF45-1DEC-4882-A307-5548CDFB3FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49C8DF45-1DEC-4882-A307-5548CDFB3FF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B338D29B-A85D-4650-9BFF-FBFE55258C58} = {B924E83B-6AFE-4ABF-B79D-444F92582892}
@@ -125,5 +133,6 @@ Global
 		{0220A61B-85BE-4076-9FDA-0467E6971F40} = {74DEE88F-82F6-49CB-A019-E527D293E0B4}
 		{645CCD64-1CD1-40DA-866E-1EE16BF5136F} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 		{DE2D5B3C-1C11-4646-B279-C34FB5945225} = {645CCD64-1CD1-40DA-866E-1EE16BF5136F}
+		{49C8DF45-1DEC-4882-A307-5548CDFB3FF3} = {2564ECA8-DA17-4820-88C6-5545AEAFFE6B}
 	EndGlobalSection
 EndGlobal

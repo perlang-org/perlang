@@ -43,7 +43,10 @@ perlang_cli_preprocessed.cc: perlang_cli.cc
 		perlang_cli.cc > $@
 
 # Note: this deliberately uses the Perlang installed using install-latest-snapshot, to avoid depending on a Perlang
-# toolchain built in this repo (which depends on perlang_cli.so, built using these rules). The latest snapshot is
-# expected to work; any other versions are not guaranteed to work.
-perlang_cli.cc: native_main.per
+# toolchain built in this repo (which depends on perlang_cli.so, built using these rules). Without this, it gets very
+# hard to be able to build perlang_cli unless you already have a working perlang_cli.so in place (chicken-and-egg), and
+# also if you make a mistake that breaks the compiler, you would also be unable to fix it.
+#
+# The latest snapshot is expected to work; any other versions are not guaranteed to work.
+perlang_cli.cc: native_main.per token_type.per
 	~/.perlang/nightly/bin/perlang -c $^ -o $(patsubst %.cc,%.o,$(@)) --idempotent

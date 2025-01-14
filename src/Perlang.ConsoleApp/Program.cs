@@ -360,7 +360,7 @@ namespace Perlang.ConsoleApp
 
         private void Error(Token token, string message)
         {
-            if (token.Type == TokenType.EOF)
+            if (token.Type == TokenType.PERLANG_EOF)
             {
                 ReportError(token.Line, " at end", message);
             }
@@ -378,7 +378,7 @@ namespace Perlang.ConsoleApp
 
         private void Warn(Token token, string message)
         {
-            if (token.Type == TokenType.EOF)
+            if (token.Type == TokenType.PERLANG_EOF)
             {
                 ReportWarning(token.Line, " at end", message);
             }

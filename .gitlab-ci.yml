@@ -45,6 +45,11 @@ build-freebsd:
     - freebsd
 
   script:
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
+    # have a more recent timestamp.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
     - gmake perlang_cli
     - gmake stdlib
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
@@ -67,6 +72,11 @@ build-netbsd:
     - netbsd
 
   script:
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
+    # have a more recent timestamp.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
     - gmake perlang_cli
     - gmake stdlib
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
@@ -89,6 +99,11 @@ build-openbsd:
     - openbsd
 
   script:
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
+    # have a more recent timestamp.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
     - gmake perlang_cli
     - gmake stdlib
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";

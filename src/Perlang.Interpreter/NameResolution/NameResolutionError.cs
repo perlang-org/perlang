@@ -20,7 +20,7 @@ public class NameResolutionError : Exception
     {
             string where;
 
-            if (Token.Type == TokenType.EOF)
+            if (Token.Type == TokenType.PERLANG_EOF)
             {
                 where = " at end";
             }
