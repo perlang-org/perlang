@@ -151,6 +151,12 @@ test:
   # of clang for generating binaries.
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
+    # The .per files in src/perlang_cli can sometimes be more recent than the generated .cc file, in a git checkout.
+    # This will cause 'make' to try to regenerate these files. We don't want this to happen in this CI job; we have
+    # other jobs which catches this if it happens.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
     - make auto-generated
     - make stdlib
     - make perlang_cli_install_integration_test_release
