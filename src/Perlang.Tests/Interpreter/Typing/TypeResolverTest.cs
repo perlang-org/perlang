@@ -144,7 +144,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // This is a partial extract of code from TypeValidator. Time will tell whether it's a good or bad idea
             // to copy-paste the code to the test like this or not.
             var typeResolver = new TypeResolver(
-                compiler.BindingHandler.GetVariableOrFunctionBinding,
+                compiler.BindingHandler,
                 AssertFailValidationErrorHandler
             );
 

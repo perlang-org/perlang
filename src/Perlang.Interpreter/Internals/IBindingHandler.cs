@@ -4,10 +4,8 @@ using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Internals
 {
-    public interface IBindingHandler
+    public interface IBindingHandler : IBindingRetriever
     {
-        Binding? GetVariableOrFunctionBinding(Expr expr);
-
         /// <summary>
         /// Adds an expression to the global scope.
         /// </summary>

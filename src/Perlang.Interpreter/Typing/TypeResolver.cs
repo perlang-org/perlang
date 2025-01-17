@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using Humanizer;
 using Perlang.Internal.Extensions;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Lang;
 using Perlang.Parser;
@@ -22,19 +23,19 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal class TypeResolver : VisitorBase
     {
-        private readonly Func<Expr, Binding?> getVariableOrFunctionCallback;
+        private readonly IBindingRetriever variableOrFunctionRetriever;
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeResolver"/> class.
         /// </summary>
-        /// <param name="getVariableOrFunctionCallback">A callback used to retrieve a binding for a given
+        /// <param name="variableOrFunctionRetriever">A callback used to retrieve a binding for a given
         /// expression.</param>
         /// <param name="typeValidationErrorCallback">A callback which will receive type-validation errors, if they
         /// occur.</param>
-        public TypeResolver(Func<Expr, Binding?> getVariableOrFunctionCallback, Action<TypeValidationError> typeValidationErrorCallback)
+        public TypeResolver(IBindingRetriever variableOrFunctionRetriever, Action<TypeValidationError> typeValidationErrorCallback)
         {
-            this.getVariableOrFunctionCallback = getVariableOrFunctionCallback;
+            this.variableOrFunctionRetriever = variableOrFunctionRetriever;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
         }
 
@@ -461,7 +462,7 @@ namespace Perlang.Interpreter.Typing
                 }
             }
 
-            ITypeReference? typeReference = getVariableOrFunctionCallback(expr)?.TypeReference;
+            ITypeReference? typeReference = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr)?.TypeReference;
 
             if (typeReference == null)
             {
@@ -659,7 +660,7 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
-            Binding? binding = getVariableOrFunctionCallback(expr);
+            Binding? binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
 
             if (binding is ClassBinding)
             {
@@ -689,7 +690,7 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitGetExpr(expr);
 
-            Binding? binding = getVariableOrFunctionCallback(expr.Object);
+            Binding? binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr.Object);
 
             // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
             // It still feels somewhat better than allowing any kind of wild binding to pass through at this

@@ -1,5 +1,6 @@
 using System;
 using Perlang.Internal.Extensions;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing
@@ -11,9 +12,9 @@ namespace Perlang.Interpreter.Typing
     internal class BooleanOperandsValidator : Validator
     {
         public BooleanOperandsValidator(
-            Func<Expr, Binding> getVariableOrFunctionCallback,
+            IBindingRetriever variableOrFunctionRetriever,
             Action<TypeValidationError> typeValidationErrorCallback)
-            : base(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            : base(variableOrFunctionRetriever, typeValidationErrorCallback)
         {
         }
 

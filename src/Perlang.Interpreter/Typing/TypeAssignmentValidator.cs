@@ -1,5 +1,6 @@
 using System;
 using Perlang.Internal.Extensions;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
@@ -12,9 +13,9 @@ namespace Perlang.Interpreter.Typing
     internal class TypeAssignmentValidator : Validator
     {
         public TypeAssignmentValidator(
-            Func<Expr, Binding> getVariableOrFunctionCallback,
+            IBindingRetriever variableOrFunctionRetriever,
             Action<TypeValidationError> typeValidationErrorCallback)
-            : base(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            : base(variableOrFunctionRetriever, typeValidationErrorCallback)
         {
         }
 
@@ -22,7 +23,7 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitAssignExpr(expr);
 
-            Binding variableBinding = GetVariableOrFunctionCallback(expr);
+            Binding variableBinding = this.VariableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
 
             if (variableBinding == null)
             {

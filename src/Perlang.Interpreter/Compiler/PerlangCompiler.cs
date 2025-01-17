@@ -500,7 +500,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 typeValidationFailed = true;
                 typeValidationErrorHandler(typeValidationError);
             },
-            BindingHandler.GetVariableOrFunctionBinding,
+            BindingHandler,
             compilerWarning =>
             {
                 bool result = compilerWarningHandler(compilerWarning);

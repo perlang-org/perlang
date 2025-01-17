@@ -9,6 +9,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Perlang.Internal.Extensions;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
 
@@ -26,10 +27,10 @@ namespace Perlang.Interpreter.Typing
         private readonly Action<CompilerWarning> compilerWarningCallback;
 
         internal TypesResolvedValidator(
-            Func<Expr, Binding> getVariableOrFunctionCallback,
+            IBindingRetriever variableOrFunctionRetriever,
             Action<TypeValidationError> typeValidationErrorCallback,
             Action<CompilerWarning> compilerWarningCallback)
-            : base(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            : base(variableOrFunctionRetriever, typeValidationErrorCallback)
         {
             this.compilerWarningCallback = compilerWarningCallback;
         }
@@ -171,7 +172,7 @@ namespace Perlang.Interpreter.Typing
 
         private void VisitCallExprForOtherCallee(Expr.Call expr)
         {
-            Binding binding = GetVariableOrFunctionCallback(expr);
+            Binding? binding = this.VariableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
 
             if (binding == null)
             {

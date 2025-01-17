@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Perlang.Interpreter.NameResolution;
+using Perlang.Interpreter.Internals;
 
 namespace Perlang.Interpreter.Typing
 {
@@ -9,14 +9,14 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal class Validator : VisitorBase
     {
-        private protected Func<Expr, Binding> GetVariableOrFunctionCallback { get; }
+        private protected IBindingRetriever VariableOrFunctionRetriever { get; }
         private protected Action<TypeValidationError> TypeValidationErrorCallback { get; }
 
         protected Validator(
-            Func<Expr, Binding> getVariableOrFunctionCallback,
+            IBindingRetriever variableOrFunctionRetriever,
             Action<TypeValidationError> typeValidationErrorCallback)
         {
-            GetVariableOrFunctionCallback = getVariableOrFunctionCallback;
+            VariableOrFunctionRetriever = variableOrFunctionRetriever;
             TypeValidationErrorCallback = typeValidationErrorCallback;
         }
 

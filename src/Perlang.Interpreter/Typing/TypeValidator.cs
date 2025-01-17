@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Perlang.Interpreter.NameResolution;
+using Perlang.Interpreter.Internals;
 using Perlang.Parser;
 
 namespace Perlang.Interpreter.Typing
@@ -26,7 +26,7 @@ namespace Perlang.Interpreter.Typing
         public static void Validate(
             IList<Stmt> statements,
             Action<TypeValidationError> typeValidationErrorCallback,
-            Func<Expr, Binding> getVariableOrFunctionCallback,
+            IBindingRetriever variableOrFunctionRetriever,
             Action<CompilerWarning> compilerWarningCallback)
         {
             bool typeResolvingFailed = false;
@@ -35,7 +35,7 @@ namespace Perlang.Interpreter.Typing
             // Phase 1: Resolve explicit and implicit type references to their corresponding CLR types.
             //
             var typeResolver = new TypeResolver(
-                getVariableOrFunctionCallback,
+                variableOrFunctionRetriever,
                 validationError =>
                 {
                     typeValidationErrorCallback(validationError);
@@ -75,7 +75,7 @@ namespace Perlang.Interpreter.Typing
             // as possible, the full list errors (if any) are reported back to the caller; we don't just stop at the
             // first error encountered. (The compiler could potentially discard information except for the first n
             // errors if desired, though. The key point here is to not discard it at the wrong stage in the pipeline.)
-            new TypesResolvedValidator(getVariableOrFunctionCallback, typeValidationErrorCallback, compilerWarningCallback)
+            new TypesResolvedValidator(variableOrFunctionRetriever, typeValidationErrorCallback, compilerWarningCallback)
                 .ReportErrors(statements);
 
             //
@@ -90,7 +90,7 @@ namespace Perlang.Interpreter.Typing
             // Once a variable has been defined, it's type has been set; it cannot be reassigned with a value of a
             // completely different type. The only exception to this rule is when a smaller numeric value (e.g. `int`)
             // is expanded to a larger type (e.g. `long`).
-            new TypeAssignmentValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            new TypeAssignmentValidator(variableOrFunctionRetriever, typeValidationErrorCallback)
                 .ReportErrors(statements);
 
             //
@@ -100,7 +100,7 @@ namespace Perlang.Interpreter.Typing
             // These expressions are things like `foo && bar`, `if (baz) { ... }` and `while (zot) { ... }`. All of
             // these require proper, boolean operands and should trigger a compile-time error if used with any other
             // types of operands.
-            new BooleanOperandsValidator(getVariableOrFunctionCallback, typeValidationErrorCallback)
+            new BooleanOperandsValidator(variableOrFunctionRetriever, typeValidationErrorCallback)
                 .ReportErrors(statements);
         }
     }
