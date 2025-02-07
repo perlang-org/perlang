@@ -103,12 +103,24 @@ namespace perlang
 
     void print(int64_t i)
     {
+        // The parameter type is defined slightly differently on different platforms, forcing us to do this
+        // conditionally.
+#ifdef __OpenBSD__
         printf("%lld\n", i);
+#else
+        printf("%ld\n", i);
+#endif
     }
 
     void print(uint64_t u)
     {
+        // The parameter type is defined slightly differently on different platforms, forcing us to do this
+        // conditionally.
+#ifdef __OpenBSD__
         printf("%llu\n", u);
+#else
+        printf("%lu\n", u);
+#endif
     }
 
     void print(const BigInt& bigint)
