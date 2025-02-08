@@ -48,5 +48,5 @@ perlang_cli_preprocessed.cc: perlang_cli.cc
 # also if you make a mistake that breaks the compiler, you would also be unable to fix it.
 #
 # The latest snapshot is expected to work; any other versions are not guaranteed to work.
-perlang_cli.cc: native_main.per token_type.per
+perlang_cli.cc: native_main.per perlang_scanner.per token_type.per
 	~/.perlang/nightly/bin/perlang -c $^ -o $(patsubst %.cc,%.o,$(@)) --idempotent

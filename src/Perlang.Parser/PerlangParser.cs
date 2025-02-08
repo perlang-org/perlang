@@ -3,6 +3,8 @@
 // Some form of switch expression-based solution would probably be good enough to convince me; feel free to give it a
 // try and send a PR.
 
+#pragma warning disable SA1010
+#pragma warning disable SA1117
 #pragma warning disable SA1503
 #pragma warning disable S1117
 
@@ -213,9 +215,26 @@ namespace Perlang.Parser
         {
             try
             {
+                if (Match(PUBLIC))
+                {
+                    if (Match(CLASS)) return Class(Visibility.Public);
+                    if (Match(CONSTRUCTOR)) return Function("constructor");
+                    if (Match(DESTRUCTOR)) return Function("destructor");
+
+                    // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
+                    // support instance and static fields here too, which will make things considerably more challenging
+                    // (since we are leaning towards dropping the slightly obnoxious 'fun' keyword for functions.
+                    // Obnoxious it is, but it does simplify the parsing of the code significantly).
+                    return Function("method");
+                }
+
                 if (Match(FUN)) return Function("function");
                 if (Match(VAR)) return VarDeclaration();
                 if (Match(ENUM)) return Enum();
+
+                if (Match(CLASS)) {
+                    throw Error(Previous(), "Class declaration without visibility encountered. You must explicitly mark the class as 'public'.");
+                }
 
                 return Statement();
             }
@@ -421,15 +440,54 @@ namespace Perlang.Parser
             return new Stmt.ExpressionStmt(expr);
         }
 
+        private Stmt.Class Class(Visibility visibility)
+        {
+            Token name = Consume(IDENTIFIER, "Expecting class name.");
+            Consume(LEFT_BRACE, "Expecting '{' before class body.");
+
+            List<Stmt.Function> methods = [];
+
+            while (!Check(RIGHT_BRACE) && !IsAtEnd) {
+                Stmt stmt = Declaration();
+
+                if (stmt is Stmt.Function method) {
+                    methods.Add(method);
+                }
+                else {
+                    Error(Peek(), $"Expected method but got {stmt}.");
+                }
+            }
+
+            Consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+            return new Stmt.Class(name, visibility, methods);
+        }
+
         private Stmt.Function Function(string kind)
         {
-            Token name = Consume(IDENTIFIER, "Expect " + kind + " name.");
+            Token name;
+
+            bool isConstructor = kind == "constructor";
+            bool isDestructor = kind == "destructor";
+
+            if (isConstructor || isDestructor) {
+                name = Previous();
+            }
+            else {
+                name = Consume(IDENTIFIER, "Expect " + kind + " name.");
+            }
+
             Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
-            var parameters = new List<Parameter>();
 
             BlockReservedIdentifiers(name);
 
+            var parameters = new List<Parameter>();
+
             if (!Check(RIGHT_PAREN)) {
+                if (isDestructor) {
+                    Error(Peek(), "Destructor cannot have any parameters");
+                }
+
                 do {
                     if (parameters.Count >= 255) {
                         Error(Peek(), "Cannot have more than 255 parameters.");
@@ -466,28 +524,40 @@ namespace Perlang.Parser
 
             Token returnTypeSpecifier = null;
             bool isReturnTypeArray = false;
+            TypeReference returnTypeReference;
 
-            if (Match(COLON)) {
-                if (Check(RESERVED_WORD)) {
-                    returnTypeSpecifier = Advance();
+            // Type specifiers are not allowed for constructors and destructors, but we construct a bogus type reference for them to
+            // simplify the code elsewhere.
+            if (isConstructor || isDestructor) {
+                returnTypeReference = new TypeReference(typeof(VoidObject));
+            }
+            else {
+                if (Match(COLON)) {
+                    if (Check(RESERVED_WORD)) {
+                        returnTypeSpecifier = Advance();
 
-                    // Special-case to try and fail as gracefully as possible if one of the type-related reserved words
-                    // (byte, sbyte, short etc) are specified at this position. If this happens, we want to emit _one_
-                    // single parse error only.
-                    parseErrorHandler(new ParseError("Expecting type name", returnTypeSpecifier, ParseErrorType.RESERVED_WORD_ENCOUNTERED));
+                        // Special-case to try and fail as gracefully as possible if one of the type-related reserved words
+                        // (byte, sbyte, short etc) are specified at this position. If this happens, we want to emit _one_
+                        // single parse error only.
+                        parseErrorHandler(new ParseError("Expecting type name", returnTypeSpecifier, ParseErrorType.RESERVED_WORD_ENCOUNTERED));
+                    }
+                    else {
+                        returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+                        if (IsAtArray())
+                            isReturnTypeArray = true;
+                    }
                 }
-                else {
-                    returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
-                    if (IsAtArray())
-                        isReturnTypeArray = true;
-                }
+                returnTypeReference = new TypeReference(returnTypeSpecifier, isReturnTypeArray);
             }
 
             Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
             List<Stmt> body = Block();
 
-            return new Stmt.Function(name, parameters, body, new TypeReference(returnTypeSpecifier, isReturnTypeArray));
+            return new Stmt.Function(
+                name, parameters, body, returnTypeReference, isConstructor, isDestructor
+            );
         }
 
         private Stmt.Enum Enum()
@@ -794,6 +864,7 @@ namespace Perlang.Parser
             return new Expr.Index(indexee, closingBracket, argument);
         }
 
+        /// <remarks>Note that statements are not handled here, but in <see cref="Declaration"/>.</remarks>
         private Expr Primary()
         {
             if (Match(FALSE)) return new Expr.Literal(false);
@@ -815,6 +886,11 @@ namespace Perlang.Parser
 
                 Lang.String nativeString = Lang.String.from(s);
                 return new Expr.Literal(nativeString);
+            }
+
+            if (Match(THIS))
+            {
+                return new Expr.This(Previous());
             }
 
             if (Match(IDENTIFIER))
@@ -851,6 +927,33 @@ namespace Perlang.Parser
                 Consume(RIGHT_SQUARE_BRACKET, "Expect ']' at end of collection initializer.");
 
                 return new Expr.CollectionInitializer(elements, startToken);
+            }
+
+            if (Match(NEW))
+            {
+                Token typeName = Consume(IDENTIFIER, "Expecting name of class to instantiate");
+
+                Match(LEFT_PAREN);
+
+                var parameters = new List<Expr>();
+
+                while (!Peek().Type.Equals(RIGHT_PAREN) && !IsAtEnd)
+                {
+                    parameters.Add(Expression());
+
+                    if (Match(COMMA))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                Consume(RIGHT_PAREN, "Expect ')' at end of constructor parameters.");
+
+                return new Expr.NewExpression(typeName, parameters);
             }
 
             if (Check(SEMICOLON))

@@ -2,7 +2,7 @@
 # to force it to be regenerated.
 .PHONY: \
 	all clean darkerfx-push docs docs-serve docs-test-examples valgrind-docs-test-examples \
-	docs-validate-api-docs install install-latest-snapshot perlang_cli perlang_cli_clean perlang_cli_install_debug \
+	docs-validate-api-docs install install-latest-snapshot perlang_cli_clean perlang_cli_install_debug \
 	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
 	test test-stdlib valgrind-test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
@@ -52,7 +52,7 @@ release:
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 
 .PHONY: auto-generated-bindings
-auto-generated-bindings: src/perlang_cli/src/perlang_cli.cc
+auto-generated-bindings: perlang_cli
 	dotnet build src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
 	dotnet run --project src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
 
@@ -143,6 +143,7 @@ stdlib:
 	cd src/stdlib && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && make stdlib install
 
 # perlang_cli depends on stdlib, so it must be built before this can be successfully built
+.PHONY: perlang_cli
 perlang_cli: stdlib
 # Precompile the Perlang files to C++ if needed, so that they can be picked up by the CMake build
 	cd src/perlang_cli/src && $(MAKE)

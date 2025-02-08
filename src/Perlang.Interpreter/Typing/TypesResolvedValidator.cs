@@ -57,7 +57,7 @@ namespace Perlang.Interpreter.Typing
         {
             string methodName = get.Name.Lexeme;
 
-            if (get.Methods.Length == 0)
+            if (get.ClrMethods.Length == 0 && get.PerlangMethods.Length == 0)
             {
                 if (!get.Object.TypeReference.IsResolved)
                 {
@@ -65,23 +65,26 @@ namespace Perlang.Interpreter.Typing
                     // undefined type. (`Foo.do_stuff`)
                     //
                     // Now, this is a compile-time error, but the problem is that it's handled by this class itself;
-                    // encountering this error will not abort the tree traversal so we must avoid breaking it.
+                    // encountering this error will not abort the tree traversal, so we must avoid breaking it.
                 }
                 else
                 {
+                    string inTypeString = get.Object.TypeReference.CppType == null ?
+                        "" : $" in type '{get.Object.TypeReference.CppType}'";
+
                     // This is even more odd, but we must ensure that we have well-defined semantics in the weird case
                     // where this would happen.
                     TypeValidationErrorCallback(new TypeValidationError(
                         call.Paren,
-                        $"Internal compiler error: no methods with name '{methodName}' could be found. This is a critical " +
+                        $"Internal compiler error: no methods with name '{methodName}' could be found{inTypeString}. This is a critical " +
                         $"error that should have aborted the compilation before the {nameof(TypesResolvedValidator)} " +
                         "validation is started. "
                     ));
                 }
             }
-            else if (get.Methods.Length == 1)
+            else if (get.ClrMethods.Length == 1)
             {
-                MethodInfo method = get.Methods.Single();
+                MethodInfo method = get.ClrMethods.Single();
                 var parameters = method.GetParameters();
 
                 // There is exactly one potential method to call in this case. We use this fact to provide better
@@ -120,10 +123,10 @@ namespace Perlang.Interpreter.Typing
                     }
                 }
             }
-            else
+            else if (get.ClrMethods.Length > 1)
             {
                 // Method is overloaded. Try to resolve the best match we can find.
-                foreach (MethodInfo method in get.Methods)
+                foreach (MethodInfo method in get.ClrMethods)
                 {
                     var parameters = method.GetParameters();
 
@@ -158,7 +161,7 @@ namespace Perlang.Interpreter.Typing
                     if (!coercionsFailed)
                     {
                         // We have found a suitable overload to use. Update the expression
-                        get.Methods = ImmutableArray.Create(method);
+                        get.ClrMethods = ImmutableArray.Create(method);
                         return;
                     }
                 }
@@ -166,6 +169,53 @@ namespace Perlang.Interpreter.Typing
                 TypeValidationErrorCallback(new NameResolutionTypeValidationError(
                     call.Paren,
                     $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters."
+                ));
+            }
+            else if (get.PerlangMethods.Length == 1)
+            {
+                Stmt.Function method = get.PerlangMethods.Single();
+                var parameters = method.Parameters;
+
+                // There is exactly one potential method to call in this case. We use this fact to provide better
+                // error messages to the caller than when calling an overloaded method.
+                if (parameters.Count != call.Arguments.Count)
+                {
+                    TypeValidationErrorCallback(new TypeValidationError(
+                        call.Paren,
+                        $"Method '{methodName}' has {parameters.Count} parameter(s) but was called with {call.Arguments.Count} argument(s)"
+                    ));
+
+                    return;
+                }
+
+                for (int i = 0; i < call.Arguments.Count; i++)
+                {
+                    Parameter parameter = parameters[i];
+                    Expr argument = call.Arguments[i];
+
+                    if (!argument.TypeReference.IsResolved) {
+                        throw new PerlangInterpreterException(
+                            $"Internal compiler error: Argument '{argument}' to function {methodName} not resolved");
+                    }
+
+                    // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
+                    // on this if we could provide the token for the argument expression instead. However, the Expr type
+                    // as used by 'argument' is a non-token-based expression so this is currently impossible.
+                    // FIXME: `null` here has disadvantages as described elsewhere.
+                    // FIXME: Parameter could be a Perlang class instance, in which case ClrType will be null (but CppType
+                    // will be set)
+                    if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference.ClrType, argument.TypeReference.ClrType, null)) {
+                        // Very likely refers to a native method, where parameter names are not available at this point.
+                        TypeValidationErrorCallback(new TypeValidationError(
+                            argument.TypeReference.TypeSpecifier!,
+                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {methodName}()"));
+                    }
+                }
+            }
+            else if (get.PerlangMethods.Length > 1) {
+                TypeValidationErrorCallback(new NameResolutionTypeValidationError(
+                    call.Paren,
+                    $"Method '{call.CalleeToString}' has multiple overloads. This is not yet supported."
                 ));
             }
         }
@@ -256,10 +306,10 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
-            if (!stmt.ReturnTypeReference.IsResolved)
+            if (!stmt.ReturnTypeReference.IsResolved && !stmt.IsConstructor && !stmt.IsDestructor)
             {
                 // Note: this is a bit duplicated; we also have a check in TypeResolver for this. I considered
-                // de-duplicating it but it feels dangerous, since we need to remember to edit this when we
+                // de-duplicating it, but it feels dangerous, since we need to remember to edit this when we
                 // add support for function return type inference.
                 if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
                 {
@@ -343,7 +393,7 @@ namespace Perlang.Interpreter.Typing
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     stmt.Name,
-                    $"Internal compiler error: var {stmt.Name.Lexeme} initializer {stmt.Initializer} inference has not been attempted"
+                    $"Internal compiler error: 'var {stmt.Name.Lexeme}' initializer '{stmt.Initializer}' inference has not been attempted"
                 ));
 
                 sanityCheckFailed = true;

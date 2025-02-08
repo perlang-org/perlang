@@ -44,6 +44,14 @@ public unsafe partial class perlang_cli
 
 namespace Perlang
 {
+    public enum Visibility : uint
+    {
+        Public = 0
+    }
+}
+
+namespace Perlang
+{
     public enum TokenType : uint
     {
         LEFT_PAREN = 0,
@@ -88,22 +96,27 @@ namespace Perlang
         NUMBER = 39,
         PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES = 40,
         PREPROCESSOR_DIRECTIVE_CPP_METHODS = 41,
-        ELSE = 42,
-        ENUM = 43,
-        FALSE = 44,
-        FUN = 45,
-        FOR = 46,
-        IF = 47,
-        PERLANG_NULL = 48,
-        PRINT = 49,
-        RETURN = 50,
-        SUPER = 51,
-        THIS = 52,
-        TRUE = 53,
-        VAR = 54,
-        WHILE = 55,
-        RESERVED_WORD = 56,
-        PERLANG_EOF = 57
+        CLASS = 42,
+        CONSTRUCTOR = 43,
+        DESTRUCTOR = 44,
+        ELSE = 45,
+        ENUM = 46,
+        FALSE = 47,
+        FUN = 48,
+        FOR = 49,
+        IF = 50,
+        NEW = 51,
+        PERLANG_NULL = 52,
+        PRINT = 53,
+        PUBLIC = 54,
+        RETURN = 55,
+        SUPER = 56,
+        THIS = 57,
+        TRUE = 58,
+        VAR = 59,
+        WHILE = 60,
+        RESERVED_WORD = 61,
+        PERLANG_EOF = 62
     }
 }
 
@@ -317,11 +330,11 @@ namespace Perlang
                             initialized = true;
                             VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
                             VTables.Methods = new Delegate[1][];
-                            ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 16, 2);
+                            ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 17, 2);
                             ManagedVTablesDtorOnly[0][1] = Thunks[0];
-                            ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 16, 2);
+                            ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 17, 2);
                             ManagedVTables[0][1] = Thunks[0];
-                            VTables.Methods[0] = new Delegate[16];
+                            VTables.Methods[0] = new Delegate[17];
                         }
                     }
                 }
@@ -555,11 +568,11 @@ namespace Perlang
                             initialized = true;
                             VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
                             VTables.Methods = new Delegate[1][];
-                            ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 16, 2);
+                            ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 17, 2);
                             ManagedVTablesDtorOnly[0][1] = Thunks[0];
-                            ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 16, 2);
+                            ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 17, 2);
                             ManagedVTables[0][1] = Thunks[0];
-                            VTables.Methods[0] = new Delegate[16];
+                            VTables.Methods[0] = new Delegate[17];
                         }
                     }
                 }

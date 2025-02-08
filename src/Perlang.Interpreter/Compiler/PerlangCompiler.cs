@@ -102,6 +102,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
     private readonly IDictionary<string, string> enums;
+    private readonly IDictionary<string, string> classDefinitions;
+    private readonly IDictionary<string, string> classImplementations;
 
     /// <summary>
     /// The location in the output we are currently writing to. Can be an enum, function, etc.
@@ -109,6 +111,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     private readonly NativeStringBuilder mainMethodContent;
 
     private int indentationLevel = 1;
+    private Stmt.Class? currentClass = null;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PerlangCompiler"/> class.
@@ -132,6 +135,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         this.methods = new Dictionary<string, Method>();
         this.enums = new Dictionary<string, string>();
+        this.classDefinitions = new Dictionary<string, string>();
+        this.classImplementations = new Dictionary<string, string>();
 
         methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", mainMethodContent);
 
@@ -487,6 +492,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             return null;
         }
 
+        // The name resolver must run twice, to resolve forward references. The alternative would have been something like
+        // C++-style header files, which are incredibly obnoxious and something we want to avoid like the plague.
+        nameResolver.StartSecondPass();
+        nameResolver.Resolve(statements);
+
         //
         // Type validation
         //
@@ -572,7 +582,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             }
 
             // The AST traverser returns its output. We put it in the main method content, which is written along with
-            // all other methods in the code furhter below.
+            // all other methods in the code further below.
             mainMethodContent.Append(Compile(statements));
 
             using (StreamWriter streamWriter = File.CreateText(targetCppFile)) {
@@ -611,13 +621,24 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     streamWriter.WriteLine();
                 }
 
+                if (classDefinitions.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ class definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach ((string _, string definition) in classDefinitions) {
+                        streamWriter.WriteLine(definition);
+                        streamWriter.WriteLine();
+                    }
+                }
+
                 if (enums.Count > 0) {
                     streamWriter.WriteLine("//");
                     streamWriter.WriteLine("// Enum definitions");
                     streamWriter.WriteLine("//");
 
-                    foreach ((string _, string value) in enums) {
-                        streamWriter.WriteLine(value);
+                    foreach ((string _, string definition) in enums) {
+                        streamWriter.WriteLine(definition);
                         streamWriter.WriteLine();
                     }
                 }
@@ -659,6 +680,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                         streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString}) {{");
                         streamWriter.Write(value.MethodBody);
                         streamWriter.WriteLine('}');
+                        streamWriter.WriteLine();
+                    }
+                }
+
+                if (classImplementations.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ class implementations");
+                    streamWriter.WriteLine("//");
+
+                    foreach (var (_, classImplementation) in classImplementations) {
+                        streamWriter.Write(classImplementation);
                         streamWriter.WriteLine();
                     }
                 }
@@ -942,12 +974,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // expression like `2 - 4294967295`)
                 if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType)
                 {
-                    leftCast = expr.TypeReference.CppTypeCast;
+                    leftCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType)
                 {
-                    rightCast = expr.TypeReference.CppTypeCast;
+                    rightCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
@@ -989,7 +1021,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                         expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
                         expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
                 {
-                    leftCast = expr.TypeReference.CppTypeCast;
+                    leftCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType && !(
@@ -997,7 +1029,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                         expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
                         expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
                 {
-                    rightCast = expr.TypeReference.CppTypeCast;
+                    rightCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
@@ -1064,12 +1096,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // expression like `2 * 4294967295`)
                 if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType)
                 {
-                    leftCast = expr.TypeReference.CppTypeCast;
+                    leftCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType)
                 {
-                    rightCast = expr.TypeReference.CppTypeCast;
+                    rightCast = expr.TypeReference.CppTypeCast();
                 }
 
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
@@ -1285,9 +1317,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     {
         using var result = NativeStringBuilder.Create();
 
-        result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType}>(");
+        result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType!.TypeName}>(");
 
-        switch (collectionInitializer.TypeReference.CppType) {
+        switch (collectionInitializer.TypeReference.CppType?.TypeName) {
             // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
             // to guess the correct type for us.
             case "perlang::IntArray":
@@ -1297,7 +1329,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 result.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
                 break;
             default:
-                throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType} is not supported for collection initializers");
+                throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType!.TypeName} is not supported for collection initializers");
         }
 
         result.Append("{ ");
@@ -1360,8 +1392,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         }
         else if (expr.Value is IFloatingPointLiteral floatingPointLiteral)
         {
-            // We want to be careful to avoid using Value for floating point literals, since we we want to preserve the
-            // exact value that the user entered as-is, without any potential loss of precision
+            // We want to be careful to avoid using Value for floating point literals, since we want to preserve the exact
+            // value that the user entered as-is, without any potential loss of precision
             result.Append(floatingPointLiteral.NumberCharacters);
 
             if (floatingPointLiteral is FloatingPointLiteral<double>)
@@ -1425,6 +1457,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         }
 
         return result.ToString();
+    }
+
+    public object? VisitThisExpr(Expr.This expr)
+    {
+        throw new NotImplementedException();
     }
 
     public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
@@ -1510,6 +1547,32 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // Enums are represented as C++ enum classes, so we can just use the enum name directly
                 result.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
             }
+            else if (identifier.TypeReference.CppType != null)
+            {
+                // TODO: This triggers loads of new errors now. This is because this used to be false for value types like
+                // TODO: int, double, etc. Now this is almost always non-null.
+
+                string callOperator;
+
+                if (!identifier.TypeReference.CppType.IsSupported)
+                {
+                    throw new NotImplementedInCompiledModeException($"Calling methods on type {identifier.TypeReference.CppType.TypeName} is not supported because the type is not yet implemented in C++");
+                }
+
+                if (identifier.TypeReference.CppWrapInSharedPtr)
+                {
+                    callOperator = "->";
+                }
+                else
+                {
+                    // TODO: This is the wrong exception type; should rather be something like InvalidOperationException
+                    throw new NotImplementedInCompiledModeException($"Calling methods on {identifier} which is of type {identifier.TypeReference.CppType.TypeName} is not supported");
+                }
+
+                // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling a method
+                // on it.
+                result.Append($"{identifier.Name.Lexeme}{callOperator}{expr.Name.Lexeme}");
+            }
             else
             {
                 // TODO: Should support global constants here at least! We just need to make them exist in the C++ based
@@ -1521,19 +1584,47 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         }
         else if (expr.Object is Expr.Grouping or Expr.Index)
         {
-            // TODO: Something like this would do eventually... but until we support user-defined classes, it's kind of
-            // TODO: moot anyway. It's pretty much impossible to perform a method call like e.g. 42.get_type() in C or
-            // TODO: C++. We would at the very least have to special-case all primitives, to emulate something similar
-            // TODO: in the Perlang world.
+            // TODO: Something like this would do eventually. It's pretty much impossible to perform a method call like
+            // TODO: e.g. 42.get_type() in C or C++. We would at the very least have to special-case all primitives, to
+            // TODO: emulate something similar in the Perlang world. It would give a nice, Smalltalk/Ruby:ish feel to the
+            // TODO: language I think.
             result.Append(expr.Object.Accept(this));
 
             result.Append('.');
+            result.Append(expr.Name.Lexeme);
+        }
+        else if (expr.Object is Expr.This)
+        {
+            // The Perlang `this` keyword maps very cleanly to the C++ `this` keyword, as can be seen below.
+            result.Append("this");
+            result.Append("->");
             result.Append(expr.Name.Lexeme);
         }
         else
         {
             throw new PerlangCompilerException($"Internal compiler error: unhandled type of get expression: {expr.Object}");
         }
+
+        return result.ToString();
+    }
+
+    public object VisitNewExpression(Expr.NewExpression expr)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        // The NewExpression is expected to already have been resolved into an unambiguous constructor here, at which
+        // point we merely create the corresponding C++ call and expect it to do the right thing.
+        result.Append($"std::make_unique<{expr.TypeReference.CppType!.TypeName}>(");
+
+        for (int i = 0; i < expr.Parameters.Count; i++) {
+            result.Append(expr.Parameters[i].Accept(this));
+
+            if (i != expr.Parameters.Count - 1) {
+                result.Append(", ");
+            }
+        }
+
+        result.AppendLine(");");
 
         return result.ToString();
     }
@@ -1560,7 +1651,77 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
     public object VisitClassStmt(Stmt.Class stmt)
     {
-        throw new NotImplementedException();
+        using var classDefinitionBuilder = NativeStringBuilder.Create();
+        using var classImplementationBuilder = NativeStringBuilder.Create();
+
+        var previousClass = currentClass;
+        currentClass = stmt;
+
+        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name.Lexeme}} {""");
+
+        // We make all methods `public` on the C++ side for now with this single `public` clause; there is no way to
+        // define methods as `private` or `internal` anyway yet.
+        classDefinitionBuilder.AppendLine("public:");
+
+        foreach (Stmt.Function method in stmt.Methods) {
+            // Definition
+            classDefinitionBuilder.Append(Indent(1));
+
+            if (method.IsConstructor) {
+                classDefinitionBuilder.Append($"{stmt.Name.Lexeme}(");
+            }
+            else if (method.IsDestructor) {
+                classDefinitionBuilder.Append($"~{stmt.Name.Lexeme}(");
+            }
+            else {
+                classDefinitionBuilder.Append($"{method.ReturnTypeReference.CppType!.TypeName} {method.Name.Lexeme}(");
+            }
+
+            for (int i = 0; i < method.Parameters.Count; i++) {
+                Parameter parameter = method.Parameters[i];
+                classDefinitionBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+
+                if (i < method.Parameters.Count - 1) {
+                    classDefinitionBuilder.Append(", ");
+                }
+            }
+
+            classDefinitionBuilder.AppendLine(");");
+
+            // Implementation
+            if (method.IsConstructor) {
+                classImplementationBuilder.Append($"{stmt.Name.Lexeme}::{stmt.Name.Lexeme}(");
+            }
+            else if (method.IsDestructor) {
+                classImplementationBuilder.Append($"{stmt.Name.Lexeme}::~{stmt.Name.Lexeme}(");
+            }
+            else {
+                classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name.Lexeme}::{method.Name.Lexeme}(");
+            }
+
+            for (int i = 0; i < method.Parameters.Count; i++) {
+                Parameter parameter = method.Parameters[i];
+                classImplementationBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+
+                if (i < method.Parameters.Count - 1) {
+                    classImplementationBuilder.Append(", ");
+                }
+            }
+
+            classImplementationBuilder.AppendLine(") {");
+            classImplementationBuilder.Append(method.Accept(this));
+            classImplementationBuilder.AppendLine("};");
+        }
+
+        classDefinitionBuilder.AppendLine("};");
+
+        classDefinitions[stmt.Name.Lexeme] = classDefinitionBuilder.ToString();
+        classImplementations[stmt.Name.Lexeme] = classImplementationBuilder.ToString();
+
+        currentClass = previousClass;
+
+        // Does not need to return the StringBuilder here, since it's been stored in the enums dictionary already.
+        return VoidObject.Void;
     }
 
     public object VisitEnumStmt(Stmt.Enum stmt)
@@ -1633,14 +1794,14 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             throw new PerlangCompilerException($"Function '{functionStmt.Name.Lexeme}' is already defined");
         }
 
-        methods[functionStmt.Name.Lexeme] = new Method(
-            functionStmt.Name.Lexeme,
-            functionStmt.Parameters,
-            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? "std::shared_ptr<" : "")}" +
-            $"{functionStmt.ReturnTypeReference.CppType}" +
-            $"{(functionStmt.ReturnTypeReference.CppWrapInSharedPtr ? ">" : "")}",
-            functionContent
-        );
+        if (currentClass == null) {
+            methods[functionStmt.Name.Lexeme] = new Method(
+                functionStmt.Name.Lexeme,
+                functionStmt.Parameters,
+                functionStmt.ReturnTypeReference.PossiblyWrappedCppType ?? throw new PerlangCompilerException($"Internal compiler error: return type of function '{functionStmt.Name.Lexeme}' was unexpectedly null"),
+                functionContent
+            );
+        }
 
         // Loop over the statements in the method body and visit them, recursively
         foreach (Stmt stmt in functionStmt.Body)
@@ -1648,8 +1809,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             functionContent.Append(stmt.Accept(this));
         }
 
-        // Does not need to return the StringBuilder here, since it's been stored in the methods dictionary already.
-        return VoidObject.Void;
+        if (currentClass == null) {
+            // Does not need to return the StringBuilder here, since it's been stored in the methods dictionary already.
+            return VoidObject.Void;
+        }
+        else {
+            return functionContent.ToString();
+        }
     }
 
     public object VisitIfStmt(Stmt.If stmt)

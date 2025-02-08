@@ -81,7 +81,7 @@ public class StringIndexing
     [SkippableFact]
     public void ASCIIString_indexed_by_integer_returns_char_object()
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
+        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() for 'char' types is not yet supported in compiled mode");
 
         string source = """
             print "foobar"[0].get_type();

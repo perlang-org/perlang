@@ -133,7 +133,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Inferred: Perlang.NullObject cannot be used with the $PLUS_EQUAL += operator");
+                .Message.Should().Match("Inferred: NullObject cannot be used with the $PLUS_EQUAL += operator");
         }
 
         [Fact]

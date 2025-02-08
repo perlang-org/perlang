@@ -28,13 +28,17 @@ namespace Perlang.Parser
         public static readonly IDictionary<string, TokenType> ReservedKeywords =
             new Dictionary<string, TokenType>
             {
-                // Currently support keywords
+                // Currently supported keywords
+                { "class", CLASS },
+                { "constructor", CONSTRUCTOR },
+                { "destructor", DESTRUCTOR },
                 { "else", ELSE },
                 { "enum", ENUM },
                 { "false", FALSE },
                 { "for", FOR },
                 { "fun", FUN },
                 { "if", IF },
+                { "new", NEW },
                 { "null", PERLANG_NULL },
                 { "print", PRINT },
                 { "return", RETURN },
@@ -43,6 +47,13 @@ namespace Perlang.Parser
                 { "true", TRUE },
                 { "var", VAR },
                 { "while", WHILE },
+
+                // Visibility, static/instance, etc
+                { "public", PUBLIC },
+
+                //
+                // Currently not supported keywords, but reserved for future use
+                //
 
                 // Type names
                 //
@@ -65,7 +76,6 @@ namespace Perlang.Parser
                 { "char", RESERVED_WORD },
 
                 // Visibility, static/instance, etc
-                { "public", RESERVED_WORD },
                 { "private", RESERVED_WORD },
                 { "protected", RESERVED_WORD },
                 { "internal", RESERVED_WORD },
@@ -94,8 +104,6 @@ namespace Perlang.Parser
                 { "synchronized", RESERVED_WORD },
 
                 // Reserved keywords "for future use"
-                { "class", RESERVED_WORD }, // Pending #66 to be resolved.
-                { "new", RESERVED_WORD },
                 { "mut", RESERVED_WORD },
                 { "let", RESERVED_WORD },
                 { "const", RESERVED_WORD },

@@ -16,6 +16,13 @@ extern "C" void native_main(int argc, char* const* argv);
 //
 // Enum definitions
 //
+namespace Visibility {
+    enum Visibility {
+        Public,
+    };
+};
+
+
 namespace TokenType {
     enum TokenType {
         LEFT_PAREN,
@@ -60,14 +67,19 @@ namespace TokenType {
         NUMBER,
         PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES,
         PREPROCESSOR_DIRECTIVE_CPP_METHODS,
+        CLASS,
+        CONSTRUCTOR,
+        DESTRUCTOR,
         ELSE,
         ENUM,
         FALSE,
         FUN,
         FOR,
         IF,
+        NEW,
         PERLANG_NULL,
         PRINT,
+        PUBLIC,
         RETURN,
         SUPER,
         THIS,

@@ -1,4 +1,6 @@
 #nullable enable
+#pragma warning disable SA1117
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -39,8 +41,9 @@ namespace Perlang
         {
             public Token Name { get; }
             public List<Function> Methods { get; }
+            public Visibility Visibility { get; }
 
-            public Class(Token name, List<Function> methods)
+            public Class(Token name, Visibility visibility, List<Function> methods)
             {
                 Name = name;
                 Methods = methods;
@@ -76,13 +79,19 @@ namespace Perlang
             public ImmutableList<Parameter> Parameters { get; }
             public ImmutableList<Stmt> Body { get; }
             public ITypeReference ReturnTypeReference { get; }
+            public bool IsConstructor { get; set; }
+            public bool IsDestructor { get; set; }
 
-            public Function(Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference)
-            {
+            public Function(
+                Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
+                bool isConstructor, bool isDestructor
+            ) {
                 Name = name;
                 Parameters = parameters.ToImmutableList();
                 Body = body.ToImmutableList();
                 ReturnTypeReference = returnTypeReference;
+                IsConstructor = isConstructor;
+                IsDestructor = isDestructor;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)

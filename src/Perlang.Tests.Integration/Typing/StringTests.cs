@@ -370,7 +370,7 @@ public class StringTests
             .Be("false");
     }
 
-    [SkippableFact]
+    [Fact]
     public void ascii_string_variable_has_expected_type()
     {
         string source = """
@@ -382,6 +382,6 @@ public class StringTests
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("Perlang.Lang.AsciiString");
+            .Be("perlang::ASCIIString");
     }
 }

@@ -9,21 +9,6 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 {
     public class ReservedKeywordsTests
     {
-        // Special-cased test for this keyword, to ensure that it consumes the class name as expected
-        [Fact]
-        public void reserved_keyword_class_throws_expected_error()
-        {
-            string source = @"
-                class Foo {}
-            ";
-
-            var result = EvalWithParseErrorCatch(source);
-
-            result.Errors.Should()
-                .ContainSingle().Which
-                .ToString().Should().Contain("Error at 'class': Expect expression");
-        }
-
         //
         // Variable declarations: ensure that reserved keywords cannot be used as variable names
         //

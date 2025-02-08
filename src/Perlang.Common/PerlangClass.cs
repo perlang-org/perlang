@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Perlang
 {
+    /// <summary>
+    /// A Perlang class, implemented in C++ or Perlang.
+    /// </summary>
     public class PerlangClass
     {
         public string Name { get; }

@@ -26,10 +26,12 @@ namespace Perlang
             TR VisitCollectionInitializerExpr(CollectionInitializer collectionInitializer);
             TR VisitLiteralExpr(Literal expr);
             TR VisitLogicalExpr(Logical expr);
+            TR VisitThisExpr(This expr);
             TR VisitUnaryPrefixExpr(UnaryPrefix expr);
             TR VisitUnaryPostfixExpr(UnaryPostfix expr);
             TR VisitIdentifierExpr(Identifier expr);
             TR VisitGetExpr(Get expr);
+            TR VisitNewExpression(NewExpression expr);
         }
 
         //
@@ -291,6 +293,51 @@ namespace Perlang
         }
 
         /// <summary>
+        /// A <c>new()</c> expression, for creating a new object instance of a class.
+        /// </summary>
+        public class NewExpression : Expr, ITokenAware
+        {
+            public Token Token => TypeName;
+
+            public Token TypeName { get; set; }
+            public List<Expr> Parameters { get; }
+
+            public NewExpression(Token typeName, List<Expr> parameters)
+            {
+                TypeName = typeName;
+                Parameters = parameters;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitNewExpression(this);
+            }
+
+            public override string ToString()
+            {
+                string parametersString = String.Join(", ", Parameters);
+
+                return $"#<new {TypeName.Lexeme}({parametersString})>";
+            }
+        }
+
+        public class This : Expr, ITokenAware
+        {
+            public Token Keyword { get; }
+            public Token Token => Keyword;
+
+            public This(Token keyword)
+            {
+                this.Keyword = keyword;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitThisExpr(this);
+            }
+        }
+
+        /// <summary>
         /// Represents unary prefix expressions. Examples of such expressions are `!flag` and `-10`. Note that prefix
         /// increment and decrement are currently not supported.
         /// </summary>
@@ -377,7 +424,9 @@ namespace Perlang
             // TODO: Would be much nicer to have this be without setter, but there is no easy way to accomplish this,
             // TODO: since the MethodInfo data isn't available at construction time. Also, we replace this with the
             // TODO: single matching MethodInfo after method overload resolution has completed.
-            public ImmutableArray<MethodInfo> Methods { get; set; } = ImmutableArray<MethodInfo>.Empty;
+            public ImmutableArray<MethodInfo> ClrMethods { get; set; } = ImmutableArray<MethodInfo>.Empty;
+
+            public ImmutableArray<Stmt.Function> PerlangMethods { get; set; } = ImmutableArray<Stmt.Function>.Empty;
 
             public Get(Expr @object, Token name)
             {

@@ -127,7 +127,7 @@ public class SubtractionAssignmentTests
         var exception = result.Errors.First();
 
         Assert.Single(result.Errors);
-        Assert.Equal("Inferred: Perlang.NullObject cannot be used with the $MINUS_EQUAL -= operator", exception.Message);
+        Assert.Equal("Inferred: NullObject cannot be used with the $MINUS_EQUAL -= operator", exception.Message);
     }
 
     [Fact]

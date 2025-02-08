@@ -1,5 +1,6 @@
 #nullable enable
 #pragma warning disable S1199
+#pragma warning disable S4136
 
 using System;
 using System.Collections;
@@ -26,6 +27,8 @@ internal class NameResolver : VisitorBase
     /// </summary>
     private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
 
+    private readonly Dictionary<Stmt, Dictionary<string, IBindingFactory>> stmtScopes = new Dictionary<Stmt, Dictionary<string, IBindingFactory>>();
+
     /// <summary>
     /// An instance-local list of global symbols (variables, functions etc).
     /// </summary>
@@ -34,6 +37,7 @@ internal class NameResolver : VisitorBase
     internal IDictionary<string, IBindingFactory> Globals => globals;
 
     private FunctionType currentFunction = FunctionType.NONE;
+    private bool firstPass = true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NameResolver"/> class.
@@ -75,14 +79,27 @@ internal class NameResolver : VisitorBase
         }
     }
 
-    internal void Resolve(Expr expr)
+    internal void StartSecondPass()
+    {
+        firstPass = false;
+    }
+
+    private void Resolve(Expr expr)
     {
         expr.Accept(this);
     }
 
-    private void BeginScope()
+    private void BeginScope(Stmt stmt)
     {
-        scopes.Add(new Dictionary<string, IBindingFactory>());
+        if (stmtScopes.TryGetValue(stmt, out var scope)) {
+            scopes.Add(scope);
+            return;
+        }
+
+        scope = new Dictionary<string, IBindingFactory>();
+        scopes.Add(scope);
+
+        stmtScopes[stmt] = scope;
     }
 
     private void EndScope()
@@ -108,6 +125,11 @@ internal class NameResolver : VisitorBase
 
         if (scope.ContainsKey(name.Lexeme))
         {
+            if (!firstPass) {
+                // This is expected on the second pass.
+                return;
+            }
+
             nameResolutionErrorHandler(new NameResolutionError("Variable with this name already declared in this scope.", name));
         }
 
@@ -179,6 +201,11 @@ internal class NameResolver : VisitorBase
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
+            if (!firstPass) {
+                // This is expected on the second pass.
+                return;
+            }
+
             nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
             return;
         }
@@ -192,6 +219,11 @@ internal class NameResolver : VisitorBase
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
+            if (!firstPass) {
+                // This is expected on the second pass.
+                return;
+            }
+
             nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
             return;
         }
@@ -308,6 +340,13 @@ internal class NameResolver : VisitorBase
         return VoidObject.Void;
     }
 
+    public override VoidObject VisitThisExpr(Expr.This expr)
+    {
+        ResolveLocalOrGlobal(expr, expr.Keyword);
+
+        return VoidObject.Void;
+    }
+
     public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         Resolve(expr.Right);
@@ -345,9 +384,19 @@ internal class NameResolver : VisitorBase
         return VoidObject.Void;
     }
 
+    public override VoidObject VisitNewExpression(Expr.NewExpression expr)
+    {
+        // This is a bit excessive; we could restrict to only resolve the type name in the list of types currently in
+        // scope. The problem with this approach is that it makes silly things like `var i = 0; var j = new i();`
+        // possible.
+        ResolveLocalOrGlobal(expr, expr.TypeName);
+
+        return VoidObject.Void;
+    }
+
     public override VoidObject VisitBlockStmt(Stmt.Block stmt)
     {
-        BeginScope();
+        BeginScope(stmt);
         Resolve(stmt.Statements);
         EndScope();
 
@@ -356,14 +405,23 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitClassStmt(Stmt.Class stmt)
     {
-        // TODO: Implement resolution related to classes: handle fields defined in the class, resolve method
-        // TODO: arguments, etc.
+        // TODO: Implement resolution related to classes: handle fields defined in the class, etc.
 
         Declare(stmt.Name);
 
         var perlangClass = new PerlangClass(stmt.Name.Lexeme, stmt.Methods);
 
         DefineClass(stmt.Name, perlangClass);
+
+        // This part (creating a scope, visiting the functions like this) is needed to be able to call methods without
+        // explicit `this.` prefix.
+        BeginScope(stmt);
+
+        foreach (Stmt.Function method in stmt.Methods) {
+            VisitFunctionStmt(method);
+        }
+
+        EndScope();
 
         return VoidObject.Void;
     }
@@ -387,8 +445,10 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
     {
-        Declare(stmt.Name);
-        DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
+        if (stmt.Name != null) {
+            Declare(stmt.Name);
+            DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
+        }
 
         ResolveFunction(stmt, FunctionType.FUNCTION);
 
@@ -400,7 +460,7 @@ internal class NameResolver : VisitorBase
         FunctionType enclosingFunction = currentFunction;
         currentFunction = type;
 
-        BeginScope();
+        BeginScope(function);
 
         foreach (Parameter param in function.Parameters)
         {

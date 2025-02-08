@@ -13,7 +13,7 @@ namespace Perlang.Interpreter.Typing
     /// example, adding two integers (1 + 1) will have an aggregate type of `int`. Adding
     /// an integer and a float (1 + 1.0) will have an aggregate type of `float`, and so forth.
     ///
-    /// Adding a smaller type and a larger type (e.g. `int` and `float`) will expand the expression to the greater of
+    /// Adding a smaller type and a larger type (e.g. `int` and `float`) will expand the expression to the greatest of
     /// the involved types. Note that this can lose some precision when expanding `double` or `float` values to the CLR
     /// `decimal` type, but the order of magnitude is always retained.
     ///

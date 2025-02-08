@@ -122,6 +122,11 @@ namespace Perlang
             return VoidObject.Void;
         }
 
+        public virtual VoidObject VisitThisExpr(Expr.This expr)
+        {
+            return VoidObject.Void;
+        }
+
         public virtual VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             Visit(expr.Right);
@@ -149,6 +154,16 @@ namespace Perlang
         public virtual VoidObject VisitGetExpr(Expr.Get expr)
         {
             Visit(expr.Object);
+
+            return VoidObject.Void;
+        }
+
+        public virtual VoidObject VisitNewExpression(Expr.NewExpression expr)
+        {
+            foreach (Expr parameter in expr.Parameters)
+            {
+                Visit(parameter);
+            }
 
             return VoidObject.Void;
         }

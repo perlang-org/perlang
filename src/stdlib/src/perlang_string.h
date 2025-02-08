@@ -34,7 +34,13 @@ namespace perlang
         // Determines if the string is ASCII-safe or not. Multiple subsequent calls to this method may return a cached
         // result from a previous run. The first call may use a pre-calculated value, but this is not guaranteed by
         // this method.
+        [[nodiscard]]
         virtual bool is_ascii() = 0;
+
+        // TODO: Should return perlang::type or similar, like System.Type in .NET
+        // Returns the type of the object.
+        [[nodiscard]]
+        virtual std::unique_ptr<perlang::String> get_type() const = 0;
 
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]

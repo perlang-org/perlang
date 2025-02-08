@@ -1,5 +1,7 @@
 #nullable enable
+#pragma warning disable S3440
 using System;
+using System.Collections.Immutable;
 using System.Numerics;
 using Perlang.Compiler;
 
@@ -13,9 +15,13 @@ namespace Perlang
     public class TypeReference : ITypeReference
     {
         private Type? clrType;
+        private CppType? cppType;
         public Token? TypeSpecifier { get; }
 
         public Type? ClrType => clrType;
+
+        public bool IsResolved =>
+            cppType != null || ClrType != null;
 
         public void SetClrType(Type? value)
         {
@@ -43,111 +49,72 @@ namespace Perlang
             clrType = value;
         }
 
+        public void SetCppType(CppType? value)
+        {
+            cppType = value;
+        }
+
+        public void SetPerlangClass(PerlangClass? perlangClass) =>
+            PerlangClass = perlangClass;
+
         private readonly bool isArray;
 
         public bool IsArray => clrType?.IsArray ?? isArray;
 
-        public string CppType =>
-            clrType switch
+        public CppType? CppType =>
+            cppType ?? clrType switch
             {
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+                // This is tested by "var_of_non_existent_type_with_initializer_emits_expected_error", in which case both
+                // cppType and clrType will be null here.
+                null => null,
 
                 // Value types
-                var t when t == typeof(Int32) => "int32_t",
-                var t when t == typeof(UInt32) => "uint32_t",
-                var t when t == typeof(Int64) => "int64_t",
-                var t when t == typeof(UInt64) => "uint64_t",
-                var t when t == typeof(Single) => "float",
-                var t when t == typeof(Double) => "double",
-                var t when t == typeof(bool) => "bool",
-                var t when t == typeof(void) => "void",
+                var t when t == typeof(Int32) => CppType.ValueType("int32_t"),
+                var t when t == typeof(UInt32) => CppType.ValueType("uint32_t"),
+                var t when t == typeof(Int64) => CppType.ValueType("int64_t"),
+                var t when t == typeof(UInt64) => CppType.ValueType("uint64_t"),
+                var t when t == typeof(Single) => CppType.ValueType("float"),
+                var t when t == typeof(Double) => CppType.ValueType("double"),
+                var t when t == typeof(bool) => CppType.ValueType("bool"),
+                var t when t == typeof(void) => CppType.ValueType("void"),
+                var t when t == typeof(BigInteger) => CppType.ValueType("BigInt"),
 
                 // Arrays of value types
-                var t when t == typeof(Int32[]) => "perlang::IntArray",
+                var t when t == typeof(Int32[]) => new CppType("perlang::IntArray", WrapInSharedPtr: true),
 
                 // Reference types
-                var t when t == typeof(BigInteger) => "BigInt",
-
-                // TODO: Handle UTF-8 strings here too
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "perlang::ASCIIString",
-                var t when t.FullName == "Perlang.Lang.String" => "perlang::String",
+                var t when t.FullName == "Perlang.Lang.AsciiString" => new CppType("perlang::ASCIIString", WrapInSharedPtr: true),
+                var t when t.FullName == "Perlang.Lang.String" => new CppType("perlang::String", WrapInSharedPtr: true),
+                var t when t.FullName == "Perlang.Lang.Utf8String" => new CppType("perlang::UTF8String", WrapInSharedPtr: true),
 
                 // Arrays of reference types
-                var t when t.FullName == "Perlang.Lang.String[]" => "perlang::StringArray",
-                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "perlang::StringArray",
-                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "perlang::StringArray",
+                var t when t.FullName == "Perlang.Lang.String[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
+
+                // These are not necessarily valid types on the C++ side, but must be handled to avoid the
+                // NotImplementedInCompiledModeException exception below. We set them to something that we can use for
+                // triggering a user-friendly exception at the PerlangCompiler stage.
+                var t when t == typeof(char) => new CppType("char", IsSupported: false),
+                var t when t == typeof(string) => new CppType("string", IsSupported: false),
+                var t when t == typeof(Type) => new CppType("Type", IsSupported: false),
+                var t when t == typeof(PerlangEnum) => new CppType("PerlangEnum", IsSupported: false),
+                var t when t == typeof(NullObject) => new CppType("NullObject", IsSupported: false),
+                var t when t.FullName == "Perlang.Stdlib.Argv" => new CppType("perlang::Argv", IsSupported: false),
+                var t when t.FullName == "Perlang.Stdlib.Libc" => new CppType("perlang::Libc", IsSupported: false),
+                var t when t.FullName == "Perlang.Stdlib.Base64" => new CppType("perlang::Base64", IsSupported: false),
+                var t when t.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>) => new CppType("ImmutableDictionary", IsSupported: false),
 
                 _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
             };
 
-        public string PossiblyWrappedCppType =>
-            clrType switch
-            {
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
-
-                // Value types
-                var t when t == typeof(Int32) => "int32_t",
-                var t when t == typeof(UInt32) => "uint32_t",
-                var t when t == typeof(Int64) => "int64_t",
-                var t when t == typeof(UInt64) => "uint64_t",
-                var t when t == typeof(Single) => "float",
-                var t when t == typeof(Double) => "double",
-                var t when t == typeof(bool) => "bool",
-                var t when t == typeof(void) => "void",
-
-                // Arrays of value types
-                var t when t == typeof(Int32[]) => "std::shared_ptr<const perlang::IntArray>",
-
-                // Reference types. BigInt is the outlier here, since it's actually used as a value type. This could
-                // actually be one reason why the performance of using our BigInts are so bad; there may be implicit
-                // copying happening behind the scenes.
-                var t when t == typeof(BigInteger) => "BigInt",
-
-                // These are wrapped in std::shared_ptr<>, as a simple way to deal with ownership for now. For the
-                // long-term solution, see https://gitlab.perlang.org/perlang/perlang/-/issues/378.
-                var t when t.FullName == "Perlang.Lang.AsciiString" => "std::shared_ptr<perlang::ASCIIString>",
-                var t when t.FullName == "Perlang.Lang.String" => "std::shared_ptr<perlang::String>",
-                var t when t.FullName == "Perlang.Lang.Utf8String" => "std::shared_ptr<perlang::UTF8String>",
-
-                // Arrays of reference types. Note how the array types are StringArray for all of these, because it is much
-                // more complex to use different types here.
-                var t when t.FullName == "Perlang.Lang.String[]" => "std::shared_ptr<perlang::StringArray>",
-                var t when t.FullName == "Perlang.Lang.AsciiString[]" => "std::shared_ptr<perlang::StringArray>",
-                var t when t.FullName == "Perlang.Lang.Utf8String[]" => "std::shared_ptr<perlang::StringArray>",
-
-                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
-            };
+        public string? PossiblyWrappedCppType =>
+            CppType?.PossiblyWrappedTypeName();
 
         public bool CppWrapInSharedPtr =>
-            clrType switch
-            {
-                null => throw new InvalidOperationException("Internal error: ClrType was unexpectedly null"),
+            CppType?.WrapInSharedPtr ?? throw new PerlangCompilerException("Internal compiler error: cppType was unexpectedly null");
 
-                // Value types
-                var t when t == typeof(Int32) => false,
-                var t when t == typeof(UInt32) => false,
-                var t when t == typeof(Int64) => false,
-                var t when t == typeof(UInt64) => false,
-                var t when t == typeof(Single) => false,
-                var t when t == typeof(Double) => false,
-                var t when t == typeof(bool) => false,
-                var t when t == typeof(void) => false,
-                var t when t == typeof(BigInteger) => true,
-
-                // Arrays of value types
-                var t when t == typeof(Int32[]) => true,
-
-                var t when t.FullName == "Perlang.Lang.AsciiString" => true,
-                var t when t.FullName == "Perlang.Lang.String" => true,
-                var t when t.FullName == "Perlang.Lang.Utf8String" => true,
-
-                // Arrays of reference types
-                var t when t.FullName == "Perlang.Lang.AsciiString[]" => true,
-                var t when t.FullName == "Perlang.Lang.String[]" => true,
-                var t when t.FullName == "Perlang.Lang.Utf8String[]" => true,
-
-                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ reference handling for {clrType} not defined")
-            };
+        public PerlangClass? PerlangClass { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type
@@ -171,18 +138,20 @@ namespace Perlang
             this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
         }
 
+#pragma warning disable S3358
         public override string ToString()
         {
             var typeReference = (ITypeReference)this;
 
             if (typeReference.ExplicitTypeSpecified)
             {
-                return typeReference.IsResolved ? $"Explicit: {ClrType}" : $"Explicit: {TypeSpecifier}";
+                return typeReference.IsResolved ? $"Explicit: {(CppType != null ? CppType.TypeName : ClrType)}" : $"Explicit: {TypeSpecifier}";
             }
             else
             {
-                return typeReference.IsResolved ? $"Inferred: {ClrType}" : "Inferred, not yet resolved";
+                return typeReference.IsResolved ? $"Inferred: {(CppType != null ? CppType.TypeName : ClrType)}" : "Inferred, not yet resolved";
             }
         }
+#pragma warning restore S3358
     }
 }

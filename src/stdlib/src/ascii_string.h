@@ -61,9 +61,16 @@ namespace perlang
         // Determines if the string is ASCII-safe or not. Multiple subsequent calls to this method may return a cached
         // result from a previous run. The first call may use a pre-calculated value, but this is not guaranteed by
         // this method.
+        [[nodiscard]]
         bool is_ascii() override
         {
             return true;
+        }
+
+        [[nodiscard]]
+        std::unique_ptr<String> get_type() const override
+        {
+            return ASCIIString::from_static_string("perlang::ASCIIString");
         }
 
         // Compares the equality of two `ASCIIString`s, returning `true` if they point to the same backing byte array

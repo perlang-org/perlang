@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <atomic>
 
+#include "ascii_string.h"
 #include "perlang_string.h"
 
 namespace perlang
@@ -69,6 +70,12 @@ namespace perlang
         // result from a previous run. The first call may use a pre-calculated value, but this is not guaranteed by
         // this method.
         bool is_ascii() override;
+
+        [[nodiscard]]
+        std::unique_ptr<String> get_type() const override
+        {
+            return ASCIIString::from_static_string("perlang::UTF8String");
+        }
 
         // Compares the equality of two `UTF8String`s, returning `true` if they point to the same backing byte array
         // and have the same length. Note that this method does *not* compare referential equality; two different

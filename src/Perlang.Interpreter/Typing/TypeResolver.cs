@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable S1871
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -56,10 +57,12 @@ namespace Perlang.Interpreter.Typing
             // "var i = 100; var j = i+= 2;" work correctly. This is indeed an odd way of writing code, but as long
             // as += is an expression and not a statement, we need to have predictable semantics for cases like
             // this.
-            if (!expr.TypeReference.IsResolved && expr.Value.TypeReference.ClrType != null)
-            {
+            if (!expr.TypeReference.IsResolved) {
+                expr.TypeReference.SetCppType(expr.Value.TypeReference.CppType);
                 expr.TypeReference.SetClrType(expr.Value.TypeReference.ClrType);
             }
+
+            expr.TypeReference.SetPerlangClass(expr.Value.TypeReference.PerlangClass);
 
             return VoidObject.Void;
         }
@@ -449,16 +452,33 @@ namespace Perlang.Interpreter.Typing
 
             if (expr.Callee is Expr.Get get)
             {
-                if (get.Methods.Any() && get.TypeReference.ClrType != null)
+                if (get.ClrMethods.Any() && get.TypeReference.IsResolved)
                 {
                     // All is fine, we have a type.
                     expr.TypeReference.SetClrType(get.TypeReference.ClrType);
+                    expr.TypeReference.SetCppType(get.TypeReference.CppType);
+                    expr.TypeReference.SetPerlangClass(get.TypeReference.PerlangClass);
                     return VoidObject.Void;
                 }
-                else if (get.TypeReference.ClrType == null)
+                else if (get.PerlangMethods.Any() && get.TypeReference.IsResolved)
+                {
+                    // All is fine, we have a type.
+                    expr.TypeReference.SetClrType(get.TypeReference.ClrType);
+                    expr.TypeReference.SetCppType(get.TypeReference.CppType);
+                    expr.TypeReference.SetPerlangClass(get.TypeReference.PerlangClass);
+                    return VoidObject.Void;
+                }
+                else if (!get.TypeReference.IsResolved)
                 {
                     // This can happen when referencing an invalid method name, like Time.now().tickz()
                     return VoidObject.Void;
+                }
+                else
+                {
+                    throw new TypeValidationError(
+                        expr.Paren,
+                        $"Internal compiler error: No methods found for {expr.CalleeToString}"
+                    );
                 }
             }
 
@@ -474,6 +494,8 @@ namespace Perlang.Interpreter.Typing
             else
             {
                 expr.TypeReference.SetClrType(typeReference.ClrType);
+                expr.TypeReference.SetCppType(typeReference.CppType);
+                expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
             }
 
             return VoidObject.Void;
@@ -577,6 +599,7 @@ namespace Perlang.Interpreter.Typing
             base.VisitGroupingExpr(expr);
 
             expr.TypeReference.SetClrType(expr.Expression.TypeReference.ClrType);
+            expr.TypeReference.SetCppType(expr.Expression.TypeReference.CppType);
 
             return VoidObject.Void;
         }
@@ -645,6 +668,7 @@ namespace Perlang.Interpreter.Typing
             base.VisitUnaryPrefixExpr(expr);
 
             expr.TypeReference.SetClrType(expr.Right.TypeReference.ClrType);
+            expr.TypeReference.SetCppType(expr.Right.TypeReference.CppType);
 
             return VoidObject.Void;
         }
@@ -654,6 +678,7 @@ namespace Perlang.Interpreter.Typing
             base.VisitUnaryPostfixExpr(expr);
 
             expr.TypeReference.SetClrType(expr.Left.TypeReference.ClrType);
+            expr.TypeReference.SetCppType(expr.Left.TypeReference.CppType);
 
             return VoidObject.Void;
         }
@@ -681,6 +706,8 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 expr.TypeReference.SetClrType(typeReference.ClrType);
+                expr.TypeReference.SetCppType(typeReference.CppType);
+                expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
             }
 
             return VoidObject.Void;
@@ -702,8 +729,9 @@ namespace Perlang.Interpreter.Typing
                 null)
             {
                 Type? type = expr.Object.TypeReference.ClrType;
+                PerlangClass? perlangClass = expr.Object.TypeReference.PerlangClass;
 
-                if (type == null)
+                if (type == null && perlangClass == null)
                 {
                     // This is a legitimate code path in cases where a method call is attempted on an unknown type, like
                     // `var f: Foo; f.some_method()`. In this case, the ClrType will be null for the given `expr.Object`
@@ -711,41 +739,77 @@ namespace Perlang.Interpreter.Typing
                     return VoidObject.Void;
                 }
 
-                // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
-                // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but I see
-                // no way around this if we want to retain snake_case (which we do).
-                //
-                // We also make sure to support unconverted method names at this stage, i.e. methods which are named
-                // "Some_Method" or "some_Method" on the C# side. This is uncommon but supported, and used as the
-                // under-the-hood representation for property getters (a property named "Foo" produces a "get_Foo"
-                // method under the hood). Calling property getters like this is surely ugly, but it's much better
-                // than not being able to call them at all. If/when we support Foo.bar syntax for calling property
-                // getters, we might want to exclude property getters and setters in this code.
-                //
-                // Tracking issue: https://gitlab.perlang.org/perlang/perlang/-/issues/114
-                string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
+                if (type != null) {
+                    // Perlang uses snake_case by convention, but we still want to be able to call regular PascalCased
+                    // .NET methods. Converting it like this is not optimal (since it makes debugging harder), but I see
+                    // no way around this if we want to retain snake_case (which we do).
+                    //
+                    // We also make sure to support unconverted method names at this stage, i.e. methods which are named
+                    // "Some_Method" or "some_Method" on the C# side. This is uncommon but supported, and used as the
+                    // under-the-hood representation for property getters (a property named "Foo" produces a "get_Foo"
+                    // method under the hood). Calling property getters like this is surely ugly, but it's much better
+                    // than not being able to call them at all. If/when we support Foo.bar syntax for calling property
+                    // getters, we might want to exclude property getters and setters in this code.
+                    //
+                    // Tracking issue: https://gitlab.perlang.org/perlang/perlang/-/issues/114
+                    string pascalizedMethodName = expr.Name.Lexeme.Pascalize();
 
-                // TODO: Move this logic to new ReflectionHelper class
-                var methods = type.GetMethods()
-                    .Where(mi => mi.Name == pascalizedMethodName ||
-                                 mi.Name == expr.Name.Lexeme ||
-                                 mi.Name == "get_" + pascalizedMethodName) // Quick-hack while waiting for #114
-                    .ToImmutableArray();
+                    // TODO: Move this logic to new ReflectionHelper class
+                    var methods = type.GetMethods()
+                        .Where(mi => mi.Name == pascalizedMethodName ||
+                                     mi.Name == expr.Name.Lexeme ||
+                                     mi.Name == "get_" + pascalizedMethodName) // Quick-hack while waiting for #114
+                        .ToImmutableArray();
 
-                if (methods.IsEmpty)
-                {
+                    if (methods.IsEmpty) {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.Name,
+                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{type.Name}'")
+                        );
+
+                        return VoidObject.Void;
+                    }
+
+                    expr.ClrMethods = methods;
+
+                    // The assumptions made here (that the return type of the First() method is the same as the overload
+                    // requested by the user) is actually safe, since return-type-based polymorphism isn't allowed in .NET.
+                    expr.TypeReference.SetClrType(methods.First().ReturnType);
+                }
+                else if (perlangClass != null) {
+                    var methods = perlangClass.Methods
+                        .Where(m => m.Name.Lexeme == expr.Name.Lexeme)
+                        .ToImmutableArray();
+
+                    if (methods.IsEmpty) {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.Name,
+                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{perlangClass.Name}'")
+                        );
+
+                        return VoidObject.Void;
+                    }
+
+                    expr.PerlangMethods = methods;
+
+                    // We assume that return-type-based polymorphism isn't allowed in Perlang either. If this ever
+                    // changes, the code below will have to be revisited.
+                    var firstMatchingMethod = methods.First();
+
+                    expr.TypeReference.SetClrType(firstMatchingMethod.ReturnTypeReference.ClrType);
+                    expr.TypeReference.SetCppType(firstMatchingMethod.ReturnTypeReference.CppType);
+                    expr.TypeReference.SetPerlangClass(firstMatchingMethod.ReturnTypeReference.PerlangClass);
+                }
+                else {
+                    // Should never happen, but better adding an explicit else here rather than letting the code fall
+                    // through.
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.Name,
-                        $"Failed to locate method '{expr.Name.Lexeme}' in class '{type.Name}'")
+                        $"Internal compiler error: CLR type and Perlang class was both null for when trying to locate method '{expr.Name.Lexeme}' in class '{expr.Object.TypeReference}'")
                     );
 
                     return VoidObject.Void;
                 }
-
-                expr.Methods = methods;
-
-                // This is actually safe, since return-type-based polymorphism isn't allowed in .NET.
-                expr.TypeReference.SetClrType(methods.First().ReturnType);
             }
             else if (binding is EnumBinding enumBinding)
             {
@@ -762,11 +826,43 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 expr.TypeReference.SetClrType(binding.TypeReference!.ClrType);
+                expr.TypeReference.SetCppType(binding.TypeReference!.CppType);
             }
             else
             {
                 throw new NotSupportedException($"Unsupported binding type encountered: {binding}");
             }
+
+            return VoidObject.Void;
+        }
+
+        public override VoidObject VisitNewExpression(Expr.NewExpression expr)
+        {
+            base.VisitNewExpression(expr);
+
+            var binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
+
+            if (binding == null) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Token,
+                    $"Type '{expr.Token.Lexeme}' could not be found")
+                );
+
+                return VoidObject.Void;
+            }
+
+            if (!(binding is ClassBinding classBinding)) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Token,
+                    $"Internal compiler error: Unexpected type '{binding}' encountered; expected ClassBinding")
+                );
+
+                return VoidObject.Void;
+            }
+
+            // TODO: Mark this type reference with metadata about the instantiated class.
+            expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, WrapInSharedPtr: true));
+            expr.TypeReference.SetPerlangClass(classBinding.PerlangClass);
 
             return VoidObject.Void;
         }
@@ -777,7 +873,7 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
-            if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
+            if (!stmt.IsConstructor && !stmt.IsDestructor && !stmt.ReturnTypeReference.ExplicitTypeSpecified)
             {
                 // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                 typeValidationErrorCallback(new TypeValidationError(
@@ -834,6 +930,8 @@ namespace Perlang.Interpreter.Typing
             {
                 // An explicit type has not been provided. Try inferring it from the type of value provided.
                 stmt.TypeReference.SetClrType(stmt.Initializer.TypeReference.ClrType);
+                stmt.TypeReference.SetCppType(stmt.Initializer.TypeReference.CppType);
+                stmt.TypeReference.SetPerlangClass(stmt.Initializer.TypeReference.PerlangClass);
             }
 
             return VoidObject.Void;
