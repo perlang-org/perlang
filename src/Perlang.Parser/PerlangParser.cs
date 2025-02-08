@@ -429,17 +429,13 @@ namespace Perlang.Parser
 
             BlockReservedIdentifiers(name);
 
-            if (!Check(RIGHT_PAREN))
-            {
-                do
-                {
-                    if (parameters.Count >= 255)
-                    {
+            if (!Check(RIGHT_PAREN)) {
+                do {
+                    if (parameters.Count >= 255) {
                         Error(Peek(), "Cannot have more than 255 parameters.");
                     }
 
-                    if (Check(RESERVED_WORD))
-                    {
+                    if (Check(RESERVED_WORD)) {
                         // Special-case to provide a more helpful error message when e.g. 'byte' is being used as
                         // parameter name.
                         throw Error(Advance(), "Reserved keyword encountered");
@@ -454,8 +450,7 @@ namespace Perlang.Parser
 
                     // Parameters can optionally use a specific type. If the type is not provided, the compiler will
                     // try to infer the type based on the usage.
-                    if (Match(COLON))
-                    {
+                    if (Match(COLON)) {
                         parameterTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
                         if (IsAtArray())
@@ -472,10 +467,8 @@ namespace Perlang.Parser
             Token returnTypeSpecifier = null;
             bool isReturnTypeArray = false;
 
-            if (Match(COLON))
-            {
-                if (Check(RESERVED_WORD))
-                {
+            if (Match(COLON)) {
+                if (Check(RESERVED_WORD)) {
                     returnTypeSpecifier = Advance();
 
                     // Special-case to try and fail as gracefully as possible if one of the type-related reserved words
@@ -483,8 +476,7 @@ namespace Perlang.Parser
                     // single parse error only.
                     parseErrorHandler(new ParseError("Expecting type name", returnTypeSpecifier, ParseErrorType.RESERVED_WORD_ENCOUNTERED));
                 }
-                else
-                {
+                else {
                     returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
                     if (IsAtArray())
