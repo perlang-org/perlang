@@ -36,6 +36,9 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<ASCIIString> from_copied_string(const char* str);
 
+        // An empty ASCIIString
+        inline static const std::unique_ptr<ASCIIString> empty = ASCIIString::from_copied_string("");
+
      private:
         // Private constructor for creating a new ASCIIString from a C-style (NUL-terminated) string. The `owned`
         // parameter indicates whether the ASCIIString should take ownership of the memory it points to, and thus be

@@ -50,10 +50,11 @@ extern "C"
     void StringBuilder_append_line(perlang::text::StringBuilder* sb, const char* s)
     {
         if (s == nullptr) {
+            sb->append_line(ASCIIString::empty);
             return;
         }
 
-        sb->append_line(*UTF8String::from_copied_string(s));
+        sb->append_line(UTF8String::from_copied_string(s));
     }
 
     uint StringBuilder_length(perlang::text::StringBuilder* sb)
