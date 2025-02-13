@@ -24,8 +24,39 @@ namespace perlang::text
         StringBuilder();
         ~StringBuilder();
 
-        void append(const perlang::String& str);
+        void append(const String& str);
+
+        inline void append(const std::unique_ptr<String>& str)
+        {
+            append(*str);
+        }
+
+        inline void append(const std::unique_ptr<ASCIIString>& str)
+        {
+            append(*str);
+        }
+
+        inline void append(const std::unique_ptr<UTF8String>& str)
+        {
+            append(*str);
+        }
+
         void append_line(const String& str);
+
+        inline void append_line(const std::unique_ptr<String>& str)
+        {
+            append_line(*str);
+        }
+
+        inline void append_line(const std::unique_ptr<ASCIIString>& str)
+        {
+            append_line(*str);
+        }
+
+        inline void append_line(const std::unique_ptr<UTF8String>& str)
+        {
+            append_line(*str);
+        }
 
         [[nodiscard]]
         uint length() const;
