@@ -1,6 +1,8 @@
 // Automatically generated code by Perlang
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
+#pragma once
+
 //
 // C++ prototypes
 //

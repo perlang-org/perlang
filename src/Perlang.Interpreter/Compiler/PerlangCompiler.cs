@@ -602,6 +602,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 // {headerLine}
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
+#pragma once
+
 
 """);
 
