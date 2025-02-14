@@ -3,6 +3,11 @@
 
 #pragma once
 
+#include <memory> // std::shared_ptr
+#include <stdint.h>
+
+#include "perlang_stdlib.h"
+
 //
 // C++ prototypes
 //

@@ -604,6 +604,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
 #pragma once
 
+#include <memory> // std::shared_ptr
+#include <stdint.h>
+
+#include "perlang_stdlib.h"
+
 
 """);
 
