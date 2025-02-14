@@ -407,6 +407,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         bool compileAndAssembleOnly = false)
     {
         string targetCppFile = Path.ChangeExtension(targetPath ?? path, ".cc");
+        string targetHeaderFile = Path.ChangeExtension(targetPath ?? path, ".h");
 
 #if _WINDOWS
         // clang is very unlikely to have been available on Windows anyway, but why not...
@@ -420,9 +421,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         // TODO: when developing the stdlib.
         if (!(compilerFlags.HasFlag(CompilerFlags.CacheDisabled) || CompilationCacheDisabled) &&
             File.GetCreationTime(targetCppFile) > File.GetCreationTime(path) &&
+            File.GetCreationTime(targetHeaderFile) > File.GetCreationTime(path) &&
             File.GetCreationTime(targetExecutable) > File.GetCreationTime(path))
         {
-            // Both the .cc file and the executable are newer than the given Perlang script => no need to
+            // Both the .cc/.h files and the executable are newer than the given Perlang program => no need to
             // compile it. We presume the binary to be already up-to-date.
             return targetExecutable;
         }
@@ -585,6 +587,68 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             // all other methods in the code further below.
             mainMethodContent.Append(Compile(statements));
 
+            using (StreamWriter streamWriter = File.CreateText(targetHeaderFile)) {
+                string headerLine;
+
+                if (compilerFlags.HasFlag(CompilerFlags.Idempotent)) {
+                    headerLine = "Automatically generated code by Perlang";
+                }
+                else {
+                    headerLine = $"Automatically generated code by Perlang {CommonConstants.InformationalVersion} at {DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture)}";
+                }
+
+                // Write standard file header, which includes everything our transpiled code might expect.
+                streamWriter.Write($"""
+// {headerLine}
+// Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
+
+
+""");
+
+                if (cppPrototypes.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ prototypes");
+                    streamWriter.WriteLine("//");
+
+                    foreach (Token prototype in cppPrototypes)
+                    {
+                        streamWriter.WriteLine(prototype.Literal);
+                    }
+
+                    streamWriter.WriteLine();
+                }
+
+                if (classDefinitions.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Class definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach ((string _, string definition) in classDefinitions) {
+                        streamWriter.WriteLine(definition);
+                    }
+                }
+
+                if (enums.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Enum definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach ((string _, string definition) in enums) {
+                        streamWriter.WriteLine(definition);
+                    }
+                }
+
+                if (methods.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Method definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach (var (key, value) in methods) {
+                        streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString});");
+                    }
+                }
+            }
+
             using (StreamWriter streamWriter = File.CreateText(targetCppFile)) {
                 string headerLine;
 
@@ -606,54 +670,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
 #include "perlang_stdlib.h"
 
+#include "{Path.GetFileName(targetHeaderFile)}"
+
+
 """);
-
-                if (cppPrototypes.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// C++ prototypes");
-                    streamWriter.WriteLine("//");
-
-                    foreach (Token prototype in cppPrototypes)
-                    {
-                        streamWriter.WriteLine(prototype.Literal);
-                    }
-
-                    streamWriter.WriteLine();
-                }
-
-                if (classDefinitions.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// C++ class definitions");
-                    streamWriter.WriteLine("//");
-
-                    foreach ((string _, string definition) in classDefinitions) {
-                        streamWriter.WriteLine(definition);
-                        streamWriter.WriteLine();
-                    }
-                }
-
-                if (enums.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Enum definitions");
-                    streamWriter.WriteLine("//");
-
-                    foreach ((string _, string definition) in enums) {
-                        streamWriter.WriteLine(definition);
-                        streamWriter.WriteLine();
-                    }
-                }
-
-                if (methods.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Method definitions");
-                    streamWriter.WriteLine("//");
-
-                    foreach (var (key, value) in methods) {
-                        streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString});");
-                    }
-
-                    streamWriter.WriteLine();
-                }
 
                 if (cppMethods.Count > 0) {
                     streamWriter.WriteLine("//");
@@ -686,7 +706,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
                 if (classImplementations.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// C++ class implementations");
+                    streamWriter.WriteLine("// Class implementations");
                     streamWriter.WriteLine("//");
 
                     foreach (var (_, classImplementation) in classImplementations) {
@@ -1711,6 +1731,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             classImplementationBuilder.AppendLine(") {");
             classImplementationBuilder.Append(method.Accept(this));
             classImplementationBuilder.AppendLine("};");
+
+            classImplementationBuilder.AppendLine();
         }
 
         classDefinitionBuilder.AppendLine("};");
