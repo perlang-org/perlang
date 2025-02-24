@@ -175,6 +175,11 @@ Copyright (c) 2017 - 2018 Syed Faheel Ahmad.
 libtommath (https://github.com/libtom/libtommath), licensed under the Unlicense
 (http://unlicense.org).
 
+[src/stdlib/src/tsl](src/stdlib/src/tsl) includes content from Thibaut
+Goetghebuer-Planchon's ordered-map library
+(https://github.com/Tessil/ordered-map), licensed under the terms of the MIT
+license. Copyright (c) 2017 Thibaut Goetghebuer-Planchon.
+
 [src/stdlib/src/fmt](src/stdlib/src/fmt) includes content from the `{fmt}`
 library, available at https://github.com/fmtlib/fmt, licensed under the MIT
 license. Copyright (c) 2012 - present, Victor Zverovich and `{fmt}`

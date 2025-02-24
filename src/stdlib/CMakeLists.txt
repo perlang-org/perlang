@@ -37,6 +37,12 @@ set(text_headers
         src/text/string_builder.h
 )
 
+set(tsl_headers
+        src/tsl/ordered_hash.h
+        src/tsl/ordered_map.h
+        src/tsl/ordered_set.h
+)
+
 add_library(
         stdlib
         src/ascii_string.cc
@@ -150,6 +156,11 @@ install(
 install(
         FILES ${text_headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/text"
+)
+
+install(
+        FILES ${tsl_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/tsl"
 )
 
 # The testing code is not yet ready for macOS, since it uses a different linker which doesn't support --wrap.

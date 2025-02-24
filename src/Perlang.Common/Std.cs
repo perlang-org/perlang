@@ -17,6 +17,10 @@ using __IntPtr = global::System.IntPtr;
 
 namespace Std
 {
+}
+
+namespace Std
+{
     namespace Allocator
     {
         [StructLayout(LayoutKind.Sequential, Size = 1)]
@@ -202,6 +206,27 @@ namespace Std
 
 namespace Std
 {
+    namespace SharedCount
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public unsafe partial struct __Internal
+        {
+            internal __IntPtr _M_pi;
+        }
+    }
+}
+
+namespace Std
+{
+    namespace SharedPtr
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public unsafe partial struct __Internal
+        {
+            internal __IntPtr _M_ptr;
+            internal global::Std.SharedCount.__Internal _M_refcount;
+        }
+    }
 }
 
 namespace Std
@@ -487,6 +512,51 @@ namespace Std
             var ___ret = __Internal.Data(__arg0);
             return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
         }
+    }
+}
+
+namespace Std
+{
+    namespace Vector
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 24)]
+        public unsafe partial struct __Internal
+        {
+            internal global::Std.VectorBase.VectorImpl.__Internal _M_impl;
+        }
+    }
+
+    namespace VectorBase
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 24)]
+        public unsafe partial struct __Internal
+        {
+            internal global::Std.VectorBase.VectorImpl.__Internal _M_impl;
+        }
+
+        namespace VectorImpl
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 24)]
+            public unsafe partial struct __Internal
+            {
+                internal __IntPtr _M_start;
+                internal __IntPtr _M_finish;
+                internal __IntPtr _M_end_of_storage;
+            }
+
+        }
+
+        namespace VectorImplData
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 24)]
+            public unsafe partial struct __Internal
+            {
+                internal __IntPtr _M_start;
+                internal __IntPtr _M_finish;
+                internal __IntPtr _M_end_of_storage;
+            }
+        }
+
     }
 }
 

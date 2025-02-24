@@ -5,7 +5,7 @@
 	docs-validate-api-docs install install-latest-snapshot perlang_cli_clean perlang_cli_install_debug \
 	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
-	test test-stdlib valgrind-test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
+	test valgrind-test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
 
@@ -178,12 +178,18 @@ perlang_cli_install_integration_test_release: perlang_cli
 test:
 	dotnet test --configuration Release
 
+.PHONY: test-stdlib
 test-stdlib: stdlib
 # We need --colour-mode since colour support is not auto-detected in CI.
 	src/stdlib/out/tests --reporter console::out=-::colour-mode=ansi $(EXTRA_CATCH_REPORTER)
 
 valgrind-test-stdlib: stdlib
 	$(VALGRIND) src/stdlib/out/tests
+
+.PHONY: test-perlang-cli
+test-perlang-cli: perlang_cli
+# We need --colour-mode since colour support is not auto-detected in CI.
+	src/perlang_cli/out/tests --reporter console::out=-::colour-mode=ansi $(EXTRA_CATCH_REPORTER)
 
 #
 # Steps for publishing a new release:

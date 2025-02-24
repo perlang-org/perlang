@@ -52,6 +52,7 @@ build-freebsd:
 
     - gmake perlang_cli
     - gmake stdlib
+    - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
     when: always
@@ -79,6 +80,7 @@ build-netbsd:
 
     - gmake perlang_cli
     - gmake stdlib
+    - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
     when: always
@@ -99,13 +101,14 @@ build-openbsd:
     - openbsd
 
   script:
-    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
-    # have a more recent timestamp.
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
+    # files have a more recent timestamp.
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
     - gmake perlang_cli
     - gmake stdlib
+    - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
     when: always
@@ -132,6 +135,11 @@ valgrind-run-hello-world-example:
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
+    # files have a more recent timestamp.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
     - make stdlib
     - make valgrind-perlang-run-hello-world-example
   rules:
@@ -209,6 +217,12 @@ docs-test-examples:
     - make auto-generated
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
     - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish
+
+    # "Fake it till you make it". This is necessary to avoid failures trying
+    # to regenerate our .cc file if the .per files have a more
+    # recent timestamp.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
 
     # Ensure examples execute without errors
     - make docs-test-examples SHELL="sh -x -e"

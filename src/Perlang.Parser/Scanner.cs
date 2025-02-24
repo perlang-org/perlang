@@ -25,7 +25,7 @@ namespace Perlang.Parser
     {
         // NOTE: When making changes here, remember to adjust highlightjs-perlang.js also to ensure syntax highlighting
         // on the website matches the real set of keywords in the language.
-        public static readonly IDictionary<string, TokenType> ReservedKeywords =
+        private static readonly Dictionary<string, TokenType> ReservedKeywordsDictionary =
             new Dictionary<string, TokenType>
             {
                 // Currently supported keywords
@@ -112,7 +112,10 @@ namespace Perlang.Parser
                 { "nameof", RESERVED_WORD },
                 { "typeof", RESERVED_WORD },
                 { "asm", RESERVED_WORD }
-            }.ToImmutableDictionary();
+            };
+
+        private static StringTokenTypeDictionary ReservedKeywords => ReservedKeywordsDictionary
+            .ToPerlangStringTokenTypeDictionary();
 
         public static IEnumerable<string> ReservedTypeKeywordStrings =>
             new List<string>
@@ -138,7 +141,7 @@ namespace Perlang.Parser
         {
             get
             {
-                reservedKeywordOnlyStrings ??= ReservedKeywords
+                reservedKeywordOnlyStrings ??= ReservedKeywordsDictionary
                     .Where(kvp => kvp.Value == RESERVED_WORD)
                     .Select(kvp => kvp.Key)
                     .ToImmutableHashSet();
@@ -404,7 +407,7 @@ namespace Perlang.Parser
 
             // See if the identifier is a reserved word.
             string text = source[start..current];
-            var type = ReservedKeywords.ContainsKey(text) ? ReservedKeywords[text] : IDENTIFIER;
+            var type = ReservedKeywords.ContainsKey(text) ? ReservedKeywords.Get(text) : IDENTIFIER;
 
             AddToken(type);
         }

@@ -27,11 +27,16 @@ internal class PerlangCliLibrary : ILibrary
         options.GeneratorKind = GeneratorKind.CSharp;
         options.OutputDir = "src/Perlang.Common";
 
+        // Useful when debugging, but generates loads of output.
+        //options.Verbose = true;
+
         var module = options.AddModule("PerlangCli");
+        module.SharedLibraryName = "perlang_cli";
         module.OutputNamespace = "";
         module.IncludeDirs.Add("src/perlang_cli/src");
         module.IncludeDirs.Add("src/stdlib/src");
-        module.Headers.Add("perlang_cli.cc");
+        module.Headers.Add("perlang_cli.h");
+        module.Headers.Add("string_token_type_dictionary.h");
     }
 
     public void SetupPasses(Driver driver)

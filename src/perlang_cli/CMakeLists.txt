@@ -1,10 +1,22 @@
 cmake_minimum_required(VERSION 3.5)
 project(perlang_cli VERSION 0.1.0)
 
+Include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.7.1
+)
+
+FetchContent_MakeAvailable(Catch2)
+
 add_library(
         perlang_cli SHARED
+        src/mutable_string_token_type_dictionary.cc
         src/perlang_cli_preprocessed.cc
         src/stdlib_wrappers.cc
+        src/string_token_type_dictionary.cc
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13
@@ -42,3 +54,25 @@ install(
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
+
+set(TEST_SRC
+        test/mutable_string_token_type_dictionary.cc
+)
+
+add_executable(
+        tests
+        ${TEST_SRC}
+)
+
+target_include_directories(
+        tests
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+)
+
+target_link_directories(
+        tests
+        PRIVATE "../../lib/stdlib/lib"
+)
+
+target_link_libraries(tests PRIVATE perlang_cli)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)

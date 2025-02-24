@@ -16,13 +16,13 @@ public unsafe partial class perlang_cli
 {
     public partial struct __Internal
     {
-        [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "native_main", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "native_main", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void NativeMain(int argc, sbyte** argv);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_Z15perlang_versionv", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z15perlang_versionv", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void PerlangVersion();
 
-        [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_Z24perlang_detailed_versionv", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24perlang_detailed_versionv", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void PerlangDetailedVersion();
     }
 
@@ -136,15 +136,15 @@ namespace Perlang
             internal ulong length_;
             internal byte owned_;
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang11ASCIIStringeqERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang11ASCIIStringeqERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
             internal static extern bool OperatorEqualEqual(__IntPtr __instance, __IntPtr rhs);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang11ASCIIStringneERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang11ASCIIStringneERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
             internal static extern bool OperatorExclaimEqual(__IntPtr __instance, __IntPtr rhs);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang11ASCIIStringixEm", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang11ASCIIStringixEm", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern sbyte OperatorSubscript(__IntPtr __instance, ulong index);
         }
 
@@ -160,7 +160,7 @@ namespace Perlang
 
         internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.ASCIIString managed)
         {
-    
+
             return NativeToManagedMap.TryGetValue(native, out managed);
         }
 
@@ -312,7 +312,7 @@ namespace Perlang
             private static CppSharp.Runtime.VTables VTables;
             private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
                 SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
-                
+
             static VTableLoader()
             {
                 _dtorDelegateInstance += _dtorDelegateHook;
@@ -386,11 +386,11 @@ namespace Perlang
             internal byte owned_;
             internal global::Std.UniquePtr.__Internalc__N_std_S_unique_ptr__b___N_std_S_default_delete__b is_ascii_;
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang10UTF8StringeqERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang10UTF8StringeqERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
             internal static extern bool OperatorEqualEqual(__IntPtr __instance, __IntPtr rhs);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang10UTF8StringneERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang10UTF8StringneERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
             internal static extern bool OperatorExclaimEqual(__IntPtr __instance, __IntPtr rhs);
         }
@@ -407,7 +407,7 @@ namespace Perlang
 
         internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.UTF8String managed)
         {
-    
+
             return NativeToManagedMap.TryGetValue(native, out managed);
         }
 
@@ -550,7 +550,7 @@ namespace Perlang
             private static CppSharp.Runtime.VTables VTables;
             private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
                 SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
-                
+
             static VTableLoader()
             {
                 _dtorDelegateInstance += _dtorDelegateHook;
@@ -622,13 +622,13 @@ namespace Perlang
             internal ulong length_;
             internal byte owned_;
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang8IntArrayC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang8IntArrayC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang8IntArrayD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang8IntArrayD2Ev", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void dtor(__IntPtr __instance);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang8IntArrayixEm", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang8IntArrayixEm", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern int OperatorSubscript(__IntPtr __instance, ulong index);
         }
 
@@ -644,7 +644,7 @@ namespace Perlang
 
         internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IntArray managed)
         {
-    
+
             return NativeToManagedMap.TryGetValue(native, out managed);
         }
 
@@ -745,13 +745,13 @@ namespace Perlang
             internal ulong length_;
             internal byte owned_;
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang11StringArrayC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang11StringArrayC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang11StringArrayD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang11StringArrayD2Ev", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void dtor(__IntPtr __instance);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang11StringArray6lengthEv", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang11StringArray6lengthEv", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern ulong Length(__IntPtr __instance);
         }
 
@@ -767,7 +767,7 @@ namespace Perlang
 
         internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.StringArray managed)
         {
-    
+
             return NativeToManagedMap.TryGetValue(native, out managed);
         }
 
@@ -866,7 +866,7 @@ namespace Perlang
             [StructLayout(LayoutKind.Sequential, Size = 1)]
             public partial struct __Internal
             {
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang2io4FileC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang2io4FileC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
             }
 
@@ -882,7 +882,7 @@ namespace Perlang
 
             internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Io.File managed)
             {
-    
+
                 return NativeToManagedMap.TryGetValue(native, out managed);
             }
 
@@ -984,16 +984,16 @@ namespace Perlang
                 internal uint current_position_;
                 internal uint length_;
 
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang4text13StringBuilderC2Ev", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text13StringBuilderC2Ev", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void ctor(__IntPtr __instance);
 
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang4text13StringBuilderC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text13StringBuilderC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
 
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang4text13StringBuilderD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text13StringBuilderD2Ev", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void dtor(__IntPtr __instance);
 
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZNK7perlang4text13StringBuilder6lengthEv", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang4text13StringBuilder6lengthEv", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern uint Length(__IntPtr __instance);
             }
 
@@ -1009,7 +1009,7 @@ namespace Perlang
 
             internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Text.StringBuilder managed)
             {
-    
+
                 return NativeToManagedMap.TryGetValue(native, out managed);
             }
 
@@ -1114,31 +1114,31 @@ namespace Perlang
     {
         public partial struct __Internal
         {
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printERKNS_11ASCIIStringE", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printERKNS_11ASCIIStringE", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print(__IntPtr str);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEb", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEb", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print(bool b);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEc", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEc", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_1(sbyte c);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEi", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEi", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_2(int i);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEj", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEj", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_3(uint u);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEl", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEl", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_4(long i);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEm", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEm", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_5(ulong i);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEf", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEf", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_6(float f);
 
-            [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang5printEd", CallingConvention = __CallingConvention.Cdecl)]
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEd", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_7(double d);
         }
 
@@ -1198,7 +1198,7 @@ namespace Perlang
             [StructLayout(LayoutKind.Sequential, Size = 1)]
             public partial struct __Internal
             {
-                [SuppressUnmanagedCodeSecurity, DllImport("PerlangCli", EntryPoint = "_ZN7perlang6stdlib6Base64C2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang6stdlib6Base64C2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
             }
 
@@ -1214,7 +1214,7 @@ namespace Perlang
 
             internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Stdlib.Base64 managed)
             {
-    
+
                 return NativeToManagedMap.TryGetValue(native, out managed);
             }
 
@@ -1301,8 +1301,630 @@ namespace Perlang
     }
 }
 
+public unsafe partial class StringTokenTypeDictionary : IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 136)]
+    public partial struct __Internal
+    {
+        internal global::Tsl.OrderedMap.__Internalc__N_tsl_S_ordered_map____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___S_string_hasher___S_string_comparer___N_std_S_allocator____N_std_S_pair__S0__S2____N_std_S_deque__S6__S5__i data_;
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN25StringTokenTypeDictionaryC2ER32MutableStringTokenTypeDictionary", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void ctor(__IntPtr __instance, __IntPtr _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN25StringTokenTypeDictionaryC2ERKS_", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void cctor_1(__IntPtr __instance, __IntPtr _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN25StringTokenTypeDictionaryD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void dtor(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN25StringTokenTypeDictionary12contains_keyEPKc", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ContainsKey(__IntPtr __instance, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN25StringTokenTypeDictionary3getEPKc", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern global::Perlang.TokenType Get(__IntPtr __instance, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string _0);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringTokenTypeDictionary> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringTokenTypeDictionary>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::StringTokenTypeDictionary managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringTokenTypeDictionary managed)
+    {
+
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::StringTokenTypeDictionary __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::StringTokenTypeDictionary(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::StringTokenTypeDictionary __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::StringTokenTypeDictionary)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::StringTokenTypeDictionary __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::StringTokenTypeDictionary(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        global::StringTokenTypeDictionary.__Internal.cctor_1(ret, new __IntPtr(&native));
+        return ret.ToPointer();
+    }
+
+    private StringTokenTypeDictionary(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected StringTokenTypeDictionary(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+    }
+
+    public StringTokenTypeDictionary(global::MutableStringTokenTypeDictionary _0)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringTokenTypeDictionary.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        if (ReferenceEquals(_0, null))
+            throw new global::System.ArgumentNullException("_0", "Cannot be null because it is a C++ reference (&).");
+        var __arg0 = _0.__Instance;
+        __Internal.ctor(__Instance, __arg0);
+    }
+
+    public StringTokenTypeDictionary(global::StringTokenTypeDictionary _0)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringTokenTypeDictionary.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        if (ReferenceEquals(_0, null))
+            throw new global::System.ArgumentNullException("_0", "Cannot be null because it is a C++ reference (&).");
+        var __arg0 = _0.__Instance;
+        __Internal.cctor_1(__Instance, __arg0);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        DisposePartial(disposing);
+        if (callNativeDtor)
+            __Internal.dtor(__Instance);
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+
+    public bool ContainsKey(string _0)
+    {
+        var ___ret = __Internal.ContainsKey(__Instance, _0);
+        return ___ret;
+    }
+
+    public global::Perlang.TokenType Get(string _0)
+    {
+        var ___ret = __Internal.Get(__Instance, _0);
+        return ___ret;
+    }
+
+    public static implicit operator global::StringTokenTypeDictionary(global::MutableStringTokenTypeDictionary _0)
+    {
+        return new global::StringTokenTypeDictionary(_0);
+    }
+}
+
+namespace Tsl
+{
+    namespace DetailOrderedHash
+    {
+    }
+}
+
+namespace Tsl
+{
+}
+
+public unsafe partial class StringHasher : IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 1)]
+    public partial struct __Internal
+    {
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN13string_hasherC2ERKS_", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringHasher> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringHasher>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::StringHasher managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringHasher managed)
+    {
+
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::StringHasher __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::StringHasher(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::StringHasher __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::StringHasher)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::StringHasher __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::StringHasher(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        *(__Internal*) ret = native;
+        return ret.ToPointer();
+    }
+
+    private StringHasher(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected StringHasher(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+    }
+
+    public StringHasher()
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringHasher.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    public StringHasher(global::StringHasher _0)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringHasher.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        *((global::StringHasher.__Internal*) __Instance) = *((global::StringHasher.__Internal*) _0.__Instance);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        DisposePartial(disposing);
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+}
+
+public unsafe partial class StringComparer : IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 1)]
+    public partial struct __Internal
+    {
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN15string_comparerC2ERKS_", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringComparer> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::StringComparer>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::StringComparer managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringComparer managed)
+    {
+
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::StringComparer __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::StringComparer(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::StringComparer __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::StringComparer)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::StringComparer __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::StringComparer(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        *(__Internal*) ret = native;
+        return ret.ToPointer();
+    }
+
+    private StringComparer(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected StringComparer(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+    }
+
+    public StringComparer()
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringComparer.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    public StringComparer(global::StringComparer _0)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::StringComparer.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        *((global::StringComparer.__Internal*) __Instance) = *((global::StringComparer.__Internal*) _0.__Instance);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        DisposePartial(disposing);
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+}
+
+public unsafe partial class MutableStringTokenTypeDictionary : IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 136)]
+    public partial struct __Internal
+    {
+        internal global::Tsl.OrderedMap.__Internalc__N_tsl_S_ordered_map____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___S_string_hasher___S_string_comparer___N_std_S_allocator____N_std_S_pair__S0__S2____N_std_S_deque__S6__S5__i data_;
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionaryC2Ev", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void ctor(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionaryC2ERKS_", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionaryD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void dtor(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionary3addEPKcN9TokenType9TokenTypeE", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void Add(__IntPtr __instance, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string _0, global::Perlang.TokenType _1);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionary12contains_keyEPKc", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ContainsKey(__IntPtr __instance, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN32MutableStringTokenTypeDictionary3getEPKc", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern global::Perlang.TokenType Get(__IntPtr __instance, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string _0);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::MutableStringTokenTypeDictionary> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::MutableStringTokenTypeDictionary>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::MutableStringTokenTypeDictionary managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::MutableStringTokenTypeDictionary managed)
+    {
+
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::MutableStringTokenTypeDictionary __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::MutableStringTokenTypeDictionary(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::MutableStringTokenTypeDictionary __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::MutableStringTokenTypeDictionary)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::MutableStringTokenTypeDictionary __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::MutableStringTokenTypeDictionary(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        global::MutableStringTokenTypeDictionary.__Internal.cctor(ret, new __IntPtr(&native));
+        return ret.ToPointer();
+    }
+
+    private MutableStringTokenTypeDictionary(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected MutableStringTokenTypeDictionary(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+    }
+
+    public MutableStringTokenTypeDictionary()
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::MutableStringTokenTypeDictionary.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        __Internal.ctor(__Instance);
+    }
+
+    public MutableStringTokenTypeDictionary(global::MutableStringTokenTypeDictionary _0)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::MutableStringTokenTypeDictionary.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        if (ReferenceEquals(_0, null))
+            throw new global::System.ArgumentNullException("_0", "Cannot be null because it is a C++ reference (&).");
+        var __arg0 = _0.__Instance;
+        __Internal.cctor(__Instance, __arg0);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        DisposePartial(disposing);
+        if (callNativeDtor)
+            __Internal.dtor(__Instance);
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+
+    public void Add(string _0, global::Perlang.TokenType _1)
+    {
+        __Internal.Add(__Instance, _0, _1);
+    }
+
+    public bool ContainsKey(string _0)
+    {
+        var ___ret = __Internal.ContainsKey(__Instance, _0);
+        return ___ret;
+    }
+
+    public global::Perlang.TokenType Get(string _0)
+    {
+        var ___ret = __Internal.Get(__Instance, _0);
+        return ___ret;
+    }
+}
+
 namespace Delegates
 {
     [SuppressUnmanagedCodeSecurity, UnmanagedFunctionPointer(__CallingConvention.Cdecl)]
     internal unsafe delegate void Action___IntPtr(__IntPtr __instance);
+}
+
+namespace Std
+{
+    namespace pair
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 24)]
+        public unsafe partial struct __Internalc__N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType
+        {
+            internal global::Std.SharedPtr.__Internal first;
+            internal global::Perlang.TokenType second;
+        }
+    }
+
+}
+namespace Std
+{
+    namespace Deque
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 80)]
+        public unsafe partial struct __Internalc__N_std_S_deque____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_
+        {
+            internal global::Std.DequeBase.DequeImpl.__Internalc__N_std_S__Deque_base____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_ _M_impl;
+        }
+    }
+
+}
+namespace Std
+{
+    namespace DequeBase
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 80)]
+        public unsafe partial struct __Internalc__N_std_S__Deque_base____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_
+        {
+            internal global::Std.DequeBase.DequeImpl.__Internalc__N_std_S__Deque_base____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_ _M_impl;
+        }
+
+        namespace DequeImpl
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 80)]
+            public unsafe partial struct __Internalc__N_std_S__Deque_base____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_
+            {
+                internal __IntPtr _M_map;
+                internal ulong _M_map_size;
+                internal global::Std.DequeIterator.__Internalc__N_std_S__Deque_iterator____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType__S0___S0_ _M_start;
+                internal global::Std.DequeIterator.__Internalc__N_std_S__Deque_iterator____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType__S0___S0_ _M_finish;
+            }
+
+        }
+
+        namespace DequeImplData
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 80)]
+            public unsafe partial struct __Internalc__N_std_S__Deque_base____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_
+            {
+                internal __IntPtr _M_map;
+                internal ulong _M_map_size;
+                internal global::Std.DequeIterator.__Internalc__N_std_S__Deque_iterator____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType__S0___S0_ _M_start;
+                internal global::Std.DequeIterator.__Internalc__N_std_S__Deque_iterator____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType__S0___S0_ _M_finish;
+            }
+        }
+
+    }
+
+}
+namespace Tsl
+{
+    namespace DetailOrderedHash
+    {
+        namespace OrderedHash
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 136)]
+            public unsafe partial struct __Internalc__N_tsl_N_detail_ordered_hash_S_ordered_hash____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_tsl_S_ordered_map__S1__S3____S_string_hasher___S_string_comparer___N_std_S_allocator__S0____N_std_S_deque__S0__S7__i_S_KeySelect___N_tsl_S_ordered_map__S1__S3__S5__S6__S7__S8__i_S_ValueSelect_S5__S6__S7__S8__i
+            {
+                internal global::Std.Vector.__Internal m_buckets_data;
+                internal __IntPtr m_buckets;
+                internal ulong m_hash_mask;
+                internal global::Std.Deque.__Internalc__N_std_S_deque____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_std_S_allocator__S0_ m_values;
+                internal ulong m_load_threshold;
+                internal float m_max_load_factor;
+                internal byte m_grow_on_next_insert;
+            }
+        }
+
+    }
+}
+namespace Tsl
+{
+    namespace OrderedMap
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 136)]
+        public unsafe partial struct __Internalc__N_tsl_S_ordered_map____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___S_string_hasher___S_string_comparer___N_std_S_allocator____N_std_S_pair__S0__S2____N_std_S_deque__S6__S5__i
+        {
+            internal global::Tsl.DetailOrderedHash.OrderedHash.__Internalc__N_tsl_N_detail_ordered_hash_S_ordered_hash____N_std_S_pair____N_std_S_shared_ptr____N_perlang_S_String___N_TokenType_E_TokenType___N_tsl_S_ordered_map__S1__S3____S_string_hasher___S_string_comparer___N_std_S_allocator__S0____N_std_S_deque__S0__S7__i_S_KeySelect___N_tsl_S_ordered_map__S1__S3__S5__S6__S7__S8__i_S_ValueSelect_S5__S6__S7__S8__i m_ht;
+        }
+
+        namespace KeySelect
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 1)]
+            public unsafe partial struct __Internal
+            {
+            }
+        }
+
+    }
 }
