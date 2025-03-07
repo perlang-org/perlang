@@ -107,14 +107,17 @@ namespace Perlang.Tests.Integration.ReservedKeywords
 
         public static IEnumerable<object[]> GetReservedWords() =>
             Scanner.ReservedKeywordStrings
+                .Values
                 .Select(s => new object[] { s });
 
         public static IEnumerable<object[]> GetTypeReservedWords() =>
             Scanner.ReservedTypeKeywordStrings
+                .Values
                 .Select(s => new object[] { s });
 
         public static IEnumerable<object[]> GetReservedWordsOnly() =>
             Scanner.ReservedKeywordOnlyStrings
+                .Values
                 .Select(s => new object[] { s });
     }
 }

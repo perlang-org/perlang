@@ -134,7 +134,7 @@ static T numeric_cast(U value,
   return ret;
 }
 
-/**
+/*
  * Fixed size type used to represent size_type values on serialization. Need to
  * be big enough to represent a std::size_t on 32 and 64 bits platforms, and
  * must be the same size on both platforms.

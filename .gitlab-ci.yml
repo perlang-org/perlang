@@ -31,8 +31,8 @@ build-perlang-cli:
     - make perlang_cli_clean perlang_cli
 
     # Finally, ensure that the generated C++ is identical to the file(s) in the repo. These should never diff; if they
-    # do, the developer must run 'make perlang_cli_clean perlang_cli' locally and commit the changes.
-    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources:" && git diff --color=always && exit 1)'
+    # do, the developer must run the given command locally and commit the changes.
+    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources. Run `make perlang_cli_clean perlang_cli` to regenerate it/them." && git diff --color=always && exit 1)'
 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

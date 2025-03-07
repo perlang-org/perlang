@@ -25,6 +25,11 @@ set(headers
         src/utf8_string.h
 )
 
+set(collections_headers
+        src/collections/mutable_string_hash_set.h
+        src/collections/string_hash_set.h
+)
+
 set(io_headers
         src/io/file.h
 )
@@ -35,6 +40,7 @@ set(libtommath_headers
 
 set(text_headers
         src/text/string_builder.h
+        src/text/string_hashing.h
 )
 
 set(tsl_headers
@@ -55,6 +61,9 @@ add_library(
         src/print.cc
         src/string_array.cc
         src/utf8_string.cc
+
+        src/collections/mutable_string_hash_set.cc
+        src/collections/string_hash_set.cc
 
         src/io/file.cc
 
@@ -141,6 +150,11 @@ install(
 install(
         FILES ${headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+        FILES ${collections_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/collections"
 )
 
 install(

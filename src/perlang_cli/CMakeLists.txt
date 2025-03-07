@@ -35,14 +35,11 @@ target_compile_options(
         perlang_cli PRIVATE -Wall -Wextra -Werror -ggdb
 )
 
-target_link_directories(
+# This is necessary to avoid the linker from dropping symbols from the libstdlib.a that are not explicitly used by
+# perlang_cli, but we need to include them because some of them are used via P/Invoke
+target_link_options(
         perlang_cli
-        PRIVATE "../../lib/stdlib/lib"
-)
-
-target_link_libraries(
-        perlang_cli
-        "stdlib"
+        PRIVATE -Wl,--whole-archive ../../../lib/stdlib/lib/libstdlib.a -Wl,--no-whole-archive
 )
 
 include(GNUInstallDirs)

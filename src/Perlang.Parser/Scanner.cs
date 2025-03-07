@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using Perlang.Collections;
 using Perlang.Native;
 using static Perlang.TokenType;
 
@@ -117,7 +117,7 @@ namespace Perlang.Parser
         private static StringTokenTypeDictionary ReservedKeywords => ReservedKeywordsDictionary
             .ToPerlangStringTokenTypeDictionary();
 
-        public static IEnumerable<string> ReservedTypeKeywordStrings =>
+        public static StringHashSet ReservedTypeKeywordStrings =>
             new List<string>
             {
                 // Some type-related keywords are actually not marked as reserved words in ReservedKeywords,
@@ -132,28 +132,27 @@ namespace Perlang.Parser
                 "float",
                 "double",
                 "string"
-            }.ToImmutableHashSet();
+            }.ToPerlangStringHashSet();
 
-        private static ISet<string> reservedKeywordOnlyStrings;
+        private static StringHashSet reservedKeywordOnlyStrings;
 
         // Returns only the "proper" reserved keywords, not include the "reserved type keywords" listed above.
-        public static ISet<string> ReservedKeywordOnlyStrings
+        public static StringHashSet ReservedKeywordOnlyStrings
         {
             get
             {
                 reservedKeywordOnlyStrings ??= ReservedKeywordsDictionary
                     .Where(kvp => kvp.Value == RESERVED_WORD)
                     .Select(kvp => kvp.Key)
-                    .ToImmutableHashSet();
+                    .ToPerlangStringHashSet();
 
                 return reservedKeywordOnlyStrings;
             }
         }
 
-        public static IEnumerable<string> ReservedKeywordStrings =>
+        public static StringHashSet ReservedKeywordStrings =>
             ReservedKeywordOnlyStrings
-                .Concat(ReservedTypeKeywordStrings)
-                .ToImmutableHashSet();
+                .Concat(ReservedTypeKeywordStrings);
 
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;

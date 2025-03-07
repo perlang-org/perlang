@@ -44,6 +44,10 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<UTF8String> from_copied_string(const char* str, size_t length);
 
+        // Public constructor for initializing an empty UTF8String. Necessary for being able to create an array of
+        // UTF8String instances.
+        UTF8String();
+
      private:
         // Private constructor for creating a new UTF8String from a C-style (NUL-terminated) string. The `owned`
         // parameter indicates whether the UTF8String should take ownership of the memory it points to, and thus be

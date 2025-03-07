@@ -42,7 +42,7 @@ endif
 
 CLANGPP=clang++-14
 
-all: auto-generated perlang_cli
+all: auto-generated auto-generated-bindings perlang_cli
 	dotnet build
 
 release:

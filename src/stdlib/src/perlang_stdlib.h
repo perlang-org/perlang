@@ -5,7 +5,7 @@
 // header files) so that the generated code will find all the necessary definitions.
 
 #include <memory> // std::shared_ptr
-#include <stdint.h>
+#include <cstdint>
 
 #include "ascii_string.h"
 #include "bigint.h"
@@ -13,6 +13,9 @@
 #include "perlang_string.h"
 #include "string_array.h"
 #include "utf8_string.h"
+
+#include "collections/mutable_string_hash_set.h"
+#include "collections/string_hash_set.h"
 
 #include "io/file.h"
 

@@ -52,6 +52,13 @@ namespace perlang
         return std::unique_ptr<UTF8String>(result);
     }
 
+    UTF8String::UTF8String()
+    {
+        bytes_ = std::unique_ptr<const char[]>(nullptr);
+        length_ = 0;
+        owned_ = false;
+    }
+
     UTF8String::UTF8String(const char* string, size_t length, bool owned)
     {
         bytes_ = std::unique_ptr<const char[]>(string);

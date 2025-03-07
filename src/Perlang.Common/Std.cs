@@ -517,6 +517,10 @@ namespace Std
 
 namespace Std
 {
+}
+
+namespace Std
+{
     namespace Vector
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -558,8 +562,4 @@ namespace Std
         }
 
     }
-}
-
-namespace Std
-{
 }
