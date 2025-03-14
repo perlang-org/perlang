@@ -1701,7 +1701,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 classDefinitionBuilder.Append($"~{stmt.Name.Lexeme}(");
             }
             else {
-                classDefinitionBuilder.Append($"{method.ReturnTypeReference.CppType!.TypeName} {method.Name.Lexeme}(");
+                classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.Name.Lexeme}(");
             }
 
             for (int i = 0; i < method.Parameters.Count; i++) {

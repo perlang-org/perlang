@@ -35,6 +35,28 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void class_can_be_instantiated_and_instance_method_can_return_string()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public greet(): string
+                    {
+                        return "Hello World being returned from class instance method";
+                    }
+                }
+
+                var greeter = new Greeter();
+                print greeter.greet();
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello World being returned from class instance method");
+        }
+
+        [Fact]
         public void class_can_be_instantiated_and_instance_method_can_be_called_with_parameter()
         {
             string source = """
