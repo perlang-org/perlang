@@ -10,7 +10,7 @@ internal class VariableBindingFactory : IBindingFactory
     /// an unresolved type reference, which is the state of a TypeReference before type inference has taken place.
     ///
     /// It is also different from a `null` value, since `null` values are sometimes used to indicate that no
-    /// variable with a given name could be find in the current scope, or any of its ancestors.
+    /// variable with a given name could be found in the current scope, or any of its ancestors.
     /// </summary>
     public static VariableBindingFactory None { get; } = new VariableBindingFactory(null);
 

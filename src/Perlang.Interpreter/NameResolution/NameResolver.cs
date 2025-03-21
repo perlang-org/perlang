@@ -22,19 +22,19 @@ internal class NameResolver : VisitorBase
     private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
-    /// An instance-local list of scopes. The innermost scope is always the last entry in this list. As the code is
-    /// being traversed, scopes are created and removed as blocks are opened/closed.
-    /// </summary>
-    private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
-
-    private readonly Dictionary<Stmt, Dictionary<string, IBindingFactory>> stmtScopes = new Dictionary<Stmt, Dictionary<string, IBindingFactory>>();
-
-    /// <summary>
-    /// An instance-local list of global symbols (variables, functions etc).
+    /// An instance-local list of global symbols (variables, functions etc.)
     /// </summary>
     private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
 
     internal IDictionary<string, IBindingFactory> Globals => globals;
+
+    /// <summary>
+    /// An instance-local list of scopes (for local symbols). The innermost scope is always the last entry in this list.
+    /// As the code is being traversed, scopes are created and removed as blocks are opened/closed.
+    /// </summary>
+    private readonly List<IDictionary<string, IBindingFactory>> scopes = new List<IDictionary<string, IBindingFactory>>();
+
+    private readonly Dictionary<Stmt, Dictionary<string, IBindingFactory>> stmtScopes = new Dictionary<Stmt, Dictionary<string, IBindingFactory>>();
 
     private FunctionType currentFunction = FunctionType.NONE;
     private bool firstPass = true;
@@ -148,10 +148,10 @@ internal class NameResolver : VisitorBase
     /// <summary>
     /// Defines a previously declared variable as initialized, available for use.
     /// </summary>
-    /// <param name="name">The variable or function name.</param>
+    /// <param name="name">The variable.</param>
     /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
     /// <exception cref="ArgumentException">`typeReference` is null.</exception>
-    private void Define(Token name, ITypeReference typeReference)
+    private void DefineVariable(string name, ITypeReference typeReference)
     {
         if (typeReference == null)
         {
@@ -160,7 +160,7 @@ internal class NameResolver : VisitorBase
 
         if (IsEmpty(scopes))
         {
-            globals[name.Lexeme] = new VariableBindingFactory(typeReference);
+            globals[name] = new VariableBindingFactory(typeReference);
             return;
         }
 
@@ -168,7 +168,7 @@ internal class NameResolver : VisitorBase
         // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
         // function return type and function statement (in case of a function being defined). These details are
         // useful later on, in the static type analysis.
-        scopes.Last()[name.Lexeme] = new VariableBindingFactory(typeReference);
+        scopes.Last()[name] = new VariableBindingFactory(typeReference);
     }
 
     /// <summary>
@@ -212,6 +212,16 @@ internal class NameResolver : VisitorBase
 
         globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
         addGlobalClassCallback(name.Lexeme, perlangClass);
+    }
+
+    private void DefineThis(Stmt.Class classStmt, PerlangClass perlangClass)
+    {
+        DefineVariable("this", classStmt.TypeReference);
+
+        // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
+        // we don't have the PerlangClass instance available in the TypeResolver class right now.
+        classStmt.TypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
+        classStmt.TypeReference.SetPerlangClass(perlangClass);
     }
 
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
@@ -340,13 +350,6 @@ internal class NameResolver : VisitorBase
         return VoidObject.Void;
     }
 
-    public override VoidObject VisitThisExpr(Expr.This expr)
-    {
-        ResolveLocalOrGlobal(expr, expr.Keyword);
-
-        return VoidObject.Void;
-    }
-
     public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         Resolve(expr.Right);
@@ -417,6 +420,10 @@ internal class NameResolver : VisitorBase
         // explicit `this.` prefix.
         BeginScope(stmt);
 
+        // Make the current class available to its methods, using both explicit `this.foo()` and implicit `foo()`
+        // notations.
+        DefineThis(stmt, perlangClass);
+
         foreach (Stmt.Function method in stmt.Methods) {
             VisitFunctionStmt(method);
         }
@@ -445,10 +452,8 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
     {
-        if (stmt.Name != null) {
-            Declare(stmt.Name);
-            DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
-        }
+        Declare(stmt.Name);
+        DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
 
         ResolveFunction(stmt, FunctionType.FUNCTION);
 
@@ -465,7 +470,7 @@ internal class NameResolver : VisitorBase
         foreach (Parameter param in function.Parameters)
         {
             Declare(param.Name);
-            Define(param.Name, new TypeReference(param.TypeSpecifier, param.IsArray));
+            DefineVariable(param.Name.Lexeme, new TypeReference(param.TypeSpecifier, param.IsArray));
         }
 
         Resolve(function.Body);
@@ -517,7 +522,7 @@ internal class NameResolver : VisitorBase
             Resolve(stmt.Initializer);
         }
 
-        Define(stmt.Name, stmt.TypeReference);
+        DefineVariable(stmt.Name.Lexeme, stmt.TypeReference);
 
         return VoidObject.Void;
     }

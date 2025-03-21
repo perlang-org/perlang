@@ -57,6 +57,29 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void inferred_variable_can_be_initialized_with_instance_method_result()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public greet(): string
+                    {
+                        return "Hello World being returned from class instance method";
+                    }
+                }
+
+                var greeter = new Greeter();
+                var result = greeter.greet();
+                print result;
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello World being returned from class instance method");
+        }
+
+        [Fact]
         public void class_can_be_instantiated_and_instance_method_can_be_called_with_parameter()
         {
             string source = """
@@ -76,6 +99,107 @@ namespace Perlang.Tests.Integration.Classes
 
             output.Should()
                 .Be("Hello World, Bob");
+        }
+
+        [Fact]
+        public void string_and_instance_method_result_can_be_concatenated()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public get_greeting(): string
+                    {
+                        return "Bob";
+                    }
+                }
+
+                var greeter = new Greeter();
+                print "Hello, " + greeter.get_greeting();
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello, Bob");
+        }
+
+        [Fact]
+        public void instance_method_result_can_be_assigned_to_inferred_variable()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public get_greeting(): string
+                    {
+                        return "Hello, Bob";
+                    }
+                }
+
+                var greeter = new Greeter();
+                var greeting = greeter.get_greeting();
+
+                print greeting;
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello, Bob");
+        }
+
+        [Fact]
+        public void instance_method_result_can_be_assigned_to_explicitly_typed_variable()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public get_greeting(): string
+                    {
+                        return "Hello, Bob";
+                    }
+                }
+
+                var greeter = new Greeter();
+                var greeting: string = greeter.get_greeting();
+
+                print greeting;
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello, Bob");
+        }
+
+        [Fact]
+        public void instance_method_can_call_other_instance_method_with_explicit_this_prefix()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public say_hello(): void
+                    {
+                        print("Hello");
+                        this.say_world();
+                    }
+
+                    public say_world(): void
+                    {
+                        print("World");
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello",
+                    "World"
+                );
         }
 
         [Fact]
@@ -113,34 +237,27 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
-        public void instance_method_can_call_other_instance_method_with_explicit_this_prefix()
+        public void instance_method_calling_non_existent_instance_method_with_explicit_this_prefix_throws_expected_error()
         {
             string source = """
-                public class Greeter
+                public class TestClass
                 {
-                    public say_hello(): void
+                    public calls_non_existent_method(): void
                     {
-                        print("Hello");
-                        this.say_world();
-                    }
-
-                    public say_world(): void
-                    {
-                        print("World");
+                        this.does_not_exist();
                     }
                 }
 
-                var greeter = new Greeter();
-                greeter.say_hello();
+                var test_class = new TestClass();
+                test_class.calls_non_existent_method();
                 """;
 
-            var output = EvalReturningOutput(source);
+            var result = EvalWithValidationErrorCatch(source);
 
-            output.Should()
-                .Equal(
-                    "Hello",
-                    "World"
-                );
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Failed to locate method 'does_not_exist' in class 'TestClass'");
         }
 
         [Fact]
@@ -175,19 +292,21 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
-        public void class_can_define_custom_constructor()
+        public void instance_method_can_initialize_explicitly_typed_variable_with_result_from_another_instance_method()
         {
             string source = """
                 public class Greeter
                 {
-                    public constructor()
-                    {
-                        print("Hello from constructor");
-                    }
-
                     public say_hello(): void
                     {
-                        print("Hello from say_hello");
+                        print("The world");
+                        var greeting: string = this.say_world();
+                        print greeting;
+                    }
+
+                    public say_world(): string
+                    {
+                        return "is not enough";
                     }
                 }
 
@@ -199,8 +318,96 @@ namespace Perlang.Tests.Integration.Classes
 
             output.Should()
                 .Equal(
-                    "Hello from constructor",
-                    "Hello from say_hello"
+                    "The world",
+                    "is not enough"
+                );
+        }
+
+        [Fact]
+        public void instance_method_can_initialize_explicitly_typed_variable_with_result_from_another_instance_method_without_this_prefix()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public say_hello(): void
+                    {
+                        print("The world");
+                        var greeting: string = say_world();
+                        print greeting;
+                    }
+
+                    public say_world(): string
+                    {
+                        return "is not enough";
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "The world",
+                    "is not enough"
+                );
+        }
+
+        [Fact]
+        public void instance_method_can_initialize_inferred_variable_with_result_from_another_instance_method()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public greet(): void
+                    {
+                        print("The world");
+
+                        var greeting = this.get_second_part();
+                        print greeting;
+                    }
+
+                    public get_second_part(): string
+                    {
+                        return "is not enough";
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.greet();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "The world",
+                    "is not enough"
+                );
+        }
+
+        [Fact]
+        public void class_can_define_custom_constructor()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public constructor()
+                    {
+                        print("Hello from constructor");
+                    }
+                }
+
+                var greeter = new Greeter();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from constructor"
                 );
         }
 
@@ -214,23 +421,16 @@ namespace Perlang.Tests.Integration.Classes
                     {
                         print("Hello from constructor, " + name);
                     }
-
-                    public say_hello(): void
-                    {
-                        print("Hello from say_hello");
-                    }
                 }
 
                 var greeter = new Greeter("Alice");
-                greeter.say_hello();
                 """;
 
             var output = EvalReturningOutput(source);
 
             output.Should()
                 .Equal(
-                    "Hello from constructor, Alice",
-                    "Hello from say_hello"
+                    "Hello from constructor, Alice"
                 );
         }
 

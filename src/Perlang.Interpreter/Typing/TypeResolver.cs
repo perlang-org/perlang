@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Humanizer;
+using Perlang.Compiler;
 using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
@@ -796,8 +797,17 @@ namespace Perlang.Interpreter.Typing
                     // changes, the code below will have to be revisited.
                     var firstMatchingMethod = methods.First();
 
-                    expr.TypeReference.SetClrType(firstMatchingMethod.ReturnTypeReference.ClrType);
-                    expr.TypeReference.SetCppType(firstMatchingMethod.ReturnTypeReference.CppType);
+                    // Duplicating this logic here since for forward references (methods defined later in the class),
+                    // types resolving will not have taken place at this point.
+                    if (!firstMatchingMethod.ReturnTypeReference.IsResolved)
+                    {
+                        ResolveExplicitTypes(firstMatchingMethod.ReturnTypeReference);
+                    }
+
+                    expr.TypeReference.SetClrType(firstMatchingMethod.ReturnTypeReference.ClrType ?? throw new PerlangCompilerException($"Internal compiler error: CLR type was null for return type of method '{expr.Name.Lexeme}' in class '{perlangClass.Name}'"));
+                    expr.TypeReference.SetCppType(firstMatchingMethod.ReturnTypeReference.CppType ?? throw new PerlangCompilerException($"Internal compiler error: C++ type was null for return type of method '{expr.Name.Lexeme}' in class '{perlangClass.Name}'"));
+
+                    // This being null is a valid case, since we might not be returning a Perlang-defined type.
                     expr.TypeReference.SetPerlangClass(firstMatchingMethod.ReturnTypeReference.PerlangClass);
                 }
                 else {
@@ -860,7 +870,6 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            // TODO: Mark this type reference with metadata about the instantiated class.
             expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, WrapInSharedPtr: true));
             expr.TypeReference.SetPerlangClass(classBinding.PerlangClass);
 

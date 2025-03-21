@@ -1486,11 +1486,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         return result.ToString();
     }
 
-    public object? VisitThisExpr(Expr.This expr)
-    {
-        throw new NotImplementedException();
-    }
-
     public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         using var result = NativeStringBuilder.Create();
@@ -1598,15 +1593,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
                 // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling a method
                 // on it.
+                //
+                // Note that this code path is used for 'this' invocations as well, resulting in 'this->method_name()'.
+                // Because the name of the identifier is 'this', this works similarly as calling a method on any other
+                // variable.
                 result.Append($"{identifier.Name.Lexeme}{callOperator}{expr.Name.Lexeme}");
             }
             else
             {
-                // TODO: Should support global constants here at least! We just need to make them exist in the C++ based
-                // TODO: stdlib and define where in the C++ realm the Perlang global variables are to exist.
-
-                // TODO: We need to differentiate here between different kind of identifiers.
-                throw new NotImplementedInCompiledModeException($"Calling methods on {identifier} is not yet implemented in compiled mode");
+                throw new PerlangCompilerException($"Internal compiler error: identifier.TypeReference.CppType was unexpectedly null for {identifier}");
             }
         }
         else if (expr.Object is Expr.Grouping or Expr.Index)
@@ -1618,13 +1613,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             result.Append(expr.Object.Accept(this));
 
             result.Append('.');
-            result.Append(expr.Name.Lexeme);
-        }
-        else if (expr.Object is Expr.This)
-        {
-            // The Perlang `this` keyword maps very cleanly to the C++ `this` keyword, as can be seen below.
-            result.Append("this");
-            result.Append("->");
             result.Append(expr.Name.Lexeme);
         }
         else

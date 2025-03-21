@@ -122,11 +122,6 @@ namespace Perlang
             return VoidObject.Void;
         }
 
-        public virtual VoidObject VisitThisExpr(Expr.This expr)
-        {
-            return VoidObject.Void;
-        }
-
         public virtual VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
         {
             Visit(expr.Right);

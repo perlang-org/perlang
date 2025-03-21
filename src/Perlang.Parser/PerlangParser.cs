@@ -460,7 +460,8 @@ namespace Perlang.Parser
 
             Consume(RIGHT_BRACE, "Expect '}' after class body.");
 
-            return new Stmt.Class(name, visibility, methods);
+            var typeReference = new TypeReference(name, isArray: false);
+            return new Stmt.Class(name, visibility, methods, typeReference);
         }
 
         private Stmt.Function Function(string kind)
@@ -890,7 +891,9 @@ namespace Perlang.Parser
 
             if (Match(THIS))
             {
-                return new Expr.This(Previous());
+                // We don't use any separate expression type for 'this', but just puts 'this' as a regular local variable
+                // in the current scope.
+                return new Expr.Identifier(Previous());
             }
 
             if (Match(IDENTIFIER))

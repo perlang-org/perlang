@@ -42,11 +42,14 @@ namespace Perlang
             public Token Name { get; }
             public List<Function> Methods { get; }
             public Visibility Visibility { get; }
+            public TypeReference TypeReference { get; }
 
-            public Class(Token name, Visibility visibility, List<Function> methods)
+            public Class(Token name, Visibility visibility, List<Function> methods, TypeReference typeReference)
             {
                 Name = name;
+                Visibility = visibility;
                 Methods = methods;
+                TypeReference = typeReference;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)

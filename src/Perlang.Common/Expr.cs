@@ -26,7 +26,6 @@ namespace Perlang
             TR VisitCollectionInitializerExpr(CollectionInitializer collectionInitializer);
             TR VisitLiteralExpr(Literal expr);
             TR VisitLogicalExpr(Logical expr);
-            TR VisitThisExpr(This expr);
             TR VisitUnaryPrefixExpr(UnaryPrefix expr);
             TR VisitUnaryPostfixExpr(UnaryPostfix expr);
             TR VisitIdentifierExpr(Identifier expr);
@@ -321,22 +320,6 @@ namespace Perlang
             }
         }
 
-        public class This : Expr, ITokenAware
-        {
-            public Token Keyword { get; }
-            public Token Token => Keyword;
-
-            public This(Token keyword)
-            {
-                this.Keyword = keyword;
-            }
-
-            public override TR Accept<TR>(IVisitor<TR> visitor)
-            {
-                return visitor.VisitThisExpr(this);
-            }
-        }
-
         /// <summary>
         /// Represents unary prefix expressions. Examples of such expressions are `!flag` and `-10`. Note that prefix
         /// increment and decrement are currently not supported.
@@ -440,6 +423,9 @@ namespace Perlang
             }
 
             public Token Token => Name;
+
+            public override string ToString() =>
+                $"{Object}.{Name}";
         }
 
         public abstract TR Accept<TR>(IVisitor<TR> visitor);
