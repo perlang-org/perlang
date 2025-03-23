@@ -37,16 +37,18 @@ namespace Perlang
             }
         }
 
-        public class Class : Stmt
+        public class Class : Stmt, IPerlangClass
         {
-            public Token Name { get; }
+            public string Name { get; }
+            public Token NameToken { get; }
             public List<Function> Methods { get; }
             public Visibility Visibility { get; }
             public TypeReference TypeReference { get; }
 
             public Class(Token name, Visibility visibility, List<Function> methods, TypeReference typeReference)
             {
-                Name = name;
+                Name = name.Lexeme;
+                NameToken = name;
                 Visibility = visibility;
                 Methods = methods;
                 TypeReference = typeReference;
@@ -56,6 +58,9 @@ namespace Perlang
             {
                 return visitor.VisitClassStmt(this);
             }
+
+            public override string ToString() =>
+                Name;
         }
 
         /// <summary>

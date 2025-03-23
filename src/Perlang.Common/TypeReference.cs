@@ -54,7 +54,7 @@ namespace Perlang
             cppType = value;
         }
 
-        public void SetPerlangClass(PerlangClass? perlangClass) =>
+        public void SetPerlangClass(IPerlangClass? perlangClass) =>
             PerlangClass = perlangClass;
 
         private readonly bool isArray;
@@ -114,7 +114,7 @@ namespace Perlang
         public bool CppWrapInSharedPtr =>
             CppType?.WrapInSharedPtr ?? throw new PerlangCompilerException("Internal compiler error: cppType was unexpectedly null");
 
-        public PerlangClass? PerlangClass { get; private set; }
+        public IPerlangClass? PerlangClass { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type

@@ -75,7 +75,7 @@ namespace Perlang.Tests.Interpreter.Resolution
             throw runtimeError;
         }
 
-        private static void AssertFailAddGlobalClassHandler(string name, PerlangClass perlangClass)
+        private static void AssertFailAddGlobalClassHandler(string name, IPerlangClass perlangClass)
         {
             throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
         }

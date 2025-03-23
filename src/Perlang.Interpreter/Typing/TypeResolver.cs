@@ -690,7 +690,7 @@ namespace Perlang.Interpreter.Typing
 
             if (binding is ClassBinding)
             {
-                expr.TypeReference.SetClrType(typeof(PerlangClass));
+                expr.TypeReference.SetClrType(typeof(IPerlangClass));
             }
             else
             {
@@ -730,7 +730,7 @@ namespace Perlang.Interpreter.Typing
                 null)
             {
                 Type? type = expr.Object.TypeReference.ClrType;
-                PerlangClass? perlangClass = expr.Object.TypeReference.PerlangClass;
+                IPerlangClass? perlangClass = expr.Object.TypeReference.PerlangClass;
 
                 if (type == null && perlangClass == null)
                 {

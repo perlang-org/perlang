@@ -18,7 +18,7 @@ namespace Perlang.Interpreter.NameResolution;
 internal class NameResolver : VisitorBase
 {
     private readonly IBindingHandler bindingHandler;
-    private readonly Action<string, PerlangClass> addGlobalClassCallback;
+    private readonly Action<string, IPerlangClass> addGlobalClassCallback;
     private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
@@ -53,7 +53,7 @@ internal class NameResolver : VisitorBase
         IImmutableDictionary<string, Type> globalClasses,
         IImmutableDictionary<string, Type> superGlobals,
         IBindingHandler bindingHandler,
-        Action<string, PerlangClass> addGlobalClassCallback,
+        Action<string, IPerlangClass> addGlobalClassCallback,
         NameResolutionErrorHandler nameResolutionErrorHandler)
     {
         this.bindingHandler = bindingHandler;
@@ -197,7 +197,7 @@ internal class NameResolver : VisitorBase
         scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
     }
 
-    private void DefineClass(Token name, PerlangClass perlangClass)
+    private void DefineClass(Token name, IPerlangClass perlangClass)
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
@@ -214,7 +214,7 @@ internal class NameResolver : VisitorBase
         addGlobalClassCallback(name.Lexeme, perlangClass);
     }
 
-    private void DefineThis(Stmt.Class classStmt, PerlangClass perlangClass)
+    private void DefineThis(Stmt.Class classStmt, IPerlangClass perlangClass)
     {
         DefineVariable("this", classStmt.TypeReference);
 
@@ -410,11 +410,9 @@ internal class NameResolver : VisitorBase
     {
         // TODO: Implement resolution related to classes: handle fields defined in the class, etc.
 
-        Declare(stmt.Name);
+        Declare(stmt.NameToken);
 
-        var perlangClass = new PerlangClass(stmt.Name.Lexeme, stmt.Methods);
-
-        DefineClass(stmt.Name, perlangClass);
+        DefineClass(stmt.NameToken, stmt);
 
         // This part (creating a scope, visiting the functions like this) is needed to be able to call methods without
         // explicit `this.` prefix.
@@ -422,7 +420,7 @@ internal class NameResolver : VisitorBase
 
         // Make the current class available to its methods, using both explicit `this.foo()` and implicit `foo()`
         // notations.
-        DefineThis(stmt, perlangClass);
+        DefineThis(stmt, stmt);
 
         foreach (Stmt.Function method in stmt.Methods) {
             VisitFunctionStmt(method);

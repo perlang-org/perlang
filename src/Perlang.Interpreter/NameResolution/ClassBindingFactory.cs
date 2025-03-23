@@ -4,11 +4,11 @@ namespace Perlang.Interpreter.NameResolution;
 
 internal class ClassBindingFactory : IBindingFactory
 {
-    private readonly PerlangClass perlangClass;
+    private readonly IPerlangClass perlangClass;
 
     public string ObjectType => "class";
 
-    public ClassBindingFactory(PerlangClass perlangClass)
+    public ClassBindingFactory(IPerlangClass perlangClass)
     {
         this.perlangClass = perlangClass ?? throw new ArgumentException("perlangClass cannot be null");
     }

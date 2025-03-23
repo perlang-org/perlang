@@ -55,7 +55,7 @@ namespace Perlang
         /// <summary>
         /// Gets a value for the <see cref="PerlangClass"/> that this <see cref="ITypeReference"/> refers to.
         /// </summary>
-        PerlangClass? PerlangClass { get; }
+        IPerlangClass? PerlangClass { get; }
 
         /// <summary>
         /// Gets a value indicating whether the type reference contains an explicit type specifier or not. If this is
@@ -127,6 +127,6 @@ namespace Perlang
         /// internally.</remarks>
         void SetCppType(CppType? value);
 
-        void SetPerlangClass(PerlangClass? perlangClass);
+        void SetPerlangClass(IPerlangClass? perlangClass);
     }
 }

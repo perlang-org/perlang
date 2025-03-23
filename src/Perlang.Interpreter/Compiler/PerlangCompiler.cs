@@ -908,7 +908,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         return (string)stmt.Accept(this);
     }
 
-    private void AddGlobalClass(string name, PerlangClass perlangClass)
+    private void AddGlobalClass(string name, IPerlangClass perlangClass)
     {
         globalClasses[name] = perlangClass;
     }
@@ -1672,7 +1672,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         var previousClass = currentClass;
         currentClass = stmt;
 
-        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name.Lexeme}} {""");
+        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} {""");
 
         // We make all methods `public` on the C++ side for now with this single `public` clause; there is no way to
         // define methods as `private` or `internal` anyway yet.
@@ -1683,10 +1683,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             classDefinitionBuilder.Append(Indent(1));
 
             if (method.IsConstructor) {
-                classDefinitionBuilder.Append($"{stmt.Name.Lexeme}(");
+                classDefinitionBuilder.Append($"{stmt.Name}(");
             }
             else if (method.IsDestructor) {
-                classDefinitionBuilder.Append($"~{stmt.Name.Lexeme}(");
+                classDefinitionBuilder.Append($"~{stmt.Name}(");
             }
             else {
                 classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.Name.Lexeme}(");
@@ -1705,13 +1705,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
             // Implementation
             if (method.IsConstructor) {
-                classImplementationBuilder.Append($"{stmt.Name.Lexeme}::{stmt.Name.Lexeme}(");
+                classImplementationBuilder.Append($"{stmt.Name}::{stmt.Name}(");
             }
             else if (method.IsDestructor) {
-                classImplementationBuilder.Append($"{stmt.Name.Lexeme}::~{stmt.Name.Lexeme}(");
+                classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
             }
             else {
-                classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name.Lexeme}::{method.Name.Lexeme}(");
+                classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.Name.Lexeme}(");
             }
 
             for (int i = 0; i < method.Parameters.Count; i++) {
@@ -1732,8 +1732,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         classDefinitionBuilder.AppendLine("};");
 
-        classDefinitions[stmt.Name.Lexeme] = classDefinitionBuilder.ToString();
-        classImplementations[stmt.Name.Lexeme] = classImplementationBuilder.ToString();
+        classDefinitions[stmt.Name] = classDefinitionBuilder.ToString();
+        classImplementations[stmt.Name] = classImplementationBuilder.ToString();
 
         currentClass = previousClass;
 
