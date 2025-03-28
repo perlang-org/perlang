@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
+using Perlang.Compiler;
 
 namespace Perlang
 {
     public abstract class Expr
     {
         public ITypeReference TypeReference { get; }
+        public virtual string FullName => throw new NotImplementedException($"FullName should be implemented for {this.GetType().Name}");
 
         private Expr()
         {
@@ -54,7 +56,7 @@ namespace Perlang
             /// Gets the identifier which is the target of the assignment. For example, in the `a = 42` expression, `a` is the
             /// identifier.
             /// </summary>
-            public new Identifier Identifier { get; }
+            public Expr Target { get; }
 
             /// <summary>
             /// Gets the value being assigned. Can be either a compile-time constant or an expression with a dynamic
@@ -63,13 +65,19 @@ namespace Perlang
             public Expr Value { get; }
 
             /// <summary>
-            /// Gets the name of the identifier being assigned to.
+            /// Gets the name of the identifier being assigned to. Note that in error messages and similar, the <see
+            /// cref="TargetNameString"/> is typically preferably since it supports <c>foo.bar.baz</c> notation for field
+            /// access.
             /// </summary>
-            public Token Name => Identifier.Name;
+            public Token TargetName => (Target as Identifier)?.Name ?? (Target as Get)?.Name ??
+                throw new PerlangCompilerException($"Internal error: Assignment target is of unexpected type: {Target}");
 
-            public Assign(Identifier identifier, Expr value)
+            public string TargetNameString =>
+                Target.FullName;
+
+            public Assign(Expr target, Expr value)
             {
-                Identifier = identifier;
+                Target = target;
                 Value = value;
             }
 
@@ -80,10 +88,10 @@ namespace Perlang
 
             public override string ToString()
             {
-                return $"#<Assign {Identifier} = {Value}>";
+                return $"#<Assign {Target} = {Value}>";
             }
 
-            public Token Token => Name;
+            public Token Token => TargetName;
         }
 
         public class Binary : Expr, ITokenAware
@@ -390,6 +398,8 @@ namespace Perlang
                 $"#<Identifier {Name.Lexeme}>";
 
             public Token Token => Name;
+
+            public override string FullName => Name.Lexeme;
         }
 
         public class Get : Expr, ITokenAware
@@ -423,6 +433,7 @@ namespace Perlang
             }
 
             public Token Token => Name;
+            public override string FullName => Object.FullName + "." + Name.Lexeme;
 
             public override string ToString()
             {

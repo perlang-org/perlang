@@ -42,8 +42,8 @@ namespace Perlang.Interpreter.Immutability
             if (binding?.IsImmutable == true)
             {
                 immutabilityValidationErrorCallback(new ImmutabilityValidationError(
-                    expr.Name,
-                    $"{binding.ObjectTypeTitleized} '{expr.Name.Lexeme}' is immutable and cannot be modified."
+                    expr.TargetName,
+                    $"{binding.ObjectTypeTitleized} '{expr.TargetNameString}' is immutable and cannot be modified."
                 ));
             }
 

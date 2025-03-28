@@ -100,7 +100,7 @@ namespace Perlang.Interpreter.Typing
             }
 
             // Only a certain set of type combinations are supported with these operators. We validate the operands here
-            // to be able to provide "compile-time" error checking rather than runtime checking.
+            // to be able to provide good error messages, rather than leaving it to clang to catch these errors.
 
             switch (expr.Operator.Type)
             {
@@ -482,21 +482,30 @@ namespace Perlang.Interpreter.Typing
                     );
                 }
             }
-
-            ITypeReference? typeReference = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr)?.TypeReference;
-
-            if (typeReference == null)
+            else if (expr.Callee is Expr.Identifier)
             {
-                throw new TypeValidationError(
-                    expr.Paren,
-                    $"Internal compiler error: Failed to locate type reference for {expr.CalleeToString}"
-                );
+                ITypeReference? typeReference = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr)?.TypeReference;
+
+                if (typeReference == null)
+                {
+                    throw new TypeValidationError(
+                        expr.Paren,
+                        $"Internal compiler error: Failed to locate type reference for {expr.CalleeToString}"
+                    );
+                }
+                else
+                {
+                    expr.TypeReference.SetClrType(typeReference.ClrType);
+                    expr.TypeReference.SetCppType(typeReference.CppType);
+                    expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
+                }
             }
             else
             {
-                expr.TypeReference.SetClrType(typeReference.ClrType);
-                expr.TypeReference.SetCppType(typeReference.CppType);
-                expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
+                throw new TypeValidationError(
+                    expr.Paren,
+                    $"Internal compiler error: Unsupported callee expression type encountered: {expr.CalleeToString}"
+                );
             }
 
             return VoidObject.Void;
@@ -692,14 +701,13 @@ namespace Perlang.Interpreter.Typing
             {
                 expr.TypeReference.SetClrType(typeof(IPerlangClass));
             }
+            else if (binding == null)
+            {
+                throw new NameResolutionTypeValidationError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
+            }
             else
             {
-                ITypeReference? typeReference = binding?.TypeReference;
-
-                if (typeReference == null)
-                {
-                    throw new NameResolutionTypeValidationError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
-                }
+                ITypeReference typeReference = binding.TypeReference ?? throw new PerlangCompilerException($"Internal compiler error: Type reference unexpectedly null for binding for '{expr.Name.Lexeme}'");
 
                 if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
                 {
@@ -735,8 +743,8 @@ namespace Perlang.Interpreter.Typing
                 if (type == null && perlangClass == null)
                 {
                     // This is a legitimate code path in cases where a method call is attempted on an unknown type, like
-                    // `var f: Foo; f.some_method()`. In this case, the ClrType will be null for the given `expr.Object`
-                    // type reference.
+                    // in the test var_of_non_existent_type_with_initializer_emits_expected_error. In this case, the
+                    // ClrType will be null for the given `expr.Object` type reference.
                     return VoidObject.Void;
                 }
 
@@ -778,6 +786,27 @@ namespace Perlang.Interpreter.Typing
                     expr.TypeReference.SetClrType(methods.First().ReturnType);
                 }
                 else if (perlangClass != null) {
+                    var field = perlangClass.Fields
+                        .SingleOrDefault(f => f.Name.Lexeme == expr.Name.Lexeme);
+
+                    if (field != null) {
+                        // Duplicating this logic here since for forward references (methods referring to fields definer
+                        // later in the class). I wouldn't recommend writing the code like that, but it's still something
+                        // that we don't want to cause the compilation to fail for.
+                        if (!field.TypeReference.IsResolved)
+                        {
+                            ResolveExplicitTypes(field.TypeReference);
+                        }
+
+                        expr.TypeReference.SetClrType(field.TypeReference.ClrType ?? throw new PerlangCompilerException($"Internal compiler error: CLR type was null for field '{expr.Name.Lexeme}' in class '{perlangClass.Name}'"));
+                        expr.TypeReference.SetCppType(field.TypeReference.CppType ?? throw new PerlangCompilerException($"Internal compiler error: C++ type was null for field '{expr.Name.Lexeme}' in class '{perlangClass.Name}'"));
+
+                        // This being null is a valid case, since we might not be returning a Perlang-defined type.
+                        expr.TypeReference.SetPerlangClass(field.TypeReference.PerlangClass);
+
+                        return VoidObject.Void;
+                    }
+
                     var methods = perlangClass.Methods
                         .Where(m => m.Name.Lexeme == expr.Name.Lexeme)
                         .ToImmutableArray();
@@ -785,7 +814,7 @@ namespace Perlang.Interpreter.Typing
                     if (methods.IsEmpty) {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.Name,
-                            $"Failed to locate method '{expr.Name.Lexeme}' in class '{perlangClass.Name}'")
+                            $"Failed to locate symbol '{expr.Name.Lexeme}' in class '{perlangClass.Name}'")
                         );
 
                         return VoidObject.Void;
@@ -922,6 +951,16 @@ namespace Perlang.Interpreter.Typing
             }
 
             return base.VisitFunctionStmt(stmt);
+        }
+
+        public override VoidObject VisitFieldStmt(Stmt.Field stmt)
+        {
+            if (!stmt.TypeReference.IsResolved)
+            {
+                ResolveExplicitTypes(stmt.TypeReference);
+            }
+
+            return base.VisitFieldStmt(stmt);
         }
 
         public override VoidObject VisitVarStmt(Stmt.Var stmt)

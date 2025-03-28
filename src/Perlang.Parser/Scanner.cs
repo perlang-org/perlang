@@ -49,7 +49,9 @@ namespace Perlang.Parser
                 { "while", WHILE },
 
                 // Visibility, static/instance, etc
+                { "mutable", MUTABLE },
                 { "public", PUBLIC },
+                { "private", PRIVATE },
 
                 //
                 // Currently not supported keywords, but reserved for future use
@@ -76,7 +78,6 @@ namespace Perlang.Parser
                 { "char", RESERVED_WORD },
 
                 // Visibility, static/instance, etc
-                { "private", RESERVED_WORD },
                 { "protected", RESERVED_WORD },
                 { "internal", RESERVED_WORD },
                 { "static", RESERVED_WORD },
@@ -104,9 +105,7 @@ namespace Perlang.Parser
                 { "synchronized", RESERVED_WORD },
 
                 // Reserved keywords "for future use"
-                { "mut", RESERVED_WORD },
                 { "let", RESERVED_WORD },
-                { "const", RESERVED_WORD },
                 { "struct", RESERVED_WORD },
                 { "sizeof", RESERVED_WORD },
                 { "nameof", RESERVED_WORD },

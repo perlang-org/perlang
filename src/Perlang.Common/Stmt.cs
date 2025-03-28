@@ -15,6 +15,7 @@ namespace Perlang
             TR VisitEnumStmt(Enum stmt);
             TR VisitExpressionStmt(ExpressionStmt stmt);
             TR VisitFunctionStmt(Function stmt);
+            TR VisitFieldStmt(Field stmt);
             TR VisitIfStmt(If stmt);
             TR VisitPrintStmt(Print stmt);
             TR VisitReturnStmt(Return stmt);
@@ -41,16 +42,18 @@ namespace Perlang
         {
             public string Name { get; }
             public Token NameToken { get; }
-            public List<Function> Methods { get; }
             public Visibility Visibility { get; }
+            public List<Function> Methods { get; }
+            public List<Field> Fields { get; }
             public TypeReference TypeReference { get; }
 
-            public Class(Token name, Visibility visibility, List<Function> methods, TypeReference typeReference)
+            public Class(Token name, Visibility visibility, List<Function> methods, List<Field> fields, TypeReference typeReference)
             {
                 Name = name.Lexeme;
                 NameToken = name;
                 Visibility = visibility;
                 Methods = methods;
+                Fields = fields;
                 TypeReference = typeReference;
             }
 
@@ -79,22 +82,25 @@ namespace Perlang
             {
                 return visitor.VisitExpressionStmt(this);
             }
+
+            public override string? ToString() =>
+                Expression.ToString();
         }
 
         public class Function : Stmt
         {
             public Token Name { get; }
+            public Visibility Visibility { get; }
             public ImmutableList<Parameter> Parameters { get; }
             public ImmutableList<Stmt> Body { get; }
             public ITypeReference ReturnTypeReference { get; }
             public bool IsConstructor { get; set; }
             public bool IsDestructor { get; set; }
 
-            public Function(
-                Token name, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
-                bool isConstructor, bool isDestructor
-            ) {
-                Name = name;
+            public Function(Token name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
+                bool isConstructor, bool isDestructor) {
+                Name = name ?? throw new System.ArgumentNullException(nameof(name));
+                Visibility = visibility;
                 Parameters = parameters.ToImmutableList();
                 Body = body.ToImmutableList();
                 ReturnTypeReference = returnTypeReference;
@@ -111,6 +117,29 @@ namespace Perlang
             {
                 // TODO: Include parameters here as well.
                 return $"fun {Name.Lexeme}(): {ReturnTypeReference.ClrType}";
+            }
+        }
+
+        public class Field : Stmt
+        {
+            public Token Name { get; }
+            public Visibility Visibility { get; }
+            public bool IsMutable { get; }
+            public Expr? Initializer { get; }
+            public ITypeReference TypeReference { get; }
+
+            public Field(Token name, Visibility visibility, bool isMutable, Expr? initializer, ITypeReference typeReference)
+            {
+                Name = name;
+                Visibility = visibility;
+                IsMutable = isMutable;
+                Initializer = initializer;
+                TypeReference = typeReference;
+            }
+
+            public override TR Accept<TR>(IVisitor<TR> visitor)
+            {
+                return visitor.VisitFieldStmt(this);
             }
         }
 

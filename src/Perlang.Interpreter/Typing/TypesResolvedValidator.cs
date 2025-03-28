@@ -39,6 +39,26 @@ namespace Perlang.Interpreter.Typing
         // Expr visitors
         //
 
+        public override VoidObject VisitBinaryExpr(Expr.Binary expr)
+        {
+            base.VisitBinaryExpr(expr);
+
+            if (!expr.TypeReference.IsResolved)
+            {
+                // TODO: Undersök varför vi hamnar här. Det verkar som att typen för ett objekt i Expr.This-kontext inte
+                // TODO: blir rätt i TypeResolver. Varför? Funkar detta för metodanrop i binary expressions i vår
+                // TODO: befintliga master-branch? Validera detta, och försök förstå varför field-access i så fall beter
+                // TODO: sig annorlunda.
+
+                TypeValidationErrorCallback(new TypeValidationError(
+                    expr.Token,
+                    $"Internal compiler error: '{expr}' inference has not been attempted"
+                ));
+            }
+
+            return VoidObject.Void;
+        }
+
         public override VoidObject VisitCallExpr(Expr.Call expr)
         {
             if (expr.Callee is Expr.Get get)
@@ -343,6 +363,44 @@ namespace Perlang.Interpreter.Typing
             return base.VisitFunctionStmt(stmt);
         }
 
+        public override VoidObject VisitFieldStmt(Stmt.Field stmt)
+        {
+            if (!stmt.TypeReference.IsResolved)
+            {
+                TypeValidationErrorCallback(new TypeValidationError(
+                    stmt.Name,
+                    $"Internal compiler error: type for field '{stmt.Name.Lexeme}' has not been resolved"
+                ));
+            }
+
+            if (stmt.Initializer != null && !stmt.Initializer.TypeReference.IsResolved)
+            {
+                TypeValidationErrorCallback(new TypeValidationError(
+                    stmt.Name,
+                    $"Internal compiler error: type for field '{stmt.Name.Lexeme}' initializer has not been resolved"
+                ));
+            }
+
+            if (stmt.Initializer != null)
+            {
+                if (!TypeCoercer.CanBeCoercedInto(stmt.TypeReference, stmt.Initializer.TypeReference, (stmt.Initializer as Expr.Literal)?.Value as INumericLiteral))
+                {
+                    // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
+                    TypeValidationErrorCallback(new TypeValidationError(
+                        stmt.Name,
+                        $"Cannot assign {stmt.Initializer.TypeReference.ClrType.ToTypeKeyword()} to {stmt.TypeReference.ClrType.ToTypeKeyword()} field"
+                    ));
+                }
+                else if (stmt.Initializer.TypeReference.IsNullObject)
+                {
+                    // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
+                    compilerWarningCallback(new CompilerWarning("Initializing field to null detected", stmt.Name, WarningType.NULL_USAGE));
+                }
+            }
+
+            return base.VisitFieldStmt(stmt);
+        }
+
         public override VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
             bool sanityCheckFailed = false;
@@ -377,17 +435,6 @@ namespace Perlang.Interpreter.Typing
         public override VoidObject VisitVarStmt(Stmt.Var stmt)
         {
             bool sanityCheckFailed = false;
-
-            // Sanity check the input to ensure that we don't get NullReferenceExceptions later on
-            if (stmt.TypeReference == null)
-            {
-                TypeValidationErrorCallback(new TypeValidationError(
-                    stmt.Name,
-                    $"Internal compiler error: {stmt.Name.Lexeme} is missing a TypeReference"
-                ));
-
-                sanityCheckFailed = true;
-            }
 
             if (stmt.Initializer != null && !stmt.Initializer.TypeReference.IsResolved)
             {
@@ -459,7 +506,7 @@ namespace Perlang.Interpreter.Typing
             if (expr.Value.TypeReference.IsNullObject)
             {
                 // TODO: Use expr.Value.Token here instead of expr.name, #189
-                compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.Name, WarningType.NULL_USAGE));
+                compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.TargetName, WarningType.NULL_USAGE));
             }
 
             return VoidObject.Void;

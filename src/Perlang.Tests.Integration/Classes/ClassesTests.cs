@@ -172,6 +172,33 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void assigning_instance_method_void_result_to_variable_emits_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public get_greeting(): void
+                    {
+                    }
+                }
+
+                var greeter = new Greeter();
+
+                // This line is expected to fail in the C++ compilation, since the return type will be inferred to 'void'.
+                // In the future, we could catch this on the Perlang side and produce a pretty(er) error message, but the
+                // important part right is not that we at least catch it _somewhere_.
+                var greeting = greeter.get_greeting();
+                """;
+
+            var result = EvalWithCppCompilationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("error: variable has incomplete type 'void'");
+        }
+
+        [Fact]
         public void instance_method_can_call_other_instance_method_with_explicit_this_prefix()
         {
             string source = """
@@ -257,7 +284,7 @@ namespace Perlang.Tests.Integration.Classes
             result.Errors.Should()
                 .ContainSingle()
                 .Which
-                .Message.Should().Contain("Failed to locate method 'does_not_exist' in class 'TestClass'");
+                .Message.Should().Contain("Failed to locate symbol 'does_not_exist' in class 'TestClass'");
         }
 
         [Fact]
@@ -432,6 +459,235 @@ namespace Perlang.Tests.Integration.Classes
                 .Equal(
                     "Hello from constructor, Alice"
                 );
+        }
+
+        [Fact]
+        public void defining_immutable_field_throws_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    private name_: string;
+                }
+                """;
+
+            var result = EvalWithParseErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("immutable fields are not yet supported");
+        }
+
+        [Fact]
+        public void class_can_define_mutable_private_fields()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // Suffix is technically not necessary, but it makes it easier to look at the scopes in the debugger
+                    // when there are less things with similar names. We have a separate test which validates that
+                    // shadowing works as intended.
+                    private mutable name_: string;
+                    private mutable age_: int;
+
+                    public constructor(name: string, age: int)
+                    {
+                        this.name_ = name;
+                        this.age_ = age;
+                    }
+
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + this.name_ + ", " + this.age_);
+                    }
+                }
+
+                var greeter = new Greeter("Bob", 42);
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from say_hello, Bob, 42"
+                );
+        }
+
+        [Fact]
+        public void class_can_define_private_fields_with_default_values()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // TODO: Remove the 'mutable' keyword here when we support immutable fields
+                    private mutable name: string = "Bob";
+                    private mutable age: int = 42;
+
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + this.name + ", " + this.age);
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from say_hello, Bob, 42"
+                );
+        }
+
+        [Fact]
+        public void defining_fields_with_incoercible_value_throws_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // TODO: Remove mutable specifier when supported
+
+                    // The initializer (42) is not implicitly coercible to string
+                    private mutable name: string = 42;
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Cannot assign int to string field");
+        }
+
+        [Fact]
+        public void fields_can_be_accessed_without_this_prefix()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // TODO: Should be able to be immutable, when we support initializing immutable fields from
+                    // constructor.
+                    private mutable name: string;
+
+                    public constructor(name: string)
+                    {
+                        // Print before assignment, to ensure the parameters take precedence over the fields.
+                        print("Hello from constructor, " + name);
+
+                        this.name = name;
+                    }
+
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + name);
+                    }
+                }
+
+                var greeter = new Greeter("Charlie");
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from constructor, Charlie",
+                    "Hello from say_hello, Charlie"
+                );
+        }
+
+        [Fact]
+        public void parameter_names_can_shadow_fields()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // TODO: Can be immutable when supported by compiler
+                    private mutable name: string = "Default name";
+
+                    public constructor(name: string)
+                    {
+                        print("this.name is, before assignment: " + this.name);
+
+                        this.name = name;
+
+                        print("name is: " + name);
+                        print("this.name is, after assignment: " + this.name);
+                    }
+                }
+
+                var greeter = new Greeter("Foxtrot");
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "this.name is, before assignment: Default name",
+                    "name is: Foxtrot",
+                    "this.name is, after assignment: Foxtrot"
+                );
+        }
+
+        // TODO: This is a big limitation; code like this is something which should definitely be detected. We must not
+        // TODO: have any such thing as "undefined behaviour" in Perlang.
+        [Fact(Skip = "Validation of this is not yet implemented; does not emit warnings on either the Perlang or C++ side")]
+        public void uninitialized_fields_emits_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    private name: string;
+
+                    public constructor()
+                    {
+                    }
+
+                    // Adding dummy method for now since this will trigger a Valgrind error, because of uninitialized
+                    // memory (and hopefully crash the program/fail the test if run without Valgrind).
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + name);
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var result = EvalWithCppCompilationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("TODO");
+        }
+
+        [Fact]
+        public void public_field_emits_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    // TODO: Remove mutable keyword when we introduce support for imutable fields
+
+                    // This is currently not supported; fields must be private (or protected, when we implement
+                    // inheritance)
+                    public mutable name: string;
+                }
+                """;
+
+            var result = EvalWithParseErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Fields must be declared as private");
         }
 
         [Fact]

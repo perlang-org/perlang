@@ -33,7 +33,7 @@ public abstract class Binding
     /// Gets a value indicating whether this binding is mutable (`true`) or immutable (`false`). All binding classes
     /// not explicitly overriding this are immutable by default.
     /// </summary>
-    public virtual bool IsMutable => false;
+    protected virtual bool IsMutable => false;
 
     /// <summary>
     /// Gets a value indicating whether this binding is immutable (`true`) or mutable (`false`). Convenience

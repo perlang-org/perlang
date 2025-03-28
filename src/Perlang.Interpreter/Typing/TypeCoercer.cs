@@ -89,7 +89,8 @@ namespace Perlang.Interpreter.Typing
                 return true;
             }
 
-            // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric types.
+            // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric
+            // TODO: types. The check below lacks many value types.
 
             if (sourceType == typeof(NullObject) &&
                 targetType != typeof(int) &&
@@ -97,7 +98,7 @@ namespace Perlang.Interpreter.Typing
             {
                 // Reassignment to `null` is valid as long as the target is not a value type. In other words, reference
                 // types are nullable by default. We do emit a compiler warning though, and depending on the
-                // configuration of the front end, this warning can cause compilation to fail (if the front end is
+                // configuration of the frontend, this warning can cause compilation to fail (if the frontend is
                 // configured to disallow compiler warnings).
                 return true;
             }

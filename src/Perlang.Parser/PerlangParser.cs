@@ -215,20 +215,35 @@ namespace Perlang.Parser
         {
             try
             {
-                if (Match(PUBLIC))
+                if (Check(PUBLIC) || Check(PRIVATE))
                 {
-                    if (Match(CLASS)) return Class(Visibility.Public);
-                    if (Match(CONSTRUCTOR)) return Function("constructor");
-                    if (Match(DESTRUCTOR)) return Function("destructor");
+                    Token visibilityToken = Advance();
+
+                    var isMutable = false;
+
+                    var visibility = visibilityToken switch
+                    {
+                        { Type: PUBLIC } => Visibility.Public,
+                        { Type: PRIVATE } => Visibility.Private,
+                        _ => throw new IllegalStateException($"Unexpected token type {visibilityToken.Type}")
+                    };
+
+                    if (Match(MUTABLE)) {
+                        isMutable = true;
+                    }
+
+                    if (Match(CLASS)) return Class(visibility);
+                    if (Match(CONSTRUCTOR)) return Function("constructor", visibility);
+                    if (Match(DESTRUCTOR)) return Function("destructor", visibility);
 
                     // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
                     // support instance and static fields here too, which will make things considerably more challenging
                     // (since we are leaning towards dropping the slightly obnoxious 'fun' keyword for functions.
                     // Obnoxious it is, but it does simplify the parsing of the code significantly).
-                    return Function("method");
+                    return FunctionOrField("method", visibility, isMutable);
                 }
 
-                if (Match(FUN)) return Function("function");
+                if (Match(FUN)) return Function("function", Visibility.Unspecified);
                 if (Match(VAR)) return VarDeclaration();
                 if (Match(ENUM)) return Enum();
 
@@ -446,6 +461,7 @@ namespace Perlang.Parser
             Consume(LEFT_BRACE, "Expecting '{' before class body.");
 
             List<Stmt.Function> methods = [];
+            List<Stmt.Field> fields = [];
 
             while (!Check(RIGHT_BRACE) && !IsAtEnd) {
                 Stmt stmt = Declaration();
@@ -453,18 +469,35 @@ namespace Perlang.Parser
                 if (stmt is Stmt.Function method) {
                     methods.Add(method);
                 }
+                else if (stmt is Stmt.Field field) {
+                    fields.Add(field);
+                }
+                else if (stmt == null) {
+                    // This will happen when we run into an error and the Synchronize() method tries to advance the stream
+                    // to the end of the current statement. We try to handle this as gracefully as we can here.
+                }
                 else {
-                    Error(Peek(), $"Expected method but got {stmt}.");
+                    Error(Peek(), $"Internal error: Unexpected statement encountered: {stmt}.");
                 }
             }
 
             Consume(RIGHT_BRACE, "Expect '}' after class body.");
 
             var typeReference = new TypeReference(name, isArray: false);
-            return new Stmt.Class(name, visibility, methods, typeReference);
+            return new Stmt.Class(name, visibility, methods, fields, typeReference);
         }
 
-        private Stmt.Function Function(string kind)
+        private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable)
+        {
+            return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable);
+        }
+
+        private Stmt Function(string kind, Visibility visibility)
+        {
+            return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null);
+        }
+
+        private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable)
         {
             Token name;
 
@@ -478,7 +511,23 @@ namespace Perlang.Parser
                 name = Consume(IDENTIFIER, "Expect " + kind + " name.");
             }
 
-            Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+            if (supportFields) {
+                if (Match(LEFT_PAREN)) {
+                    // This is a method; continue parsing it as such.
+                }
+                else if (Match(COLON)) {
+                    BlockReservedIdentifiers(name);
+
+                    // This is a 'field: type' declaration. Parse it as such.
+                    return FieldDeclaration(name, visibility, isMutable ?? throw new ArgumentNullException(nameof(isMutable)));
+                }
+                else {
+                    throw Error(Peek(), "Expect '(' or ':' to declare a method or a field");
+                }
+            }
+            else {
+                Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+            }
 
             BlockReservedIdentifiers(name);
 
@@ -557,8 +606,39 @@ namespace Perlang.Parser
             List<Stmt> body = Block();
 
             return new Stmt.Function(
-                name, parameters, body, returnTypeReference, isConstructor, isDestructor
+                name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor
             );
+        }
+
+        private Stmt.Field FieldDeclaration(Token name, Visibility visibility, bool isMutable)
+        {
+            if (!isMutable) {
+                throw Error(name, "Fields must currently be declared as mutable; immutable fields are not yet supported.");
+            }
+
+            // This a bit strict, but we currently enforce it like this. Public fields definitely feel like an
+            // anti-pattern, and I think we'll keep it like this for some time to see what it feels like. For 'struct'
+            // types (similar to C#/C-style value-typed structs), we very likely want to enable public fields though, to
+            // allow structs without any methods defined (i.e. C-style separation of code and data).
+            if (visibility != Visibility.Private) {
+                throw Error(name, "Fields must be declared as private.");
+            }
+
+            // TODO: This doesn't support array types yet.
+            Token typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+            Expr initializer = null;
+
+            if (Match(EQUAL))
+            {
+                initializer = Expression();
+            }
+
+            if (!IsAtEnd || !allowSemicolonElision) {
+                Consume(SEMICOLON, "Expect ';' after field definition.");
+            }
+
+            return new Stmt.Field(name, visibility, isMutable, initializer, new TypeReference(typeSpecifier, isArray: false));
         }
 
         private Stmt.Enum Enum()
@@ -619,8 +699,12 @@ namespace Perlang.Parser
                 {
                     return new Expr.Assign(identifier, value);
                 }
+                else if (expr is Expr.Get get)
+                {
+                    return new Expr.Assign(get, value);
+                }
 
-                Error(equals, "Invalid assignment target.");
+                Error(equals, $"Invalid assignment target: {expr}");
             }
             else if (Match(PLUS_EQUAL, MINUS_EQUAL))
             {

@@ -46,7 +46,9 @@ namespace Perlang
 {
     public enum Visibility : uint
     {
-        Public = 0
+        Unspecified = 0,
+        Public = 1,
+        Private = 2
     }
 }
 
@@ -105,18 +107,20 @@ namespace Perlang
         FUN = 48,
         FOR = 49,
         IF = 50,
-        NEW = 51,
-        PERLANG_NULL = 52,
-        PRINT = 53,
-        PUBLIC = 54,
-        RETURN = 55,
-        SUPER = 56,
-        THIS = 57,
-        TRUE = 58,
-        VAR = 59,
-        WHILE = 60,
-        RESERVED_WORD = 61,
-        PERLANG_EOF = 62
+        MUTABLE = 51,
+        NEW = 52,
+        PERLANG_NULL = 53,
+        PRINT = 54,
+        PRIVATE = 55,
+        PUBLIC = 56,
+        RETURN = 57,
+        SUPER = 58,
+        THIS = 59,
+        TRUE = 60,
+        VAR = 61,
+        WHILE = 62,
+        RESERVED_WORD = 63,
+        PERLANG_EOF = 64
     }
 }
 

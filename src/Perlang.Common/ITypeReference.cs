@@ -95,7 +95,7 @@ namespace Perlang
         bool IsStringType =>
             ClrType switch
             {
-                null => throw new InvalidOperationException("Internal error: Cannot determine if string type or not"),
+                null => throw new InvalidOperationException("Internal error: Cannot determine if string type or not for null CLR type"),
 
                 // Cannot use typeof(AsciiString) since Perlang.Common cannot depend on Perlang.Stdlib
                 var t when t.FullName == "Perlang.Lang.AsciiString" => true,

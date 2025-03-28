@@ -46,7 +46,7 @@ namespace Perlang
         {
             // TODO: We would like to do this, but doing so causes major chaos in the code base, leading to "Undefined
             // TODO: identifier" errors. We should spend some time someday trying to understand why this happens.
-            // Visit(expr.Identifier);
+            //Visit(expr.Target);
             Visit(expr.Value);
 
             return VoidObject.Void;
@@ -175,7 +175,10 @@ namespace Perlang
 
         public virtual VoidObject VisitClassStmt(Stmt.Class stmt)
         {
-            // TODO: visit fields also, once we have implemented support for them.
+            foreach (Stmt.Field field in stmt.Fields)
+            {
+                Visit(field);
+            }
 
             foreach (Stmt.Function method in stmt.Methods)
             {
@@ -207,6 +210,16 @@ namespace Perlang
         public virtual VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
             Visit(stmt.Body);
+
+            return VoidObject.Void;
+        }
+
+        public virtual VoidObject VisitFieldStmt(Stmt.Field stmt)
+        {
+            if (stmt.Initializer != null)
+            {
+                Visit(stmt.Initializer);
+            }
 
             return VoidObject.Void;
         }

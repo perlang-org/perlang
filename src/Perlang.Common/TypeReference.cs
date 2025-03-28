@@ -118,7 +118,7 @@ namespace Perlang
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type
-        /// specifier can be null, in which case type inference will be attempted.
+        /// specifier can be <c>null</c>, in which case type inference will be attempted.
         /// </summary>
         /// <param name="typeSpecifier">The token providing the type specifier (e.g. 'int' or 'string').</param>
         /// <param name="isArray">Whether the type is an array or not.</param>

@@ -20,7 +20,9 @@ extern "C" void native_main(int argc, char* const* argv);
 //
 namespace Visibility {
     enum Visibility {
+        Unspecified,
         Public,
+        Private,
     };
 };
 
@@ -77,9 +79,11 @@ namespace TokenType {
         FUN,
         FOR,
         IF,
+        MUTABLE,
         NEW,
         PERLANG_NULL,
         PRINT,
+        PRIVATE,
         PUBLIC,
         RETURN,
         SUPER,

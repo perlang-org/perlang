@@ -29,6 +29,9 @@ using String = System.String;
 
 namespace Perlang.Interpreter.Compiler;
 
+// TODO: This class throws a bunch of RuntimeErrors which should probably be PerlangCompilerException instead. Investigate
+// TODO: this; will likely require test changes as well.
+
 /// <summary>
 /// Compiles Perlang source to executable form (typically ELF binaries on Linux, Mach-O on macOS and PE32/PE32+ on
 /// Windows).
@@ -825,7 +828,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     // error: signed shift result (0x1FFFFFFFFFFFFFFFC) requires 66 bits to represent, but 'long' only has 64 bits
                     "-Wno-shift-overflow",
 
-                    // 2147483647 >> 32 is valid in e.g. Java, but generates a warning with clang. The warning is useful
+                    // 2147483647 >> 32 is valid in e.g. Java, but generates a warning with clang. The warning is useful,
                     // but we silence it for now.
                     "-Wno-shift-count-overflow",
 
@@ -921,7 +924,26 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
     public object VisitAssignExpr(Expr.Assign expr)
     {
-        return $"{expr.Identifier.Name.Lexeme} = {expr.Value.Accept(this)}";
+        if (expr.Target is Expr.Identifier identifier)
+        {
+            return $"{identifier.Name.Lexeme} = {expr.Value.Accept(this)}";
+        }
+        else if (expr.Target is Expr.Get get)
+        {
+            if (get.Object is Expr.Identifier objectIdentifier)
+            {
+                // TODO: Should probably not use "->" unconditionally here, since it won't work if/when we introduce
+                // TODO: stack-allocated (local) objects.
+                return $"{objectIdentifier.Name.Lexeme}->{get.Name.Lexeme} = {expr.Value.Accept(this)}";
+            }
+            else
+            {
+                throw new PerlangCompilerException($"Invalid assignment target: {expr.Target}");
+            }
+        }
+        else {
+            throw new PerlangCompilerException($"Invalid assignment target: {expr.Target}");
+        }
     }
 
     public object VisitBinaryExpr(Expr.Binary expr)
@@ -1571,9 +1593,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             }
             else if (identifier.TypeReference.CppType != null)
             {
-                // TODO: This triggers loads of new errors now. This is because this used to be false for value types like
-                // TODO: int, double, etc. Now this is almost always non-null.
-
                 string callOperator;
 
                 if (!identifier.TypeReference.CppType.IsSupported)
@@ -1674,11 +1693,29 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} {""");
 
+        classDefinitionBuilder.AppendLine("private:");
+
+        foreach (Stmt.Field field in stmt.Fields) {
+            // All fields are private for now, but we explicitly check here to ensure that we get predictable errors if we
+            // attempt to change this at some point to support public fields.
+            if (field.Visibility != Visibility.Private) {
+                throw new PerlangCompilerException($"Field {field.Name.Lexeme} is of {field.Visibility} visibility, which is not currently supported");
+            }
+
+            classDefinitionBuilder.Append(Indent(1));
+            classDefinitionBuilder.Append(field.Accept(this));
+        }
+
         // We make all methods `public` on the C++ side for now with this single `public` clause; there is no way to
         // define methods as `private` or `internal` anyway yet.
         classDefinitionBuilder.AppendLine("public:");
 
         foreach (Stmt.Function method in stmt.Methods) {
+            // Likewise, check this to ensure we don't generate inconsistent code with what the Perlang model expects.
+            if (method.Visibility != Visibility.Public) {
+                throw new PerlangCompilerException($"Method {method.Name.Lexeme} is of {method.Visibility} visibility, which is not currently supported");
+            }
+
             // Definition
             classDefinitionBuilder.Append(Indent(1));
 
@@ -1833,6 +1870,24 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         else {
             return functionContent.ToString();
         }
+    }
+
+    public object VisitFieldStmt(Stmt.Field stmt)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        result.Append($"{stmt.TypeReference.PossiblyWrappedCppType} {stmt.Name.Lexeme}");
+
+        if (stmt.Initializer != null)
+        {
+            result.AppendLine($" = {stmt.Initializer.Accept(this)};");
+        }
+        else
+        {
+            result.AppendLine(";");
+        }
+
+        return result.ToString();
     }
 
     public object VisitIfStmt(Stmt.If stmt)

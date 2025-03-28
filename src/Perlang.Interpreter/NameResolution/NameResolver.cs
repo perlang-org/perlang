@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Perlang.Compiler;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Internals;
 
@@ -164,10 +165,8 @@ internal class NameResolver : VisitorBase
             return;
         }
 
-        // We set the variable’s value in the scope map to mark it as fully initialized and available for
-        // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
-        // function return type and function statement (in case of a function being defined). These details are
-        // useful later on, in the static type analysis.
+        // We set up a new VariableBindingFactory in the scope map to mark the variable as fully initialized and available
+        // for use. This factory is useful later on, for e.g. static type analysis.
         scopes.Last()[name] = new VariableBindingFactory(typeReference);
     }
 
@@ -190,10 +189,8 @@ internal class NameResolver : VisitorBase
             return;
         }
 
-        // We set the variable’s value in the scope map to mark it as fully initialized and available for
-        // use. It’s alive! As an extra bonus, we store the type reference of the initializer (if present), or the
-        // function return type and function statement (in case of a function being defined). These details are
-        // useful later on, in the static type analysis.
+        // We set up a new FunctionBindingFactory in the scope map to mark the variable as fully initialized and available
+        // for use. This factory is useful later on, for e.g. static type analysis.
         scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
     }
 
@@ -222,6 +219,20 @@ internal class NameResolver : VisitorBase
         // we don't have the PerlangClass instance available in the TypeResolver class right now.
         classStmt.TypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
         classStmt.TypeReference.SetPerlangClass(perlangClass);
+    }
+
+    private void DefineField(Token name, ITypeReference typeReference, Stmt.Field field)
+    {
+        ArgumentNullException.ThrowIfNull(typeReference);
+
+        if (IsEmpty(scopes))
+        {
+            globals[name.Lexeme] = new FieldBindingFactory(typeReference, field);
+            return;
+        }
+
+        // The binding factory is used in the type resolving phase.
+        scopes.Last()[name.Lexeme] = new FieldBindingFactory(typeReference, field);
     }
 
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
@@ -288,7 +299,21 @@ internal class NameResolver : VisitorBase
     public override VoidObject VisitAssignExpr(Expr.Assign expr)
     {
         Resolve(expr.Value);
-        ResolveLocalOrGlobal(expr, expr.Name);
+
+        if (expr.Target is Expr.Identifier identifier) {
+            ResolveLocalOrGlobal(expr, identifier.Name);
+        }
+        else if (expr.Target is Expr.Get get) {
+            Resolve(get.Object);
+
+            // TODO: This feels weird; get.Name is likely a local or global variable at all but rather a foo.bar.baz
+            // TODO: expression. However, if we _don't_ do this, we break the immutability checker. There's something
+            // TODO: really fishy going on here but I haven't gotten to the bottom of it yet...
+            ResolveLocalOrGlobal(expr, get.Name);
+        }
+        else {
+            throw new PerlangCompilerException($"Unsupported expression type encountered: {expr.Target}");
+        }
 
         return VoidObject.Void;
     }
@@ -408,8 +433,6 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitClassStmt(Stmt.Class stmt)
     {
-        // TODO: Implement resolution related to classes: handle fields defined in the class, etc.
-
         Declare(stmt.NameToken);
 
         DefineClass(stmt.NameToken, stmt);
@@ -421,6 +444,10 @@ internal class NameResolver : VisitorBase
         // Make the current class available to its methods, using both explicit `this.foo()` and implicit `foo()`
         // notations.
         DefineThis(stmt, stmt);
+
+        foreach (Stmt.Field field in stmt.Fields) {
+            VisitFieldStmt(field);
+        }
 
         foreach (Stmt.Function method in stmt.Methods) {
             VisitFunctionStmt(method);
@@ -454,6 +481,14 @@ internal class NameResolver : VisitorBase
         DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
 
         ResolveFunction(stmt, FunctionType.FUNCTION);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitFieldStmt(Stmt.Field stmt)
+    {
+        Declare(stmt.Name);
+        DefineField(stmt.Name, stmt.TypeReference, stmt);
 
         return VoidObject.Void;
     }

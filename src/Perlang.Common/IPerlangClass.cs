@@ -10,5 +10,6 @@ namespace Perlang
     {
         public string Name { get; }
         public List<Stmt.Function> Methods { get; }
+        public List<Stmt.Field> Fields { get; }
     }
 }
