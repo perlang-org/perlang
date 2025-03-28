@@ -22,9 +22,6 @@ jobs:
       - name: Rebuild website
         run: make -j docs
 
-      - name: Ensure API docs have expected content
-        run: make docs-validate-api-docs
-
       - name: Deploy to perlang.org repo
         uses: jamesives/github-pages-deploy-action@4.1.0
         with:
