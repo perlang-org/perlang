@@ -80,7 +80,7 @@ namespace Perlang
 
             public override string ToString()
             {
-                return $"{Name.Lexeme} = {Value}";
+                return $"#<Assign {Identifier} = {Value}>";
             }
 
             public Token Token => Name;
@@ -424,8 +424,17 @@ namespace Perlang
 
             public Token Token => Name;
 
-            public override string ToString() =>
-                $"{Object}.{Name}";
+            public override string ToString()
+            {
+                if (Object is ITokenAware tokenAware)
+                {
+                    return $"#<Get {tokenAware.Token!.Lexeme}.{Name.Lexeme}>";
+                }
+                else
+                {
+                    return $"#<Get {Object}.{Name.Lexeme}>";
+                }
+            }
         }
 
         public abstract TR Accept<TR>(IVisitor<TR> visitor);

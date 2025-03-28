@@ -44,6 +44,7 @@ namespace Perlang
 
         public virtual VoidObject VisitAssignExpr(Expr.Assign expr)
         {
+            Visit(expr.Identifier);
             Visit(expr.Value);
 
             return VoidObject.Void;
