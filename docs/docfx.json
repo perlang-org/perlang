@@ -1,25 +1,6 @@
 {
     "$schema": "https://json.schemastore.org/docfx",
 
-    "metadata": [
-        {
-            "src": [
-                {
-                    "files": [
-                        "**/*.csproj"
-                    ],
-                    "src": "../"
-                }
-            ],
-            "dest": "api",
-            "filter": "filter-config.yml",
-
-            // We need the default filter to be able to filter out EditorBrowsableState.Never-flagged types. I tried
-            // copying this rule to filter-config.yml with no success.
-            "disableDefaultFilter": false
-        }
-    ],
-
     "build": {
         "content": [
             {

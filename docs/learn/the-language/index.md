@@ -113,7 +113,7 @@ In its current version, Perlang does not currently support defining user-defined
 
 ### The standard library
 
-The standard library is in a very early stage of development. Read more about it in the [API documentation](../../api/index.md) section.
+The standard library is in a very early stage of development. Is it currently being rewritten from C# to C++, and more functionality is being added to it.
 
 ### The future
 
@@ -123,4 +123,4 @@ There is currently no road map as for exactly "when" and "if" various features w
 
 ## Footnotes
 
-<sup>1</sup>: Making warnings be considered errors by default is a deliberate, conscious design decision in an attempt to ensure that a codebase is not littered with numerous minor errors - errors which are really _there_ but the developers have learn to look the other way, to ignore them. It is our experience that this can too-easily become the case when warnings are ignored by default.
+<sup>1</sup>: Making warnings be considered errors by default is a deliberate, conscious design decision in an attempt to ensure that a codebase is not littered with numerous minor errors - errors which are really _there_ but the developers have learned to look the other way, to ignore them. It is our experience that this can too-easily become the case when warnings are ignored by default.
