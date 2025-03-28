@@ -44,7 +44,9 @@ namespace Perlang
 
         public virtual VoidObject VisitAssignExpr(Expr.Assign expr)
         {
-            Visit(expr.Identifier);
+            // TODO: We would like to do this, but doing so causes major chaos in the code base, leading to "Undefined
+            // TODO: identifier" errors. We should spend some time someday trying to understand why this happens.
+            // Visit(expr.Identifier);
             Visit(expr.Value);
 
             return VoidObject.Void;
