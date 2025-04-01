@@ -13,22 +13,22 @@ public class NameResolutionError : Exception
     public NameResolutionError(string message, Token token)
         : base(message)
     {
-            Token = token;
-        }
+        Token = token;
+    }
 
     public override string ToString()
     {
-            string where;
+        string where;
 
-            if (Token.Type == TokenType.PERLANG_EOF)
-            {
-                where = " at end";
-            }
-            else
-            {
-                where = " at '" + Token.Lexeme + "'";
-            }
-
-            return $"[line {Token.Line}] Error{where}: {Message}";
+        if (Token.Type == TokenType.PERLANG_EOF)
+        {
+            where = " at end";
         }
+        else
+        {
+            where = " at '" + Token.Lexeme + "'";
+        }
+
+        return $"[line {Token.Line}] Error{where}: {Message}";
+    }
 }
