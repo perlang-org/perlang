@@ -13,7 +13,7 @@ internal class ClassBindingFactory : IBindingFactory
         this.perlangClass = perlangClass ?? throw new ArgumentException("perlangClass cannot be null");
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr)
+    public Binding CreateBinding(Expr referringExpr)
     {
         return new ClassBinding(referringExpr, perlangClass);
     }

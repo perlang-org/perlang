@@ -11,7 +11,7 @@ internal class EnumBindingFactory : IBindingFactory
         this.perlangEnum = perlangEnum;
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr)
+    public Binding CreateBinding(Expr referringExpr)
     {
         return new EnumBinding(referringExpr, perlangEnum);
     }

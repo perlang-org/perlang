@@ -13,6 +13,6 @@ internal class FunctionBindingFactory : IBindingFactory
         this.function = function;
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr) =>
-        new FunctionBinding(function, typeReference, distance, referringExpr);
+    public Binding CreateBinding(Expr referringExpr) =>
+        new FunctionBinding(function, typeReference, referringExpr);
 }

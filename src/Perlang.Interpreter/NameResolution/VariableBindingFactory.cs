@@ -23,6 +23,6 @@ internal class VariableBindingFactory : IBindingFactory
         TypeReference = typeReference;
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr) =>
-        new VariableBinding(TypeReference, distance, referringExpr);
+    public Binding CreateBinding(Expr referringExpr) =>
+        new VariableBinding(TypeReference, referringExpr);
 }

@@ -17,7 +17,7 @@ internal class NativeClassBindingFactory : IBindingFactory
         this.type = type ?? throw new ArgumentException("type cannot be null");
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr)
+    public Binding CreateBinding(Expr referringExpr)
     {
         return new NativeClassBinding(referringExpr, type);
     }

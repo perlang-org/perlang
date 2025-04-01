@@ -15,6 +15,6 @@ internal class FieldBindingFactory : IBindingFactory
         this.isMutable = field.IsMutable;
     }
 
-    public Binding CreateBinding(int distance, Expr referringExpr) =>
+    public Binding CreateBinding(Expr referringExpr) =>
         new FieldBinding(typeReference, referringExpr, isMutable);
 }

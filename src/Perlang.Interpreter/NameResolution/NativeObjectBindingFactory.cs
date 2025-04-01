@@ -14,7 +14,7 @@ internal class NativeObjectBindingFactory : IBindingFactory
     // This refers to an instance of a native class, i.e. an "object".
     public string ObjectType => "object";
 
-    public Binding CreateBinding(int distance, Expr referringExpr)
+    public Binding CreateBinding(Expr referringExpr)
     {
         return new NativeObjectBinding(referringExpr, type);
     }

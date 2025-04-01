@@ -270,7 +270,7 @@ internal class NameResolver : VisitorBase
                     return;
                 }
 
-                bindingHandler.AddLocalExpr(bindingFactory.CreateBinding(scopes.Count - 1 - i, referringExpr));
+                bindingHandler.AddLocalExpr(bindingFactory.CreateBinding(referringExpr));
 
                 return;
             }
@@ -287,7 +287,7 @@ internal class NameResolver : VisitorBase
         // in the for-loop above if we skip it.
         {
             IBindingFactory bindingFactory = globals[name.Lexeme];
-            bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(-1, referringExpr));
+            bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(referringExpr));
         }
     }
 
