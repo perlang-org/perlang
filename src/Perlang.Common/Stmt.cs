@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable SA1010
 #pragma warning disable SA1117
 
 using System.Collections.Generic;
@@ -40,12 +41,27 @@ namespace Perlang
 
         public class Class : Stmt, IPerlangClass
         {
+            public static readonly Class None = new Class();
+
             public string Name { get; }
             public Token NameToken { get; }
             public Visibility Visibility { get; }
             public List<Function> Methods { get; }
+
+            // TODO: Should use some form of dictionary type here for faster lookups, but preferably with something like
+            // TODO: Guava's ImmutableMap in Java (which preserves insertion order).
             public List<Field> Fields { get; }
+
             public TypeReference TypeReference { get; }
+
+            private Class()
+            {
+                Name = string.Empty;
+                NameToken = null!;
+                Methods = [];
+                Fields = [];
+                TypeReference = null!;
+            }
 
             public Class(Token name, Visibility visibility, List<Function> methods, List<Field> fields, TypeReference typeReference)
             {
@@ -89,6 +105,7 @@ namespace Perlang
 
         public class Function : Stmt
         {
+            public new Class Class { get; private set; }
             public Token Name { get; }
             public Visibility Visibility { get; }
             public ImmutableList<Parameter> Parameters { get; }
@@ -106,6 +123,13 @@ namespace Perlang
                 ReturnTypeReference = returnTypeReference;
                 IsConstructor = isConstructor;
                 IsDestructor = isDestructor;
+                Class = Stmt.Class.None;
+            }
+
+            // Cannot be set in constructor, since the Function instances are created before the class.
+            public void SetClass(Class @class)
+            {
+                Class = @class;
             }
 
             public override TR Accept<TR>(IVisitor<TR> visitor)

@@ -4,17 +4,23 @@ internal class FieldBindingFactory : IBindingFactory
 {
     public string ObjectType => "field";
 
-    private readonly ITypeReference typeReference;
+    public Stmt.Class Class { get; }
+
     private readonly Stmt.Field field;
     private readonly bool isMutable;
 
-    public FieldBindingFactory(ITypeReference typeReference, Stmt.Field field)
+    // TODO: Add a Class property to the Field class, so that each field knows what Class it belongs to. That way, we
+    // TODO: can get rid of the Stmt.Class parameter to the methods here.
+    public FieldBindingFactory(Stmt.Class @class, Stmt.Field field)
     {
-        this.typeReference = typeReference;
+        this.Class = @class;
         this.field = field;
         this.isMutable = field.IsMutable;
     }
 
     public Binding CreateBinding(Expr referringExpr) =>
-        new FieldBinding(typeReference, referringExpr, isMutable);
+        new FieldBinding(Class, field, referringExpr, isMutable);
+
+    public static Binding CreateBindingForField(Stmt.Class @class, Stmt.Field field, Expr.Assign referringExpr) =>
+        new FieldBinding(@class, field, referringExpr, field.IsMutable);
 }

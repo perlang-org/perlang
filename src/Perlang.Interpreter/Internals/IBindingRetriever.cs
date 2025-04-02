@@ -5,5 +5,5 @@ namespace Perlang.Interpreter.Internals;
 
 public interface IBindingRetriever
 {
-    Binding? GetVariableOrFunctionBinding(Expr expr);
+    Binding? GetVariableOrFunctionBinding(Expr referringExpr);
 }

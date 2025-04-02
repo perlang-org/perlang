@@ -732,6 +732,7 @@ namespace Perlang.Interpreter.Typing
             // It still feels somewhat better than allowing any kind of wild binding to pass through at this
             // point.
             if (binding is ClassBinding or
+                FieldBinding or
                 VariableBinding or
                 NativeClassBinding or
                 NativeObjectBinding or

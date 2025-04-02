@@ -38,6 +38,7 @@ internal class NameResolver : VisitorBase
     private readonly Dictionary<Stmt, Dictionary<string, IBindingFactory>> stmtScopes = new Dictionary<Stmt, Dictionary<string, IBindingFactory>>();
 
     private FunctionType currentFunction = FunctionType.NONE;
+    private Stmt.Class? currentClass = null;
     private bool firstPass = true;
 
     /// <summary>
@@ -211,28 +212,41 @@ internal class NameResolver : VisitorBase
         addGlobalClassCallback(name.Lexeme, perlangClass);
     }
 
-    private void DefineThis(Stmt.Class classStmt, IPerlangClass perlangClass)
+    private void DefineThis(Stmt.Class @class, IPerlangClass perlangClass)
     {
-        DefineVariable("this", classStmt.TypeReference);
+        var thisTypeReference = new TypeReference(null, isArray: false);
+
+        var thisField = new Stmt.Field(
+            new Token(TokenType.THIS, "this", literal: null, @class.NameToken.Line),
+            Visibility.Private,
+            isMutable: false,
+            initializer: null,
+            thisTypeReference
+        );
+
+        DefineField("this", thisField);
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we don't have the PerlangClass instance available in the TypeResolver class right now.
-        classStmt.TypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
-        classStmt.TypeReference.SetPerlangClass(perlangClass);
+        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
+        @class.TypeReference.SetPerlangClass(perlangClass);
+        thisTypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
+        thisTypeReference.SetPerlangClass(perlangClass);
     }
 
-    private void DefineField(Token name, ITypeReference typeReference, Stmt.Field field)
+    private void DefineField(string name, Stmt.Field field)
     {
-        ArgumentNullException.ThrowIfNull(typeReference);
+        ArgumentNullException.ThrowIfNull(field.TypeReference);
+        ArgumentNullException.ThrowIfNull(currentClass);
 
         if (IsEmpty(scopes))
         {
-            globals[name.Lexeme] = new FieldBindingFactory(typeReference, field);
+            globals[name] = new FieldBindingFactory(currentClass, field);
             return;
         }
 
         // The binding factory is used in the type resolving phase.
-        scopes.Last()[name.Lexeme] = new FieldBindingFactory(typeReference, field);
+        scopes.Last()[name] = new FieldBindingFactory(currentClass, field);
     }
 
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
@@ -291,6 +305,83 @@ internal class NameResolver : VisitorBase
         }
     }
 
+    /// <summary>
+    /// Similar to <see cref="ResolveLocalOrGlobal"/>, but also supports <c>foo.bar.baz</c> notation for resolving
+    /// fields inside classes.
+    /// </summary>
+    /// <param name="referringExpr">The expression referring to the property path.</param>
+    /// <param name="fullNameParts">The property path parts, including all elements.</param>
+    private void ResolvePropertyPath(Expr.Assign referringExpr, string[] fullNameParts)
+    {
+        string firstNamePart = fullNameParts[0];
+
+        // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
+        // that matches the first part of the name. (Typically "this" or the variable name containing an instance of
+        // some kind of Perlang class)
+        IBindingFactory? bindingFactory = null;
+        bool? isGlobal = null;
+
+        for (int i = scopes.Count - 1; i >= 0; i--) {
+            if (scopes[i].TryGetValue(firstNamePart, out bindingFactory)) {
+                if (bindingFactory == VariableBindingFactory.None) {
+                    nameResolutionErrorHandler(
+                        new NameResolutionError("Cannot read local variable in its own initializer.", referringExpr.TargetName));
+                    return;
+                }
+
+                isGlobal = false;
+
+                break;
+            }
+        }
+
+        if (bindingFactory == null && globals.ContainsKey(firstNamePart)) {
+            bindingFactory = globals[firstNamePart];
+            isGlobal = true;
+        }
+
+        if (bindingFactory == null) {
+            nameResolutionErrorHandler(
+                new NameResolutionError($"Symbol '{firstNamePart}' not found in neither local nor global scope(s).", referringExpr.TargetName));
+        }
+
+        Stmt.Class @class;
+
+        // TODO: Should possibly be a ClassBindingFactory here instead. We do want to keep room for Class.field
+        // TODO: notation, i.e. support for static fields though, so the question is if ClassBindings should perhaps be
+        // TODO: reserved for that, concept-wise.
+        if (bindingFactory is FieldBindingFactory fieldBindingFactory) {
+            @class = fieldBindingFactory.Class;
+        }
+        else {
+            nameResolutionErrorHandler(
+                new NameResolutionError($"Internal compiler error: Unsupported binding factory type '{bindingFactory}' encountered; only FieldBindingFactory is supported.", referringExpr.TargetName));
+            return;
+        }
+
+        // TODO: Support functions also
+        for (int i = 1; i < fullNameParts.Length; i++) {
+            string namePart = fullNameParts[i];
+
+            var matchingField = @class.Fields.SingleOrDefault(f => f.Name.Lexeme == namePart);
+
+            if (matchingField == null) {
+                nameResolutionErrorHandler(
+                    new NameResolutionError($"Symbol '{namePart}' cannot be found in type '{@class.Name}'", referringExpr.TargetName));
+                return;
+            }
+
+            if (i == fullNameParts.Length - 1) {
+                if (isGlobal == true) {
+                    bindingHandler.AddGlobalExpr(FieldBindingFactory.CreateBindingForField(@class, matchingField, referringExpr));
+                }
+                else {
+                    bindingHandler.AddLocalExpr(FieldBindingFactory.CreateBindingForField(@class, matchingField, referringExpr));
+                }
+            }
+        }
+    }
+
     public override VoidObject VisitEmptyExpr(Expr.Empty expr)
     {
         return VoidObject.Void;
@@ -306,10 +397,7 @@ internal class NameResolver : VisitorBase
         else if (expr.Target is Expr.Get get) {
             Resolve(get.Object);
 
-            // TODO: This feels weird; get.Name is likely a local or global variable at all but rather a foo.bar.baz
-            // TODO: expression. However, if we _don't_ do this, we break the immutability checker. There's something
-            // TODO: really fishy going on here but I haven't gotten to the bottom of it yet...
-            ResolveLocalOrGlobal(expr, get.Name);
+            ResolvePropertyPath(expr, get.FullNameParts);
         }
         else {
             throw new PerlangCompilerException($"Unsupported expression type encountered: {expr.Target}");
@@ -437,6 +525,9 @@ internal class NameResolver : VisitorBase
 
         DefineClass(stmt.NameToken, stmt);
 
+        Stmt.Class? enclosingClass = currentClass;
+        currentClass = stmt;
+
         // This part (creating a scope, visiting the functions like this) is needed to be able to call methods without
         // explicit `this.` prefix.
         BeginScope(stmt);
@@ -454,6 +545,8 @@ internal class NameResolver : VisitorBase
         }
 
         EndScope();
+
+        currentClass = enclosingClass;
 
         return VoidObject.Void;
     }
@@ -488,7 +581,7 @@ internal class NameResolver : VisitorBase
     public override VoidObject VisitFieldStmt(Stmt.Field stmt)
     {
         Declare(stmt.Name);
-        DefineField(stmt.Name, stmt.TypeReference, stmt);
+        DefineField(stmt.Name.Lexeme, stmt);
 
         return VoidObject.Void;
     }

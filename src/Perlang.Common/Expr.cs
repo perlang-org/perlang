@@ -1,7 +1,11 @@
 #nullable enable
+#pragma warning disable SA1010
+#pragma warning disable S2365
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using Perlang.Compiler;
 
@@ -10,7 +14,10 @@ namespace Perlang
     public abstract class Expr
     {
         public ITypeReference TypeReference { get; }
-        public virtual string FullName => throw new NotImplementedException($"FullName should be implemented for {this.GetType().Name}");
+
+        public virtual string[] FullNameParts => throw new NotImplementedException($"FullNameParts should be implemented for {this.GetType().Name}");
+
+        private string FullName => String.Join('.', FullNameParts);
 
         private Expr()
         {
@@ -267,6 +274,7 @@ namespace Perlang
 
             public override string ToString()
             {
+                // TODO: This check should be 'is Lang.AsciiString', but I don't think we have access to that type here.
                 if (Value is string s)
                 {
                     return '"' + s + '"';
@@ -382,6 +390,9 @@ namespace Perlang
         {
             public Token Name { get; }
             public bool IsCollection { get; }
+            public Token Token => Name;
+
+            public override string[] FullNameParts => [Name.Lexeme];
 
             public Identifier(Token name, bool isCollection = false)
             {
@@ -396,10 +407,6 @@ namespace Perlang
 
             public override string ToString() =>
                 $"#<Identifier {Name.Lexeme}>";
-
-            public Token Token => Name;
-
-            public override string FullName => Name.Lexeme;
         }
 
         public class Get : Expr, ITokenAware
@@ -433,7 +440,9 @@ namespace Perlang
             }
 
             public Token Token => Name;
-            public override string FullName => Object.FullName + "." + Name.Lexeme;
+
+            // TODO: Memoize this at some point if seems needed; this is incredibly inefficient.
+            public override string[] FullNameParts => Enumerable.Concat(Object.FullNameParts, [Name.Lexeme]).ToArray();
 
             public override string ToString()
             {

@@ -30,16 +30,16 @@ namespace Perlang.Interpreter.Internals
             localBindings[binding.ReferringExpr] = binding;
         }
 
-        public Binding? GetVariableOrFunctionBinding(Expr expr)
+        public Binding? GetVariableOrFunctionBinding(Expr referringExpr)
         {
-            if (localBindings.ContainsKey(expr))
+            if (localBindings.ContainsKey(referringExpr))
             {
-                return localBindings[expr];
+                return localBindings[referringExpr];
             }
 
-            if (globalBindings.ContainsKey(expr))
+            if (globalBindings.ContainsKey(referringExpr))
             {
-                return globalBindings[expr];
+                return globalBindings[referringExpr];
             }
 
             // The variable does not exist, neither in the list of local nor global bindings.

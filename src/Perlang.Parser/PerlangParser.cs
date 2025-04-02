@@ -484,7 +484,13 @@ namespace Perlang.Parser
             Consume(RIGHT_BRACE, "Expect '}' after class body.");
 
             var typeReference = new TypeReference(name, isArray: false);
-            return new Stmt.Class(name, visibility, methods, fields, typeReference);
+            var @class = new Stmt.Class(name, visibility, methods, fields, typeReference);
+
+            foreach (Stmt.Function function in methods) {
+                function.SetClass(@class);
+            }
+
+            return @class;
         }
 
         private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable)
@@ -612,10 +618,6 @@ namespace Perlang.Parser
 
         private Stmt.Field FieldDeclaration(Token name, Visibility visibility, bool isMutable)
         {
-            if (!isMutable) {
-                throw Error(name, "Fields must currently be declared as mutable; immutable fields are not yet supported.");
-            }
-
             // This a bit strict, but we currently enforce it like this. Public fields definitely feel like an
             // anti-pattern, and I think we'll keep it like this for some time to see what it feels like. For 'struct'
             // types (similar to C#/C-style value-typed structs), we very likely want to enable public fields though, to

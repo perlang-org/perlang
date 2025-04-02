@@ -101,6 +101,43 @@ namespace Perlang.Tests.Integration.Classes
                 .Be("Hello World, Bob");
         }
 
+        [Fact(Skip = "Throws exception: Internal compiler error: CLR type was null for return type of method 'this_is' in class 'Fluent'")]
+        public void class_can_be_instantiated_and_instance_method_calls_can_be_chained_and_return_string()
+        {
+            string source = """
+                public class Fluent
+                {
+                    public this_is(): Fluent
+                    {
+                        return this;
+                    }
+
+                    public a_fluent(): Fluent
+                    {
+                        return this;
+                    }
+
+                    public test(): string
+                    {
+                        // This is a salute to the compiler who managed to resolve the method calls and infer the return
+                        // type all the way here. :)
+                        return "Bravo, you made it!";
+                    }
+                }
+
+                var fluent = new Fluent();
+                print fluent
+                    .this_is()
+                    .a_fluent()
+                    .test();
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Bravo, you made it!");
+        }
+
         [Fact]
         public void string_and_instance_method_result_can_be_concatenated()
         {
@@ -462,21 +499,138 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
-        public void defining_immutable_field_throws_expected_error()
+        public void class_can_define_immutable_private_field()
         {
             string source = """
                 public class Greeter
                 {
                     private name_: string;
+
+                    public constructor()
+                    {
+                        this.name_ = "Static Steve";
+                    }
+
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + this.name_);
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from say_hello, Static Steve"
+                );
+        }
+
+        [Fact]
+        public void mutating_already_initialized_immutable_field_in_constructor_throws_expected_error()
+        {
+            string source = """
+                public class Mutator
+                {
+                    private name_: string = "Static Steve";
+
+                    public constructor()
+                    {
+                        this.name_ = "Dynamic Dave";
+                    }
                 }
                 """;
 
-            var result = EvalWithParseErrorCatch(source);
+            var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
                 .ContainSingle()
                 .Which
-                .Message.Should().Contain("immutable fields are not yet supported");
+                .Message.Should().Contain("Field 'this.name_' cannot be assigned to");
+        }
+
+        [Fact]
+        public void mutating_already_initialized_immutable_field_in_custom_method_throws_expected_error()
+        {
+            string source = """
+                public class Mutator
+                {
+                    private name_: string = "Static Steve";
+
+                    public mutate_name(): void
+                    {
+                        this.name_ = "Dynamic Dave";
+                    }
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Field 'this.name_' cannot be assigned to");
+        }
+
+        [Fact]
+        public void mutating_immutable_field_initialized_from_constructor_throws_expected_error()
+        {
+            string source = """
+                public class Mutator
+                {
+                    private name_: string;
+
+                    public constructor()
+                    {
+                        this.name_ = "Static Steve";
+                    }
+
+                    public mutate_name(): void
+                    {
+                        this.name_ = "Dynamic Dave";
+                    }
+                }
+
+                var mutator = new Mutator();
+                mutator.mutate_name();
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Field 'this.name_' cannot be assigned to");
+        }
+
+        [Fact]
+        public void mutating_immutable_field_multiple_times_in_constructor_throws_expected_error()
+        {
+            string source = """
+                public class Mutator
+                {
+                    // Not initialized; has to be assigned to in constructor
+                    private name_: string;
+
+                    public constructor()
+                    {
+                        // The first assignment is fine, but the second is expected to throw an error like in other
+                        // programming languages, such as Java and C#.
+                        this.name_ = "Static Steve";
+                        this.name_ = "Dynamic Dave";
+                    }
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Field 'this.name_' cannot be assigned to; the field is immutable and has already been assigned to");
         }
 
         [Fact]
@@ -521,9 +675,8 @@ namespace Perlang.Tests.Integration.Classes
             string source = """
                 public class Greeter
                 {
-                    // TODO: Remove the 'mutable' keyword here when we support immutable fields
-                    private mutable name: string = "Bob";
-                    private mutable age: int = 42;
+                    private name: string = "Bob";
+                    private age: int = 42;
 
                     public say_hello(): void
                     {
@@ -549,10 +702,8 @@ namespace Perlang.Tests.Integration.Classes
             string source = """
                 public class Greeter
                 {
-                    // TODO: Remove mutable specifier when supported
-
                     // The initializer (42) is not implicitly coercible to string
-                    private mutable name: string = 42;
+                    private name: string = 42;
                 }
                 """;
 
@@ -570,9 +721,7 @@ namespace Perlang.Tests.Integration.Classes
             string source = """
                 public class Greeter
                 {
-                    // TODO: Should be able to be immutable, when we support initializing immutable fields from
-                    // constructor.
-                    private mutable name: string;
+                    private name: string;
 
                     public constructor(name: string)
                     {
@@ -602,12 +751,40 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void accessing_field_outside_class_throws_expected_error()
+        {
+            string source = """
+                public class Greeter
+                {
+                    private name: string;
+
+                    public constructor(name: string)
+                    {
+                        this.name = name;
+                    }
+                }
+
+                // This is expected to be invalid, since 'name' is a private field.
+                var greeter = new Greeter("Charlie");
+                print greeter.name;
+                """;
+
+            // We currently don't have any validation of our own for this, but the C++ compiler is kind enough to do it
+            // for us for now... >:-)
+            var result = EvalWithCppCompilationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("'name' is a private member of 'Greeter'");
+        }
+
+        [Fact]
         public void parameter_names_can_shadow_fields()
         {
             string source = """
                 public class Greeter
                 {
-                    // TODO: Can be immutable when supported by compiler
                     private mutable name: string = "Default name";
 
                     public constructor(name: string)
@@ -634,10 +811,8 @@ namespace Perlang.Tests.Integration.Classes
                 );
         }
 
-        // TODO: This is a big limitation; code like this is something which should definitely be detected. We must not
-        // TODO: have any such thing as "undefined behaviour" in Perlang.
-        [Fact(Skip = "Validation of this is not yet implemented; does not emit warnings on either the Perlang or C++ side")]
-        public void uninitialized_fields_emits_expected_error()
+        [Fact]
+        public void uninitialized_field_emits_expected_error_when_constructor_present()
         {
             string source = """
                 public class Greeter
@@ -647,25 +822,56 @@ namespace Perlang.Tests.Integration.Classes
                     public constructor()
                     {
                     }
-
-                    // Adding dummy method for now since this will trigger a Valgrind error, because of uninitialized
-                    // memory (and hopefully crash the program/fail the test if run without Valgrind).
-                    public say_hello(): void
-                    {
-                        print("Hello from say_hello, " + name);
-                    }
                 }
-
-                var greeter = new Greeter();
-                greeter.say_hello();
                 """;
 
-            var result = EvalWithCppCompilationErrorCatch(source);
+            var result = EvalWithValidationErrorCatch(source);
 
             result.Errors.Should()
                 .ContainSingle()
                 .Which
-                .Message.Should().Contain("TODO");
+                .Message.Should().Contain("Field 'name' in class 'Greeter' was not initialized in field initializer or constructor");
+        }
+
+        [Fact]
+        public void uninitialized_field_emits_expected_error_when_no_constructor_defined()
+        {
+            string source = """
+                public class Greeter
+                {
+                    private name: string;
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Field 'name' in class 'Greeter' was not initialized in field initializer, and no constructors have been defined");
+        }
+
+        [Fact]
+        public void uninitialized_field_emits_expected_error_when_only_mutated_from_non_constructor_method()
+        {
+            string source = """
+                public class Greeter
+                {
+                    private name: string;
+
+                    public mutate_name(): void
+                    {
+                        this.name = "Dynamic Dave";
+                    }
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Field 'name' in class 'Greeter' was not initialized in field initializer, and no constructors have been defined");
         }
 
         [Fact]
@@ -674,11 +880,9 @@ namespace Perlang.Tests.Integration.Classes
             string source = """
                 public class Greeter
                 {
-                    // TODO: Remove mutable keyword when we introduce support for imutable fields
-
                     // This is currently not supported; fields must be private (or protected, when we implement
                     // inheritance)
-                    public mutable name: string;
+                    public name: string;
                 }
                 """;
 
