@@ -807,8 +807,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     "-Wno-implicit-const-int-float-conversion",
 
                     // 1073741824 * 2 causes a warning about this. As with other overflows, we could consider
-                    // implementing warnings for them but we want them on the Perlang level instead of on clang level in
-                    // that case.
+                    // implementing warnings for them, but we want them on the Perlang level instead of on clang level
+                    // in that case.
                     "-Wno-integer-overflow",
 
                     // Handled on the Perlang side
@@ -965,7 +965,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             // enforce this via e.g. ArchUnit.NET or a unit test)
 
             case GREATER:
-                // TODO: We might need something like CheckNumberOperands() in PerlangInterpreter here, but we can obviously not do any value-based checking since we are a compiler and no
+                // TODO: We might need something like CheckNumberOperands() in PerlangInterpreter here, but we can
+                // TODO: obviously not do any value-based checking since we are a compiler and not an interpreter
                 result.Append($"{expr.Left.Accept(this)} > {expr.Right.Accept(this)}");
                 break;
 
