@@ -49,6 +49,7 @@ namespace Perlang.Parser
                 { "while", WHILE },
 
                 // Visibility, static/instance, etc
+                { "extern", EXTERN },
                 { "mutable", MUTABLE },
                 { "public", PUBLIC },
                 { "private", PRIVATE },

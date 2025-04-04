@@ -151,7 +151,7 @@ namespace Perlang.Parser
 
             while (!IsAtEnd)
             {
-                statements.Add(Declaration());
+                statements.Add(Declaration(isExternDeclaration: false));
             }
 
             return statements;
@@ -188,7 +188,7 @@ namespace Perlang.Parser
 
             while (!IsAtEnd)
             {
-                statements.Add(Declaration());
+                statements.Add(Declaration(isExternDeclaration: false));
 
                 if (foundExpression)
                 {
@@ -211,14 +211,21 @@ namespace Perlang.Parser
             return Assignment();
         }
 
-        private Stmt Declaration()
+        private Stmt Declaration(bool isExternDeclaration)
         {
             try
             {
+                // This is a silly limitation, but for now we enforce a particular token order for various "prefixes"
+                // for fields, methods etc. In the future, we could aim for relaxing this a bit.
+                if (Match(EXTERN)) {
+                    throw Error(Previous(), "'extern' keyword must come after visibility");
+                }
+
                 if (Check(PUBLIC) || Check(PRIVATE))
                 {
                     Token visibilityToken = Advance();
 
+                    var isExtern = isExternDeclaration;
                     var isMutable = false;
 
                     var visibility = visibilityToken switch
@@ -228,22 +235,26 @@ namespace Perlang.Parser
                         _ => throw new IllegalStateException($"Unexpected token type {visibilityToken.Type}")
                     };
 
+                    if (Match(EXTERN)) {
+                        isExtern = true;
+                    }
+
                     if (Match(MUTABLE)) {
                         isMutable = true;
                     }
 
-                    if (Match(CLASS)) return Class(visibility);
-                    if (Match(CONSTRUCTOR)) return Function("constructor", visibility);
-                    if (Match(DESTRUCTOR)) return Function("destructor", visibility);
+                    if (Match(CLASS)) return Class(visibility, isExtern);
+                    if (Match(CONSTRUCTOR)) return Function("constructor", visibility, isExtern);
+                    if (Match(DESTRUCTOR)) return Function("destructor", visibility, isExtern);
 
                     // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
                     // support instance and static fields here too, which will make things considerably more challenging
                     // (since we are leaning towards dropping the slightly obnoxious 'fun' keyword for functions.
                     // Obnoxious it is, but it does simplify the parsing of the code significantly).
-                    return FunctionOrField("method", visibility, isMutable);
+                    return FunctionOrField("method", visibility, isMutable, isExtern);
                 }
 
-                if (Match(FUN)) return Function("function", Visibility.Unspecified);
+                if (Match(FUN)) return Function("function", Visibility.Unspecified, isExtern: false);
                 if (Match(VAR)) return VarDeclaration();
                 if (Match(ENUM)) return Enum();
 
@@ -455,7 +466,7 @@ namespace Perlang.Parser
             return new Stmt.ExpressionStmt(expr);
         }
 
-        private Stmt.Class Class(Visibility visibility)
+        private Stmt.Class Class(Visibility visibility, bool isExtern)
         {
             Token name = Consume(IDENTIFIER, "Expecting class name.");
             Consume(LEFT_BRACE, "Expecting '{' before class body.");
@@ -464,7 +475,7 @@ namespace Perlang.Parser
             List<Stmt.Field> fields = [];
 
             while (!Check(RIGHT_BRACE) && !IsAtEnd) {
-                Stmt stmt = Declaration();
+                Stmt stmt = Declaration(isExtern);
 
                 if (stmt is Stmt.Function method) {
                     methods.Add(method);
@@ -493,17 +504,17 @@ namespace Perlang.Parser
             return @class;
         }
 
-        private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable)
+        private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable, bool isExtern)
         {
-            return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable);
+            return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable, isExtern);
         }
 
-        private Stmt Function(string kind, Visibility visibility)
+        private Stmt Function(string kind, Visibility visibility, bool isExtern)
         {
-            return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null);
+            return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null, isExtern);
         }
 
-        private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable)
+        private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable, bool isExtern)
         {
             Token name;
 
@@ -525,7 +536,7 @@ namespace Perlang.Parser
                     BlockReservedIdentifiers(name);
 
                     // This is a 'field: type' declaration. Parse it as such.
-                    return FieldDeclaration(name, visibility, isMutable ?? throw new ArgumentNullException(nameof(isMutable)));
+                    return FieldDeclaration(name, visibility, isMutable ?? throw new ArgumentNullException(nameof(isMutable)), isExtern);
                 }
                 else {
                     throw Error(Peek(), "Expect '(' or ':' to declare a method or a field");
@@ -608,15 +619,28 @@ namespace Perlang.Parser
                 returnTypeReference = new TypeReference(returnTypeSpecifier, isReturnTypeArray);
             }
 
-            Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
-            List<Stmt> body = Block();
+            if (isExtern) {
+                if (Check(LEFT_BRACE)) {
+                    throw Error(Previous(), "'extern' methods must not have a body.");
+                }
 
-            return new Stmt.Function(
-                name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor
-            );
+                Consume(SEMICOLON, "Expect ';' after field definition.");
+
+                return new Stmt.Function(
+                    name, visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true
+                );
+            }
+            else {
+                Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+                List<Stmt> body = Block();
+
+                return new Stmt.Function(
+                    name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false
+                );
+            }
         }
 
-        private Stmt.Field FieldDeclaration(Token name, Visibility visibility, bool isMutable)
+        private Stmt.Field FieldDeclaration(Token name, Visibility visibility, bool isMutable, bool isExtern)
         {
             // This a bit strict, but we currently enforce it like this. Public fields definitely feel like an
             // anti-pattern, and I think we'll keep it like this for some time to see what it feels like. For 'struct'
@@ -630,6 +654,11 @@ namespace Perlang.Parser
             Token typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
             Expr initializer = null;
+
+            if (Check(EQUAL) && isExtern)
+            {
+                throw Error(Previous(), "'extern' fields must not have an initializer.");
+            }
 
             if (Match(EQUAL))
             {
@@ -677,7 +706,7 @@ namespace Perlang.Parser
 
             while (!Check(RIGHT_BRACE) && !IsAtEnd)
             {
-                statements.Add(Declaration());
+                statements.Add(Declaration(isExternDeclaration: false));
             }
 
             Consume(RIGHT_BRACE, "Expect '}' after block.");

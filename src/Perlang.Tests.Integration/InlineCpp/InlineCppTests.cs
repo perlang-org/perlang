@@ -44,39 +44,79 @@ namespace Perlang.Tests.Integration.InlineCpp
             }
         }
 
-        [Fact(DisplayName = "C++ method can be called from Perlang code", Skip = "Needs `extern` keyword")]
-        public void cpp_method_can_be_called_from_perlang_code()
+        // Note about using the extern keyword: the compiler will perform absolutely NO VALIDATION WHATSOEVER that the
+        // class definition matches the C++ implementation. However, a C++ class definition will be generated from this
+        // and added to the header file, so in case the C++ code is implemented in the same file (as in this example),
+        // all will be fine. If it's defined in another compilation unit though, you could very well run into ANY KIND
+        // OF WEIRD CRASHES, BUGS ETC when using this functionality. It's an extremely powerful feature and can be very
+        // useful but should be handled with care.
+
+        [Fact(DisplayName = "C++ method in 'extern' class can be called from Perlang code outside the class")]
+        public void cpp_method_in_extern_class_can_be_called_from_perlang_code_outside_the_class()
         {
-            // TODO: Even if/when we can get the parser to consume the "raw" C++ code and handle it correctly, there's
-            // TODO: still a challenge here. The Perlang code doesn't know anything about this method. How could we change
-            // TODO: this? We would need something like an `extern` keyword or so, so you can write
-            // TODO: `extern fun native_method(): void;`. This is probably the "easiest" way out of this. As a workaround
-            // TODO: for now, we could skip this test and add another test method which just has a C++ `main` function
-            // TODO: which prints a message as step 1. We can then fix `extern` in a separate PR.
             string source = """
                 #c++-prototypes
-                static void cpp_method();
-                #/c++prototypes
+                #include <iostream>
+                #/c++-prototypes
 
-                extern fun cpp_method(): void;
-
-                fun main(): void
+                public extern class CppClass
                 {
-                    cpp_method();
+                    public cpp_method(): void;
                 }
+
+                // TODO: Would be nice to be able to put this in an explicit 'main' method, but it's not currently
+                // possible since it causes a conflict with top-level statements. This forces us to write the code in a
+                // slightly messy way.
+                var cpp = new CppClass();
+                cpp.cpp_method();
 
                 #c++-methods
-                void cpp_method()
+                void CppClass::cpp_method()
                 {
-                    puts(""cpp_method output"");
+                    std::cout << "Hello World from cpp_method" << std::endl;
                 }
-                #/c++methods
+                #/c++-methods
                 """;
 
             var output = EvalReturningOutput(source);
 
             output.Should()
-                .Equal("cpp_method output");
+                .Equal("Hello World from cpp_method");
+        }
+
+        [Fact(DisplayName = "C++ method marked as 'extern' can be called from Perlang code inside the same class")]
+        public void cpp_method_marked_as_extern_can_be_called_from_perlang_code_inside_the_same_class()
+        {
+            string source = """
+                #c++-prototypes
+                #include <iostream>
+                #/c++-prototypes
+
+                public class Greeter
+                {
+                    public extern cpp_method(): void;
+
+                    public greet(): void
+                    {
+                        cpp_method();
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.greet();
+
+                #c++-methods
+                void Greeter::cpp_method()
+                {
+                    std::cout << "Hello World from cpp_method" << std::endl;
+                }
+                #/c++-methods
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal("Hello World from cpp_method");
         }
 
         [Fact(DisplayName = "C++ method can contain C++ comment")]

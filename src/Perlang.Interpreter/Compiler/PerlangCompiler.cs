@@ -1742,30 +1742,32 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             classDefinitionBuilder.AppendLine(");");
 
             // Implementation
-            if (method.IsConstructor) {
-                classImplementationBuilder.Append($"{stmt.Name}::{stmt.Name}(");
-            }
-            else if (method.IsDestructor) {
-                classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
-            }
-            else {
-                classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.Name.Lexeme}(");
-            }
-
-            for (int i = 0; i < method.Parameters.Count; i++) {
-                Parameter parameter = method.Parameters[i];
-                classImplementationBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
-
-                if (i < method.Parameters.Count - 1) {
-                    classImplementationBuilder.Append(", ");
+            if (!method.IsExtern) {
+                if (method.IsConstructor) {
+                    classImplementationBuilder.Append($"{stmt.Name}::{stmt.Name}(");
                 }
+                else if (method.IsDestructor) {
+                    classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
+                }
+                else {
+                    classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.Name.Lexeme}(");
+                }
+
+                for (int i = 0; i < method.Parameters.Count; i++) {
+                    Parameter parameter = method.Parameters[i];
+                    classImplementationBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+
+                    if (i < method.Parameters.Count - 1) {
+                        classImplementationBuilder.Append(", ");
+                    }
+                }
+
+                classImplementationBuilder.AppendLine(") {");
+                classImplementationBuilder.Append(method.Accept(this));
+                classImplementationBuilder.AppendLine("};");
+
+                classImplementationBuilder.AppendLine();
             }
-
-            classImplementationBuilder.AppendLine(") {");
-            classImplementationBuilder.Append(method.Accept(this));
-            classImplementationBuilder.AppendLine("};");
-
-            classImplementationBuilder.AppendLine();
         }
 
         classDefinitionBuilder.AppendLine("};");

@@ -113,9 +113,10 @@ namespace Perlang
             public ITypeReference ReturnTypeReference { get; }
             public bool IsConstructor { get; set; }
             public bool IsDestructor { get; set; }
+            public bool IsExtern { get; }
 
             public Function(Token name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
-                bool isConstructor, bool isDestructor) {
+                bool isConstructor, bool isDestructor, bool isExtern) {
                 Name = name ?? throw new System.ArgumentNullException(nameof(name));
                 Visibility = visibility;
                 Parameters = parameters.ToImmutableList();
@@ -123,6 +124,7 @@ namespace Perlang
                 ReturnTypeReference = returnTypeReference;
                 IsConstructor = isConstructor;
                 IsDestructor = isDestructor;
+                IsExtern = isExtern;
                 Class = Stmt.Class.None;
             }
 

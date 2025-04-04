@@ -74,6 +74,7 @@ namespace TokenType {
         CONSTRUCTOR,
         DESTRUCTOR,
         ELSE,
+        EXTERN,
         ENUM,
         FALSE,
         FUN,
