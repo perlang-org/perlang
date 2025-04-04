@@ -1659,7 +1659,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             }
         }
 
-        result.AppendLine(");");
+        result.Append(")");
 
         return result.ToString();
     }
@@ -1828,11 +1828,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     {
         using var result = NativeStringBuilder.Create();
 
+        if (stmt.Expression is Expr.Empty) {
+            // Empty expressions are sometimes emitted by the compiler. We ignore them at this point, since they will
+            // otherwise make the output look a bit funny (bare semicolons indented to the right level).
+            return String.Empty;
+        }
+
         // We only emit the "wrapping" (whitespace before + semicolon and newline after expression) in this case; the
         // rest comes from visiting the expression itself
         result.Append(Indent(indentationLevel));
         result.Append(stmt.Expression.Accept(this));
-        result.AppendLine(";");
+        result.AppendLine(";"); // detta löser inte problemet
 
         return result.ToString();
     }
