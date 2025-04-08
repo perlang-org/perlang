@@ -45,15 +45,12 @@ internal class NameResolver : VisitorBase
     /// Initializes a new instance of the <see cref="NameResolver"/> class.
     /// </summary>
     /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
-    /// <param name="superGlobals">A dictionary of "super-globals"; a set of pre-defined global variables, coming
-    /// from outside of the program itself.</param>
     /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
     /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
     /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
     /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
     internal NameResolver(
         IImmutableDictionary<string, Type> globalClasses,
-        IImmutableDictionary<string, Type> superGlobals,
         IBindingHandler bindingHandler,
         Action<string, IPerlangClass> addGlobalClassCallback,
         NameResolutionErrorHandler nameResolutionErrorHandler)
@@ -65,11 +62,6 @@ internal class NameResolver : VisitorBase
         foreach ((string key, Type value) in globalClasses)
         {
             globals[key] = new NativeClassBindingFactory(value);
-        }
-
-        foreach ((string key, Type value) in superGlobals)
-        {
-            globals[key] = new NativeObjectBindingFactory(value);
         }
     }
 

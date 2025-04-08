@@ -179,10 +179,8 @@ namespace Perlang.ConsoleApp
                         bool idempotent = parseResult.GetValueForOption(idempotentOption);
 
                         using var program = new Program(
-                            replMode: false,
                             standardOutputHandler: Console.WriteLine,
-                            disabledWarningsAsErrors: disabledWarningsAsErrorsList,
-                            experimentalCompilation: PerlangMode.ExperimentalCompilation
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
                         );
 
                         int result = program.CompileAndAssembleFile(scriptNames, outputFileName, idempotent);
@@ -192,34 +190,13 @@ namespace Perlang.ConsoleApp
                     {
                         string scriptName = parseResult.GetValueForArgument(scriptNameArgument);
                         string? outputFileName = parseResult.GetValueForOption(outputOption);
-                        int result;
 
-                        if (parseResult.Tokens.Count == 1)
-                        {
-                            using var program = new Program(
-                                replMode: false,
-                                standardOutputHandler: Console.WriteLine,
-                                disabledWarningsAsErrors: disabledWarningsAsErrorsList,
-                                experimentalCompilation: PerlangMode.ExperimentalCompilation
-                            );
+                        using var program = new Program(
+                            standardOutputHandler: Console.WriteLine,
+                            disabledWarningsAsErrors: disabledWarningsAsErrorsList
+                        );
 
-                            result = program.RunFile(scriptName, outputFileName);
-                        }
-                        else
-                        {
-                            var remainingArguments = parseResult.GetValueForArgument(scriptArguments);
-
-                            using var program = new Program(
-                                replMode: false,
-                                arguments: remainingArguments,
-                                standardOutputHandler: Console.WriteLine,
-                                disabledWarningsAsErrors: disabledWarningsAsErrorsList,
-                                experimentalCompilation: PerlangMode.ExperimentalCompilation
-                            );
-
-                            // FIXME: The remainingArguments should be passed here instead into the Program constructor.
-                            result = program.RunFile(scriptName, outputFileName);
-                        }
+                        int result = program.RunFile(scriptName, outputFileName);
 
                         return Task.FromResult(result);
                     }
@@ -241,12 +218,9 @@ namespace Perlang.ConsoleApp
         }
 
         private Program(
-            bool replMode,
             Action<Lang.String> standardOutputHandler,
-            IEnumerable<string>? arguments = null,
             IEnumerable<WarningType>? disabledWarningsAsErrors = null,
-            Action<RuntimeError>? runtimeErrorHandler = null,
-            bool experimentalCompilation = false)
+            Action<RuntimeError>? runtimeErrorHandler = null)
         {
             // TODO: Make these be separate handlers at some point, so the caller can separate between these types of
             // TODO: output.

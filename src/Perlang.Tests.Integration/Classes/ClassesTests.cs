@@ -1012,20 +1012,6 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
-        public void class_name_clash_with_native_object_throws_expected_error()
-        {
-            string source = @"
-                public class ARGV {}
-            ";
-
-            var result = EvalWithNameResolutionErrorCatch(source);
-            var exception = result.Errors.First();
-
-            Assert.Single(result.Errors);
-            Assert.Matches("Object ARGV already defined; cannot redefine", exception.Message);
-        }
-
-        [Fact]
         public void class_name_clash_with_function_throws_expected_error()
         {
             string source = @"

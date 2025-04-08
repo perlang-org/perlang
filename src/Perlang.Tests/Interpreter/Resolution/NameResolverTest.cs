@@ -44,7 +44,6 @@ namespace Perlang.Tests.Interpreter.Resolution
 
             var resolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
-                ImmutableDictionary<string, Type>.Empty,
                 compiler.BindingHandler,
                 AssertFailAddGlobalClassHandler,
                 AssertFailNameResolutionErrorHandler

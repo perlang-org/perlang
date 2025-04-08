@@ -23,7 +23,6 @@ using Perlang.Interpreter.Typing;
 using Perlang.Lang;
 using Perlang.Native;
 using Perlang.Parser;
-using Perlang.Stdlib;
 using static Perlang.TokenType;
 using String = System.String;
 
@@ -95,7 +94,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     private readonly Action<RuntimeError> runtimeErrorHandler;
     private readonly Action<Lang.String> standardOutputHandler;
     private readonly PerlangEnvironment globals = new();
-    private readonly IImmutableDictionary<string, Type> superGlobals;
 
     /// <summary>
     /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
@@ -123,12 +121,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     ///     this handler, the interpreter will abort the script.</param>
     /// <param name="standardOutputHandler">An callback that will receive output printed to standard output.</param>
     /// <param name="bindingHandler">A binding handler, or `null` to let the interpreter create a new instance.</param>
-    /// <param name="arguments">An optional list of runtime arguments.</param>
     public PerlangCompiler(
         Action<RuntimeError> runtimeErrorHandler,
         Action<Lang.String> standardOutputHandler,
-        IBindingHandler? bindingHandler = null,
-        IEnumerable<string>? arguments = null)
+        IBindingHandler? bindingHandler = null)
     {
         this.runtimeErrorHandler = runtimeErrorHandler;
         this.standardOutputHandler = standardOutputHandler;
@@ -143,10 +139,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", mainMethodContent);
 
-        var argumentsList = (arguments ?? Array.Empty<string>()).ToImmutableList();
-
-        superGlobals = CreateSuperGlobals(argumentsList);
-
         LoadStdlib();
         nativeClasses = RegisterGlobalFunctionsAndClasses();
     }
@@ -158,21 +150,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         foreach (Method method in methods.Values) {
             method.MethodBody.Dispose();
         }
-    }
-
-    private IImmutableDictionary<string, Type> CreateSuperGlobals(ImmutableList<string> argumentsList)
-    {
-        // Set up the super-global ARGV variable.
-        var result = new Dictionary<string, Type>
-        {
-            { "ARGV", typeof(Argv) }
-        }.ToImmutableDictionary();
-
-        // TODO: Returning a value AND modifying the globals like this feels like a code smell. Try to figure out
-        // TODO: a more sensible way.
-        globals.Define(new Token(VAR, "ARGV", null, -1), new Argv(argumentsList));
-
-        return result;
     }
 
     private static void LoadStdlib()
@@ -478,7 +455,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         var nameResolver = new NameResolver(
             nativeClasses,
-            superGlobals,
             BindingHandler,
             AddGlobalClass,
             nameResolutionError =>

@@ -133,7 +133,6 @@ namespace Perlang.Tests.Interpreter.Typing
 
             var nameResolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
-                ImmutableDictionary<string, Type>.Empty,
                 compiler.BindingHandler,
                 AssertFailAddGlobalClassHandler,
                 AssertFailNameResolutionErrorHandler
