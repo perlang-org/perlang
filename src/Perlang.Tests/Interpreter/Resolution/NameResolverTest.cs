@@ -1,3 +1,5 @@
+#pragma warning disable SA1118
+
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -14,9 +16,11 @@ namespace Perlang.Tests.Interpreter.Resolution
         public void VisitVarStmt_defines_variable_with_correct_TypeReference()
         {
             // Act
-            (Stmt singleStatement, NameResolver resolver) = ScanParseAndResolveSingleStatement(@"
-                var i: int = 123456;
-            ");
+            (Stmt singleStatement, NameResolver resolver) = ScanParseAndResolveSingleStatement(
+                nameof(VisitVarStmt_defines_variable_with_correct_TypeReference) + ".per",
+                @"
+                    var i: int = 123456;
+                ");
 
             // Assert. We want to ensure that the proper TypeReference is being used in the VariableBindingFactory
             // which has been created at this point, since using the TypeReference from the initializer instead of the
@@ -27,12 +31,14 @@ namespace Perlang.Tests.Interpreter.Resolution
             Assert.Equal(((Stmt.Var)singleStatement).TypeReference, ((VariableBindingFactory)resolver.Globals["i"]).TypeReference);
         }
 
-        private static (Stmt Stmt, NameResolver Resolver) ScanParseAndResolveSingleStatement(string program)
+        private static (Stmt Stmt, NameResolver Resolver) ScanParseAndResolveSingleStatement(string fileName, string program)
         {
             using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
-                program,
+                [
+                    new SourceFile(fileName, program)
+                ],
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler
             );

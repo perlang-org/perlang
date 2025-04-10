@@ -158,7 +158,9 @@ perlang_cli_install_release: perlang_cli
 	cp lib/perlang_cli/lib/perlang_cli.so $(RELEASE_PERLANG_DIRECTORY)
 
 perlang_cli_install_integration_test_debug: perlang_cli
+	mkdir -p src/Perlang.Tests/bin/Debug/net8.0
 	mkdir -p src/Perlang.Tests.Integration/bin/Debug/net8.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Debug/net8.0
 	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Debug/net8.0
 
 perlang_cli_install_integration_test_release: perlang_cli

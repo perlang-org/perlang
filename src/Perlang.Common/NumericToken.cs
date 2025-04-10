@@ -10,8 +10,8 @@ public class NumericToken : Token
     public NumberStyles NumberStyles { get; }
     public bool HasSuffix => Suffix != null;
 
-    public NumericToken(string lexeme, int line, string numberCharacters, char? suffix, bool isFractional, Base numberBase, NumberStyles numberStyles)
-        : base(TokenType.NUMBER, lexeme, numberCharacters, line)
+    public NumericToken(string lexeme, string fileName, int line, string numberCharacters, char? suffix, bool isFractional, Base numberBase, NumberStyles numberStyles)
+        : base(TokenType.NUMBER, lexeme, numberCharacters, fileName, line)
     {
         IsFractional = isFractional;
         Suffix = suffix;

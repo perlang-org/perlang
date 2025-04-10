@@ -229,7 +229,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         CompilerWarningHandler compilerWarningHandler)
     {
         string? executablePath = Compile(
-            source,
+            [
+                new SourceFile(path, source)
+            ],
             path,
             targetPath,
             compilerFlags,
@@ -312,7 +314,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     }
 
     /// <summary>
-    /// Compiles and assembles the given Perlang program to a .o file (ELF object file).
+    /// Compiles and assembles the given Perlang program to an .o file (ELF object file).
     /// </summary>
     /// <param name="source">The Perlang program to compile.</param>
     /// <param name="path">The path to the source file.</param>
@@ -325,9 +327,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// <param name="typeValidationErrorHandler">A handler for type validation errors.</param>
     /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
     /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
-    /// <returns>The path to the compiled .o file. Note that this will be non-null even on unsuccessful
-    /// compilation.</returns>
-    public string? CompileAndAssemble(
+    public void CompileAndAssemble(
         string source,
         string path,
         string? targetPath,
@@ -339,8 +339,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         ValidationErrorHandler immutabilityValidationErrorHandler,
         CompilerWarningHandler compilerWarningHandler)
     {
-        string? executablePath = Compile(
-            source,
+        Compile(
+            [
+                new SourceFile(path, source)
+            ],
             path,
             targetPath,
             compilerFlags,
@@ -352,14 +354,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             compilerWarningHandler,
             compileAndAssembleOnly: true
         );
-
-        return executablePath;
     }
 
     /// <summary>
     /// Compiles the given Perlang program to an executable.
     /// </summary>
-    /// <param name="source">The Perlang program to compile.</param>
+    /// <param name="sourceFiles">A list of one or more Perlang source files to compile.</param>
     /// <param name="path">The path and file name of the source file.</param>
     /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
     /// on the source file name.</param>
@@ -374,7 +374,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// the given program, but do not generate an executable (and inherently do not execute it).</param>
     /// <returns>The path to the generated executable file, or `null` if compilation failed.</returns>
     private string? Compile(
-        string source,
+        ImmutableList<SourceFile> sourceFiles,
         string path,
         string? targetPath,
         CompilerFlags compilerFlags,
@@ -410,7 +410,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         }
 
         ScanAndParseResult result = PerlangParser.ScanAndParse(
-            source,
+            sourceFiles,
             scanErrorHandler,
             parseErrorHandler,
             replMode: false

@@ -10,6 +10,7 @@ using System.Linq;
 using Perlang.Compiler;
 using Perlang.Interpreter.Extensions;
 using Perlang.Interpreter.Internals;
+using Type = System.Type;
 
 namespace Perlang.Interpreter.NameResolution;
 
@@ -209,7 +210,7 @@ internal class NameResolver : VisitorBase
         var thisTypeReference = new TypeReference(null, isArray: false);
 
         var thisField = new Stmt.Field(
-            new Token(TokenType.THIS, "this", literal: null, @class.NameToken.Line),
+            new Token(TokenType.THIS, "this", literal: null, @class.NameToken.FileName, @class.NameToken.Line),
             Visibility.Private,
             isMutable: false,
             initializer: null,

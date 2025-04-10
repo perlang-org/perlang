@@ -27,7 +27,7 @@ namespace Perlang.Parser
                 where = " at '" + Token.Lexeme + "'";
             }
 
-            return $"[line {Token.Line}] Error{where}: {Message}";
+            return $"[{Token.FileName}:{Token.Line}] Error{where}: {Message}";
         }
     }
 }

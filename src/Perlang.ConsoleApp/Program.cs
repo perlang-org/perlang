@@ -288,7 +288,8 @@ namespace Perlang.ConsoleApp
             }
 
             // Note: path here is a bit of a simplification. It means that if you specify multiple .per files as the
-            // input, the output .cc/executable name will always be based on the first file name provided.
+            // input, the output .cc/executable name will always be based on the first file name provided. We could
+            // change this to always require targetPath to be provided in such cases, to be more explicit.
             string path = scriptFiles.First();
 
             CompileAndAssemble(completeSource.ToString(), path, targetPath, CompilerWarning, idempotent);
@@ -321,7 +322,7 @@ namespace Perlang.ConsoleApp
 
         private void ScanError(ScanError scanError)
         {
-            ReportError(scanError.Line, String.Empty, scanError.Message);
+            ReportError(scanError.FileName, scanError.Line, String.Empty, scanError.Message);
         }
 
         private void RuntimeError(RuntimeError error)
@@ -336,17 +337,18 @@ namespace Perlang.ConsoleApp
         {
             if (token.Type == TokenType.PERLANG_EOF)
             {
-                ReportError(token.Line, " at end", message);
+                ReportError(token.FileName, token.Line, " at end", message);
             }
             else
             {
-                ReportError(token.Line, " at '" + token.Lexeme + "'", message);
+                ReportError(token.FileName, token.Line, " at '" + token.Lexeme + "'", message);
             }
         }
 
-        private void ReportError(int line, string where, string message)
+        private void ReportError(string fileName, int line, string where, string message)
         {
-            standardErrorHandlerFromClrString($"[line {line}] Error{where}: {message}");
+            // TODO: Make a more Rust-like experience for this: #218
+            standardErrorHandlerFromClrString($"\x1b[0;34m[\x1b[34;1m{fileName}:{line}\x1b[0;34m]\x1b[0;1m Error{where}:\x1b[0m {message}");
             hadError = true;
         }
 

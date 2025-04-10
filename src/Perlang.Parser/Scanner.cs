@@ -154,6 +154,7 @@ namespace Perlang.Parser
             ReservedKeywordOnlyStrings
                 .Concat(ReservedTypeKeywordStrings);
 
+        private readonly string fileName;
         private readonly string source;
         private readonly ScanErrorHandler scanErrorHandler;
 
@@ -162,8 +163,9 @@ namespace Perlang.Parser
         private int current;
         private int line = 1;
 
-        public Scanner(string source, ScanErrorHandler scanErrorHandler)
+        public Scanner(string fileName, string source, ScanErrorHandler scanErrorHandler)
         {
+            this.fileName = fileName;
             this.source = source;
             this.scanErrorHandler = scanErrorHandler;
         }
@@ -187,7 +189,7 @@ namespace Perlang.Parser
                 ScanToken();
             }
 
-            tokens.Add(new Token(PERLANG_EOF, System.String.Empty, null, line));
+            tokens.Add(new Token(PERLANG_EOF, System.String.Empty, literal: null, fileName, line));
             return tokens;
         }
 
@@ -390,7 +392,7 @@ namespace Perlang.Parser
                     }
                     else
                     {
-                        scanErrorHandler(new ScanError("Unexpected character " + c, line));
+                        scanErrorHandler(new ScanError("Unexpected character " + c, fileName, line));
                     }
 
                     break;
@@ -476,7 +478,7 @@ namespace Perlang.Parser
             // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
             // from Lox) worked poorly with our idea of "narrowing down" constants to the smallest possible integer. See
             // #302 for some more details.
-            AddToken(new NumericToken(source[start..current], line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
+            AddToken(new NumericToken(fileName, source[start..current], line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
         }
 
         private static string RemoveUnderscores(string s)
@@ -506,7 +508,7 @@ namespace Perlang.Parser
             // Unterminated string.
             if (IsAtEnd())
             {
-                scanErrorHandler(new ScanError("Unterminated string.", line));
+                scanErrorHandler(new ScanError("Unterminated string.", fileName, line));
                 return;
             }
 
@@ -538,7 +540,7 @@ namespace Perlang.Parser
                     }
 
                     if (IsAtEnd()) {
-                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", line));
+                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, line));
                         return;
                     }
 
@@ -558,7 +560,7 @@ namespace Perlang.Parser
                         AddToken(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES, value.Trim());
                     }
                     else {
-                        scanErrorHandler(new ScanError($"Expected '/c++-prototypes' but got '{endDirective}'.", line));
+                        scanErrorHandler(new ScanError($"Expected '/c++-prototypes' but got '{endDirective}'.", fileName, line));
                     }
 
                     break;
@@ -571,7 +573,7 @@ namespace Perlang.Parser
                     }
 
                     if (IsAtEnd()) {
-                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", line));
+                        scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, line));
                         return;
                     }
 
@@ -591,14 +593,14 @@ namespace Perlang.Parser
                         AddToken(PREPROCESSOR_DIRECTIVE_CPP_METHODS, value.Trim());
                     }
                     else {
-                        scanErrorHandler(new ScanError($"Expected '/c++-methods' but got '{endDirective}'.", line));
+                        scanErrorHandler(new ScanError($"Expected '/c++-methods' but got '{endDirective}'.", fileName, line));
                     }
 
                     break;
                 }
 
                 default:
-                    scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", line));
+                    scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", fileName, line));
                     break;
             }
         }
@@ -692,7 +694,7 @@ namespace Perlang.Parser
         private void AddToken(TokenType type, object literal = null)
         {
             string text = source[start..current];
-            tokens.Add(new Token(type, text, literal, line));
+            tokens.Add(new Token(type, text, literal, fileName, line));
         }
 
         private void AddToken(Token token)

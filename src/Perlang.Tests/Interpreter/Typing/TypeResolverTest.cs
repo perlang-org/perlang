@@ -1,3 +1,5 @@
+#pragma warning disable SA1118
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -19,9 +21,11 @@ namespace Perlang.Tests.Interpreter.Typing
         public void Resolve_var_with_long_type_defines_variable_with_expected_ClrType()
         {
             // Act
-            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
-                var l: long = 123456;
-            ");
+            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
+                nameof(Resolve_var_with_long_type_defines_variable_with_expected_ClrType) + ".per",
+                @"
+                    var l: long = 123456;
+                ");
 
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
@@ -32,9 +36,11 @@ namespace Perlang.Tests.Interpreter.Typing
         [Fact]
         public void Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_ClrType()
         {
-            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
-                var v = 0b00101010;
-            ");
+            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
+                nameof(Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_ClrType) + ".per",
+                @"
+                    var v = 0b00101010;
+                ");
 
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
@@ -45,9 +51,11 @@ namespace Perlang.Tests.Interpreter.Typing
         [Fact]
         public void Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_ClrType()
         {
-            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
-                var v = 0o755;
-            ");
+            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
+                nameof(Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_ClrType) + ".per",
+                @"
+                    var v = 0o755;
+                ");
 
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
@@ -58,9 +66,11 @@ namespace Perlang.Tests.Interpreter.Typing
         [Fact]
         public void Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_ClrType()
         {
-            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(@"
-                var v = 0xC0CAC01A;
-            ");
+            (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
+                nameof(Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_ClrType) + ".per",
+                @"
+                    var v = 0xC0CAC01A;
+                ");
 
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
@@ -72,10 +82,12 @@ namespace Perlang.Tests.Interpreter.Typing
         public void Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_ClrType()
         {
             // Act
-            (List<Stmt> statements, NameResolver resolver) = ScanParseResolveAndTypeResolveStatements(@"
-                var l: long = 123456;
-                var m = l;
-            ");
+            (List<Stmt> statements, NameResolver resolver) = ScanParseResolveAndTypeResolveStatements(
+                nameof(Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_ClrType) + ".per",
+                @"
+                    var l: long = 123456;
+                    var m = l;
+                ");
 
             // Assert
             Stmt firstStmt = statements.First();
@@ -97,9 +109,11 @@ namespace Perlang.Tests.Interpreter.Typing
         public void Resolve_exponential_expression_with_constant_value_is_resolved_as_BigInteger()
         {
             // Act
-            (Stmt stmt, _) = ScanParseResolveAndTypeResolveSingleStatement(@"
-                2 ** 31;
-            ");
+            (Stmt stmt, _) = ScanParseResolveAndTypeResolveSingleStatement(
+                nameof(Resolve_exponential_expression_with_constant_value_is_resolved_as_BigInteger) + ".per",
+                @"
+                    2 ** 31;
+                ");
 
             // Assert
             Assert.IsType<Stmt.ExpressionStmt>(stmt);
@@ -109,9 +123,9 @@ namespace Perlang.Tests.Interpreter.Typing
             Assert.Equal(typeof(BigInteger), expr.TypeReference.ClrType);
         }
 
-        private static (Stmt Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveSingleStatement(string program)
+        private static (Stmt Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveSingleStatement(string fileName, string program)
         {
-            (IList<Stmt> stmts, NameResolver nameResolver) = ScanParseResolveAndTypeResolveStatements(program);
+            (IList<Stmt> stmts, NameResolver nameResolver) = ScanParseResolveAndTypeResolveStatements(fileName, program);
             Assert.Single(stmts);
 
             Stmt singleStatement = stmts.Single();
@@ -119,12 +133,14 @@ namespace Perlang.Tests.Interpreter.Typing
             return (singleStatement, nameResolver);
         }
 
-        private static (List<Stmt> Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveStatements(string program)
+        private static (List<Stmt> Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveStatements(string fileName, string program)
         {
             using var compiler = new PerlangCompiler(AssertFailRuntimeErrorHandler, s => throw new ApplicationException(s.ToString()));
 
             var scanAndParseResult = PerlangParser.ScanAndParse(
-                program,
+                [
+                    new SourceFile(fileName, program)
+                ],
                 AssertFailScanErrorHandler,
                 AssertFailParseErrorHandler
             );

@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -61,14 +62,14 @@ namespace Perlang.Parser
         /// parsing a given program. It is also used for interpreting the expressions/statements, or compiling it to
         /// executable form.
         /// </summary>
-        /// <param name="source">The source code to a Perlang program (typically a single line of Perlang code).</param>
+        /// <param name="sourceFiles">The source code to a Perlang program, consisting of one or more source files.</param>
         /// <param name="scanErrorHandler">A handler for scanner errors.</param>
         /// <param name="parseErrorHandler">A handler for parse errors.</param>
         /// <param name="replMode">`true` if the program is being executed in REPL mode; otherwise, `false`. REPL mode
         /// implies a more relaxed more where e.g. semicolons are automatically added after each line.</param>
         /// <returns>A <see cref="ScanAndParseResult"/> instance.</returns>
         public static ScanAndParseResult ScanAndParse(
-            string source,
+            ImmutableList<SourceFile> sourceFiles,
             ScanErrorHandler scanErrorHandler,
             ParseErrorHandler parseErrorHandler,
             bool replMode = false)
@@ -78,18 +79,22 @@ namespace Perlang.Parser
             //
 
             bool hasScanErrors = false;
-            var scanner = new Scanner(source, scanError =>
-            {
-                hasScanErrors = true;
-                scanErrorHandler(scanError);
-            });
+            var tokens = new List<Token>();
 
-            var tokens = scanner.ScanTokens();
+            foreach (SourceFile sourceFile in sourceFiles) {
+                var scanner = new Scanner(sourceFile.FileName, sourceFile.Source, scanError =>
+                {
+                    hasScanErrors = true;
+                    scanErrorHandler(scanError);
+                });
 
-            if (hasScanErrors)
-            {
-                // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
-                return ScanAndParseResult.ScanErrorOccurred;
+                tokens.AddRange(scanner.ScanTokens());
+
+                if (hasScanErrors)
+                {
+                    // Something went wrong as early as the "scan" stage. Abort the rest of the processing.
+                    return ScanAndParseResult.ScanErrorOccurred;
+                }
             }
 
             //
