@@ -61,12 +61,27 @@ namespace perlang
         print(str.get());
     }
 
+    void print(const std::shared_ptr<String>& str)
+    {
+        print(str.get());
+    }
+
     void print(const std::shared_ptr<const String>& str)
     {
         print(str.get());
     }
 
+    void print(const std::shared_ptr<ASCIIString>& str)
+    {
+        print(str.get());
+    }
+
     void print(const std::shared_ptr<const ASCIIString>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::shared_ptr<UTF8String>& str)
     {
         print(str.get());
     }

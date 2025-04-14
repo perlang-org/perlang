@@ -42,7 +42,11 @@ namespace perlang
     void print(const std::unique_ptr<const ASCIIString>& str);
     void print(const std::unique_ptr<UTF8String>& str);
     void print(const std::unique_ptr<const UTF8String>& str);
+    void print(const std::shared_ptr<String>& str);
     void print(const std::shared_ptr<const String>& str);
+    void print(const std::shared_ptr<ASCIIString>& str);
+    void print(const std::shared_ptr<const ASCIIString>& str);
+    void print(const std::shared_ptr<UTF8String>& str);
     void print(const std::shared_ptr<const UTF8String>& str);
 
     void print(bool b);
@@ -54,6 +58,12 @@ namespace perlang
     void print(const BigInt& bigint);
     void print(float f);
     void print(double d);
+
+    // TODO: We would like to enable this, but it breaks with EnumTests since they expect to be able to implicitly
+    // TODO: convert enum values to int32_t.
+    // Ensure that print() is never called with any other argument than the ones explicitly defined above.
+    //template <class T>
+    //void print(T) = delete;
 
     BigInt BigInt_mod(const BigInt& value, const BigInt& divisor);
     BigInt BigInt_pow(const BigInt& value, int exponent);
