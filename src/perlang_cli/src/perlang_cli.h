@@ -65,6 +65,7 @@ namespace TokenType {
         MINUS_EQUAL,
         STAR,
         STAR_STAR,
+        CHAR,
         IDENTIFIER,
         STRING,
         NUMBER,

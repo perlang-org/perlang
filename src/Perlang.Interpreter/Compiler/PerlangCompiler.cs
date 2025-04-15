@@ -561,6 +561,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // to avoid conflicts with the "real" main method of the program the .o file is being linked into.
                 methods.Remove("main");
             }
+            else {
+                // This is important to make wprintf() work correctly with non-ASCII content. Without it, all such characters
+                // are replaced with "?" in the output.
+                mainMethodContent.AppendLine("setlocale(LC_ALL, \"\");");
+            }
 
             // The AST traverser returns its output. We put it in the main method content, which is written along with
             // all other methods in the code further below.
@@ -650,6 +655,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 // {headerLine}
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
+#include <locale.h> // setlocale()
 #include <math.h> // fmod()
 #include <memory> // std::shared_ptr
 #include <stdint.h>
@@ -1391,13 +1397,39 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         }
         else if (expr.Value is Utf8String)
         {
-            // The value is an UTF-8 string literal, so it is safe to use this factory method to wrap it in an UTF8String
+            // The value is a UTF-8 string literal, so it is safe to use this factory method to wrap it in an UTF8String
             // on the C++ side. (The "static string" is the important part here; because we know that it's a literal, we
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
             result.Append("perlang::UTF8String::from_static_string(\"");
             result.Append(expr);
             result.Append("\")");
+        }
+        else if (expr.Value is char c)
+        {
+            switch (c) {
+                case '\'':
+                    result.Append("'\\\''");
+                    break;
+                case '\\':
+                    result.Append("'\\\\'");
+                    break;
+                case '\x1B':
+                    result.Append("'\\x1B'");
+                    break;
+                case '\n':
+                    result.Append("'\\n'");
+                    break;
+                case '\r':
+                    result.Append("'\\r'");
+                    break;
+                case '\t':
+                    result.Append("'\\t'");
+                    break;
+                default:
+                    result.Append($"L'{c}'");
+                    break;
+            }
         }
         else if (expr.Value == null)
         {

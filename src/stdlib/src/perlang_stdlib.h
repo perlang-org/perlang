@@ -51,6 +51,7 @@ namespace perlang
 
     void print(bool b);
     void print(char c);
+    void print(char16_t c);
     void print(int32_t i);
     void print(uint32_t u);
     void print(int64_t i);

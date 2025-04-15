@@ -1,6 +1,7 @@
 // Automatically generated code by Perlang
 // Do not modify. Changes to this file might be overwritten the next time the Perlang compiler is executed.
 
+#include <locale.h> // setlocale()
 #include <math.h> // fmod()
 #include <memory> // std::shared_ptr
 #include <stdint.h>

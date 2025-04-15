@@ -7,21 +7,6 @@ namespace Perlang.Tests.Integration.ReservedTokens
     public class ReservedTokensTests
     {
         [Fact]
-        public void single_quote_throws_expected_error()
-        {
-            // Single quotes are currently unused, but will likely be used to support C/C#/Java-style single characters.
-            string source = @"
-                var c = 'x';
-            ";
-
-            var result = EvalWithParseErrorCatch(source);
-            var exception = result.Errors.First();
-
-            Assert.Single(result.Errors);
-            Assert.Matches("Error at ''': Expect expression", exception.ToString());
-        }
-
-        [Fact]
         public void ampersand_throws_expected_error()
         {
             // Singe-ampersands will be used for bitwise AND operator.

@@ -67,7 +67,7 @@ namespace Perlang.Parser
                 // When adding types to that method, the list below in `ReservedTypeKeywordStrings` also need to be
                 // maintained. (This is indeed a rather unpleasant mess. It is done this way to allow `int`, `long` and
                 // similar to be used as variable/parameter types, but forbid their usage as identifier names. One way
-                // to fix this would by by defining INT, LONG etc as dedicated token types. Another way would be to add
+                // to fix this would be by defining INT, LONG etc. as dedicated token types. Another way would be to add
                 // some other flag here in addition to TokenType, to be able to more elegantly special-case it
                 // elsewhere.)
                 //
@@ -76,7 +76,6 @@ namespace Perlang.Parser
                 { "short", RESERVED_WORD },
                 { "ushort", RESERVED_WORD },
                 { "decimal", RESERVED_WORD },
-                { "char", RESERVED_WORD },
 
                 // Visibility, static/instance, etc
                 { "protected", RESERVED_WORD },
@@ -233,7 +232,7 @@ namespace Perlang.Parser
                     AddToken(Match('&') ? AMPERSAND_AMPERSAND : AMPERSAND);
                     break;
                 case '\'':
-                    AddToken(SINGLE_QUOTE);
+                    CharLiteral();
                     break;
                 case '(':
                     AddToken(LEFT_PAREN);
@@ -603,6 +602,60 @@ namespace Perlang.Parser
                     scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", fileName, line));
                     break;
             }
+        }
+
+        private void CharLiteral()
+        {
+            char c;
+
+            // The first character is expected to be either a character or a backslash. Anything else is considering
+            // invalid. Note that only 1-byte and 2-byte characters are supported in character literals; e.g. emojis and
+            // other characters which require more space are unsupported.
+            if (!Match('\\')) {
+                if (Peek() == '\'') {
+                    scanErrorHandler(new ScanError("Character literal cannot be empty.", fileName, line));
+                    return;
+                }
+
+                c = Advance();
+            }
+            else {
+                char escapeCharacter = Advance();
+
+                switch (escapeCharacter) {
+                    case '\'':
+                        c = '\'';
+                        break;
+                    case '\\':
+                        c = '\\';
+                        break;
+                    case 'e':
+                        c = '\x1B';
+                        break;
+                    case 'n':
+                        c = '\n';
+                        break;
+                    case 'r':
+                        c = '\r';
+                        break;
+                    case 't':
+                        c = '\t';
+                        break;
+                    // TODO: Support \xHHHH notation.
+
+                    default:
+                        scanErrorHandler(new ScanError($"Unsupported escape character: {escapeCharacter}.", fileName, line));
+                        return;
+                }
+            }
+
+            if (IsAtEnd() || !Match('\''))
+            {
+                scanErrorHandler(new ScanError("Unterminated character literal.", fileName, line));
+                return;
+            }
+
+            AddToken(CHAR, c);
         }
 
         /// <summary>

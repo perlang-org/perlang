@@ -106,6 +106,11 @@ namespace perlang
         printf("%c\n", c);
     }
 
+    void print(char16_t c)
+    {
+        wprintf(L"%lc\n", c);
+    }
+
     void print(int32_t i)
     {
         printf("%d\n", i);

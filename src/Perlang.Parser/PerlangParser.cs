@@ -1009,6 +1009,13 @@ namespace Perlang.Parser
                 return new Expr.Literal(nativeString);
             }
 
+            if (Match(CHAR))
+            {
+                char c = (char)Previous().Literal!;
+
+                return new Expr.Literal(c);
+            }
+
             if (Match(THIS))
             {
                 // We don't use any separate expression type for 'this', but just puts 'this' as a regular local variable

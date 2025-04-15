@@ -78,6 +78,7 @@ namespace Perlang
                 var t when t == typeof(bool) => CppType.ValueType("bool"),
                 var t when t == typeof(void) => CppType.ValueType("void"),
                 var t when t == typeof(BigInteger) => CppType.ValueType("BigInt"),
+                var t when t == typeof(char) => CppType.ValueType("char16_t"), // Deliberately not char on the C++-side, since it's an 8-bit type
 
                 // Arrays of value types
                 var t when t == typeof(Int32[]) => new CppType("perlang::IntArray", WrapInSharedPtr: true),
@@ -95,7 +96,6 @@ namespace Perlang
                 // These are not necessarily valid types on the C++ side, but must be handled to avoid the
                 // NotImplementedInCompiledModeException exception below. We set them to something that we can use for
                 // triggering a user-friendly exception at the PerlangCompiler stage.
-                var t when t == typeof(char) => new CppType("char", IsSupported: false),
                 var t when t == typeof(string) => new CppType("string", IsSupported: false),
                 var t when t == typeof(Type) => new CppType("Type", IsSupported: false),
                 var t when t == typeof(PerlangEnum) => new CppType("PerlangEnum", IsSupported: false),

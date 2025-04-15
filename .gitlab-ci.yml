@@ -11,8 +11,10 @@ variables:
   # Enable coloured output from CMake (https://bixense.com/clicolors/)
   CLICOLOR_FORCE: 1
 
-  PERLANG_ROOT: $CI_PROJECT_DIR
+  # This is necessary for wprintf() to be able to output Unicode (non-ASCII) characters
+  LANG: en_US.UTF-8
 
+  PERLANG_ROOT: $CI_PROJECT_DIR
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/releases"
 
 build-perlang-cli:
@@ -32,7 +34,7 @@ build-perlang-cli:
 
     # Finally, ensure that the generated C++ is identical to the file(s) in the repo. These should never diff; if they
     # do, the developer must run the given command locally and commit the changes.
-    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources. Run `make perlang_cli_clean perlang_cli` to regenerate it/them." && git diff --color=always && exit 1)'
+    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the following C++ file(s) from Perlang sources. Run make perlang_cli_clean perlang_cli to regenerate it/them." && git diff --color=always && exit 1)'
 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

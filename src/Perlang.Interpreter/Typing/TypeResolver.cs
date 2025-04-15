@@ -1041,6 +1041,10 @@ namespace Perlang.Interpreter.Typing
                     typeReference.SetClrType(typeReference.IsArray ? typeof(Lang.String[]) : typeof(Lang.String));
                     break;
 
+                case "char":
+                    typeReference.SetClrType(typeReference.IsArray ? typeof(char[]) : typeof(char));
+                    break;
+
                 case "void":
                     if (typeReference.IsArray) {
                         typeValidationErrorCallback(new TypeValidationError(
