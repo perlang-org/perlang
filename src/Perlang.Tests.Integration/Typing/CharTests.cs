@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -33,6 +34,24 @@ public class CharTests
         var output = EvalReturningOutputString(source);
 
         Assert.Equal("ø", output);
+    }
+
+    [Fact]
+    public void char_variable_cannot_contain_non_bmp_character()
+    {
+        string source = """
+            // This kind of UTF character is too wide for a 16-bit char, and is currently not supported in character
+            // literals.
+            var c: char = '🎉';
+
+            print(c);
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match("Character literal can only contain characters from the Basic Multilingual Plane");
     }
 
     [Fact]
@@ -76,5 +95,47 @@ public class CharTests
         var output = EvalReturningOutputString(source);
 
         Assert.Equal("\t", output);
+    }
+
+    [Fact]
+    public void empty_character_literal_throws_expected_error()
+    {
+        string source = """
+            var c: char = '';
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Contain("Character literal cannot be empty");
+    }
+
+    [Fact]
+    public void unsupported_octal_escape_sequence_throws_expected_error()
+    {
+        string source = """
+            var c: char = '\0';
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Be("Unsupported escape sequence: \\0.");
+    }
+
+    [Fact]
+    public void unsupported_hexadecimal_escape_sequence_throws_expected_error()
+    {
+        string source = """
+            var c: char = '\x1B';
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Be("Unsupported escape sequence: \\x1B.");
     }
 }

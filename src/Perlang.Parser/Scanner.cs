@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Perlang.Collections;
 using Perlang.Native;
+using Perlang.Text;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -612,7 +613,7 @@ namespace Perlang.Parser
             // invalid. Note that only 1-byte and 2-byte characters are supported in character literals; e.g. emojis and
             // other characters which require more space are unsupported.
             if (!Match('\\')) {
-                if (Peek() == '\'') {
+                if (Match('\'')) {
                     scanErrorHandler(new ScanError("Character literal cannot be empty.", fileName, line));
                     return;
                 }
@@ -643,9 +644,47 @@ namespace Perlang.Parser
                         break;
                     // TODO: Support \xHHHH notation.
 
-                    default:
-                        scanErrorHandler(new ScanError($"Unsupported escape character: {escapeCharacter}.", fileName, line));
+                    default: {
+                        // Special-case this a bit, to allow for variable-length unsupported escape sequences like \0,
+                        // \x1B, \x1F389
+                        using var sb = NativeStringBuilder.Create();
+                        sb.Append('\\');
+                        sb.Append(escapeCharacter);
+
+                        while (!IsAtEnd()) {
+                            // The order of the checks here is important, since we don't want to sb.Append(Peek()) the
+                            // trailing ' character.
+                            if (Match('\'')) {
+                                scanErrorHandler(new ScanError($"Unsupported escape sequence: {sb}.", fileName, line));
+                                return;
+                            }
+
+                            sb.Append(Peek());
+                            Advance();
+                        }
+
+                        scanErrorHandler(new ScanError("Unterminated character literal.", fileName, line));
                         return;
+                    }
+                }
+            }
+
+            // See https://en.wikipedia.org/wiki/UTF-16#Description for more details on how characters outside the BMP
+            // are represented. We cannot easily support these in Perlang without making our `char` type be 32-bit; I'm
+            // not sure that's a price we're willing to pay (since it also means we need to make indexable strings be
+            // encoded in UTF-32).
+            if (c > 0xD800 && c < 0xDFFF) {
+                char d = Advance();
+
+                // Deliberately do not return inside these blocks, to ensure we handle "unterminated unsupported UTF-16
+                // literals" as well.
+                if (d > 0xDC00 && d < 0xDFFF) {
+                    // TODO: Could include the actual surrogate pair in the error message here, or at least the exact column
+                    // TODO: location
+                    scanErrorHandler(new ScanError("Character literal can only contain characters from the Basic Multilingual Plane", fileName, line));
+                }
+                else {
+                    scanErrorHandler(new ScanError("Invalid UTF-16 surrogate pair encountered", fileName, line));
                 }
             }
 
