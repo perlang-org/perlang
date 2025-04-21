@@ -1414,6 +1414,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 case '\\':
                     result.Append("'\\\\'");
                     break;
+                case '\0':
+                    result.Append("'\\0'");
+                    break;
                 case '\x1B':
                     result.Append("'\\x1B'");
                     break;

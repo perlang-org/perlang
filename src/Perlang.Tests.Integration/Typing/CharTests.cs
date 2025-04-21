@@ -98,6 +98,21 @@ public class CharTests
     }
 
     [Fact]
+    public void char_literal_supports_nul_escape_sequence()
+    {
+        string source = """
+            var c: char = '\0';
+
+            print(c);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        // This is expected to be empty, since \0 is unprintable by printf("%c", c)
+        Assert.Equal("", output);
+    }
+
+    [Fact]
     public void empty_character_literal_throws_expected_error()
     {
         string source = """
@@ -114,15 +129,18 @@ public class CharTests
     [Fact]
     public void unsupported_octal_escape_sequence_throws_expected_error()
     {
+        // Octal character literals are not supported, just like in C#, apart for the `\0` sequence for convenience.
+        // There is little reason for us to add support for it, since we (unlike C++) don't need to be backward
+        // compatible with C.
         string source = """
-            var c: char = '\0';
+            var c: char = '\033';
             """;
 
         var result = EvalWithScanErrorCatch(source);
 
         result.Errors.Should()
             .ContainSingle().Which
-            .Message.Should().Be("Unsupported escape sequence: \\0.");
+            .Message.Should().Be("Unsupported escape sequence: \\033.");
     }
 
     [Fact]

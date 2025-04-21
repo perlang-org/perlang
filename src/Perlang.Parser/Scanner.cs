@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using Perlang.Collections;
 using Perlang.Native;
-using Perlang.Text;
 using static Perlang.TokenType;
 
 namespace Perlang.Parser
@@ -495,6 +494,7 @@ namespace Perlang.Parser
 
         private void String()
         {
+            // TODO: Add support for the same escape sequences we support for `char` literals
             while (Peek() != '"' && !IsAtEnd())
             {
                 if (Peek() == '\n')
@@ -627,9 +627,6 @@ namespace Perlang.Parser
                     case '\'':
                         c = '\'';
                         break;
-                    case '\\':
-                        c = '\\';
-                        break;
                     case 'e':
                         c = '\x1B';
                         break;
@@ -642,9 +639,20 @@ namespace Perlang.Parser
                     case 't':
                         c = '\t';
                         break;
+                    case '\\':
+                        c = '\\';
+                        break;
+
                     // TODO: Support \xHHHH notation.
 
                     default: {
+                        // Handle \0 specially, while falling through to the error handler below for other, "normal"
+                        // octal sequences like \033
+                        if (escapeCharacter == '0' && Peek() == '\'') {
+                            c = '\0';
+                            break;
+                        }
+
                         // Special-case this a bit, to allow for variable-length unsupported escape sequences like \0,
                         // \x1B, \x1F389
                         using var sb = NativeStringBuilder.Create();
