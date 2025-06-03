@@ -19,8 +19,8 @@ public unsafe partial class perlang_cli
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "native_main", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void NativeMain(int argc, sbyte** argv);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z15perlang_versionv", CallingConvention = __CallingConvention.Cdecl)]
-        internal static extern void PerlangVersion();
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z21print_perlang_versionv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void PrintPerlangVersion();
 
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24perlang_detailed_versionv", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void PerlangDetailedVersion();
@@ -31,9 +31,9 @@ public unsafe partial class perlang_cli
         __Internal.NativeMain(argc, argv);
     }
 
-    public static void PerlangVersion()
+    public static void PrintPerlangVersion()
     {
-        __Internal.PerlangVersion();
+        __Internal.PrintPerlangVersion();
     }
 
     public static void PerlangDetailedVersion()
@@ -1809,23 +1809,26 @@ namespace Perlang
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEc", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_1(sbyte c);
 
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEDs", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void Print_2(char c);
+
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEi", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_2(int i);
+            internal static extern void Print_3(int i);
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEj", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_3(uint u);
+            internal static extern void Print_4(uint u);
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEl", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_4(long i);
+            internal static extern void Print_5(long i);
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEm", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_5(ulong i);
+            internal static extern void Print_6(ulong i);
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEf", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_6(float f);
+            internal static extern void Print_7(float f);
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEd", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void Print_7(double d);
+            internal static extern void Print_8(double d);
         }
 
         public static void Print(global::Perlang.ASCIIString str)
@@ -1846,34 +1849,39 @@ namespace Perlang
             __Internal.Print_1(c);
         }
 
+        public static void Print(char c)
+        {
+            __Internal.Print_2(c);
+        }
+
         public static void Print(int i)
         {
-            __Internal.Print_2(i);
+            __Internal.Print_3(i);
         }
 
         public static void Print(uint u)
         {
-            __Internal.Print_3(u);
+            __Internal.Print_4(u);
         }
 
         public static void Print(long i)
         {
-            __Internal.Print_4(i);
+            __Internal.Print_5(i);
         }
 
         public static void Print(ulong i)
         {
-            __Internal.Print_5(i);
+            __Internal.Print_6(i);
         }
 
         public static void Print(float f)
         {
-            __Internal.Print_6(f);
+            __Internal.Print_7(f);
         }
 
         public static void Print(double d)
         {
-            __Internal.Print_7(d);
+            __Internal.Print_8(d);
         }
     }
 

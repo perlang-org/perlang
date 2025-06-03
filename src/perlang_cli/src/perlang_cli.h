@@ -102,9 +102,10 @@ namespace TokenType {
 // Method definitions
 //
 std::shared_ptr<perlang::String> get_git_describe_version();
-std::shared_ptr<perlang::String> get_git_commit();
+std::shared_ptr<perlang::String> get_git_commit_id();
 std::shared_ptr<perlang::String> get_build_timestamp();
 std::shared_ptr<perlang::String> get_build_user();
 std::shared_ptr<perlang::String> get_build_host();
-void perlang_version();
+void print_perlang_version();
+std::shared_ptr<perlang::String> perlang_version();
 void perlang_detailed_version();

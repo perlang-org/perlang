@@ -12,6 +12,6 @@ namespace Perlang
     public static partial class CommonConstants
     {
         public const string Version = GitTagVersion;
-        public const string InformationalVersion = GitDescribeVersion;
+        public const string InformationalVersion = $"{GitDescribeVersion}+{GitCommitID}";
     }
 }

@@ -15,6 +15,8 @@ GIT_TAG_VERSION.sub!(%r{^v}, '')
 GIT_DESCRIBE_VERSION = CUSTOM_VERSION || `git describe --tags | sed s%^dev/%% | sed s/-g.*$// | sed -E "s/-([0-9]*)$/-dev.\\1/"`.rstrip
 GIT_DESCRIBE_VERSION.sub!(%r{^v}, '')
 
+GIT_COMMIT_ID = `git rev-parse --short HEAD`.strip
+
 common_constants = <<~EOF
 //
 // AUTO-GENERATED FILE, do not edit manually. Edit the scripts/update_common_constants.rb file instead.
@@ -25,6 +27,7 @@ namespace Perlang
     {
         public const string GitTagVersion = "#{GIT_TAG_VERSION}";
         public const string GitDescribeVersion = "#{GIT_DESCRIBE_VERSION}";
+        public const string GitCommitID = "#{GIT_COMMIT_ID}";
     }
 }
 EOF

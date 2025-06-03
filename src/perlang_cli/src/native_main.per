@@ -8,8 +8,8 @@ fun get_git_describe_version(): string {
     return "##GIT_DESCRIBE_VERSION##";
 }
 
-fun get_git_commit(): string {
-    return "##GIT_COMMIT##";
+fun get_git_commit_id(): string {
+    return "##GIT_COMMIT_ID##";
 }
 
 fun get_build_timestamp(): string {
@@ -24,15 +24,17 @@ fun get_build_host(): string {
     return "##BUILD_HOST##";
 }
 
-fun perlang_version(): void
-{
-    print get_git_describe_version();
+fun print_perlang_version(): void {
+    print perlang_version();
 }
 
-fun perlang_detailed_version(): void
-{
-    print "Perlang version: " + get_git_describe_version();
-    print "Built from git commit " + get_git_commit() + ", " + get_build_timestamp() + " by " + get_build_user() + "@" + get_build_host();
+fun perlang_version(): string {
+    return get_git_describe_version() + "+" + get_git_commit_id();
+}
+
+fun perlang_detailed_version(): void {
+    print "Perlang version: " + perlang_version();
+    print "Built from git commit " + get_git_commit_id() + ", " + get_build_timestamp() + " by " + get_build_user() + "@" + get_build_host();
 }
 
 #c++-methods
@@ -59,7 +61,7 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
     while ((opt = getopt_long(argc, argv, "vV", long_options, longindex)) != -1) {
         switch (opt) {
             case 'v':
-                perlang_version();
+                print_perlang_version();
                 exit(0);
                 break;
             case 'V':
