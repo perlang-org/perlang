@@ -536,6 +536,10 @@ namespace Perlang.Parser
                 case "c++-prototypes":
                 {
                     while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
+                        if (Peek() == '\n') {
+                            line++;
+                        }
+
                         Advance();
                     }
 
@@ -569,6 +573,10 @@ namespace Perlang.Parser
                 case "c++-methods":
                 {
                     while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
+                        if (Peek() == '\n') {
+                            line++;
+                        }
+
                         Advance();
                     }
 
