@@ -232,7 +232,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             [
                 new SourceFile(path, source)
             ],
-            path,
             targetPath,
             compilerFlags,
             scanErrorHandler,
@@ -316,10 +315,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// <summary>
     /// Compiles and assembles the given Perlang program to an .o file (ELF object file).
     /// </summary>
-    /// <param name="source">The Perlang program to compile.</param>
-    /// <param name="path">The path to the source file.</param>
+    /// <param name="sourceFiles">One or more <see cref="SourceFile"/>s that should be compiled.</param>
     /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
-    /// on the source path.</param>
+    /// on the source path (to the first <see cref="SourceFile"/>, if multiple ones have been provided).</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
     /// <param name="scanErrorHandler">A handler for scanner errors.</param>
     /// <param name="parseErrorHandler">A handler for parse errors.</param>
@@ -328,8 +326,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// <param name="immutabilityValidationErrorHandler">A handler for immutability validation errors.</param>
     /// <param name="compilerWarningHandler">A handler for compiler warnings.</param>
     public void CompileAndAssemble(
-        string source,
-        string path,
+        ImmutableList<SourceFile> sourceFiles,
         string? targetPath,
         CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
@@ -340,10 +337,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         CompilerWarningHandler compilerWarningHandler)
     {
         Compile(
-            [
-                new SourceFile(path, source)
-            ],
-            path,
+            sourceFiles,
             targetPath,
             compilerFlags,
             scanErrorHandler,
@@ -360,7 +354,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// Compiles the given Perlang program to an executable.
     /// </summary>
     /// <param name="sourceFiles">A list of one or more Perlang source files to compile.</param>
-    /// <param name="path">The path and file name of the source file.</param>
     /// <param name="targetPath">The full path to the target file, or <c>null</c> to generate the target file name based
     /// on the source file name.</param>
     /// <param name="compilerFlags">One or more <see cref="CompilerFlags"/> to use.</param>
@@ -375,7 +368,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     /// <returns>The path to the generated executable file, or `null` if compilation failed.</returns>
     private string? Compile(
         ImmutableList<SourceFile> sourceFiles,
-        string path,
         string? targetPath,
         CompilerFlags compilerFlags,
         ScanErrorHandler scanErrorHandler,
@@ -386,6 +378,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         CompilerWarningHandler compilerWarningHandler,
         bool compileAndAssembleOnly = false)
     {
+        if (sourceFiles.IsEmpty) {
+            throw new ArgumentException("One or more source files must be provided", nameof(sourceFiles));
+        }
+
+        // Note: determining path like this here is a bit of a simplification. It means that if you specify multiple
+        // .per files as the input, the output .cc/executable name will always be based on the first file name provided.
+        // We could change this to always require targetPath to be provided in such cases, to be more explicit.
+        string path = sourceFiles.First().FileName;
+
         string targetCppFile = Path.ChangeExtension(targetPath ?? path, ".cc");
         string targetHeaderFile = Path.ChangeExtension(targetPath ?? path, ".h");
 

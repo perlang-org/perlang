@@ -2,6 +2,7 @@
 #pragma warning disable S112
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.NamingConventionBinder;
@@ -271,7 +272,7 @@ namespace Perlang.ConsoleApp
 
         private int CompileAndAssembleFile(string[] scriptFiles, string? targetPath, bool idempotent)
         {
-            using var completeSource = NativeStringBuilder.Create();
+            var sourceFiles = ImmutableList.CreateBuilder<SourceFile>();
 
             foreach (string scriptFile in scriptFiles)
             {
@@ -281,18 +282,10 @@ namespace Perlang.ConsoleApp
                     return (int)ExitCodes.FILE_NOT_FOUND;
                 }
 
-                string source = NativeFile.read_all_text(scriptFile);
-
-                completeSource.Append(source);
-                completeSource.AppendLine();
+                sourceFiles.Add(new SourceFile(scriptFile, NativeFile.read_all_text(scriptFile)));
             }
 
-            // Note: path here is a bit of a simplification. It means that if you specify multiple .per files as the
-            // input, the output .cc/executable name will always be based on the first file name provided. We could
-            // change this to always require targetPath to be provided in such cases, to be more explicit.
-            string path = scriptFiles.First();
-
-            CompileAndAssemble(completeSource.ToString(), path, targetPath, CompilerWarning, idempotent);
+            CompileAndAssemble(sourceFiles.ToImmutable(), targetPath, CompilerWarning, idempotent);
 
             // Indicate an error in the exit code.
             if (hadError)
@@ -315,9 +308,9 @@ namespace Perlang.ConsoleApp
             compiler.CompileAndRun(source, path, targetPath, CompilerFlags.None, ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
-        private void CompileAndAssemble(string source, string path, string? targetPath, CompilerWarningHandler compilerWarningHandler, bool idempotent)
+        private void CompileAndAssemble(ImmutableList<SourceFile> sourceFiles, string? targetPath, CompilerWarningHandler compilerWarningHandler, bool idempotent)
         {
-            compiler.CompileAndAssemble(source, path, targetPath, CompilerFlags.None | (idempotent ? CompilerFlags.Idempotent : 0), ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
+            compiler.CompileAndAssemble(sourceFiles, targetPath, CompilerFlags.None | (idempotent ? CompilerFlags.Idempotent : 0), ScanError, ParseError, NameResolutionError, ValidationError, ValidationError, compilerWarningHandler);
         }
 
         private void ScanError(ScanError scanError)

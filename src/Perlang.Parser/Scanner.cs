@@ -188,7 +188,6 @@ namespace Perlang.Parser
                 ScanToken();
             }
 
-            tokens.Add(new Token(PERLANG_EOF, System.String.Empty, literal: null, fileName, line));
             return tokens;
         }
 
