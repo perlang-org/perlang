@@ -4,35 +4,43 @@
 extern "C" void native_main(int argc, char* const* argv);
 #/c++-prototypes
 
-fun get_git_describe_version(): string {
+fun get_git_describe_version(): string
+{
     return "##GIT_DESCRIBE_VERSION##";
 }
 
-fun get_git_commit_id(): string {
+fun get_git_commit_id(): string
+{
     return "##GIT_COMMIT_ID##";
 }
 
-fun get_build_timestamp(): string {
+fun get_build_timestamp(): string
+{
     return "##BUILD_TIMESTAMP##";
 }
 
-fun get_build_user(): string {
+fun get_build_user(): string
+{
     return "##BUILD_USER##";
 }
 
-fun get_build_host(): string {
+fun get_build_host(): string
+{
     return "##BUILD_HOST##";
 }
 
-fun print_perlang_version(): void {
+fun print_perlang_version(): void
+{
     print perlang_version();
 }
 
-fun perlang_version(): string {
+fun perlang_version(): string
+{
     return get_git_describe_version() + "+" + get_git_commit_id();
 }
 
-fun perlang_detailed_version(): void {
+fun perlang_detailed_version(): void
+{
     print "Perlang version: " + perlang_version();
     print "Built from git commit " + get_git_commit_id() + ", " + get_build_timestamp() + " by " + get_build_user() + "@" + get_build_host();
 }
