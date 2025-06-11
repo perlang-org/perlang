@@ -735,7 +735,6 @@ namespace Perlang.Interpreter.Typing
                 FieldBinding or
                 VariableBinding or
                 NativeClassBinding or
-                NativeObjectBinding or
                 null)
             {
                 Type? type = expr.Object.TypeReference.ClrType;
