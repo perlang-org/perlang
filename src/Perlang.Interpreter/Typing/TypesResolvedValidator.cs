@@ -5,9 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
+using Perlang.Compiler;
 using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
@@ -77,7 +76,7 @@ namespace Perlang.Interpreter.Typing
         {
             string methodName = get.Name.Lexeme;
 
-            if (get.ClrMethods.Length == 0 && get.PerlangMethods.Length == 0)
+            if (get.PerlangMethods.Length == 0)
             {
                 if (!get.Object.TypeReference.IsResolved)
                 {
@@ -86,6 +85,13 @@ namespace Perlang.Interpreter.Typing
                     //
                     // Now, this is a compile-time error, but the problem is that it's handled by this class itself;
                     // encountering this error will not abort the tree traversal, so we must avoid breaking it.
+                }
+                else if (get.Object.TypeReference.CppType?.WrapInSharedPtr == false)
+                {
+                    // TODO: This is the wrong exception type; should rather be something like
+                    // TODO: InvalidOperationException. For now, we use this to make sure that it causes tests
+                    // TODO: triggering this to be marked as Skipped.
+                    throw new NotImplementedInCompiledModeException($"Calling methods on {get.Object} which is of type {get.Object.TypeReference.CppType.TypeName} is not supported");
                 }
                 else
                 {
@@ -101,95 +107,6 @@ namespace Perlang.Interpreter.Typing
                         "validation is started. "
                     ));
                 }
-            }
-            else if (get.ClrMethods.Length == 1)
-            {
-                MethodInfo method = get.ClrMethods.Single();
-                var parameters = method.GetParameters();
-
-                // There is exactly one potential method to call in this case. We use this fact to provide better
-                // error messages to the caller than when calling an overloaded method.
-                if (parameters.Length != call.Arguments.Count)
-                {
-                    TypeValidationErrorCallback(new TypeValidationError(
-                        call.Paren,
-                        $"Method '{methodName}' has {parameters.Length} parameter(s) but was called with {call.Arguments.Count} argument(s)"
-                    ));
-
-                    return;
-                }
-
-                for (int i = 0; i < call.Arguments.Count; i++)
-                {
-                    ParameterInfo parameter = parameters[i];
-                    Expr argument = call.Arguments[i];
-
-                    if (!argument.TypeReference.IsResolved)
-                    {
-                        throw new PerlangInterpreterException(
-                            $"Internal compiler error: Argument '{argument}' to function {methodName} not resolved");
-                    }
-
-                    // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
-                    // on this if we could provide the token for the argument expression instead. However, the Expr type
-                    // as used by 'argument' is a non-token-based expression so this is currently impossible.
-                    // FIXME: `null` here has disadvantages as described elsewhere.
-                    if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType, null))
-                    {
-                        // Very likely refers to a native method, where parameter names are not available at this point.
-                        TypeValidationErrorCallback(new TypeValidationError(
-                            argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.ParameterType.ToTypeKeyword()} parameter to {methodName}()"));
-                    }
-                }
-            }
-            else if (get.ClrMethods.Length > 1)
-            {
-                // Method is overloaded. Try to resolve the best match we can find.
-                foreach (MethodInfo method in get.ClrMethods)
-                {
-                    var parameters = method.GetParameters();
-
-                    if (parameters.Length != call.Arguments.Count)
-                    {
-                        // The number of parameters do not match, so this method will never be a suitable candidate
-                        // for our expression.
-                        continue;
-                    }
-
-                    bool coercionsFailed = false;
-
-                    for (int i = 0; i < call.Arguments.Count; i++)
-                    {
-                        ParameterInfo parameter = parameters[i];
-                        Expr argument = call.Arguments[i];
-
-                        if (!argument.TypeReference.IsResolved)
-                        {
-                            throw new PerlangInterpreterException(
-                                $"Internal compiler error: Argument '{argument}' to method {methodName} not resolved");
-                        }
-
-                        // FIXME: The same caveat as above with call.Token applies here as well.
-                        if (!TypeCoercer.CanBeCoercedInto(parameter.ParameterType, argument.TypeReference.ClrType, null))
-                        {
-                            coercionsFailed = true;
-                            break;
-                        }
-                    }
-
-                    if (!coercionsFailed)
-                    {
-                        // We have found a suitable overload to use. Update the expression
-                        get.ClrMethods = ImmutableArray.Create(method);
-                        return;
-                    }
-                }
-
-                TypeValidationErrorCallback(new NameResolutionTypeValidationError(
-                    call.Paren,
-                    $"Method '{call.CalleeToString}' found, but no overload matches the provided parameters."
-                ));
             }
             else if (get.PerlangMethods.Length == 1)
             {

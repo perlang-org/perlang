@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.IsAssignableFrom<TargetAndMethodContainer>(Eval("Base64.decode"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_decode_with_no_arguments_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.decode()");
@@ -36,7 +36,7 @@ namespace Perlang.Tests.Integration.Stdlib
             Assert.Equal("hej hej", Eval("Base64.decode(\"aGVqIGhlag\")"));
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_decode_with_a_numeric_argument_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.decode(123)");

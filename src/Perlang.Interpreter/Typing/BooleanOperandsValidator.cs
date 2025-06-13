@@ -1,7 +1,6 @@
 using System;
 using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
-using Perlang.Interpreter.NameResolution;
 
 namespace Perlang.Interpreter.Typing
 {

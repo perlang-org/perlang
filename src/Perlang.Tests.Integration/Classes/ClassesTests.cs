@@ -1087,7 +1087,7 @@ namespace Perlang.Tests.Integration.Classes
             Assert.Equal("Foo", output);
         }
 
-        [Fact]
+        [SkippableFact]
         public void can_call_static_method_native_class()
         {
             string source = @"

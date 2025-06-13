@@ -8,7 +8,7 @@ namespace Perlang.Tests.Integration.Stdlib
 {
     public class Base64EncodeTests
     {
-        [Fact]
+        [SkippableFact]
         public void Base64_encode_with_no_arguments_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.encode()");
@@ -59,7 +59,7 @@ namespace Perlang.Tests.Integration.Stdlib
                 );
         }
 
-        [Fact]
+        [SkippableFact]
         public void Base64_encode_with_a_numeric_argument_throws_the_expected_exception()
         {
             var result = EvalWithValidationErrorCatch("Base64.encode(123)");

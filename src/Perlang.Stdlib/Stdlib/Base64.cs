@@ -5,6 +5,9 @@ using Perlang.Attributes;
 
 namespace Perlang.Stdlib
 {
+    // TODO: Remove this eventually, preferably when we have a C++ replacement for it. Unsure if removing it already now
+    // TODO: would break some existing tests.
+
     /// <summary>
     /// Provides support for encoding and decoding base64-encoded content.
     ///
