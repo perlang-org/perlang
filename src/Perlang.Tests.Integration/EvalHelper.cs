@@ -606,30 +606,30 @@ namespace Perlang.Tests.Integration
         private static void AssertFailNameResolutionErrorHandler(NameResolutionError nameResolutionError)
         {
             if (nameResolutionError.StackTrace != null) {
-                throw new EvalException("NameResolutionError occurred. See inner exception for details.", nameResolutionError);
+                throw new EvalException($"Name resolution error: {nameResolutionError.Message}. See inner exception for details.", nameResolutionError);
             }
             else {
-                throw new EvalException(nameResolutionError.Message);
+                throw new EvalException($"Name resolution error: {nameResolutionError.Message}");
             }
         }
 
         private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
         {
             if (runtimeError.StackTrace != null) {
-                throw new EvalException("RuntimeError occurred. See inner exception for details.", runtimeError);
+                throw new EvalException($"Runtime error: {runtimeError.Message}. See inner exception for details.", runtimeError);
             }
             else {
-                throw new EvalException(runtimeError.Message);
+                throw new EvalException($"Runtime error: {runtimeError.Message}");
             }
         }
 
         private static void AssertFailValidationErrorHandler(ValidationError validationError)
         {
             if (validationError.StackTrace != null) {
-                throw new EvalException("ValidationError occurred. See inner exception for details.");
+                throw new EvalException($"Validation error: {validationError.Message}. See inner exception for details.");
             }
             else {
-                throw new EvalException(validationError.Message);
+                throw new EvalException($"Validation error: {validationError.Message}");
             }
         }
     }
