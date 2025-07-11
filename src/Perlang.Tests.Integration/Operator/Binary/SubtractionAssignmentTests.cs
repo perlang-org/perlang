@@ -25,7 +25,7 @@ public class SubtractionAssignmentTests
 
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_type), MemberType = typeof(BinaryOperatorData))]
-    void with_supported_types_returns_expected_type(string i, string j, string expectedType)
+    private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
         Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 

@@ -23,151 +23,151 @@ public class BinaryOperatorDataTests
     }
 
     [SkippableFact]
-    void Greater_has_test_data_for_all_supported_primitive_types()
+    private void Greater_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Greater, Greater_unsupported_types, "Greater");
     }
 
     [SkippableFact]
-    void Greater_has_test_data_for_all_primitive_type_pairs()
+    private void Greater_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Greater, "Greater");
     }
 
     [SkippableFact]
-    void GreaterEqual_has_test_data_for_all_supported_primitive_types()
+    private void GreaterEqual_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(GreaterEqual, GreaterEqual_unsupported_types, "GreaterEqual");
     }
 
     [SkippableFact]
-    void GreaterEqual_has_test_data_for_all_primitive_type_pairs()
+    private void GreaterEqual_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(GreaterEqual, "GreaterEqual");
     }
 
     [SkippableFact]
-    void Less_has_test_data_for_all_supported_primitive_types()
+    private void Less_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Less, Less_unsupported_types, "Less");
     }
 
     [SkippableFact]
-    void Less_has_test_data_for_all_primitive_type_pairs()
+    private void Less_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Less, "Less");
     }
 
     [SkippableFact]
-    void LessEqual_has_test_data_for_all_supported_primitive_types()
+    private void LessEqual_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(LessEqual, LessEqual_unsupported_types, "LessEqual");
     }
 
     [SkippableFact]
-    void LessEqual_has_test_data_for_all_primitive_type_pairs()
+    private void LessEqual_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(LessEqual, "LessEqual");
     }
 
     [SkippableFact]
-    void NotEqual_has_test_data_for_all_supported_primitive_types()
+    private void NotEqual_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(NotEqual, ImmutableList<object[]>.Empty, "NotEqual");
     }
 
     [SkippableFact]
-    void NotEqual_has_test_data_for_all_primitive_type_pairs()
+    private void NotEqual_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(NotEqual, "NotEqual");
     }
 
     [SkippableFact]
-    void Equal_has_test_data_for_all_supported_primitive_types()
+    private void Equal_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Equal, ImmutableList<object[]>.Empty, "Equal");
     }
 
     [SkippableFact]
-    void Equal_has_test_data_for_all_primitive_type_pairs()
+    private void Equal_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Equal, "Equal");
     }
 
     [SkippableFact]
-    void Subtraction_has_test_data_for_all_supported_primitive_types()
+    private void Subtraction_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Subtraction_result, Subtraction_unsupported_types, "Subtraction");
     }
 
     [SkippableFact]
-    void Subtraction_has_test_data_for_all_primitive_type_pairs()
+    private void Subtraction_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Subtraction_result, "Subtraction");
     }
 
     [SkippableFact]
-    void SubtractionAssignment_has_test_data_for_all_supported_primitive_types()
+    private void SubtractionAssignment_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(SubtractionAssignment_result, SubtractionAssignment_unsupported_types, "SubtractionAssignment");
     }
 
     [SkippableFact]
-    void SubtractionAssignment_has_test_data_for_all_primitive_type_pairs()
+    private void SubtractionAssignment_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(SubtractionAssignment_result, "SubtractionAssignment");
     }
 
     [SkippableFact]
-    void Addition_has_test_data_for_all_supported_primitive_types()
+    private void Addition_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Addition_result, Addition_unsupported_types, "Addition");
     }
 
     [SkippableFact]
-    void Addition_has_test_data_for_all_primitive_type_pairs()
+    private void Addition_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Addition_result, "Addition");
     }
 
     [SkippableFact]
-    void AdditionAssignment_has_test_data_for_all_supported_primitive_types()
+    private void AdditionAssignment_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(AdditionAssignment_result, AdditionAssignment_unsupported_types, "AdditionAssignment");
     }
 
     [SkippableFact]
-    void AdditionAssignment_has_test_data_for_all_primitive_type_pairs()
+    private void AdditionAssignment_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(AdditionAssignment_result, "AdditionAssignment");
     }
 
     [SkippableFact]
-    void Division_has_test_data_for_all_supported_primitive_types()
+    private void Division_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Division_result, Division_unsupported_types, "Division");
     }
 
     [SkippableFact]
-    void Division_has_test_data_for_all_primitive_type_pairs()
+    private void Division_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Division_result, "Division");
     }
 
     [SkippableFact]
-    void Multiplication_has_test_data_for_all_supported_primitive_types()
+    private void Multiplication_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Multiplication_result, Multiplication_unsupported_types, "Multiplication");
     }
 
     [SkippableFact]
-    void Multiplication_has_test_data_for_all_primitive_type_pairs()
+    private void Multiplication_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Multiplication_result, "Multiplication");
     }
 
     [SkippableFact]
-    void Exponential_has_test_data_for_all_supported_primitive_types()
+    private void Exponential_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Exponential_result, Exponential_unsupported_types, "Exponential");
     }
@@ -176,25 +176,25 @@ public class BinaryOperatorDataTests
     // supports a limited subset of operand types.
 
     [SkippableFact]
-    void Modulo_has_test_data_for_all_supported_primitive_types()
+    private void Modulo_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(Modulo_result, Modulo_unsupported_types, "Modulo");
     }
 
     [SkippableFact]
-    void Modulo_has_test_data_for_all_primitive_type_pairs()
+    private void Modulo_has_test_data_for_all_primitive_type_pairs()
     {
         EnsureAllPrimitiveTypePairsAreHandled(Modulo_result, "Modulo");
     }
 
     [SkippableFact]
-    void ShiftLeft_has_test_data_for_all_supported_primitive_types()
+    private void ShiftLeft_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(ShiftLeft_result, ShiftLeft_unsupported_types, "ShiftLeft");
     }
 
     [SkippableFact]
-    void ShiftRight_has_test_data_for_all_supported_primitive_types()
+    private void ShiftRight_has_test_data_for_all_supported_primitive_types()
     {
         EnsureAllPrimitiveTypesAreHandled(ShiftRight_result, ShiftRight_unsupported_types, "ShiftRight");
     }

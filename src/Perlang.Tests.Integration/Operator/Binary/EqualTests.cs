@@ -9,7 +9,7 @@ public class EqualTests
 {
     [Theory]
     [MemberData(nameof(BinaryOperatorData.Equal), MemberType = typeof(BinaryOperatorData))]
-    void performs_equality_comparison(string i, string j, string expectedResult)
+    private void performs_equality_comparison(string i, string j, string expectedResult)
     {
         string source = $"""
             var i1 = {i};
@@ -31,7 +31,7 @@ public class EqualTests
     [InlineData("\"foo\"", "\"foo\"", "true")]
     [InlineData("\"fo\" + \"o\"", "\"foo\"", "true")] // Force non-equal string literals to ensure dynamic strings can also be equality-compared
     [InlineData("\"fö\" + \"ö\"", "\"föö\"", "true")] // Force non-equal string literals to ensure dynamic strings can also be equality-compared
-    void strings_can_be_compared_for_equality(string i, string j, string expectedResult)
+    private void strings_can_be_compared_for_equality(string i, string j, string expectedResult)
     {
         string source = $"""
             var i1 = {i};

@@ -14,7 +14,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     {
         [Theory]
         [MemberData(nameof(BinaryOperatorData.Addition_result), MemberType = typeof(BinaryOperatorData))]
-        void performs_addition(string i, string j, string expectedResult)
+        private void performs_addition(string i, string j, string expectedResult)
         {
             string source = $@"
                 var i1 = {i};
@@ -31,7 +31,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
-        void with_supported_types_returns_expected_type(string i, string j, string expectedType)
+        private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
         {
             Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 
@@ -47,7 +47,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [SkippableTheory]
         [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
-        void local_variable_inference_returns_expected_type(string i, string j, string expectedType)
+        private void local_variable_inference_returns_expected_type(string i, string j, string expectedType)
         {
             string source = $@"
                 var i = {i} + {j};
@@ -80,7 +80,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         // TODO: removing some of them at some point. OTOH, the tests in StringTests test more complex operations.
 
         [Fact]
-        void addition_of_strings_performs_concatenation()
+        private void addition_of_strings_performs_concatenation()
         {
             string source = @"
                 var s1 = ""foo"";
@@ -96,7 +96,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_int_and_string_coerces_number_to_string()
+        private void addition_of_int_and_string_coerces_number_to_string()
         {
             // Some interesting notes on how other languages deal with this:
             //
@@ -120,7 +120,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_uint_and_string_coerces_number_to_string()
+        private void addition_of_uint_and_string_coerces_number_to_string()
         {
             string source = @"
                 var i = 4294967295;
@@ -136,7 +136,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_long_and_string_coerces_number_to_string()
+        private void addition_of_long_and_string_coerces_number_to_string()
         {
             string source = @"
                 var i = 9223372036854775807;
@@ -152,7 +152,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_ulong_and_string_coerces_number_to_string()
+        private void addition_of_ulong_and_string_coerces_number_to_string()
         {
             string source = @"
                 var i = 18446744073709551615;
@@ -168,7 +168,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_bigint_and_ascii_string_coerces_number_to_string()
+        private void addition_of_bigint_and_ascii_string_coerces_number_to_string()
         {
             string source = @"
                 var i = 18446744073709551616;
@@ -184,7 +184,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_bigint_and_utf8_string_coerces_number_to_string()
+        private void addition_of_bigint_and_utf8_string_coerces_number_to_string()
         {
             string source = """
                 var i = 18446744073709551616;
@@ -200,7 +200,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_int_coerces_number_to_string()
+        private void addition_of_string_and_int_coerces_number_to_string()
         {
             string source = """
                 var s = "abc";
@@ -216,7 +216,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_uint_coerces_number_to_string()
+        private void addition_of_string_and_uint_coerces_number_to_string()
         {
             string source = """
                 var s = "abc";
@@ -232,7 +232,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_long_coerces_number_to_string()
+        private void addition_of_string_and_long_coerces_number_to_string()
         {
             string source = """
                 var s = "abc";
@@ -248,7 +248,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_ulong_coerces_number_to_string()
+        private void addition_of_string_and_ulong_coerces_number_to_string()
         {
             string source = """
                 var s = "abc";
@@ -264,7 +264,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_string_and_bigint_coerces_number_to_string()
+        private void addition_of_string_and_bigint_coerces_number_to_string()
         {
             string source = @"
                 var s = ""abc"";
@@ -280,7 +280,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
         }
 
         [Fact]
-        void addition_of_utf8_string_and_bigint_coerces_number_to_string()
+        private void addition_of_utf8_string_and_bigint_coerces_number_to_string()
         {
             string source = """
                 var s = "åäöÅÄÖéèüÜÿŸïÏすし";
@@ -297,7 +297,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_float_and_ascii_string_coerces_number_to_string(CultureInfo cultureInfo)
+        private async Task addition_of_float_and_ascii_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -316,7 +316,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_float_and_utf8_string_coerces_number_to_string(CultureInfo cultureInfo)
+        private async Task addition_of_float_and_utf8_string_coerces_number_to_string(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -335,7 +335,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_ascii_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        private async Task addition_of_ascii_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 
@@ -354,7 +354,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
         [Theory]
         [ClassData(typeof(TestCultures))]
-        async Task addition_of_utf8_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
+        private async Task addition_of_utf8_string_and_float_coerces_number_to_string(CultureInfo cultureInfo)
         {
             CultureInfo.CurrentCulture = cultureInfo;
 

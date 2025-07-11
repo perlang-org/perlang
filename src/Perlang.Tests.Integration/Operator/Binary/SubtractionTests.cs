@@ -8,7 +8,7 @@ public class SubtractionTests
 {
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Subtraction_result), MemberType = typeof(BinaryOperatorData))]
-    void performs_subtraction(string i, string j, string expectedResult)
+    private void performs_subtraction(string i, string j, string expectedResult)
     {
         string source = $@"
             var i1 = {i};
@@ -25,7 +25,7 @@ public class SubtractionTests
 
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Subtraction_type), MemberType = typeof(BinaryOperatorData))]
-    void with_supported_types_returns_expected_type(string i, string j, string expectedType)
+    private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
         Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 
@@ -58,7 +58,7 @@ public class SubtractionTests
     }
 
     [Fact]
-    void subtraction_of_strings_throws_expected_error()
+    private void subtraction_of_strings_throws_expected_error()
     {
         string source = @"
             var s1 = ""foo"";

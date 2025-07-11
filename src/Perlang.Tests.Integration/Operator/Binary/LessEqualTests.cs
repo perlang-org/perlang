@@ -8,7 +8,7 @@ public class LessEqualTests
 {
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.LessEqual), MemberType = typeof(BinaryOperatorData))]
-    void performs_less_equal_comparison(string i, string j, string expectedResult)
+    private void performs_less_equal_comparison(string i, string j, string expectedResult)
     {
         string source = $@"
                 var i1 = {i};

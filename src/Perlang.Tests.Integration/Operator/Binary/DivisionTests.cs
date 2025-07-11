@@ -17,7 +17,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
     {
         [Theory]
         [MemberData(nameof(BinaryOperatorData.Division_result), MemberType = typeof(BinaryOperatorData))]
-        void performs_division(string i, string j, string expectedResult)
+        private void performs_division(string i, string j, string expectedResult)
         {
             string source = $@"
                 var i1 = {i};

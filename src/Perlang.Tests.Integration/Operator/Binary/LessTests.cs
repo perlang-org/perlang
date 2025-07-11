@@ -8,7 +8,7 @@ public class LessTests
 {
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Less), MemberType = typeof(BinaryOperatorData))]
-    void performs_less_than_comparison(string i, string j, string expectedResult)
+    private void performs_less_than_comparison(string i, string j, string expectedResult)
     {
         string source = $@"
                 var i1 = {i};
@@ -26,7 +26,7 @@ public class LessTests
 
     [Theory]
     [MemberData(nameof(BinaryOperatorData.Less_unsupported_types), MemberType = typeof(BinaryOperatorData))]
-    void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
+    private void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
     {
         string source = $@"
                 var i1 = {i};

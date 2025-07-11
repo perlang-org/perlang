@@ -8,7 +8,7 @@ public class GreaterTests
 {
     [SkippableTheory]
     [MemberData(nameof(BinaryOperatorData.Greater), MemberType = typeof(BinaryOperatorData))]
-    void performs_greater_than_comparison(string i, string j, string expectedResult)
+    private void performs_greater_than_comparison(string i, string j, string expectedResult)
     {
         string source = $@"
                 var i1 = {i};
@@ -26,7 +26,7 @@ public class GreaterTests
 
     [Theory]
     [MemberData(nameof(BinaryOperatorData.Greater_unsupported_types), MemberType = typeof(BinaryOperatorData))]
-    void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
+    private void with_unsupported_types_emits_expected_error(string i, string j, string expectedError)
     {
         string source = $@"
                 var i1 = {i};
