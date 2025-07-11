@@ -479,7 +479,12 @@ namespace Perlang.Tests.Integration
                 catch (EvalException e) {
                     // We must make sure to include any output already written by the CompileAndRun() method here, since
                     // it'll otherwise be indefinitely lost.
-                    throw new EvalException($"An exception occurred during evaluation. Process output:\n\n{result.OutputAsString}", e);
+                    if (result.HasOutput) {
+                        throw new EvalException($"An exception occurred during evaluation: {e.Message}. See the inner exception for the original stack trace. Process output:\n\n{result.OutputAsString}", e);
+                    }
+                    else {
+                        throw new EvalException($"An exception occurred during evaluation: {e.Message}. See the inner exception for the original stack trace.", e);
+                    }
                 }
 
                 // Return something else than `null` to make it reasonable for callers to distinguish that compiled mode

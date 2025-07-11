@@ -27,7 +27,9 @@ namespace Perlang.Tests.Integration
 
         private readonly List<string> output = new();
 
-        public IEnumerable<char> OutputAsString => String.Join("\n", output);
+        public string OutputAsString => String.Join("\n", output);
+
+        public bool HasOutput => OutputAsString.Length > 0;
 
         /// <summary>
         /// Gets a collection of the errors thrown during the evaluation of the program.
