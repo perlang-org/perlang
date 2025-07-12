@@ -100,7 +100,7 @@ namespace Perlang.Parser
             // This was previously included in the ScanTokens() result, but this didn't work once we started support
             // multiple sourceFiles (because that will cause the Parser to stop when reaching the EOF after the first
             // file, instead of continue processing the other ones)
-            tokens.Add(new Token(PERLANG_EOF, String.Empty, literal: null, String.Empty, 0));
+            tokens.Add(new Token(PERLANG_EOF, String.Empty, literal: null, fileName: String.Empty, line: 0));
 
             //
             // Parsing phase
@@ -606,7 +606,7 @@ namespace Perlang.Parser
             // Type specifiers are not allowed for constructors and destructors, but we construct a bogus type reference for them to
             // simplify the code elsewhere.
             if (isConstructor || isDestructor) {
-                returnTypeReference = new TypeReference(typeof(VoidObject));
+                returnTypeReference = new TypeReference(typeof(void));
             }
             else {
                 if (Match(COLON)) {

@@ -12,7 +12,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_true_for_int_to_long()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(typeof(long), typeof(int), null);
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int64, PerlangValueTypes.Int32, null);
 
             result.Should()
                 .BeTrue();
@@ -21,7 +21,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_false_for_long_to_int()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(typeof(int), typeof(long), null);
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int32, PerlangValueTypes.Int64, null);
 
             result.Should()
                 .BeFalse();
@@ -30,7 +30,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_true_for_int_to_uint_with_31_bit_positive_literal_integer()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(typeof(int), typeof(uint), new IntegerLiteral<int>(2147483647));
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int32, PerlangValueTypes.UInt32, new IntegerLiteral<int>(2147483647));
 
             result.Should()
                 .BeTrue();
@@ -41,7 +41,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_false_for_int_to_uint_with_32_bit_positive_literal_integer()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(typeof(int), typeof(uint), new IntegerLiteral<uint>(4294967295));
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int32, PerlangValueTypes.UInt32, new IntegerLiteral<uint>(4294967295));
 
             result.Should()
                 .BeFalse();

@@ -321,7 +321,7 @@ namespace Perlang.Tests.Integration.Classes
             result.Errors.Should()
                 .ContainSingle()
                 .Which
-                .Message.Should().Contain("Failed to locate symbol 'does_not_exist' in class 'TestClass'");
+                .Message.Should().Contain("Failed to locate symbol 'does_not_exist' in class TestClass");
         }
 
         [Fact]

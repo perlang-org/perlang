@@ -103,7 +103,7 @@ namespace Perlang.Interpreter.Immutability
                 // there might be multiple constructors defined and each and every constructor must be checked.
                 var fieldInitialized = FieldAssignedTo[stmt.Class];
 
-                foreach (Stmt.Field field in stmt.Class.Fields) {
+                foreach (Stmt.Field field in stmt.Class.StmtFields) {
                     if (field.Initializer != null) {
                         continue;
                     }
@@ -112,8 +112,8 @@ namespace Perlang.Interpreter.Immutability
                     // keep it here since it relies on state collected during the immutability validation phase.
                     if (!fieldInitialized.GetValueOrDefault(field, false)) {
                         immutabilityValidationErrorCallback(new ImmutabilityValidationError(
-                            field.Name,
-                            $"Field '{field.Name.Lexeme}' in class '{stmt.Class.Name}' was not initialized in field initializer or constructor."
+                            field.NameToken,
+                            $"Field '{field.NameToken.Lexeme}' in class '{stmt.Class.Name}' was not initialized in field initializer or constructor."
                         ));
                     }
                 }
@@ -128,7 +128,7 @@ namespace Perlang.Interpreter.Immutability
         {
             base.VisitClassStmt(stmt);
 
-            foreach (Stmt.Function method in stmt.Methods) {
+            foreach (Stmt.Function method in stmt.StmtMethods) {
                 if (method.IsConstructor) {
                     // No need to continue - the uninitialized fields detection has already been handled elsewhere.
                     return VoidObject.Void;
@@ -137,7 +137,7 @@ namespace Perlang.Interpreter.Immutability
 
             var fieldInitialized = FieldAssignedTo.GetOrAdd(stmt, []);
 
-            foreach (Stmt.Field field in stmt.Fields) {
+            foreach (Stmt.Field field in stmt.StmtFields) {
                 if (field.Initializer != null) {
                     continue;
                 }
@@ -146,8 +146,8 @@ namespace Perlang.Interpreter.Immutability
                 // keep it here since it relies on state collected during the immutability validation phase.
                 if (!fieldInitialized.GetValueOrDefault(field, false)) {
                     immutabilityValidationErrorCallback(new ImmutabilityValidationError(
-                        field.Name,
-                        $"Field '{field.Name.Lexeme}' in class '{stmt.Name}' was not initialized in field initializer, and no constructors have been defined."
+                        field.NameToken,
+                        $"Field '{field.NameToken.Lexeme}' in class '{stmt.Name}' was not initialized in field initializer, and no constructors have been defined."
                     ));
                 }
             }

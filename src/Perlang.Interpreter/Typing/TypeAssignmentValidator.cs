@@ -1,5 +1,4 @@
 using System;
-using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
@@ -53,7 +52,7 @@ namespace Perlang.Interpreter.Typing
                 // TODO: When is this actually triggered? We really need to look into #341 at some point.
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"Cannot assign {sourceTypeReference.ClrType.ToQuotedTypeKeyword()} to '{targetTypeReference.ClrType.ToTypeKeyword()}' variable"
+                    $"Cannot assign {sourceTypeReference.ToQuotedTypeKeyword()} to '{targetTypeReference.TypeKeyword}' variable"
                 ));
             }
 

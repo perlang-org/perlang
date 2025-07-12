@@ -30,11 +30,5 @@ namespace Perlang.Internal.Extensions
                 _ => type.ToString()
             };
         }
-
-        // Ensures anything but literal `null` get quoted
-        public static string ToQuotedTypeKeyword(this Type type) =>
-            type == null || type == typeof(NullObject) ?
-                "null" :
-                "'" + ToTypeKeyword(type) + "'";
     }
 }

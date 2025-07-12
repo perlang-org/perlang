@@ -175,12 +175,12 @@ namespace Perlang
 
         public virtual VoidObject VisitClassStmt(Stmt.Class stmt)
         {
-            foreach (Stmt.Field field in stmt.Fields)
+            foreach (Stmt.Field field in stmt.StmtFields)
             {
                 Visit(field);
             }
 
-            foreach (Stmt.Function method in stmt.Methods)
+            foreach (Stmt.Function method in stmt.StmtMethods)
             {
                 Visit(method);
             }

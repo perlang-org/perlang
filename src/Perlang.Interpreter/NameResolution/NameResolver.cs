@@ -221,9 +221,9 @@ internal class NameResolver : VisitorBase
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we don't have the PerlangClass instance available in the TypeResolver class right now.
-        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
+        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
         @class.TypeReference.SetPerlangClass(perlangClass);
-        thisTypeReference.SetCppType(new CppType(perlangClass.Name, WrapInSharedPtr: true));
+        thisTypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
         thisTypeReference.SetPerlangClass(perlangClass);
     }
 
@@ -356,7 +356,7 @@ internal class NameResolver : VisitorBase
         for (int i = 1; i < fullNameParts.Length; i++) {
             string namePart = fullNameParts[i];
 
-            var matchingField = @class.Fields.SingleOrDefault(f => f.Name.Lexeme == namePart);
+            var matchingField = @class.Fields.SingleOrDefault(f => f.Name == namePart);
 
             if (matchingField == null) {
                 nameResolutionErrorHandler(
@@ -366,10 +366,10 @@ internal class NameResolver : VisitorBase
 
             if (i == fullNameParts.Length - 1) {
                 if (isGlobal == true) {
-                    bindingHandler.AddGlobalExpr(FieldBindingFactory.CreateBindingForField(@class, matchingField, referringExpr));
+                    bindingHandler.AddGlobalExpr(FieldBindingFactory.CreateBindingForField(@class, (Stmt.Field)matchingField, referringExpr));
                 }
                 else {
-                    bindingHandler.AddLocalExpr(FieldBindingFactory.CreateBindingForField(@class, matchingField, referringExpr));
+                    bindingHandler.AddLocalExpr(FieldBindingFactory.CreateBindingForField(@class, (Stmt.Field)matchingField, referringExpr));
                 }
             }
         }
@@ -529,11 +529,11 @@ internal class NameResolver : VisitorBase
         // notations.
         DefineThis(stmt, stmt);
 
-        foreach (Stmt.Field field in stmt.Fields) {
+        foreach (Stmt.Field field in stmt.StmtFields) {
             VisitFieldStmt(field);
         }
 
-        foreach (Stmt.Function method in stmt.Methods) {
+        foreach (Stmt.Function method in stmt.StmtMethods) {
             VisitFunctionStmt(method);
         }
 
@@ -563,8 +563,8 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
     {
-        Declare(stmt.Name);
-        DefineFunction(stmt.Name, stmt.ReturnTypeReference, stmt);
+        Declare(stmt.NameToken);
+        DefineFunction(stmt.NameToken, stmt.ReturnTypeReference, stmt);
 
         ResolveFunction(stmt, FunctionType.FUNCTION);
 
@@ -573,8 +573,8 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitFieldStmt(Stmt.Field stmt)
     {
-        Declare(stmt.Name);
-        DefineField(stmt.Name.Lexeme, stmt);
+        Declare(stmt.NameToken);
+        DefineField(stmt.NameToken.Lexeme, stmt);
 
         return VoidObject.Void;
     }

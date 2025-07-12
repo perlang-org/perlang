@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using System.Numerics;
 using Perlang.Compiler;
 
 namespace Perlang
@@ -9,11 +8,6 @@ namespace Perlang
     public interface ITypeReference
     {
         Token? TypeSpecifier { get; }
-
-        /// <summary>
-        /// Gets the CLR/.NET type that this <see cref="ITypeReference"/> refers to.
-        /// </summary>
-        Type? ClrType { get; }
 
         /// <summary>
         /// Gets a value indicating whether this type represents an array type, e.g. `string[]` or `int[]`.
@@ -72,51 +66,42 @@ namespace Perlang
         /// <summary>
         /// Gets a value indicating whether this type reference refers to a `null` value.
         /// </summary>
-        public bool IsNullObject => ClrType == typeof(NullObject);
+        public bool IsNullObject => CppType == PerlangTypes.NullObject;
 
         bool IsValidNumberType =>
-            ClrType switch
+            CppType switch
             {
                 null => false,
-                var t when t == typeof(SByte) => true,
-                var t when t == typeof(Int16) => true,
-                var t when t == typeof(Int32) => true,
-                var t when t == typeof(Int64) => true,
-                var t when t == typeof(Byte) => true,
-                var t when t == typeof(UInt16) => true,
-                var t when t == typeof(UInt32) => true,
-                var t when t == typeof(UInt64) => true,
-                var t when t == typeof(Single) => true, // i.e. float
-                var t when t == typeof(Double) => true,
-                var t when t == typeof(BigInteger) => true,
+                var t when t == PerlangValueTypes.Int32 => true,
+                var t when t == PerlangValueTypes.UInt32 => true,
+                var t when t == PerlangValueTypes.Int64 => true,
+                var t when t == PerlangValueTypes.UInt64 => true,
+                var t when t == PerlangValueTypes.BigInt => true,
+                var t when t == PerlangValueTypes.Float => true,
+                var t when t == PerlangValueTypes.Double => true,
+
                 _ => false
             };
 
         bool IsStringType =>
-            ClrType switch
+            CppType switch
             {
-                null => throw new InvalidOperationException("Internal error: Cannot determine if string type or not for null CLR type"),
+                null => throw new InvalidOperationException("Internal error: Cannot determine if string type or not for null C++ type"),
 
-                // Cannot use typeof(AsciiString) since Perlang.Common cannot depend on Perlang.Stdlib
-                var t when t.FullName == "Perlang.Lang.AsciiString" => true,
-                var t when t.FullName == "Perlang.Lang.Utf8String" => true,
-                var t when t.FullName == "Perlang.Lang.String" => true,
+                var t when t == PerlangTypes.AsciiString => true,
+                var t when t == PerlangTypes.UTF8String => true,
+                var t when t == PerlangTypes.String => true,
 
                 _ => false
             };
 
-        /// <summary>
-        /// Sets the ClrType for the type reference. This method is typically called when type inference is performed.
-        /// </summary>
-        /// <remarks>This method may only be called a single time for a given <see cref="ITypeReference"/> instance.
-        /// Calling it multiple times will emit an exception.</remarks>
-        /// <param name="value">The new CLR (.NET) type for this type reference.</param>
-        /// <exception cref="ArgumentException">The method is called when <see cref="ClrType"/> has already been
-        /// set.</exception>
-        void SetClrType(Type? value);
+        string TypeKeyword => CppType?.TypeKeyword ?? throw new InvalidOperationException($"Type keyword not defined for {CppType}");
 
-        // TODO: Can possibly get rid of this altogether and just rely on SetPerlangClass, to have one property less. But
-        // OTOH, we *want* this moving forward, for when get rid of ClrType altogether...
+        // Ensures anything but literal `null` get quoted
+        string ToQuotedTypeKeyword() =>
+            CppType == null || CppType == PerlangTypes.NullObject ?
+            "null" :
+            "'" + TypeKeyword + "'";
 
         /// <summary>
         /// Sets the C++ type for the type reference. This method is typically called when type inference is performed.
@@ -126,6 +111,8 @@ namespace Perlang
         /// the unwrapped type. Wrapping will be handled by the <see cref="ITypeReference"/> implementation
         /// internally.</remarks>
         void SetCppType(CppType? value);
+
+        void SetCppTypeFromClrType(Type clrType);
 
         void SetPerlangClass(IPerlangClass? perlangClass);
     }

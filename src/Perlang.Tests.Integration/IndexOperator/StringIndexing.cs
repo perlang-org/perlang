@@ -106,7 +106,7 @@ public class StringIndexing
 
         result.Errors.Should()
             .ContainSingle().Which
-            .Message.Should().Match("Cannot assign System.Char to string variable");
+            .Message.Should().Match("Cannot assign char to string variable");
     }
 
     [Fact]
@@ -121,6 +121,6 @@ public class StringIndexing
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("cannot be indexed by 'AsciiString'");
+            .Message.Should().Contain("cannot be indexed by 'ASCIIString'");
     }
 }

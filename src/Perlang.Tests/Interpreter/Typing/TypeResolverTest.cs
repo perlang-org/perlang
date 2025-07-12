@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Numerics;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
@@ -30,7 +29,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
             Assert.True(resolver.Globals.ContainsKey("l"));
-            Assert.Equal(typeof(Int64), ((Stmt.Var)singleStatement).TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.Int64, ((Stmt.Var)singleStatement).TypeReference.CppType);
         }
 
         [Fact]
@@ -45,7 +44,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
             Assert.True(resolver.Globals.ContainsKey("v"));
-            Assert.Equal(typeof(Int32), ((Stmt.Var)singleStatement).TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.Int32, ((Stmt.Var)singleStatement).TypeReference.CppType);
         }
 
         [Fact]
@@ -60,7 +59,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
             Assert.True(resolver.Globals.ContainsKey("v"));
-            Assert.Equal(typeof(Int32), ((Stmt.Var)singleStatement).TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.Int32, ((Stmt.Var)singleStatement).TypeReference.CppType);
         }
 
         [Fact]
@@ -75,7 +74,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // Assert
             Assert.IsType<Stmt.Var>(singleStatement);
             Assert.True(resolver.Globals.ContainsKey("v"));
-            Assert.Equal(typeof(UInt32), ((Stmt.Var)singleStatement).TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.UInt32, ((Stmt.Var)singleStatement).TypeReference.CppType);
         }
 
         [Fact]
@@ -101,8 +100,8 @@ namespace Perlang.Tests.Interpreter.Typing
 
             // Both of these are expected to have been resolved this way; the first because of the explicit type
             // specifier and the second because of type inference.
-            Assert.Equal(typeof(Int64), ((Stmt.Var)firstStmt).TypeReference.ClrType);
-            Assert.Equal(typeof(Int64), ((Stmt.Var)secondStmt).TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.Int64, ((Stmt.Var)firstStmt).TypeReference.CppType);
+            Assert.Equal(PerlangValueTypes.Int64, ((Stmt.Var)secondStmt).TypeReference.CppType);
         }
 
         [Fact]
@@ -120,7 +119,7 @@ namespace Perlang.Tests.Interpreter.Typing
 
             Expr expr = ((Stmt.ExpressionStmt)stmt).Expression;
 
-            Assert.Equal(typeof(BigInteger), expr.TypeReference.ClrType);
+            Assert.Equal(PerlangValueTypes.BigInt, expr.TypeReference.CppType);
         }
 
         private static (Stmt Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveSingleStatement(string fileName, string program)

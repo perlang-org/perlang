@@ -129,7 +129,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported % operand types: 'AsciiString' and 'int'", exception.Message);
+            Assert.Equal("Unsupported % operand types: 'ASCIIString' and 'int'", exception.Message);
         }
 
         [Fact]
@@ -143,7 +143,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             var exception = result.Errors.FirstOrDefault();
 
             Assert.Single(result.Errors);
-            Assert.Equal("Unsupported % operand types: 'int' and 'AsciiString'", exception.Message);
+            Assert.Equal("Unsupported % operand types: 'int' and 'ASCIIString'", exception.Message);
         }
     }
 }

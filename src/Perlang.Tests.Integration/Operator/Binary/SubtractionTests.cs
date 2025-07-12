@@ -71,6 +71,6 @@ public class SubtractionTests
 
         result.Errors.Should()
             .ContainSingle().Which
-            .Message.Should().Match("Unsupported - operand types: 'AsciiString' and 'AsciiString'");
+            .Message.Should().Match("Unsupported - operand types: 'ASCIIString' and 'ASCIIString'");
     }
 }

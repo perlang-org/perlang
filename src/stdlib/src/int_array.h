@@ -17,6 +17,7 @@ namespace perlang
      public:
         ~IntArray();
 
+        // TODO: Should return int32_t
         int operator[](size_t index) const;
 
      private:

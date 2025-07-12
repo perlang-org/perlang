@@ -70,7 +70,7 @@ public class DictionaryIndexing
             .And.Contain("not present");
     }
 
-    [Fact]
+    [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_null()
     {
         string source = """
@@ -85,7 +85,7 @@ public class DictionaryIndexing
             .Message.Should().Contain("cannot be indexed by 'null'");
     }
 
-    [Fact]
+    [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_integer()
     {
         string source = """

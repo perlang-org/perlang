@@ -98,7 +98,7 @@ public class StringArrayTests
     public void string_array_length_property_returns_expected_value()
     {
         string source = """
-            var a: string[] = ["a", "b", "c"];
+            var a: string[] = ["one", "two", "three"];
 
             print a.length;
             """;
@@ -122,11 +122,10 @@ public class StringArrayTests
 
         var result = EvalWithValidationErrorCatch(source);
 
-        // Worth pointing out here is that the error comes from TypeResolver, which relies on some CLR reflection at the
-        // moment. Once we have migrated away from this, we should be able to get a slightly different error message. :)
+        // The error message comes straight from the C++ compiler at the moment
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("Failed to locate method 'non_existent_property'");
+            .Message.Should().Contain("Failed to locate symbol 'non_existent_property' in class perlang::StringArray");
     }
 }

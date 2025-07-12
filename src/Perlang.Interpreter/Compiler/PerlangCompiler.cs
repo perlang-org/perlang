@@ -1005,12 +1005,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // to ensure we get the expected operator on the C++ side (example: `int - uint` should produce a
                 // `long`, and at least one of the operands need to be widened to ensure expected semantics for an
                 // expression like `2 - 4294967295`)
-                if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType)
+                if (expr.TypeReference.CppType != expr.Left.TypeReference.CppType)
                 {
                     leftCast = expr.TypeReference.CppTypeCast();
                 }
 
-                if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType)
+                if (expr.TypeReference.CppType != expr.Right.TypeReference.CppType)
                 {
                     rightCast = expr.TypeReference.CppTypeCast();
                 }
@@ -1049,18 +1049,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // String types are special-cased here, since they are wrapped in std::shared_ptr and cannot be cast to
                 // e.g perlang::String directly (because this will make the C++ compiler attempt to perform a copy to an
                 // abstract, non-instantiable type).
-                if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType && !(
-                        expr.TypeReference.ClrType == typeof(Lang.String) ||
-                        expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
-                        expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
+                if (expr.TypeReference.CppType != expr.Left.TypeReference.CppType && !(
+                        expr.TypeReference.CppType == PerlangTypes.String ||
+                        expr.TypeReference.CppType == PerlangTypes.AsciiString ||
+                        expr.TypeReference.CppType == PerlangTypes.UTF8String))
                 {
                     leftCast = expr.TypeReference.CppTypeCast();
                 }
 
-                if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType && !(
-                        expr.TypeReference.ClrType == typeof(Lang.String) ||
-                        expr.TypeReference.ClrType == typeof(Lang.AsciiString) ||
-                        expr.TypeReference.ClrType == typeof(Lang.Utf8String)))
+                if (expr.TypeReference.CppType != expr.Right.TypeReference.CppType && !(
+                        expr.TypeReference.CppType == PerlangTypes.String ||
+                        expr.TypeReference.CppType == PerlangTypes.AsciiString ||
+                        expr.TypeReference.CppType == PerlangTypes.UTF8String))
                 {
                     rightCast = expr.TypeReference.CppTypeCast();
                 }
@@ -1127,12 +1127,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 // to ensure we get the expected operator on the C++ side (example: `int * uint` should produce a
                 // `long`, and at least one of the operands need to be widened to ensure expected semantics for an
                 // expression like `2 * 4294967295`)
-                if (expr.TypeReference.ClrType != expr.Left.TypeReference.ClrType)
+                if (expr.TypeReference.CppType != expr.Left.TypeReference.CppType)
                 {
                     leftCast = expr.TypeReference.CppTypeCast();
                 }
 
-                if (expr.TypeReference.ClrType != expr.Right.TypeReference.ClrType)
+                if (expr.TypeReference.CppType != expr.Right.TypeReference.CppType)
                 {
                     rightCast = expr.TypeReference.CppTypeCast();
                 }
@@ -1150,19 +1150,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 break;
 
             case STAR_STAR:
-                if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(BigInteger) }.Contains(expr.Left.TypeReference.ClrType) &&
-                    expr.Right.TypeReference.ClrType == typeof(int))
+                if (new[] { PerlangValueTypes.Int32, PerlangValueTypes.Int64, PerlangValueTypes.UInt32, PerlangValueTypes.UInt64, PerlangValueTypes.BigInt }.Contains(expr.Left.TypeReference.CppType) &&
+                    expr.Right.TypeReference.CppType == PerlangValueTypes.Int32)
                 {
                     result.Append($"{leftCast}perlang::BigInt_pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
-                else if (new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
-                         new[] { typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
+                else if (new[] { PerlangValueTypes.Int32, PerlangValueTypes.Int64, PerlangValueTypes.UInt32, PerlangValueTypes.UInt64, PerlangValueTypes.Float, PerlangValueTypes.Double }.Contains(expr.Left.TypeReference.CppType) &&
+                         new[] { PerlangValueTypes.Float, PerlangValueTypes.Double }.Contains(expr.Right.TypeReference.CppType))
                 {
                     // Normal math.h-based pow(), returning a double
                     result.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                 }
-                else if (new[] { typeof(float), typeof(double) }.Contains(expr.Left.TypeReference.ClrType) &&
-                         new[] { typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(float), typeof(double) }.Contains(expr.Right.TypeReference.ClrType))
+                else if (new[] { PerlangValueTypes.Float, PerlangValueTypes.Double }.Contains(expr.Left.TypeReference.CppType) &&
+                         new[] { PerlangValueTypes.Int32, PerlangValueTypes.Int64, PerlangValueTypes.UInt32, PerlangValueTypes.UInt64, PerlangValueTypes.Float, PerlangValueTypes.Double }.Contains(expr.Right.TypeReference.CppType))
                 {
                     // Normal math.h-based pow(), returning a double
                     result.Append($"{leftCast}pow({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
@@ -1178,19 +1178,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             case PERCENT:
                 if (expr.Left.TypeReference.IsValidNumberType && expr.Right.TypeReference.IsValidNumberType)
                 {
-                    if (expr.Left.TypeReference.ClrType == typeof(BigInteger) ||
-                        expr.Right.TypeReference.ClrType == typeof(BigInteger))
+                    if (expr.Left.TypeReference.CppType == PerlangValueTypes.BigInt ||
+                        expr.Right.TypeReference.CppType == PerlangValueTypes.BigInt)
                     {
                         result.Append($"{leftCast}perlang::BigInt_mod({expr.Left.Accept(this)}, {rightCast}{expr.Right.Accept(this)})");
                     }
-                    else if (expr.Left.TypeReference.ClrType == typeof(double) ||
-                             expr.Right.TypeReference.ClrType == typeof(double))
+                    else if (expr.Left.TypeReference.CppType == PerlangValueTypes.Double ||
+                             expr.Right.TypeReference.CppType == PerlangValueTypes.Double)
                     {
                         // C and C++ does not support the % operator for double; we must use `fmod()` instead
                         result.Append($"fmod({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
                     }
-                    else if (expr.Left.TypeReference.ClrType == typeof(float) ||
-                             expr.Right.TypeReference.ClrType == typeof(float))
+                    else if (expr.Left.TypeReference.CppType == PerlangValueTypes.Float ||
+                             expr.Right.TypeReference.CppType == PerlangValueTypes.Float)
                     {
                         // Likewise, but with `float` instead of `double` as arguments and return type
                         result.Append($"fmodf({expr.Left.Accept(this)}, {expr.Right.Accept(this)})");
@@ -1230,17 +1230,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/bitwise-and-shift-operators#shift-count-of-the-shift-operators
                     string shiftCountBitMask;
 
-                    if (expr.Left.TypeReference.ClrType == typeof(int) ||
-                        expr.Left.TypeReference.ClrType == typeof(uint))
+                    if (expr.Left.TypeReference.CppType == PerlangValueTypes.Int32 ||
+                        expr.Left.TypeReference.CppType == PerlangValueTypes.UInt32)
                     {
                         shiftCountBitMask = "& 0b11111";
                     }
-                    else if (expr.Left.TypeReference.ClrType == typeof(long) ||
-                             expr.Left.TypeReference.ClrType == typeof(ulong))
+                    else if (expr.Left.TypeReference.CppType == PerlangValueTypes.Int64 ||
+                             expr.Left.TypeReference.CppType == PerlangValueTypes.UInt64)
                     {
                         shiftCountBitMask = "& 0b111111";
                     }
-                    else if (expr.Left.TypeReference.ClrType == typeof(BigInteger))
+                    else if (expr.Left.TypeReference.CppType == PerlangValueTypes.BigInt)
                     {
                         // BigInt == don't mask away anything of the result
                         shiftCountBitMask = "";
@@ -1352,13 +1352,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType!.TypeName}>(");
 
-        switch (collectionInitializer.TypeReference.CppType?.TypeName) {
+        switch (collectionInitializer.TypeReference.CppType) {
             // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
             // to guess the correct type for us.
-            case "perlang::IntArray":
+            case var t when t == PerlangTypes.Int32Array:
                 result.Append("std::initializer_list<int32_t> ");
                 break;
-            case "perlang::StringArray":
+            case var t when t == PerlangTypes.StringArray:
                 result.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
                 break;
             default:
@@ -1589,17 +1589,19 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             }
             else if (identifier.TypeReference.IsArray)
             {
-                // Arrays support a `length` property in Perlang, which is similar to other languages.
+                // Arrays support a `length` property in Perlang, which is similar to other languages. Under-the-hood,
+                // this is implemented by a length() method which we currently special-case for lack of real C#-style
+                // properties.
                 if (expr.Name.Lexeme == "length")
                 {
                     result.Append($"{identifier.Name.Lexeme}->length()");
                 }
                 else
                 {
-                    throw new PerlangCompilerException($"Unsupported property {expr.Name.Lexeme} on array {identifier.Name.Lexeme}");
+                    throw new PerlangCompilerException($"Unsupported property '{expr.Name.Lexeme}' in {identifier.TypeReference.TypeKeyword}");
                 }
             }
-            else if (identifier.TypeReference.ClrType == typeof(PerlangEnum))
+            else if (identifier.TypeReference.CppType == PerlangValueTypes.Enum)
             {
                 // Enums are represented as C++ enum classes, so we can just use the enum name directly
                 result.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
@@ -1708,11 +1710,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         classDefinitionBuilder.AppendLine("private:");
 
-        foreach (Stmt.Field field in stmt.Fields) {
+        foreach (Stmt.Field field in stmt.StmtFields) {
             // All fields are private for now, but we explicitly check here to ensure that we get predictable errors if we
             // attempt to change this at some point to support public fields.
             if (field.Visibility != Visibility.Private) {
-                throw new PerlangCompilerException($"Field {field.Name.Lexeme} is of {field.Visibility} visibility, which is not currently supported");
+                throw new PerlangCompilerException($"Field {field.NameToken.Lexeme} is of {field.Visibility} visibility, which is not currently supported");
             }
 
             classDefinitionBuilder.Append(Indent(1));
@@ -1723,10 +1725,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         // define methods as `private` or `internal` anyway yet.
         classDefinitionBuilder.AppendLine("public:");
 
-        foreach (Stmt.Function method in stmt.Methods) {
+        foreach (Stmt.Function method in stmt.StmtMethods) {
             // Likewise, check this to ensure we don't generate inconsistent code with what the Perlang model expects.
             if (method.Visibility != Visibility.Public) {
-                throw new PerlangCompilerException($"Method {method.Name.Lexeme} is of {method.Visibility} visibility, which is not currently supported");
+                throw new PerlangCompilerException($"Method {method.NameToken.Lexeme} is of {method.Visibility} visibility, which is not currently supported");
             }
 
             // Definition
@@ -1739,7 +1741,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 classDefinitionBuilder.Append($"~{stmt.Name}(");
             }
             else {
-                classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.Name.Lexeme}(");
+                classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.NameToken.Lexeme}(");
             }
 
             for (int i = 0; i < method.Parameters.Count; i++) {
@@ -1762,7 +1764,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
                 }
                 else {
-                    classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.Name.Lexeme}(");
+                    classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.NameToken.Lexeme}(");
                 }
 
                 for (int i = 0; i < method.Parameters.Count; i++) {
@@ -1864,16 +1866,16 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         var functionContent = NativeStringBuilder.Create();
 #pragma warning restore CA2000
 
-        if (methods.ContainsKey(functionStmt.Name.Lexeme))
+        if (methods.ContainsKey(functionStmt.NameToken.Lexeme))
         {
-            throw new PerlangCompilerException($"Function '{functionStmt.Name.Lexeme}' is already defined");
+            throw new PerlangCompilerException($"Function '{functionStmt.NameToken.Lexeme}' is already defined");
         }
 
         if (currentClass == null) {
-            methods[functionStmt.Name.Lexeme] = new Method(
-                functionStmt.Name.Lexeme,
+            methods[functionStmt.NameToken.Lexeme] = new Method(
+                functionStmt.NameToken.Lexeme,
                 functionStmt.Parameters,
-                functionStmt.ReturnTypeReference.PossiblyWrappedCppType ?? throw new PerlangCompilerException($"Internal compiler error: return type of function '{functionStmt.Name.Lexeme}' was unexpectedly null"),
+                functionStmt.ReturnTypeReference.PossiblyWrappedCppType ?? throw new PerlangCompilerException($"Internal compiler error: return type of function '{functionStmt.NameToken.Lexeme}' was unexpectedly null"),
                 functionContent
             );
         }
@@ -1897,7 +1899,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     {
         using var result = NativeStringBuilder.Create();
 
-        result.Append($"{stmt.TypeReference.PossiblyWrappedCppType} {stmt.Name.Lexeme}");
+        result.Append($"{stmt.TypeReference.PossiblyWrappedCppType} {stmt.NameToken.Lexeme}");
 
         if (stmt.Initializer != null)
         {

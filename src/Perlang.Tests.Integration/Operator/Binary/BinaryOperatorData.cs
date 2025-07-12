@@ -617,7 +617,7 @@ public static class BinaryOperatorData
             new object[] { "12", "-34", "-22", typeof(int) },
             new object[] { "-12", "34", "22", typeof(int) },
             new object[] { "-12", "-34", "-46", typeof(int) },
-            new object[] { "4294967295", "4294967295", "4294967294", typeof(uint) },
+            new object[] { "4294967295", "4294967295", "4294967294", typeof(uint) }, // Integer overflow
             new object[] { "4294967296", "9223372036854775807", "-9223372032559808513", typeof(long) }, // Integer overflow
             new object[] { "9223372036854775807", "4294967295", "-9223372032559808514", typeof(long) }, // Integer overflow
             new object[] { "9223372036854775807", "9223372036854775807", "-2", typeof(long) },

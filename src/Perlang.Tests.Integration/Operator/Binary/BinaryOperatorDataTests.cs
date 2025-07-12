@@ -201,7 +201,7 @@ public class BinaryOperatorDataTests
 
     // ShiftLeft and ShiftRight deliberately not tested with EnsureAllPrimitiveTypePairsAreHandled
 
-    private static readonly ConcurrentDictionary<string, Type> TypesForEvaluatedValues = new();
+    private static readonly ConcurrentDictionary<string, CppType> TypesForEvaluatedValues = new();
 
     private static void EnsureAllPrimitiveTypesAreHandled(IEnumerable<object[]> supportedResults, IEnumerable<object[]> unsupportedTypes, string operatorName)
     {
@@ -212,7 +212,7 @@ public class BinaryOperatorDataTests
 
         var data = supportedResults.Concat(unsupportedTypes);
 
-        var seenTypeCombinations = new HashSet<(Type, Type)>();
+        var seenTypeCombinations = new HashSet<(CppType, CppType)>();
 
         foreach (object[] objects in data)
         {
@@ -221,27 +221,31 @@ public class BinaryOperatorDataTests
 
             if (!TypesForEvaluatedValues.ContainsKey(o1))
             {
-                TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+                // This is what the CLR version of this used to look like. No longer even compiling since we are moving
+                // to CppType instead of using CLR type for our type data.
+                //TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
             }
 
             if (!TypesForEvaluatedValues.ContainsKey(o2))
             {
-                TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+                //TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
             }
 
-            Type leftType = TypesForEvaluatedValues[o1];
-            Type rightType = TypesForEvaluatedValues[o2];
+            CppType leftType = TypesForEvaluatedValues[o1];
+            CppType rightType = TypesForEvaluatedValues[o2];
 
             seenTypeCombinations.Add((leftType, rightType));
         }
 
-        var unhandledTypeCombinations = new HashSet<(Type LeftType, Type RightType)>();
+        var unhandledTypeCombinations = new HashSet<(CppType LeftType, CppType RightType)>();
 
-        foreach (Type knownLeftType in knownPrimitiveTypes)
+        foreach (CppType knownLeftType in knownPrimitiveTypes)
         {
-            foreach (Type knownRightType in knownPrimitiveTypes)
+            foreach (CppType knownRightType in knownPrimitiveTypes)
             {
-                (Type, Type) knownTypesTuple = (knownLeftType, knownRightType);
+                (CppType, CppType) knownTypesTuple = (knownLeftType, knownRightType);
 
                 if (!seenTypeCombinations.Contains(knownTypesTuple))
                 {
@@ -263,7 +267,7 @@ public class BinaryOperatorDataTests
             .Concat(TypeCoercer.FloatIntegerLengthByType.Keys)
             .ToImmutableList();
 
-        var supportedTypeCombinations = new HashSet<(Type, Type)>();
+        var supportedTypeCombinations = new HashSet<(CppType, CppType)>();
 
         foreach (object[] objects in supportedResults)
         {
@@ -272,16 +276,18 @@ public class BinaryOperatorDataTests
 
             if (!TypesForEvaluatedValues.ContainsKey(o1))
             {
-                TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+                //TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
+                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
             }
 
             if (!TypesForEvaluatedValues.ContainsKey(o2))
             {
-                TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+                //TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
+                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
             }
 
-            Type leftType = TypesForEvaluatedValues[o1];
-            Type rightType = TypesForEvaluatedValues[o2];
+            CppType leftType = TypesForEvaluatedValues[o1];
+            CppType rightType = TypesForEvaluatedValues[o2];
 
             supportedTypeCombinations.Add((leftType, rightType));
         }
@@ -293,7 +299,7 @@ public class BinaryOperatorDataTests
         //
         // If this assertion fails, make sure to go through ALL the test data for the binary operator in question, to
         // ensure that other type combinations which are "expected to work" have the expected semantics!
-        foreach (Type knownType in knownPrimitiveTypes)
+        foreach (CppType knownType in knownPrimitiveTypes)
         {
             supportedTypeCombinations.Should().Contain((knownType, knownType), $"'{operatorName}' should handle all primitive type pairs (e.g. `int + int`)");
         }

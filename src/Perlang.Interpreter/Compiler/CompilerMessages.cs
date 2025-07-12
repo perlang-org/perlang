@@ -1,4 +1,3 @@
-using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Extensions;
 
 namespace Perlang.Interpreter.Compiler;
@@ -9,7 +8,7 @@ public static class CompilerMessages
         $"Internal error: Unsupported operator {operatorType.ToSourceString()} in binary expression.";
 
     public static string UnsupportedOperandsInBinaryExpression(TokenType operatorType, ITypeReference leftTypeReference, ITypeReference rightTypeReference) =>
-        $"Internal error: Unsupported combination of operands to {operatorType.ToSourceString()} operator: {leftTypeReference.ClrType.ToTypeKeyword()} and {rightTypeReference.ClrType.ToTypeKeyword()}.";
+        $"Internal error: Unsupported combination of operands to {operatorType.ToSourceString()} operator: {leftTypeReference.TypeKeyword} and {rightTypeReference.TypeKeyword}.";
 
     public static string UnsupportedOperatorTypeInLogicalExpression(TokenType operatorType) =>
         $"Internal error: Unsupported operator {operatorType.ToSourceString()} in logical expression.";

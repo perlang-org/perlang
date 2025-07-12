@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Perlang
 {
@@ -46,11 +47,13 @@ namespace Perlang
             public string Name { get; }
             public Token NameToken { get; }
             public Visibility Visibility { get; }
-            public List<Function> Methods { get; }
+            public ImmutableList<IPerlangFunction> Methods { get; }
+            public ImmutableList<Function> StmtMethods { get; }
 
             // TODO: Should use some form of dictionary type here for faster lookups, but preferably with something like
             // TODO: Guava's ImmutableMap in Java (which preserves insertion order).
-            public List<Field> Fields { get; }
+            public ImmutableList<IPerlangField> Fields { get; }
+            public ImmutableList<Field> StmtFields { get; }
 
             public TypeReference TypeReference { get; }
 
@@ -58,18 +61,22 @@ namespace Perlang
             {
                 Name = string.Empty;
                 NameToken = null!;
+                StmtMethods = [];
                 Methods = [];
+                StmtFields = [];
                 Fields = [];
                 TypeReference = null!;
             }
 
-            public Class(Token name, Visibility visibility, List<Function> methods, List<Field> fields, TypeReference typeReference)
+            public Class(Token name, Visibility visibility, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
             {
                 Name = name.Lexeme;
                 NameToken = name;
                 Visibility = visibility;
-                Methods = methods;
-                Fields = fields;
+                StmtMethods = methods.ToImmutableList();
+                Methods = StmtMethods.Cast<IPerlangFunction>().ToImmutableList();
+                StmtFields = fields.ToImmutableList();
+                Fields = StmtFields.Cast<IPerlangField>().ToImmutableList();
                 TypeReference = typeReference;
             }
 
@@ -103,10 +110,11 @@ namespace Perlang
                 Expression.ToString();
         }
 
-        public class Function : Stmt
+        public class Function : Stmt, IPerlangFunction
         {
             public new Class Class { get; private set; }
-            public Token Name { get; }
+            public Token NameToken { get; }
+            public string Name => NameToken.Lexeme;
             public Visibility Visibility { get; }
             public ImmutableList<Parameter> Parameters { get; }
             public ImmutableList<Stmt> Body { get; }
@@ -117,7 +125,7 @@ namespace Perlang
 
             public Function(Token name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
                 bool isConstructor, bool isDestructor, bool isExtern) {
-                Name = name ?? throw new System.ArgumentNullException(nameof(name));
+                NameToken = name ?? throw new System.ArgumentNullException(nameof(name));
                 Visibility = visibility;
                 Parameters = parameters.ToImmutableList();
                 Body = body.ToImmutableList();
@@ -142,13 +150,14 @@ namespace Perlang
             public override string ToString()
             {
                 // TODO: Include parameters here as well.
-                return $"fun {Name.Lexeme}(): {ReturnTypeReference.ClrType}";
+                return $"fun {NameToken.Lexeme}(): {ReturnTypeReference.CppType?.TypeKeyword ?? "unknown"}";
             }
         }
 
-        public class Field : Stmt
+        public class Field : Stmt, IPerlangField
         {
-            public Token Name { get; }
+            public Token NameToken { get; }
+            public string Name => NameToken.Lexeme;
             public Visibility Visibility { get; }
             public bool IsMutable { get; }
             public Expr? Initializer { get; }
@@ -156,7 +165,7 @@ namespace Perlang
 
             public Field(Token name, Visibility visibility, bool isMutable, Expr? initializer, ITypeReference typeReference)
             {
-                Name = name;
+                NameToken = name;
                 Visibility = visibility;
                 IsMutable = isMutable;
                 Initializer = initializer;

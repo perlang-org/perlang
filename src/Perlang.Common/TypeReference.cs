@@ -14,19 +14,15 @@ namespace Perlang
     /// </summary>
     public class TypeReference : ITypeReference
     {
-        private Type? clrType;
-        private CppType? cppType;
         public Token? TypeSpecifier { get; }
 
-        public Type? ClrType => clrType;
-
         public bool IsResolved =>
-            cppType != null || ClrType != null;
+            CppType != null;
 
-        public void SetClrType(Type? value)
+        public void SetCppType(CppType? value)
         {
-            if (clrType != null && clrType != value) {
-                // Poor-man's fake immutability. The problem is that the CLR type isn't really known at
+            if (CppType != null && !CppType.Equals(value)) {
+                // Poor-man's fake immutability. The problem is that the C++ type isn't really known at
                 // construction time of the TypeReference; it is therefore always null. It gets populated
                 // at a later stage in the compilation. But, how do we mutate it? We must either allow this
                 // property to have a setter, or discard the TypeReference altogether and create a new one.
@@ -42,16 +38,16 @@ namespace Perlang
                 // ever mutated _once_. I wonder if that will work all the way or if there are any other nice
                 // gotchas to be discovered further along the road... :-)
                 throw new ArgumentException(
-                    $"ClrType already set to {clrType}; property is read-only. Attempted to " +
+                    $"CppType already set to {CppType}; property is read-only. Attempted to " +
                     $"set it to {value}");
             }
 
-            clrType = value;
+            CppType = value;
         }
 
-        public void SetCppType(CppType? value)
+        public void SetCppTypeFromClrType(Type clrType)
         {
-            cppType = value;
+            CppType = ClrTypeToCppType(clrType);
         }
 
         public void SetPerlangClass(IPerlangClass? perlangClass) =>
@@ -59,54 +55,9 @@ namespace Perlang
 
         private readonly bool isArray;
 
-        public bool IsArray => clrType?.IsArray ?? isArray;
+        public bool IsArray => CppType?.IsArray ?? isArray;
 
-        public CppType? CppType =>
-            cppType ?? clrType switch
-            {
-                // This is tested by "var_of_non_existent_type_with_initializer_emits_expected_error", in which case both
-                // cppType and clrType will be null here.
-                null => null,
-
-                // Value types
-                var t when t == typeof(Int32) => CppType.ValueType("int32_t"),
-                var t when t == typeof(UInt32) => CppType.ValueType("uint32_t"),
-                var t when t == typeof(Int64) => CppType.ValueType("int64_t"),
-                var t when t == typeof(UInt64) => CppType.ValueType("uint64_t"),
-                var t when t == typeof(Single) => CppType.ValueType("float"),
-                var t when t == typeof(Double) => CppType.ValueType("double"),
-                var t when t == typeof(bool) => CppType.ValueType("bool"),
-                var t when t == typeof(void) => CppType.ValueType("void"),
-                var t when t == typeof(BigInteger) => CppType.ValueType("BigInt"),
-                var t when t == typeof(char) => CppType.ValueType("char16_t"), // Deliberately not char on the C++-side, since it's an 8-bit type
-
-                // Arrays of value types
-                var t when t == typeof(Int32[]) => new CppType("perlang::IntArray", WrapInSharedPtr: true),
-
-                // Reference types
-                var t when t.FullName == "Perlang.Lang.AsciiString" => new CppType("perlang::ASCIIString", WrapInSharedPtr: true),
-                var t when t.FullName == "Perlang.Lang.String" => new CppType("perlang::String", WrapInSharedPtr: true),
-                var t when t.FullName == "Perlang.Lang.Utf8String" => new CppType("perlang::UTF8String", WrapInSharedPtr: true),
-
-                // Arrays of reference types
-                var t when t.FullName == "Perlang.Lang.String[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
-                var t when t.FullName == "Perlang.Lang.AsciiString[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
-                var t when t.FullName == "Perlang.Lang.Utf8String[]" => new CppType("perlang::StringArray", WrapInSharedPtr: true),
-
-                // These are not necessarily valid types on the C++ side, but must be handled to avoid the
-                // NotImplementedInCompiledModeException exception below. We set them to something that we can use for
-                // triggering a user-friendly exception at the PerlangCompiler stage.
-                var t when t == typeof(string) => new CppType("string", IsSupported: false),
-                var t when t == typeof(Type) => new CppType("Type", IsSupported: false),
-                var t when t == typeof(PerlangEnum) => new CppType("PerlangEnum", IsSupported: false),
-                var t when t == typeof(NullObject) => new CppType("NullObject", IsSupported: false),
-                var t when t.FullName == "Perlang.Stdlib.Argv" => new CppType("perlang::Argv", IsSupported: false),
-                var t when t.FullName == "Perlang.Stdlib.Libc" => new CppType("perlang::Libc", IsSupported: false),
-                var t when t.FullName == "Perlang.Stdlib.Base64" => new CppType("perlang::Base64", IsSupported: false),
-                var t when t.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>) => new CppType("ImmutableDictionary", IsSupported: false),
-
-                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
-            };
+        public CppType? CppType { get; private set; }
 
         public string? PossiblyWrappedCppType =>
             CppType?.PossiblyWrappedTypeName();
@@ -115,6 +66,16 @@ namespace Perlang
             CppType?.WrapInSharedPtr ?? throw new PerlangCompilerException("Internal compiler error: cppType was unexpectedly null");
 
         public IPerlangClass? PerlangClass { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeReference"/> class, with no type specifier provided. This
+        /// implies that type inference should be attempted.
+        /// </summary>
+        public TypeReference()
+        {
+            TypeSpecifier = null;
+            isArray = false;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given type specifier. The type
@@ -129,13 +90,25 @@ namespace Perlang
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given <see cref="CppType"/>.
+        /// </summary>
+        /// <param name="cppType">The Perlang/C++ type.</param>
+        public TypeReference(CppType cppType)
+        {
+            this.CppType = cppType ?? throw new ArgumentNullException(nameof(cppType), "cppType cannot be null");
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, for a given CLR type.
         /// </summary>
         /// <param name="clrType">The CLR type.</param>
         public TypeReference(Type clrType)
         {
-            // TODO: Remove once we are done with https://gitlab.perlang.org/perlang/perlang/-/issues/39
-            this.clrType = clrType ?? throw new ArgumentException("clrType cannot be null");
+            if (clrType == null) {
+                throw new ArgumentException("clrType cannot be null");
+            }
+
+            this.CppType = ClrTypeToCppType(clrType);
         }
 
 #pragma warning disable S3358
@@ -145,13 +118,64 @@ namespace Perlang
 
             if (typeReference.ExplicitTypeSpecified)
             {
-                return typeReference.IsResolved ? $"Explicit: {(CppType != null ? CppType.TypeName : ClrType)}" : $"Explicit: {TypeSpecifier}";
+                return typeReference.IsResolved ? $"Explicit: {CppType!.TypeName}" : $"Explicit: {TypeSpecifier}";
             }
             else
             {
-                return typeReference.IsResolved ? $"Inferred: {(CppType != null ? CppType.TypeName : ClrType)}" : "Inferred, not yet resolved";
+                return typeReference.IsResolved ? $"Inferred: {CppType!.TypeName}" : "Inferred, not yet resolved";
             }
         }
 #pragma warning restore S3358
+
+        private static CppType? ClrTypeToCppType(Type clrType)
+        {
+            return clrType switch {
+                // This is tested by "var_of_non_existent_type_with_initializer_emits_expected_error", in which case both
+                // cppType and clrType will be null here.
+                null => null,
+
+                // Value types
+                var t when t == typeof(Int32) => PerlangValueTypes.Int32,
+                var t when t == typeof(UInt32) => PerlangValueTypes.UInt32,
+                var t when t == typeof(Int64) => PerlangValueTypes.Int64,
+                var t when t == typeof(UInt64) => PerlangValueTypes.UInt64,
+                var t when t == typeof(Single) => PerlangValueTypes.Float,
+                var t when t == typeof(Double) => PerlangValueTypes.Double,
+                var t when t == typeof(bool) => PerlangValueTypes.Bool,
+                var t when t == typeof(void) => PerlangValueTypes.Void,
+                var t when t == typeof(BigInteger) => PerlangValueTypes.BigInt,
+                var t when t == typeof(char) => PerlangValueTypes.Char,
+
+                // Arrays of value types
+                var t when t == typeof(Int32[]) => new CppType("perlang::IntArray", wrapInSharedPtr: true),
+
+                // Reference types
+                var t when t.FullName == "Perlang.Lang.AsciiString" => PerlangTypes.AsciiString,
+                var t when t.FullName == "Perlang.Lang.String" => PerlangTypes.String,
+                var t when t.FullName == "Perlang.Lang.Utf8String" => PerlangTypes.UTF8String,
+
+                // Arrays of reference types. All of these become StringArray on the Perlang side; this is a bit of an approximation because C++ covar
+                var t when t.FullName == "Perlang.Lang.AsciiString[]" => PerlangTypes.StringArray,
+                var t when t.FullName == "Perlang.Lang.String[]" => PerlangTypes.StringArray,
+                var t when t.FullName == "Perlang.Lang.Utf8String[]" => PerlangTypes.StringArray,
+
+                var t when t == typeof(IPerlangClass) => PerlangTypes.PerlangClass,
+
+                // These are not necessarily valid types on the C++ side, but must be handled to avoid the
+                // NotImplementedInCompiledModeException exception below. We set them to something that we can use for
+                // triggering a user-friendly exception at the PerlangCompiler stage.
+                var t when t == typeof(string) => new CppType("string", isSupported: false),
+                var t when t == typeof(Type) => new CppType("Type", isSupported: false),
+                var t when t == typeof(PerlangEnum) => PerlangValueTypes.Enum,
+                var t when t == typeof(NullObject) => new CppType("NullObject", isSupported: false, isNullObject: true),
+
+                var t when t.FullName == "Perlang.Stdlib.Argv" => new CppType("perlang::Argv", isSupported: false),
+                var t when t.FullName == "Perlang.Stdlib.Libc" => new CppType("perlang::Libc", isSupported: false),
+                var t when t.FullName == "Perlang.Stdlib.Base64" => new CppType("perlang::Base64", isSupported: false),
+                var t when t.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>) => new CppType("ImmutableDictionary", isSupported: false),
+
+                _ => throw new NotImplementedInCompiledModeException($"Internal error: C++ type for {clrType} not defined")
+            };
+        }
     }
 }

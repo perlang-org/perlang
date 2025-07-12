@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Numerics;
 using Perlang.Interpreter.Extensions;
 using Perlang.Parser;
 
@@ -13,38 +12,38 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     public static class TypeCoercer
     {
-        internal static ImmutableDictionary<Type, int?> SignedIntegerLengthByType => new Dictionary<Type, int?>
+        internal static ImmutableDictionary<CppType, int?> SignedIntegerLengthByType => new Dictionary<CppType, int?>
         {
-            { typeof(Int32), 31 }, // 32:nd bit is signed/unsigned.
-            { typeof(Int64), 64 },
+            { PerlangValueTypes.Int32, 31 }, // 32:nd bit is signed/unsigned.
+            { PerlangValueTypes.Int64, 64 },
 
             // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
             // bigints in Perlang are limited to 2 billion digits. :)
-            { typeof(BigInteger), Int32.MaxValue }
+            { PerlangValueTypes.BigInt, Int32.MaxValue }
         }.ToImmutableDictionary();
 
         // Not supported by explicit type definitions yet, but can be used implicitly because of type inference.
-        internal static ImmutableDictionary<Type, int?> UnsignedIntegerLengthByType => new Dictionary<Type, int?>
+        internal static ImmutableDictionary<CppType, int?> UnsignedIntegerLengthByType => new Dictionary<CppType, int?>
         {
-            { typeof(UInt32), 32 },
-            { typeof(UInt64), 64 },
+            { PerlangValueTypes.UInt32, 32 },
+            { PerlangValueTypes.UInt64, 64 },
 
             // In practice, even larger numbers should be possible. For the time being, I think it's quite fine if
             // bigints in Perlang are limited to 2 billion digits. :)
-            { typeof(BigInteger), Int32.MaxValue }
+            { PerlangValueTypes.BigInt, Int32.MaxValue }
         }.ToImmutableDictionary();
 
-        internal static ImmutableDictionary<Type, int?> FloatIntegerLengthByType => new Dictionary<Type, int?>
+        internal static ImmutableDictionary<CppType, int?> FloatIntegerLengthByType => new Dictionary<CppType, int?>
         {
             // Single-precision values are 32-bit but can store numbers between 1.4E-45 and ~3.40E38 (with data loss,
             // i.e. numbers larger or equal than +/- 2^24 cannot be exactly represented. We presume people working with
             // numbers this large to be (or make themselves aware of) this limitation.)
-            { typeof(Single), 32 },
+            { PerlangValueTypes.Float, 32 },
 
             // Double-precision values are 64-bit but can store numbers between 4.9E-324 and ~1.80E308 (with data loss,
             // i.e. numbers larger or equal than +/- 2^53 cannot be exactly represented. We presume people working with
             // numbers this large to be (or make themselves aware of) this limitation.)
-            { typeof(Double), 64 }
+            { PerlangValueTypes.Double, 64 }
         }.ToImmutableDictionary();
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace Perlang.Interpreter.Typing
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
         public static bool CanBeCoercedInto(ITypeReference targetTypeReference, ITypeReference sourceTypeReference, INumericLiteral? numericLiteral)
         {
-            return CanBeCoercedInto(targetTypeReference.ClrType, sourceTypeReference.ClrType, numericLiteral);
+            return CanBeCoercedInto(targetTypeReference.CppType, sourceTypeReference.CppType, numericLiteral);
         }
 
         /// <summary>
@@ -82,9 +81,14 @@ namespace Perlang.Interpreter.Typing
         /// <param name="numericLiteral">If the source is a numeric literal, this parameter holds data about it. If not,
         ///                              this will be `null`.</param>
         /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
-        public static bool CanBeCoercedInto(Type? targetType, Type? sourceType, INumericLiteral? numericLiteral)
+        public static bool CanBeCoercedInto(CppType? targetType, CppType? sourceType, INumericLiteral? numericLiteral)
         {
             if (targetType == sourceType)
+            {
+                return true;
+            }
+
+            if (sourceType?.IsAssignableTo(targetType) == true)
             {
                 return true;
             }
@@ -92,9 +96,9 @@ namespace Perlang.Interpreter.Typing
             // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric
             // TODO: types. The check below lacks many value types.
 
-            if (sourceType == typeof(NullObject) &&
-                targetType != typeof(int) &&
-                targetType != typeof(float))
+            if (sourceType == PerlangTypes.NullObject &&
+                targetType != PerlangValueTypes.Int32 &&
+                targetType != PerlangValueTypes.Float)
             {
                 // Reassignment to `null` is valid as long as the target is not a value type. In other words, reference
                 // types are nullable by default. We do emit a compiler warning though, and depending on the

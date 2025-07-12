@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Perlang.Compiler;
-using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
@@ -96,7 +95,7 @@ namespace Perlang.Interpreter.Typing
                 else
                 {
                     string inTypeString = get.Object.TypeReference.CppType == null ?
-                        "" : $" in type '{get.Object.TypeReference.CppType}'";
+                        "" : $" in type '{get.Object.TypeReference.CppType.TypeKeyword}'";
 
                     // This is even more odd, but we must ensure that we have well-defined semantics in the weird case
                     // where this would happen.
@@ -110,7 +109,7 @@ namespace Perlang.Interpreter.Typing
             }
             else if (get.PerlangMethods.Length == 1)
             {
-                Stmt.Function method = get.PerlangMethods.Single();
+                IPerlangFunction method = get.PerlangMethods.Single();
                 var parameters = method.Parameters;
 
                 // There is exactly one potential method to call in this case. We use this fact to provide better
@@ -135,17 +134,14 @@ namespace Perlang.Interpreter.Typing
                             $"Internal compiler error: Argument '{argument}' to function {methodName} not resolved");
                     }
 
-                    // FIXME: call.Token is a bit off here; it would be useful when constructing compiler warnings based
-                    // on this if we could provide the token for the argument expression instead. However, the Expr type
-                    // as used by 'argument' is a non-token-based expression so this is currently impossible.
                     // FIXME: `null` here has disadvantages as described elsewhere.
                     // FIXME: Parameter could be a Perlang class instance, in which case ClrType will be null (but CppType
                     // will be set)
-                    if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference.ClrType, argument.TypeReference.ClrType, null)) {
+                    if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference.CppType, argument.TypeReference.CppType, null)) {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {methodName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as {parameter.TypeReference.TypeKeyword} parameter to {methodName}()"));
                     }
                 }
             }
@@ -184,7 +180,7 @@ namespace Perlang.Interpreter.Typing
                     }
 
                     parameters = function.Parameters;
-                    functionName = function.Name.Lexeme;
+                    functionName = function.NameToken.Lexeme;
                     break;
 
                 default:
@@ -224,14 +220,14 @@ namespace Perlang.Interpreter.Typing
                     {
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.ClrType.ToTypeKeyword()}' to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.TypeKeyword}' to {functionName}()"));
                     }
                     else
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.ClrType.ToTypeKeyword()} argument as {parameter.TypeReference.ClrType.ToTypeKeyword()} parameter to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as {parameter.TypeReference.TypeKeyword} parameter to {functionName}()"));
                     }
                 }
             }
@@ -252,8 +248,8 @@ namespace Perlang.Interpreter.Typing
                 {
                     // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                     TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.Name,
-                        $"Inferred typing is not yet supported for function '{stmt.Name.Lexeme}'")
+                        stmt.NameToken,
+                        $"Inferred typing is not yet supported for function '{stmt.NameToken.Lexeme}'")
                     );
                 }
                 else
@@ -271,8 +267,8 @@ namespace Perlang.Interpreter.Typing
                 {
                     // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                     TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.Name,
-                        $"Inferred typing is not yet supported for parameter '{parameter.Name.Lexeme}' to function '{stmt.Name.Lexeme}'")
+                        stmt.NameToken,
+                        $"Inferred typing is not yet supported for parameter '{parameter.Name.Lexeme}' to function '{stmt.NameToken.Lexeme}'")
                     );
                 }
             }
@@ -285,16 +281,16 @@ namespace Perlang.Interpreter.Typing
             if (!stmt.TypeReference.IsResolved)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
-                    stmt.Name,
-                    $"Internal compiler error: type for field '{stmt.Name.Lexeme}' has not been resolved"
+                    stmt.NameToken,
+                    $"Internal compiler error: type for field '{stmt.NameToken.Lexeme}' has not been resolved"
                 ));
             }
 
             if (stmt.Initializer != null && !stmt.Initializer.TypeReference.IsResolved)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
-                    stmt.Name,
-                    $"Internal compiler error: type for field '{stmt.Name.Lexeme}' initializer has not been resolved"
+                    stmt.NameToken,
+                    $"Internal compiler error: type for field '{stmt.NameToken.Lexeme}' initializer has not been resolved"
                 ));
             }
 
@@ -304,14 +300,14 @@ namespace Perlang.Interpreter.Typing
                 {
                     // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                     TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.Name,
-                        $"Cannot assign {stmt.Initializer.TypeReference.ClrType.ToTypeKeyword()} to {stmt.TypeReference.ClrType.ToTypeKeyword()} field"
+                        stmt.NameToken,
+                        $"Cannot assign {stmt.Initializer.TypeReference.TypeKeyword} to {stmt.TypeReference.TypeKeyword} field"
                     ));
                 }
                 else if (stmt.Initializer.TypeReference.IsNullObject)
                 {
                     // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
-                    compilerWarningCallback(new CompilerWarning("Initializing field to null detected", stmt.Name, WarningType.NULL_USAGE));
+                    compilerWarningCallback(new CompilerWarning("Initializing field to null detected", stmt.NameToken, WarningType.NULL_USAGE));
                 }
             }
 
@@ -385,7 +381,7 @@ namespace Perlang.Interpreter.Typing
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         TypeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
-                            $"Cannot assign {stmt.Initializer.TypeReference.ClrType.ToTypeKeyword()} to {stmt.TypeReference.ClrType.ToTypeKeyword()} variable"
+                            $"Cannot assign {stmt.Initializer.TypeReference.TypeKeyword} to {stmt.TypeReference.TypeKeyword} variable"
                         ));
                     }
                     else if (stmt.Initializer.TypeReference.IsNullObject)

@@ -21,7 +21,7 @@ namespace Perlang
 
         private Expr()
         {
-            TypeReference = new TypeReference(typeSpecifier: null, isArray: false);
+            TypeReference = new TypeReference();
         }
 
         public interface IVisitor<out TR>
@@ -426,7 +426,7 @@ namespace Perlang
             // TODO: single matching MethodInfo after method overload resolution has completed.
             public ImmutableArray<MethodInfo> ClrMethods { get; set; } = ImmutableArray<MethodInfo>.Empty;
 
-            public ImmutableArray<Stmt.Function> PerlangMethods { get; set; } = ImmutableArray<Stmt.Function>.Empty;
+            public ImmutableArray<IPerlangFunction> PerlangMethods { get; set; } = ImmutableArray<IPerlangFunction>.Empty;
 
             public Get(Expr @object, Token name)
             {

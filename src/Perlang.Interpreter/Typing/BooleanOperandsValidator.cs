@@ -1,5 +1,4 @@
 using System;
-using Perlang.Internal.Extensions;
 using Perlang.Interpreter.Internals;
 
 namespace Perlang.Interpreter.Typing
@@ -21,19 +20,19 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitLogicalExpr(expr);
 
-            if (expr.Left.TypeReference.ClrType != typeof(bool))
+            if (expr.Left.TypeReference.CppType != PerlangValueTypes.Bool)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"'{expr.Left.TypeReference.ClrType.ToTypeKeyword()}' is not a valid {expr.Operator.Lexeme} operand."
+                    $"'{expr.Left.TypeReference.TypeKeyword}' is not a valid {expr.Operator.Lexeme} operand."
                 ));
             }
 
-            if (expr.Right.TypeReference.ClrType != typeof(bool))
+            if (expr.Right.TypeReference.CppType != PerlangValueTypes.Bool)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"'{expr.Right.TypeReference.ClrType.ToTypeKeyword()}' is not a valid {expr.Operator.Lexeme} operand."
+                    $"'{expr.Right.TypeReference.TypeKeyword}' is not a valid {expr.Operator.Lexeme} operand."
                 ));
             }
 
@@ -44,11 +43,11 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitIfStmt(stmt);
 
-            if (stmt.Condition.TypeReference.ClrType != typeof(bool))
+            if (stmt.Condition.TypeReference.CppType != PerlangValueTypes.Bool)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     (stmt.Condition as ITokenAware)?.Token,
-                    $"'{stmt.Condition.TypeReference.ClrType.ToTypeKeyword()}' is not a valid 'if' condition."
+                    $"'{stmt.Condition.TypeReference.TypeKeyword}' is not a valid 'if' condition."
                 ));
             }
 
@@ -59,11 +58,11 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitWhileStmt(stmt);
 
-            if (stmt.Condition.TypeReference.ClrType != typeof(bool))
+            if (stmt.Condition.TypeReference.CppType != PerlangValueTypes.Bool)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     (stmt.Condition as ITokenAware)?.Token,
-                    $"'{stmt.Condition.TypeReference.ClrType.ToTypeKeyword()}' is not a valid 'while' condition."
+                    $"'{stmt.Condition.TypeReference.TypeKeyword}' is not a valid 'while' condition."
                 ));
             }
 

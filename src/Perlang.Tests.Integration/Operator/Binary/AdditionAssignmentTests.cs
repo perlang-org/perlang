@@ -133,7 +133,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Inferred: NullObject cannot be used with the $PLUS_EQUAL += operator");
+                .Message.Should().Match("Cannot assign 'int' to 'null' variable");
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             result.Errors.Should()
                 .ContainSingle().Which
-                .Message.Should().Match("Cannot assign 'int' to 'AsciiString' variable");
+                .Message.Should().Match("Cannot assign 'int' to 'ASCIIString' variable");
         }
     }
 }
