@@ -256,7 +256,7 @@ public static class BinaryOperatorData
             new object[] { "340282349999999991754788743781432688640.0f", "18446744073709551615", "false" },
             new object[] { "340282349999999991754788743781432688640.0f", "340282349999999991754788743781432688640.0f", "true" },
             new object[] { "340282349999999991754788743781432688640.0f", "34.0", "false" },
-            new object[] { "12.0", "34.0", "true" },
+            new object[] { "12.0", "34", "true" },
             new object[] { "12.0", "-34", "false" },
             new object[] { "12.0", "4294967295", "true" },
             new object[] { "12.0", "9223372036854775807", "true" },
@@ -405,7 +405,6 @@ public static class BinaryOperatorData
         {
             new object[] { "2", "34", "-32", typeof(int) },
             new object[] { "2", "-34", "36", typeof(int) },
-            new object[] { "2", "34", "-32", typeof(int) },
             new object[] { "2", "4294967295", "-4294967293", typeof(long) },
             new object[] { "2", "9223372036854775807", "-9223372036854775805", typeof(long) },
             new object[] { "2", "18446744073709551616", "-18446744073709551614", typeof(BigInteger) },
@@ -478,9 +477,8 @@ public static class BinaryOperatorData
 
             new object[] { "2147483647", "2147483647", "0", typeof(int) },
             new object[] { "4294967295", "4294967295", "0", typeof(uint) },
-            new object[] { "9223372036854775807", "4294967295", "9223372032559808512", typeof(long) },
-            new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
             new object[] { "9223372036854775807", "2", "9223372036854775805", typeof(long) },
+            new object[] { "9223372036854775807", "4294967295", "9223372032559808512", typeof(long) },
             new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
             new object[] { "18446744073709551615", "4294967295", "18446744069414584320", typeof(ulong) },
             new object[] { "18446744073709551615", "18446744073709551615", "0", typeof(ulong) },
@@ -550,9 +548,9 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "340282349999999991754788743781432688640.0f", "3.402823E+38", typeof(float) },
             new object[] { "9223372036854775807", "340282349999999991754788743781432688640.0f", "3.402823E+38", typeof(float) },
             new object[] { "18446744073709551615", "340282349999999991754788743781432688640.0f", "3.402823E+38", typeof(float) },
+            new object[] { "-12", "-34.0f", "-46", typeof(float) },
             new object[] { "-12", "-34.0", "-46", typeof(double) },
-            new object[] { "-12", "-34.0", "-46", typeof(double) },
-            new object[] { "2", "4294967295", "4294967297", typeof(long) }, // `int` + `uint` currently expands to `long` to ensure that all potential return values will fit. This may or may nto be a good idea.
+            new object[] { "2", "4294967295", "4294967297", typeof(long) }, // `int` + `uint` currently expands to `long` to ensure that all potential return values will fit. This may or may not be a good idea.
             new object[] { "2", "9223372036854775807", "-9223372036854775807", typeof(long) }, // Wraparound because of overflow
             new object[] { "2", "18446744073709551616", "18446744073709551618", typeof(BigInteger) },
             new object[] { "2147483647", "340282349999999991754788743781432688640.0f", "3.402823E+38", typeof(float) },
