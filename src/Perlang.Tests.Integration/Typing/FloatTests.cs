@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -67,10 +66,10 @@ public class FloatTests
             ";
 
         var result = EvalWithValidationErrorCatch(source);
-        var exception = result.Errors.First();
 
-        Assert.Single(result.Errors);
-        Assert.Matches("Cannot assign long to float variable", exception.Message);
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match("Cannot assign long to float variable");
     }
 
     [Fact]
@@ -81,10 +80,10 @@ public class FloatTests
             ";
 
         var result = EvalWithValidationErrorCatch(source);
-        var exception = result.Errors.First();
 
-        Assert.Single(result.Errors);
-        Assert.Matches("Cannot assign bigint to float variable", exception.Message);
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match("Cannot assign bigint to float variable");
     }
 
     [Fact]

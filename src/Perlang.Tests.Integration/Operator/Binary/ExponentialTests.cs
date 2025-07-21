@@ -76,7 +76,6 @@ namespace Perlang.Tests.Integration.Operator.Binary
             ";
 
             var result = EvalWithRuntimeErrorCatch(source);
-            var exception = result.Errors.First();
 
             if (PerlangMode.ExperimentalCompilation) {
                 result.Errors
@@ -87,8 +86,9 @@ namespace Perlang.Tests.Integration.Operator.Binary
                     .ContainMatch("*The exponent must be greater than or equal to zero*");
             }
             else {
-                Assert.Single(result.Errors);
-                Assert.Equal("The number must be greater than or equal to zero. (Parameter 'exponent')", exception.Message);
+                result.Errors.Should()
+                    .ContainSingle().Which
+                    .Message.Should().Match("The number must be greater than or equal to zero. (Parameter 'exponent')");
             }
         }
 
