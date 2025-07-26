@@ -20,7 +20,7 @@ namespace Perlang.Interpreter.NameResolution;
 internal class NameResolver : VisitorBase
 {
     private readonly IBindingHandler bindingHandler;
-    private readonly Action<string, IPerlangClass> addGlobalClassCallback;
+    private readonly ITypeHandler typeHandler;
     private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
@@ -47,17 +47,17 @@ internal class NameResolver : VisitorBase
     /// </summary>
     /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
     /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
-    /// <param name="addGlobalClassCallback">A callback used to add a global, top-level class.</param>
+    /// <param name="typeHandler">A handler used for adding and retrieving global, top-level types.</param>
     /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
     /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
     internal NameResolver(
         IImmutableDictionary<string, Type> globalClasses,
         IBindingHandler bindingHandler,
-        Action<string, IPerlangClass> addGlobalClassCallback,
+        ITypeHandler typeHandler,
         NameResolutionErrorHandler nameResolutionErrorHandler)
     {
         this.bindingHandler = bindingHandler;
-        this.addGlobalClassCallback = addGlobalClassCallback;
+        this.typeHandler = typeHandler;
         this.nameResolutionErrorHandler = nameResolutionErrorHandler;
 
         foreach ((string key, Type value) in globalClasses)
@@ -202,7 +202,7 @@ internal class NameResolver : VisitorBase
         }
 
         globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
-        addGlobalClassCallback(name.Lexeme, perlangClass);
+        typeHandler.AddClass(name.Lexeme, perlangClass);
     }
 
     private void DefineThis(Stmt.Class @class, IPerlangClass perlangClass)

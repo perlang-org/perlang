@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
+using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
@@ -149,7 +150,7 @@ namespace Perlang.Tests.Interpreter.Typing
             var nameResolver = new NameResolver(
                 ImmutableDictionary<string, Type>.Empty,
                 compiler.BindingHandler,
-                AssertFailAddGlobalClassHandler,
+                new AssertFailAddGlobalClassHandler(),
                 AssertFailNameResolutionErrorHandler
             );
 
@@ -192,9 +193,12 @@ namespace Perlang.Tests.Interpreter.Typing
             throw validationError;
         }
 
-        private static void AssertFailAddGlobalClassHandler(string name, IPerlangClass perlangClass)
+        private class AssertFailAddGlobalClassHandler : ITypeHandler
         {
-            throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
+            public void AddClass(string name, IPerlangClass perlangClass)
+            {
+                throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
+            }
         }
     }
 }

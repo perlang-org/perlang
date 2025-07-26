@@ -60,7 +60,7 @@ namespace Perlang.Interpreter.Compiler;
 /// Also, this class is not thread safe. A single instance of this class cannot safely be used from multiple
 /// threads.</remarks>
 /// </summary>
-public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IDisposable
+public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ITypeHandler, IDisposable
 {
     /// <summary>
     /// Gets a value indicating whether caching of compiled results should be disabled or not.
@@ -457,7 +457,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         var nameResolver = new NameResolver(
             nativeClasses,
             BindingHandler,
-            AddGlobalClass,
+            this,
             nameResolutionError =>
             {
                 hasNameResolutionErrors = true;
@@ -898,7 +898,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
         return (string)stmt.Accept(this);
     }
 
-    private void AddGlobalClass(string name, IPerlangClass perlangClass)
+    public void AddClass(string name, IPerlangClass perlangClass)
     {
         globalClasses[name] = perlangClass;
     }
