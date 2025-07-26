@@ -124,7 +124,7 @@ namespace Perlang.Tests.Integration.LogicalOperator
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Boolean", output);
+            Assert.Equal("perlang.Bool", output);
         }
     }
 }

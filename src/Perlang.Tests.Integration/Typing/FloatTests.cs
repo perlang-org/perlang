@@ -101,7 +101,7 @@ public class FloatTests
             .Message.Should().Match("Cannot assign float to long variable");
     }
 
-    [SkippableFact]
+    [Fact]
     public void float_variable_has_expected_type_when_initialized_to_int_value()
     {
         // A 32-bit integer should be converted to `float` when assigned to a variable of that type.
@@ -113,10 +113,10 @@ public class FloatTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Single", output);
+        Assert.Equal("perlang.Float", output);
     }
 
-    [SkippableFact]
+    [Fact]
     public void float_variable_has_expected_type_when_assigned_int_value_from_another_variable()
     {
         // A 32-bit integer should be converted to `float` when assigned to a variable of that type.
@@ -129,10 +129,10 @@ public class FloatTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Single", output);
+        Assert.Equal("perlang.Float", output);
     }
 
-    [SkippableFact]
+    [Fact]
     public void float_variable_has_expected_type_for_large_value()
     {
         string source = @"
@@ -143,6 +143,6 @@ public class FloatTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Single", output);
+        Assert.Equal("perlang.Float", output);
     }
 }

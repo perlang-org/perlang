@@ -798,7 +798,7 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, wrapInSharedPtr: true));
+            expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true));
             expr.TypeReference.SetPerlangClass(classBinding.PerlangClass);
 
             return VoidObject.Void;

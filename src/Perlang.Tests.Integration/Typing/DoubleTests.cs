@@ -100,7 +100,7 @@ public class DoubleTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Double", output);
+        Assert.Equal("perlang.Double", output);
     }
 
     [SkippableFact]
@@ -116,7 +116,7 @@ public class DoubleTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Double", output);
+        Assert.Equal("perlang.Double", output);
     }
 
     [SkippableFact]
@@ -130,6 +130,6 @@ public class DoubleTests
 
         var output = EvalReturningOutputString(source);
 
-        Assert.Equal("System.Double", output);
+        Assert.Equal("perlang.Double", output);
     }
 }

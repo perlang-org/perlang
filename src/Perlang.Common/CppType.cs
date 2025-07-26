@@ -10,11 +10,18 @@ namespace Perlang;
 
 public record CppType : IPerlangType
 {
-    public string Name => TypeName;
+    public string Name => CppTypeName;
+
     public ImmutableList<IPerlangFunction> Methods { get; }
     public ImmutableList<IPerlangField> Fields { get; }
 
-    public string TypeName { get; }
+    /// <summary>
+    /// Gets the C++ type name for this type.
+    /// </summary>
+    public string CppTypeName { get; }
+
+    public string? PerlangTypeName { get; }
+
     public string? TypeKeyword { get; }
     public bool WrapInSharedPtr { get; }
     public bool IsSupported { get; }
@@ -22,14 +29,17 @@ public record CppType : IPerlangType
     public bool IsArray { get; }
     public CppType? ElementType { get; }
 
-    public CppType(string typeName, string? typeKeyword = null, bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null)
+    public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
+
+    public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null)
     {
         this.Methods = [
             new CppFunction("get_type", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "perlang::Type", literal: null, fileName: String.Empty, line: 0), isArray: false))
         ];
 
-        this.TypeName = typeName;
-        this.TypeKeyword = typeKeyword ?? typeName;
+        this.CppTypeName = cppTypeName;
+        this.PerlangTypeName = perlangTypeName;
+        this.TypeKeyword = typeKeyword ?? cppTypeName;
         this.WrapInSharedPtr = wrapInSharedPtr;
         this.IsSupported = isSupported;
         this.IsNullObject = isNullObject;
@@ -52,19 +62,19 @@ public record CppType : IPerlangType
         }
     }
 
-    public static CppType ValueType(string cppTypeName, string typeKeyword)
+    public static CppType ValueType(string cppTypeName, string perlangTypeName, string typeKeyword)
     {
-        return new CppType(cppTypeName, typeKeyword, wrapInSharedPtr: false);
+        return new CppType(cppTypeName, perlangTypeName, typeKeyword, wrapInSharedPtr: false);
     }
 
     public string PossiblyWrappedTypeName()
     {
         if (!IsSupported)
         {
-            throw new NotImplementedInCompiledModeException($"Wrapped type for {TypeName} is not supported in compiled mode");
+            throw new NotImplementedInCompiledModeException($"Wrapped type for {CppTypeName} is not supported in compiled mode");
         }
 
-        return WrapInSharedPtr ? $"std::shared_ptr<{TypeName}>" : TypeName;
+        return WrapInSharedPtr ? $"std::shared_ptr<{CppTypeName}>" : CppTypeName;
     }
 
     public bool IsAssignableTo(CppType? targetType)
@@ -96,7 +106,7 @@ public record CppType : IPerlangType
             var t when t == PerlangTypes.String => PerlangTypes.StringArray,
             var t when t == PerlangTypes.UTF8String => PerlangTypes.StringArray,
 
-            _ => throw new NotImplementedInCompiledModeException($"Array type for {TypeName} is currently not supported")
+            _ => throw new NotImplementedInCompiledModeException($"Array type for {CppTypeName} is currently not supported")
         };
     }
 
@@ -121,7 +131,7 @@ public record CppType : IPerlangType
 
         // Ignoring Fields and Methods here for now, since we would need to implement equality for them and do a
         // Linq-style comparison for it.
-        return TypeName == other.TypeName &&
+        return CppTypeName == other.CppTypeName &&
                TypeKeyword == other.TypeKeyword &&
                WrapInSharedPtr == other.WrapInSharedPtr &&
                IsSupported == other.IsSupported &&
@@ -135,7 +145,7 @@ public record CppType : IPerlangType
         var hashCode = default(HashCode);
         hashCode.Add(Methods);
         hashCode.Add(Fields);
-        hashCode.Add(TypeName);
+        hashCode.Add(CppTypeName);
         hashCode.Add(TypeKeyword);
         hashCode.Add(WrapInSharedPtr);
         hashCode.Add(IsSupported);

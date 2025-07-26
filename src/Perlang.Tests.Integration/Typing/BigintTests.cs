@@ -66,7 +66,7 @@ namespace Perlang.Tests.Integration.Typing
             Assert.Equal("1231231230912839019312831232", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_has_expected_type_when_initialized_to_8bit_value()
         {
             // An 8-bit integer (sbyte) should be expanded to bigint when the assignment target is of the 'bigint' type.
@@ -78,10 +78,10 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Numerics.BigInteger", output);
+            Assert.Equal("perlang.BigInt", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_has_expected_type_when_assigned_8bit_value_from_another_variable()
         {
             // An 8-bit integer (sbyte) should be expanded to bigint when the assignment target is of the 'bigint' type.
@@ -94,10 +94,10 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Numerics.BigInteger", output);
+            Assert.Equal("perlang.BigInt", output);
         }
 
-        [SkippableFact]
+        [Fact]
         public void bigint_variable_has_expected_type_for_large_value()
         {
             string source = @"
@@ -108,7 +108,7 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Numerics.BigInteger", output);
+            Assert.Equal("perlang.BigInt", output);
         }
 
         [Fact]

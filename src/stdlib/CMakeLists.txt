@@ -21,6 +21,8 @@ set(headers
         src/int_array.h
         src/perlang_stdlib.h
         src/perlang_string.h
+        src/perlang_type.h
+        src/perlang_value_types.h
         src/string_array.h
         src/utf8_string.h
 )
@@ -58,6 +60,8 @@ add_library(
         src/bigint_pow.cc
         src/int_array.cc
         src/perlang_string.cc
+        src/perlang_type.cc
+        src/perlang_value_types.cc
         src/print.cc
         src/string_array.cc
         src/utf8_string.cc
@@ -120,6 +124,7 @@ add_library(
         src/libtommath/bn_s_mp_toom_sqr.c
 
         src/text/string_builder.cc
+        src/perlang_value_types.h
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13

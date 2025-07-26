@@ -7,6 +7,7 @@
 
 #include "ascii_string.h"
 #include "bigint.h"
+#include "perlang_type.h"
 #include "internal/string_utils.h"
 
 namespace perlang
@@ -158,5 +159,10 @@ namespace perlang
     {
         const std::string& str = internal::double_to_string(d) + "\n";
         fwrite(str.c_str(), str.length(), 1, stdout);
+    }
+
+    void print(std::shared_ptr<perlang::PerlangType> type)
+    {
+        print(type->get_name());
     }
 }

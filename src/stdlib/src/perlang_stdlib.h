@@ -11,6 +11,8 @@
 #include "bigint.h"
 #include "int_array.h"
 #include "perlang_string.h"
+#include "perlang_type.h"
+#include "perlang_value_types.h"
 #include "string_array.h"
 #include "utf8_string.h"
 
@@ -59,6 +61,11 @@ namespace perlang
     void print(const BigInt& bigint);
     void print(float f);
     void print(double d);
+
+    // TODO: If we would let all reference types inherit from PerlangObject, and use a to_string() approach like in
+    // C#/.NET, we could probably get rid of this (as well as the String/ASCIIString/etc overloads above).
+    // https://gitlab.perlang.org/perlang/perlang/-/issues/251
+    void print(std::shared_ptr<PerlangType> type);
 
     // TODO: We would like to enable this, but it breaks with EnumTests since they expect to be able to implicitly
     // TODO: convert enum values to int32_t.

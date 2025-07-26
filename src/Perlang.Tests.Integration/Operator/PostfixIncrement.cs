@@ -15,7 +15,7 @@ namespace Perlang.Tests.Integration.Operator
         // "Positive" tests, testing for supported behavior
         //
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("int", "0", "1", "en-US")]
         [InlineData("int", "0", "1", "sv-SE")]
         [InlineData("long", "4294967296", "4294967297", "en-US")]
@@ -39,15 +39,15 @@ namespace Perlang.Tests.Integration.Operator
             Assert.Equal(after, output);
         }
 
-        [SkippableTheory]
-        [InlineData("int", "0", "System.Int32", "en-US")]
-        [InlineData("int", "0", "System.Int32", "sv-SE")]
-        [InlineData("long", "4294967296", "System.Int64", "en-US")]
-        [InlineData("long", "4294967296", "System.Int64", "sv-SE")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "en-US")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "sv-SE")]
-        [InlineData("double", "4294967296.123", "System.Double", "en-US")]
-        [InlineData("double", "4294967296.123", "System.Double", "sv-SE")]
+        [Theory]
+        [InlineData("int", "0", "perlang.Int32", "en-US")]
+        [InlineData("int", "0", "perlang.Int32", "sv-SE")]
+        [InlineData("long", "4294967296", "perlang.Int64", "en-US")]
+        [InlineData("long", "4294967296", "perlang.Int64", "sv-SE")]
+        [InlineData("bigint", "1267650600228229401496703205376", "perlang.BigInt", "en-US")]
+        [InlineData("bigint", "1267650600228229401496703205376", "perlang.BigInt", "sv-SE")]
+        [InlineData("double", "4294967296.123", "perlang.Double", "en-US")]
+        [InlineData("double", "4294967296.123", "perlang.Double", "sv-SE")]
         public async Task incrementing_variable_retains_expected_type(string type, string before, string expectedClrType, string cultureName)
         {
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);

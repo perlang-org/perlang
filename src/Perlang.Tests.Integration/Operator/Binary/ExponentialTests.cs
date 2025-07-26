@@ -149,7 +149,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
             Assert.Equal(3162.2776601683795, result);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCultures))]
         public async Task exponential_integer_and_float_literals_infers_to_expected_type(CultureInfo cultureInfo)
         {
@@ -162,7 +162,7 @@ namespace Perlang.Tests.Integration.Operator.Binary
 
             string result = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Double", result);
+            Assert.Equal("perlang.Double", result);
         }
 
         [SkippableTheory]

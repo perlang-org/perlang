@@ -789,6 +789,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                     // Perlang in the end.
                     "-Wno-implicit-const-int-float-conversion",
 
+                    // Necessary to be able to get code like -9223372036854775808 working, for reasons described here:
+                    // https://stackoverflow.com/questions/65007935/integer-constant-is-so-large-that-it-is-unsigned-compiler-warning-rationale
+                    "-Wno-implicitly-unsigned-literal",
+
                     // 1073741824 * 2 causes a warning about this. As with other overflows, we could consider
                     // implementing warnings for them, but we want them on the Perlang level instead of on clang level
                     // in that case.
@@ -1350,7 +1354,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
     {
         using var result = NativeStringBuilder.Create();
 
-        result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType!.TypeName}>(");
+        result.Append($"std::make_shared<{collectionInitializer.TypeReference.CppType!.CppTypeName}>(");
 
         switch (collectionInitializer.TypeReference.CppType) {
             // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
@@ -1362,7 +1366,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
                 result.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
                 break;
             default:
-                throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType!.TypeName} is not supported for collection initializers");
+                throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType!.CppTypeName} is not supported for collection initializers");
         }
 
         result.Append("{ ");
@@ -1608,30 +1612,33 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
             }
             else if (identifier.TypeReference.CppType != null)
             {
-                string callOperator;
-
                 if (!identifier.TypeReference.CppType.IsSupported)
                 {
-                    throw new NotImplementedInCompiledModeException($"Calling methods on type {identifier.TypeReference.CppType.TypeName} is not supported because the type is not yet implemented in C++");
+                    throw new NotImplementedInCompiledModeException($"Calling methods on type {identifier.TypeReference.CppType.CppTypeName} is not supported because the type is not yet implemented in C++");
                 }
 
+                // TODO: Should probably check something like IsReferenceType here instead. The fact that the type is
+                // wrapped in a std::shared_ptr feels more like an implementation detail.
                 if (identifier.TypeReference.CppWrapInSharedPtr)
                 {
-                    callOperator = "->";
+                    // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling a method
+                    // on it.
+                    //
+                    // Note that this code path is used for 'this' invocations as well, resulting in 'this->method_name()'.
+                    // Because the name of the identifier is 'this', this works similarly as calling a method on any other
+                    // variable.
+                    result.Append($"{identifier.Name.Lexeme}->{expr.Name.Lexeme}");
+                }
+                else if (identifier.TypeReference.CppType.Methods.Any(m => m.Name == expr.Name.Lexeme) && expr.Name.Lexeme == "get_type")
+                {
+                    // Special-case this (like we will need to do for all methods being called on value types, in fact)
+                    result.Append($"perlang::PerlangValueTypes::get_type_{identifier.TypeReference.CppType!.TypeMethodNameSuffix}");
                 }
                 else
                 {
                     // TODO: This is the wrong exception type; should rather be something like InvalidOperationException
-                    throw new NotImplementedInCompiledModeException($"Calling methods on {identifier} which is of type {identifier.TypeReference.CppType.TypeName} is not supported");
+                    throw new InvalidOperationException($"Calling method {expr.Name.Lexeme} on {identifier} which is of type {identifier.TypeReference.CppType.CppTypeName} is not supported");
                 }
-
-                // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling a method
-                // on it.
-                //
-                // Note that this code path is used for 'this' invocations as well, resulting in 'this->method_name()'.
-                // Because the name of the identifier is 'this', this works similarly as calling a method on any other
-                // variable.
-                result.Append($"{identifier.Name.Lexeme}{callOperator}{expr.Name.Lexeme}");
             }
             else
             {
@@ -1663,7 +1670,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, ID
 
         // The NewExpression is expected to already have been resolved into an unambiguous constructor here, at which
         // point we merely create the corresponding C++ call and expect it to do the right thing.
-        result.Append($"std::make_unique<{expr.TypeReference.CppType!.TypeName}>(");
+        result.Append($"std::make_unique<{expr.TypeReference.CppType!.CppTypeName}>(");
 
         for (int i = 0; i < expr.Parameters.Count; i++) {
             result.Append(expr.Parameters[i].Accept(this));

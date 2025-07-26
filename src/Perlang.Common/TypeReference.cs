@@ -118,11 +118,11 @@ namespace Perlang
 
             if (typeReference.ExplicitTypeSpecified)
             {
-                return typeReference.IsResolved ? $"Explicit: {CppType!.TypeName}" : $"Explicit: {TypeSpecifier}";
+                return typeReference.IsResolved ? $"Explicit: {CppType!.CppTypeName}" : $"Explicit: {TypeSpecifier}";
             }
             else
             {
-                return typeReference.IsResolved ? $"Inferred: {CppType!.TypeName}" : "Inferred, not yet resolved";
+                return typeReference.IsResolved ? $"Inferred: {CppType!.CppTypeName}" : "Inferred, not yet resolved";
             }
         }
 #pragma warning restore S3358

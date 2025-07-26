@@ -90,7 +90,7 @@ namespace Perlang.Interpreter.Typing
                     // TODO: This is the wrong exception type; should rather be something like
                     // TODO: InvalidOperationException. For now, we use this to make sure that it causes tests
                     // TODO: triggering this to be marked as Skipped.
-                    throw new NotImplementedInCompiledModeException($"Calling methods on {get.Object} which is of type {get.Object.TypeReference.CppType.TypeName} is not supported");
+                    throw new NotImplementedInCompiledModeException($"Calling methods on {get.Object} which is of type {get.Object.TypeReference.CppType.CppTypeName} is not supported");
                 }
                 else
                 {

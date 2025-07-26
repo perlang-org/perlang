@@ -9,7 +9,7 @@ namespace Perlang.Tests.Integration.Typing;
 /// </summary>
 public class IntTests
 {
-    [SkippableFact]
+    [Fact]
     public void int_variable_has_expected_type_when_initialized_to_8bit_value()
     {
         // An 8-bit integer (sbyte) should be expanded to 32-bit when the assignment target is of the 'int' type.
@@ -22,10 +22,10 @@ public class IntTests
         string output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("System.Int32");
+            .Be("perlang.Int32");
     }
 
-    [SkippableFact]
+    [Fact]
     public void int_variable_has_expected_type_when_initialized_from_int_variable_with_negative_value()
     {
         string source = @"
@@ -38,7 +38,7 @@ public class IntTests
         string output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("System.Int32");
+            .Be("perlang.Int32");
     }
 
     [Fact]

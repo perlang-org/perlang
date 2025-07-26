@@ -37,7 +37,7 @@ namespace Perlang
                 throw new PerlangCompilerException("Internal compiler error: Attempting to perform a type cast to unknown C++ type");
             }
 
-            return $"({CppType.TypeName})";
+            return $"({CppType.CppTypeName})";
         }
 
         /// <summary>

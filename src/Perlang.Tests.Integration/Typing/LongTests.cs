@@ -80,7 +80,7 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Int64", output);
+            Assert.Equal("perlang.Int64", output);
         }
 
         [SkippableFact]
@@ -96,7 +96,7 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Int64", output);
+            Assert.Equal("perlang.Int64", output);
         }
 
         [SkippableFact]
@@ -110,7 +110,7 @@ namespace Perlang.Tests.Integration.Typing
 
             var output = EvalReturningOutputString(source);
 
-            Assert.Equal("System.Int64", output);
+            Assert.Equal("perlang.Int64", output);
         }
 
         [Fact]

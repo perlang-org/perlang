@@ -33,14 +33,14 @@ namespace Perlang.Tests.Integration.Operator
         }
 
         [SkippableTheory]
-        [InlineData("int", "1", "System.Int32", "en-US")]
-        [InlineData("int", "1", "System.Int32", "sv-SE")]
-        [InlineData("long", "4294967296", "System.Int64", "en-US")]
-        [InlineData("long", "4294967296", "System.Int64", "sv-SE")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "en-US")]
-        [InlineData("bigint", "1267650600228229401496703205376", "System.Numerics.BigInteger", "sv-SE")]
-        [InlineData("double", "4294967296.123", "System.Double", "en-US")]
-        [InlineData("double", "4294967296.123", "System.Double", "sv-SE")]
+        [InlineData("int", "1", "perlang.Int32", "en-US")]
+        [InlineData("int", "1", "perlang.Int32", "sv-SE")]
+        [InlineData("long", "4294967296", "perlang.Int64", "en-US")]
+        [InlineData("long", "4294967296", "perlang.Int64", "sv-SE")]
+        [InlineData("bigint", "1267650600228229401496703205376", "perlang.BigInt", "en-US")]
+        [InlineData("bigint", "1267650600228229401496703205376", "perlang.BigInt", "sv-SE")]
+        [InlineData("double", "4294967296.123", "perlang.Double", "en-US")]
+        [InlineData("double", "4294967296.123", "perlang.Double", "sv-SE")]
         public async Task decrementing_variable_retains_expected_type(string type, string before, string expectedClrType, string cultureName)
         {
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);

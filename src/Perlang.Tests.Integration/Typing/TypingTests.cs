@@ -108,16 +108,16 @@ namespace Perlang.Tests.Integration.Typing
 
         // These tests deliberately test the edge cases (minimum/maximum values), to prevent off-by-one errors.
 
-        [SkippableTheory]
-        [InlineData("2147483647", "System.Int32")]              // Int32.MaxValue
-        [InlineData("-2147483648", "System.Int32")]             // Int32.MinValue
-        [InlineData("4294967295", "System.UInt32")]             // UInt32.MaxValue
-        [InlineData("4294967296", "System.Int64")]              // UInt32.MaxValue + 1 => must be parsed as a `long` to avoid data loss.
-        [InlineData("-4294967296", "System.Int64")]             // -(UInt32.MaxValue + 1) => must be parsed as a `long` to avoid data loss.
-        [InlineData("9223372036854775807", "System.Int64")]     // Int64.MaxValue
-        [InlineData("-9223372036854775808", "System.Int64")]    // Int64.MinValue
-        [InlineData("18446744073709551616", "System.Numerics.BigInteger")] // UInt64.MaxValue + 1 => should be parsed as a `bigint` to avoid data loss.
-        [InlineData("-9223372036854775809", "System.Numerics.BigInteger")] // Int64.MinValue - 1 => should be parsed as a `bigint` to avoid data loss.
+        [Theory]
+        [InlineData("2147483647", "perlang.Int32")]              // Int32.MaxValue
+        [InlineData("-2147483648", "perlang.Int32")]             // Int32.MinValue
+        [InlineData("4294967295", "perlang.UInt32")]             // UInt32.MaxValue
+        [InlineData("4294967296", "perlang.Int64")]              // UInt32.MaxValue + 1 => must be parsed as a `long` to avoid data loss.
+        [InlineData("-4294967296", "perlang.Int64")]             // -(UInt32.MaxValue + 1) => must be parsed as a `long` to avoid data loss.
+        [InlineData("9223372036854775807", "perlang.Int64")]     // Int64.MaxValue
+        [InlineData("-9223372036854775808", "perlang.Int64")]    // Int64.MinValue
+        [InlineData("18446744073709551616", "perlang.BigInt")]   // UInt64.MaxValue + 1 => should be parsed as a `bigint` to avoid data loss.
+        [InlineData("-9223372036854775809", "perlang.BigInt")]   // Int64.MinValue - 1 => should be parsed as a `bigint` to avoid data loss.
         public void var_declaration_infers_type_from_initializer(string value, string expectedType)
         {
             string source = $@"
@@ -141,7 +141,7 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             string result = EvalReturningOutputString(source);
-            Assert.Equal("System.Int32", result);
+            Assert.Equal("perlang.Int32", result);
         }
 
         [SkippableFact]
@@ -155,7 +155,7 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             string result = EvalReturningOutputString(source);
-            Assert.Equal("System.Int64", result);
+            Assert.Equal("perlang.Int64", result);
         }
 
         [SkippableFact]
@@ -169,7 +169,7 @@ namespace Perlang.Tests.Integration.Typing
             ";
 
             string result = EvalReturningOutputString(source);
-            Assert.Equal("System.Int32", result);
+            Assert.Equal("perlang.Int32", result);
         }
 
         [Fact]
