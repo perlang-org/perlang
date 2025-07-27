@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using Perlang.Attributes;
 using Perlang.Compiler;
 using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
@@ -140,7 +139,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", mainMethodContent);
 
         LoadStdlib();
-        nativeClasses = RegisterGlobalFunctionsAndClasses();
+
+        // Dummy content to avoid breaking some existing tests. In the long run, we should make this contain real
+        // representation (method metadata) of classes existing on the C++ side, to make them callable from Perlang. If
+        // we could automate that part somehow, it'd be great, so we can enforce the metadata to be up-to-date at all
+        // times.
+        var nativeClassesBuilder = ImmutableDictionary.CreateBuilder<string, Type>();
+        nativeClassesBuilder["Base64"] = typeof(object);
+        nativeClassesBuilder["Libc"] = typeof(object);
+        nativeClasses = nativeClassesBuilder.ToImmutableDictionary();
     }
 
     public void Dispose()
@@ -157,47 +164,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         // Because of implicit dependencies, this is not loaded automatically; we must manually load this
         // assembly to ensure all Callables within it are registered in the global namespace.
         Assembly.Load("Perlang.StdLib");
-    }
-
-    private ImmutableDictionary<string, Type> RegisterGlobalFunctionsAndClasses()
-    {
-        RegisterGlobalClasses();
-
-        // We need to make a copy of this at this early stage, when it _only_ contains native classes, so that
-        // we can feed it to the Resolver class.
-        return globalClasses.ToImmutableDictionary(kvp => kvp.Key, kvp => (Type)kvp.Value);
-    }
-
-    /// <summary>
-    /// Registers global classes defined in native .NET code.
-    /// </summary>
-    /// <exception cref="PerlangInterpreterException">Multiple classes with the same name was encountered.</exception>
-    private void RegisterGlobalClasses()
-    {
-        var globalClassesQueryable = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a => a.GetTypes())
-            .Select(t => new
-            {
-                Type = t,
-                ClassAttribute = t.GetCustomAttribute<GlobalClassAttribute>()
-            })
-            .Where(t => t.ClassAttribute != null && (
-                !t.ClassAttribute.Platforms.Any() || t.ClassAttribute.Platforms.Contains(Environment.OSVersion.Platform)
-            ));
-
-        foreach (var globalClass in globalClassesQueryable)
-        {
-            string name = globalClass.ClassAttribute!.Name ?? globalClass.Type.Name;
-
-            if (globals.Get(name) != null)
-            {
-                throw new PerlangCompilerException(
-                    $"Attempted to define global class '{name}', but another identifier with the same name already exists"
-                );
-            }
-
-            globalClasses[name] = globalClass.Type;
-        }
     }
 
     /// <summary>

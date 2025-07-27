@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Perlang.Attributes;
 using Perlang.Lang;
 using String = System.String;
 
@@ -30,7 +29,6 @@ namespace Perlang.Stdlib
     ///
     /// Portions may also be inspired by Donald Lewine's great book "POSIX Programmer's Guide" (O'Reilly 1991).
     /// </remarks>
-    [GlobalClass]
     public static partial class Libc
     {
         /// <summary>

@@ -1,19 +1,17 @@
 #nullable enable
 using System;
 using System.Text;
-using Perlang.Attributes;
 
 namespace Perlang.Stdlib
 {
-    // TODO: Remove this eventually, preferably when we have a C++ replacement for it. Unsure if removing it already now
-    // TODO: would break some existing tests.
+    // TODO: Remove this eventually, preferably when we have a C++ replacement for it. Keeping it for now since it
+    // documents the expected existing public API and implementation.
 
     /// <summary>
     /// Provides support for encoding and decoding base64-encoded content.
     ///
     /// See https://en.wikipedia.org/wiki/Base64 for more details on the base64 encoding.
     /// </summary>
-    [GlobalClass]
     public static class Base64
     {
         /// <summary>

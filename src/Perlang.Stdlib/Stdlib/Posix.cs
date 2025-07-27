@@ -1,10 +1,8 @@
 #pragma warning disable SA1300
 #pragma warning disable SA1629
 #pragma warning disable S3218
-using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Perlang.Attributes;
 
 namespace Perlang.Stdlib
 {
@@ -38,7 +36,6 @@ namespace Perlang.Stdlib
     /// interested in). You can also consult the Linux man pages project:
     /// https://man7.org/linux/man-pages/dir_all_alphabetic.html/.
     /// </remarks>
-    [GlobalClass(PlatformID.Unix, PlatformID.MacOSX)]
     public static class Posix
     {
         // Internal class which contains the P/Invoke definitions, to avoid exposing them directly to our callers.
