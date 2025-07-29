@@ -43,11 +43,6 @@ namespace Perlang.Interpreter.Typing
 
             if (!expr.TypeReference.IsResolved)
             {
-                // TODO: Undersök varför vi hamnar här. Det verkar som att typen för ett objekt i Expr.This-kontext inte
-                // TODO: blir rätt i TypeResolver. Varför? Funkar detta för metodanrop i binary expressions i vår
-                // TODO: befintliga master-branch? Validera detta, och försök förstå varför field-access i så fall beter
-                // TODO: sig annorlunda.
-
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
                     $"Internal compiler error: '{expr}' inference has not been attempted"
