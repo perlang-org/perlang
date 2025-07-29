@@ -1622,7 +1622,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 throw new PerlangCompilerException($"Internal compiler error: identifier.TypeReference.CppType was unexpectedly null for {identifier}");
             }
         }
-        else if (expr.Object is Expr.Grouping or Expr.Index)
+        else if (expr.Object is Expr.Call or Expr.Grouping or Expr.Index)
         {
             // TODO: Something like this would do eventually. It's pretty much impossible to perform a method call like
             // TODO: e.g. 42.get_type() in C or C++. We would at the very least have to special-case all primitives, to
@@ -1630,7 +1630,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             // TODO: language I think.
             result.Append(expr.Object.Accept(this));
 
-            result.Append('.');
+            if (expr.Object.TypeReference.CppWrapInSharedPtr) {
+                result.Append("->");
+            }
+            else {
+                result.Append('.');
+            }
+
             result.Append(expr.Name.Lexeme);
         }
         else
@@ -1690,7 +1696,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         var previousClass = currentClass;
         currentClass = stmt;
 
-        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} {""");
+        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} : public std::enable_shared_from_this<{{stmt.Name}}> {""");
 
         classDefinitionBuilder.AppendLine("private:");
 
@@ -1946,7 +1952,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         else
         {
             result.Append($"{Indent(indentationLevel)}return ");
-            result.Append(stmt.Value.Accept(this));
+
+            if (stmt.Value is Expr.Identifier && stmt.Value.FullName == "this") {
+                // We do a special trick when returning 'this' from a method in a wrapped class, to ensure that it's
+                // always the shared_ptr that gets passed around. Will likely have to do something similar for method
+                // arguments too, when passing 'this' to a method in another class.
+                result.Append("shared_from_this()");
+            }
+            else {
+                result.Append(stmt.Value.Accept(this));
+            }
+
             result.AppendLine(";");
         }
 

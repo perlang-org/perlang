@@ -123,7 +123,7 @@ namespace Perlang.Tests.Integration.Classes
                 .Be("Hello World, Bob");
         }
 
-        [Fact(Skip = "Throws exception: Internal compiler error: unhandled type of get expression: Perlang.Expr+Call")]
+        [Fact]
         public void class_can_be_instantiated_and_instance_method_calls_can_be_chained_and_return_string()
         {
             string source = """

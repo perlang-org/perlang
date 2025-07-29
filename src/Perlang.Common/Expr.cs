@@ -17,7 +17,7 @@ namespace Perlang
 
         public virtual string[] FullNameParts => throw new NotImplementedException($"FullNameParts should be implemented for {this.GetType().Name}");
 
-        private string FullName => String.Join('.', FullNameParts);
+        public string FullName => String.Join('.', FullNameParts);
 
         private Expr()
         {
