@@ -13,7 +13,29 @@ namespace Perlang.Tests.Integration.Classes
     public class ClassesTests
     {
         [Fact]
-        public void class_can_be_instantiated_and_instance_method_can_be_called()
+        public void class_can_be_instantiated_in_explicitly_typed_variable_and_instance_method_can_be_called()
+        {
+            string source = """
+                public class Greeter
+                {
+                    public say_hello(): void
+                    {
+                        print("Hello World from class instance method");
+                    }
+                }
+
+                var greeter: Greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutputString(source);
+
+            output.Should()
+                .Be("Hello World from class instance method");
+        }
+
+        [Fact]
+        public void class_can_be_instantiated_in_implicitly_typed_Variable_and_instance_method_can_be_called()
         {
             string source = """
                 public class Greeter
@@ -101,7 +123,7 @@ namespace Perlang.Tests.Integration.Classes
                 .Be("Hello World, Bob");
         }
 
-        [Fact(Skip = "Throws exception: Internal compiler error: CLR type was null for return type of method 'this_is' in class 'Fluent'")]
+        [Fact(Skip = "Throws exception: Internal compiler error: unhandled type of get expression: Perlang.Expr+Call")]
         public void class_can_be_instantiated_and_instance_method_calls_can_be_chained_and_return_string()
         {
             string source = """
@@ -681,6 +703,45 @@ namespace Perlang.Tests.Integration.Classes
                     public say_hello(): void
                     {
                         print("Hello from say_hello, " + this.name + ", " + this.age);
+                    }
+                }
+
+                var greeter = new Greeter();
+                greeter.say_hello();
+                """;
+
+            var output = EvalReturningOutput(source);
+
+            output.Should()
+                .Equal(
+                    "Hello from say_hello, Bob, 42"
+                );
+        }
+
+        [Fact]
+        public void class_can_define_private_field_with_another_class_as_type()
+        {
+            string source = """
+                public class Subject
+                {
+                    public name(): string
+                    {
+                        return "Bob";
+                    }
+
+                    public age(): int
+                    {
+                        return 42;
+                    }
+                }
+
+                public class Greeter
+                {
+                    private subject: Subject = new Subject();
+
+                    public say_hello(): void
+                    {
+                        print("Hello from say_hello, " + subject.name() + ", " + subject.age());
                     }
                 }
 

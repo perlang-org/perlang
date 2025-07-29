@@ -27,15 +27,20 @@ namespace Perlang.Interpreter.Typing
             IList<Stmt> statements,
             Action<TypeValidationError> typeValidationErrorCallback,
             IBindingRetriever variableOrFunctionRetriever,
+            ITypeHandler typeHandler,
             Action<CompilerWarning> compilerWarningCallback)
         {
             bool typeResolvingFailed = false;
+
+            // TODO: The type resolving would rightfully be extracted to a class/method of its own, since it has zero
+            // and nothing to do with the actual validation.
 
             //
             // Phase 1: Resolve explicit and implicit type references to their corresponding CLR types.
             //
             var typeResolver = new TypeResolver(
                 variableOrFunctionRetriever,
+                typeHandler,
                 validationError =>
                 {
                     typeValidationErrorCallback(validationError);

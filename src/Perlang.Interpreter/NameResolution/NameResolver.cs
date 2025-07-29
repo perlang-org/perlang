@@ -220,11 +220,12 @@ internal class NameResolver : VisitorBase
         DefineField("this", thisField);
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
-        // we don't have the PerlangClass instance available in the TypeResolver class right now.
+        // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
+        // the introduction of ITypeHandler, we could likely fix this more properly now)
         @class.TypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
-        @class.TypeReference.SetPerlangClass(perlangClass);
+        @class.TypeReference.SetPerlangType(perlangClass);
         thisTypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
-        thisTypeReference.SetPerlangClass(perlangClass);
+        thisTypeReference.SetPerlangType(perlangClass);
     }
 
     private void DefineField(string name, Stmt.Field field)
@@ -240,6 +241,11 @@ internal class NameResolver : VisitorBase
 
         // The binding factory is used in the type resolving phase.
         scopes.Last()[name] = new FieldBindingFactory(currentClass, field);
+
+        if (field.Initializer != null)
+        {
+            Resolve(field.Initializer);
+        }
     }
 
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants

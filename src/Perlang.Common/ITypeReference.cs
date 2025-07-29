@@ -47,9 +47,9 @@ namespace Perlang
         bool CppWrapInSharedPtr { get; }
 
         /// <summary>
-        /// Gets a value for the <see cref="PerlangClass"/> that this <see cref="ITypeReference"/> refers to.
+        /// Gets a value for the <see cref="PerlangType"/> that this <see cref="ITypeReference"/> refers to.
         /// </summary>
-        IPerlangClass? PerlangClass { get; }
+        IPerlangType? PerlangType { get; }
 
         /// <summary>
         /// Gets a value indicating whether the type reference contains an explicit type specifier or not. If this is
@@ -114,6 +114,6 @@ namespace Perlang
 
         void SetCppTypeFromClrType(Type clrType);
 
-        void SetPerlangClass(IPerlangClass? perlangClass);
+        void SetPerlangType(IPerlangType? perlangType);
     }
 }

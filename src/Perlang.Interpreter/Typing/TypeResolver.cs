@@ -20,19 +20,21 @@ namespace Perlang.Interpreter.Typing
     /// </summary>
     internal class TypeResolver : VisitorBase
     {
-        private readonly IBindingRetriever variableOrFunctionRetriever;
+        private readonly IBindingRetriever bindingHandler;
+        private readonly ITypeHandler typeHandler;
         private readonly Action<TypeValidationError> typeValidationErrorCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeResolver"/> class.
         /// </summary>
-        /// <param name="variableOrFunctionRetriever">A callback used to retrieve a binding for a given
-        /// expression.</param>
+        /// <param name="bindingHandler">A handler used for retrieving a binding for a given expression.</param>
+        /// <param name="typeHandler">A handler used for adding and retrieving global, top-level types.</param>
         /// <param name="typeValidationErrorCallback">A callback which will receive type-validation errors, if they
-        /// occur.</param>
-        public TypeResolver(IBindingRetriever variableOrFunctionRetriever, Action<TypeValidationError> typeValidationErrorCallback)
+        ///     occur.</param>
+        public TypeResolver(IBindingRetriever bindingHandler, ITypeHandler typeHandler, Action<TypeValidationError> typeValidationErrorCallback)
         {
-            this.variableOrFunctionRetriever = variableOrFunctionRetriever;
+            this.bindingHandler = bindingHandler;
+            this.typeHandler = typeHandler;
             this.typeValidationErrorCallback = typeValidationErrorCallback;
         }
 
@@ -57,7 +59,7 @@ namespace Perlang.Interpreter.Typing
                 expr.TypeReference.SetCppType(expr.Value.TypeReference.CppType);
             }
 
-            expr.TypeReference.SetPerlangClass(expr.Value.TypeReference.PerlangClass);
+            expr.TypeReference.SetPerlangType(expr.Value.TypeReference.PerlangType);
 
             return VoidObject.Void;
         }
@@ -414,14 +416,14 @@ namespace Perlang.Interpreter.Typing
                 {
                     // All is fine, we have a type.
                     expr.TypeReference.SetCppType(get.TypeReference.CppType);
-                    expr.TypeReference.SetPerlangClass(get.TypeReference.PerlangClass);
+                    expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
                     return VoidObject.Void;
                 }
                 else if (get.PerlangMethods.Any() && get.TypeReference.IsResolved)
                 {
                     // All is fine, we have a type.
                     expr.TypeReference.SetCppType(get.TypeReference.CppType);
-                    expr.TypeReference.SetPerlangClass(get.TypeReference.PerlangClass);
+                    expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
                     return VoidObject.Void;
                 }
                 else if (!get.TypeReference.IsResolved)
@@ -439,7 +441,7 @@ namespace Perlang.Interpreter.Typing
             }
             else if (expr.Callee is Expr.Identifier)
             {
-                ITypeReference? typeReference = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr)?.TypeReference;
+                ITypeReference? typeReference = bindingHandler.GetVariableOrFunctionBinding(expr)?.TypeReference;
 
                 if (typeReference == null)
                 {
@@ -451,7 +453,7 @@ namespace Perlang.Interpreter.Typing
                 else
                 {
                     expr.TypeReference.SetCppType(typeReference.CppType);
-                    expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
+                    expr.TypeReference.SetPerlangType(typeReference.PerlangType);
                 }
             }
             else
@@ -641,7 +643,7 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitIdentifierExpr(Expr.Identifier expr)
         {
-            Binding? binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
+            Binding? binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
             if (binding is ClassBinding)
             {
@@ -664,7 +666,7 @@ namespace Perlang.Interpreter.Typing
                 }
 
                 expr.TypeReference.SetCppType(typeReference.CppType);
-                expr.TypeReference.SetPerlangClass(typeReference.PerlangClass);
+                expr.TypeReference.SetPerlangType(typeReference.PerlangType);
             }
 
             return VoidObject.Void;
@@ -674,7 +676,7 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitGetExpr(expr);
 
-            Binding? binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr.Object);
+            Binding? binding = bindingHandler.GetVariableOrFunctionBinding(expr.Object);
 
             // The "== null" part is kind of sneaky. We run into that scenario whenever method calls are chained.
             // It still feels somewhat better than allowing any kind of wild binding to pass through at this
@@ -689,7 +691,7 @@ namespace Perlang.Interpreter.Typing
                     throw new NotImplementedInCompiledModeException("Bindings to native .NET classes are no longer supported");
                 }
 
-                IPerlangType? perlangType = (IPerlangType?)expr.Object.TypeReference.PerlangClass ?? expr.Object.TypeReference.CppType;
+                IPerlangType? perlangType = expr.Object.TypeReference.PerlangType ?? expr.Object.TypeReference.CppType;
 
                 if (perlangType == null)
                 {
@@ -714,7 +716,7 @@ namespace Perlang.Interpreter.Typing
                     expr.TypeReference.SetCppType(field.TypeReference.CppType ?? throw new PerlangCompilerException($"Internal compiler error: C++ type was null for field '{expr.Name.Lexeme}' in class '{perlangType.Name}'"));
 
                     // This being null is a valid case, since we might not be returning a Perlang-defined type.
-                    expr.TypeReference.SetPerlangClass(field.TypeReference.PerlangClass);
+                    expr.TypeReference.SetPerlangType(field.TypeReference.PerlangType);
 
                     return VoidObject.Void;
                 }
@@ -748,7 +750,7 @@ namespace Perlang.Interpreter.Typing
                 expr.TypeReference.SetCppType(firstMatchingMethod.ReturnTypeReference.CppType ?? throw new PerlangCompilerException($"Internal compiler error: C++ type was null for return type of method '{expr.Name.Lexeme}' in class '{perlangType.Name}'"));
 
                 // This being null is a valid case, since we might not be returning a Perlang-defined type.
-                expr.TypeReference.SetPerlangClass(firstMatchingMethod.ReturnTypeReference.PerlangClass);
+                expr.TypeReference.SetPerlangType(firstMatchingMethod.ReturnTypeReference.PerlangType);
             }
             else if (binding is EnumBinding enumBinding)
             {
@@ -778,7 +780,7 @@ namespace Perlang.Interpreter.Typing
         {
             base.VisitNewExpression(expr);
 
-            var binding = variableOrFunctionRetriever.GetVariableOrFunctionBinding(expr);
+            var binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
             if (binding == null) {
                 typeValidationErrorCallback(new TypeValidationError(
@@ -799,7 +801,7 @@ namespace Perlang.Interpreter.Typing
             }
 
             expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true));
-            expr.TypeReference.SetPerlangClass(classBinding.PerlangClass);
+            expr.TypeReference.SetPerlangType(classBinding.PerlangClass);
 
             return VoidObject.Void;
         }
@@ -859,6 +861,8 @@ namespace Perlang.Interpreter.Typing
                 ResolveExplicitTypes(stmt.TypeReference);
             }
 
+            // TODO: The CppType of stmt.Initializer should be determined here, I think. But how?
+
             return base.VisitFieldStmt(stmt);
         }
 
@@ -877,7 +881,7 @@ namespace Perlang.Interpreter.Typing
             {
                 // An explicit type has not been provided. Try inferring it from the type of value provided.
                 stmt.TypeReference.SetCppType(stmt.Initializer.TypeReference.CppType);
-                stmt.TypeReference.SetPerlangClass(stmt.Initializer.TypeReference.PerlangClass);
+                stmt.TypeReference.SetPerlangType(stmt.Initializer.TypeReference.PerlangType);
             }
 
             return VoidObject.Void;
@@ -956,8 +960,21 @@ namespace Perlang.Interpreter.Typing
                     typeReference.SetCppType(PerlangTypes.Type);
                     break;
 
-                // Other types means ClrType will remain `null`; this is then handled elsewhere (in
-                // TypesResolvedValidator)
+                default:
+                    // This can be a user-defined type. We check using the ITypeHandler instance we have. If that method
+                    // returns null, this means CppType will remain `null`, indicating that the type remains unresolved.
+                    // This is an error condition which is then handled elsewhere (in TypesResolvedValidator)
+                    IPerlangType? perlangType = typeHandler.GetType(lexeme);
+
+                    if (perlangType != null) {
+                        // Note: this means that the CppType instances for a given type will not be shared. Can this
+                        // become a problem? Perhaps we would need some form of mechanism for deducing a CppType for a
+                        // given IPerlangType, which could then potentially cache the instantiated value as needed.
+                        typeReference.SetCppType(new CppType(perlangType.Name, wrapInSharedPtr: true));
+                        typeReference.SetPerlangType(perlangType);
+                    }
+
+                    break;
             }
         }
     }

@@ -459,5 +459,24 @@ namespace Perlang.Tests.Integration.Var
 
             Assert.Matches("Error at 'this': Expecting variable name", exception.ToString());
         }
+
+        [Fact]
+        public void explicitly_typed_variable_of_class_cannot_be_initialized_with_instance_of_another_class()
+        {
+            string source = @"
+                public class Foo {}
+                public class Bar {}
+
+                // This is expected to yield a compilation error.
+                var obj: Foo = new Bar();
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Cannot assign Bar to Foo variable");
+        }
     }
 }

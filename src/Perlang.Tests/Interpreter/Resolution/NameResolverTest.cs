@@ -87,6 +87,11 @@ namespace Perlang.Tests.Interpreter.Resolution
             {
                 throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
             }
+
+            public IPerlangType? GetType(string name)
+            {
+                return null;
+            }
         }
     }
 }

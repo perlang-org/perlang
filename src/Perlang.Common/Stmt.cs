@@ -176,6 +176,32 @@ namespace Perlang
             {
                 return visitor.VisitFieldStmt(this);
             }
+
+            public override string ToString()
+            {
+                if (Initializer != null)
+                {
+                    if (TypeReference.TypeSpecifier?.Lexeme != null)
+                    {
+                        return $"{Visibility.ToString().ToLower()} {Name}: {TypeReference.TypeSpecifier.Lexeme} = {Initializer};";
+                    }
+                    else
+                    {
+                        return $"{Visibility.ToString().ToLower()} {Name} = {Initializer};";
+                    }
+                }
+                else
+                {
+                    if (TypeReference.TypeSpecifier?.Lexeme != null)
+                    {
+                        return $"{Visibility.ToString().ToLower()} {Name}: {TypeReference.TypeSpecifier.Lexeme};";
+                    }
+                    else
+                    {
+                        return $"{Visibility.ToString().ToLower()} {Name};";
+                    }
+                }
+            }
         }
 
         public class If : Stmt

@@ -160,6 +160,7 @@ namespace Perlang.Tests.Interpreter.Typing
             // to copy-paste the code to the test like this or not.
             var typeResolver = new TypeResolver(
                 compiler.BindingHandler,
+                compiler,
                 AssertFailValidationErrorHandler
             );
 
@@ -198,6 +199,11 @@ namespace Perlang.Tests.Interpreter.Typing
             public void AddClass(string name, IPerlangClass perlangClass)
             {
                 throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
+            }
+
+            public IPerlangType? GetType(string name)
+            {
+                return null;
             }
         }
     }

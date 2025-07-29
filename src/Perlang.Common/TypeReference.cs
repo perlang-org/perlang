@@ -50,8 +50,8 @@ namespace Perlang
             CppType = ClrTypeToCppType(clrType);
         }
 
-        public void SetPerlangClass(IPerlangClass? perlangClass) =>
-            PerlangClass = perlangClass;
+        public void SetPerlangType(IPerlangType? perlangType) =>
+            PerlangType = perlangType;
 
         private readonly bool isArray;
 
@@ -65,7 +65,7 @@ namespace Perlang
         public bool CppWrapInSharedPtr =>
             CppType?.WrapInSharedPtr ?? throw new PerlangCompilerException("Internal compiler error: cppType was unexpectedly null");
 
-        public IPerlangClass? PerlangClass { get; private set; }
+        public IPerlangType? PerlangType { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeReference"/> class, with no type specifier provided. This

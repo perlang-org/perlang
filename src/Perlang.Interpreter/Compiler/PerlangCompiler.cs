@@ -97,7 +97,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     /// <summary>
     /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
     /// </summary>
-    private readonly IDictionary<string, object> globalClasses = new Dictionary<string, object>();
+    private readonly IDictionary<string, IPerlangType> globalClasses = new Dictionary<string, IPerlangType>();
 
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
@@ -459,6 +459,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 typeValidationErrorHandler(typeValidationError);
             },
             BindingHandler,
+            this,
             compilerWarning =>
             {
                 bool result = compilerWarningHandler(compilerWarning);
@@ -867,6 +868,16 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     public void AddClass(string name, IPerlangClass perlangClass)
     {
         globalClasses[name] = perlangClass;
+    }
+
+    public IPerlangType? GetType(string name)
+    {
+        if (globalClasses.TryGetValue(name, out IPerlangType? perlangType)) {
+            return perlangType;
+        }
+        else {
+            return null;
+        }
     }
 
     public object VisitEmptyExpr(Expr.Empty expr)
