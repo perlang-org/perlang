@@ -476,22 +476,24 @@ namespace Perlang.Interpreter.Typing
 
             if (type == null)
             {
-                // TODO: Be ITokenAware and use expr.Indexee.Token in this error, for better accuracy
-                typeValidationErrorCallback(new TypeValidationError(
-                    expr.Token,
-                    "Internal compiler error: Type of indexed object expected to be resolved at this stage")
-                );
+                // This could be an issue, but OTOH this can be legal if an unresolved type is used and the error has
+                // already been reported. If we had a logging framework in place, this would make sense to log at
+                // 'debug' or 'trace' log level. Silencing for now.
+                //
+                //typeValidationErrorCallback(new TypeValidationError(
+                //    (expr.Indexee as ITokenAware)?.Token ?? expr.Token,
+                //    "Internal compiler error: Type of indexed object expected to be resolved at this stage")
+                //);
 
                 return VoidObject.Void;
             }
 
             if (argumentType == null)
             {
-                // TODO: Be ITokenAware and use expr.Argument.Token in this error, for better accuracy
-                typeValidationErrorCallback(new TypeValidationError(
-                    expr.Token,
-                    "Internal compiler error: Type of index argument expected to be resolved at this stage")
-                );
+                //typeValidationErrorCallback(new TypeValidationError(
+                //    (expr.Argument as ITokenAware)?.Token ?? expr.Token,
+                //    "Internal compiler error: Type of index argument expected to be resolved at this stage")
+                //);
 
                 return VoidObject.Void;
             }
