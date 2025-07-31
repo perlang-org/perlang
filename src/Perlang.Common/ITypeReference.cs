@@ -95,7 +95,9 @@ namespace Perlang
                 _ => false
             };
 
-        string TypeKeyword => CppType?.TypeKeyword ?? throw new InvalidOperationException($"Type keyword not defined for {CppType}");
+        string TypeKeyword =>
+            (CppType ?? throw new InvalidOperationException("Internal error: C++ type was unexpectedly null"))
+                .TypeKeyword ?? throw new InvalidOperationException($"Type keyword not defined for {CppType}");
 
         // Ensures anything but literal `null` get quoted
         string ToQuotedTypeKeyword() =>
