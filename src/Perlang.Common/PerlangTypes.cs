@@ -25,6 +25,7 @@ public static class PerlangTypes
     public static readonly CppType UInt64Array = new CppType("uint64_t[]", null, "ulong[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.UInt64, isSupported: false);
     public static readonly CppType FloatArray = new CppType("float[]", null, "float[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Float, isSupported: false);
     public static readonly CppType DoubleArray = new CppType("double[]", null, "double[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Double, isSupported: false);
+    public static readonly CppType BoolArray = new CppType("bool[]", null, "bool[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Bool, isSupported: false);
     public static readonly CppType CharArray = new CppType("char16_t[]", null, "char[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Char, isSupported: false);
     public static readonly CppType BigIntArray = new CppType("BigInt[]", null, "bigint[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.BigInt, isSupported: false);
 

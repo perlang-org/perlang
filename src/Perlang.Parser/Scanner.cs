@@ -130,6 +130,8 @@ namespace Perlang.Parser
                 "bigint",
                 "float",
                 "double",
+                "bool",
+                "char",
                 "string"
             }.ToPerlangStringHashSet();
 

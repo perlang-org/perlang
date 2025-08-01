@@ -929,6 +929,8 @@ namespace Perlang.Interpreter.Typing
                     typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UInt64Array : PerlangValueTypes.UInt64);
                     break;
 
+                // TODO: add bigint here too
+
                 // "Float" is called "Single" in C#/.NET, but Java uses `float` and `Float`. In this case, I think it
                 // makes little sense to make them inconsistent.
                 case "float" or "Float":
@@ -939,12 +941,16 @@ namespace Perlang.Interpreter.Typing
                     typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.DoubleArray : PerlangValueTypes.Double);
                     break;
 
-                case "string" or "String":
-                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.StringArray : PerlangTypes.String);
+                case "bool" or "Bool":
+                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.BoolArray : PerlangValueTypes.Bool);
                     break;
 
-                case "char":
+                case "char" or "Char":
                     typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.CharArray : PerlangValueTypes.Char);
+                    break;
+
+                case "string" or "String":
+                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.StringArray : PerlangTypes.String);
                     break;
 
                 case "void":
