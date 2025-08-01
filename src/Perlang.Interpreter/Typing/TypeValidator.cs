@@ -80,8 +80,25 @@ namespace Perlang.Interpreter.Typing
             // as possible, the full list errors (if any) are reported back to the caller; we don't just stop at the
             // first error encountered. (The compiler could potentially discard information except for the first n
             // errors if desired, though. The key point here is to not discard it at the wrong stage in the pipeline.)
-            new TypesResolvedValidator(variableOrFunctionRetriever, typeValidationErrorCallback, compilerWarningCallback)
+            bool typesResolvedValidationFailed = false;
+
+            new TypesResolvedValidator(
+                    variableOrFunctionRetriever,
+                    validationError =>
+                    {
+                        typeValidationErrorCallback(validationError);
+                        typesResolvedValidationFailed = true;
+                    },
+                    compilerWarningCallback
+                )
                 .ReportErrors(statements);
+
+            if (typesResolvedValidationFailed) {
+                // If one validation step fails, we don't want to proceed with running the rest of them.
+                // TODO: We should do the same below for the TypeAssignmentValidator and BooleanOperandsValidator, but I
+                // don't want to add it without having an example at hand that I can test the change with.
+                return;
+            }
 
             //
             // Phase 3: Ensure that no assignments are made from incoercible values
