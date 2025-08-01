@@ -275,8 +275,8 @@ namespace Perlang.Interpreter.Typing
             if (!stmt.TypeReference.IsResolved)
             {
                 TypeValidationErrorCallback(new TypeValidationError(
-                    stmt.NameToken,
-                    $"Internal compiler error: type for field '{stmt.NameToken.Lexeme}' has not been resolved"
+                    stmt.TypeReference.TypeSpecifier!,
+                    $"Type not found: {stmt.TypeReference.TypeSpecifier!.Lexeme}"
                 ));
             }
 

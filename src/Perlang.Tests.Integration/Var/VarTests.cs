@@ -478,5 +478,21 @@ namespace Perlang.Tests.Integration.Var
                 .Which
                 .Message.Should().Contain("Cannot assign Bar to Foo variable");
         }
+
+        [Fact]
+        public void explicitly_typed_variable_of_unknown_class_throws_expected_error()
+        {
+            string source = @"
+                // The 'Foo' class does not exist
+                var obj: Foo;
+            ";
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Type not found: Foo");
+        }
     }
 }
