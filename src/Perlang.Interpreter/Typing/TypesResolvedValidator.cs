@@ -234,25 +234,24 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
         {
-            if (!stmt.ReturnTypeReference.IsResolved && !stmt.IsConstructor && !stmt.IsDestructor)
-            {
+            if (!stmt.ReturnTypeReference.IsResolved && !stmt.IsConstructor && !stmt.IsDestructor) {
                 // Note: this is a bit duplicated; we also have a check in TypeResolver for this. I considered
                 // de-duplicating it, but it feels dangerous, since we need to remember to edit this when we
                 // add support for function return type inference.
-                if (!stmt.ReturnTypeReference.ExplicitTypeSpecified)
-                {
-                    // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
-                    TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.NameToken,
-                        $"Inferred typing is not yet supported for function '{stmt.NameToken.Lexeme}'")
-                    );
+                if (stmt.ReturnTypeReference.ExplicitTypeSpecified) {
+                    this.TypeValidationErrorCallback(
+                        new TypeValidationError(
+                            stmt.ReturnTypeReference.TypeSpecifier!,
+                            $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier!.Lexeme}"
+                        ));
                 }
-                else
-                {
-                    TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.ReturnTypeReference.TypeSpecifier!,
-                        $"Type not found: {stmt.ReturnTypeReference.TypeSpecifier!.Lexeme}"
-                    ));
+                else {
+                    // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
+                    this.TypeValidationErrorCallback(
+                        new TypeValidationError(
+                            stmt.NameToken,
+                            $"Inferred typing is not yet supported for function '{stmt.NameToken.Lexeme}'")
+                    );
                 }
             }
 
@@ -359,7 +358,7 @@ namespace Perlang.Interpreter.Typing
                 return VoidObject.Void;
             }
 
-            if (stmt.TypeReference!.IsResolved)
+            if (stmt.TypeReference.IsResolved)
             {
                 if (stmt.Initializer != null)
                 {
