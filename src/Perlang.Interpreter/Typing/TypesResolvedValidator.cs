@@ -310,28 +310,23 @@ namespace Perlang.Interpreter.Typing
 
         public override VoidObject VisitReturnStmt(Stmt.Return stmt)
         {
-            bool sanityCheckFailed = false;
-
             if (stmt.Value != null)
             {
                 if (!stmt.Value.TypeReference.IsResolved)
                 {
-                    TypeValidationErrorCallback(new TypeValidationError(
-                        stmt.Keyword,
-                        $"Internal compiler error: return {stmt.Value} inference has not been attempted"
-                    ));
+                    // This is expected to be handled already. If we had 'debug' or 'trace' logging, logging this with
+                    // either one of those severities could make sense.
+                    //TypeValidationErrorCallback(new TypeValidationError(
+                    //    stmt.Keyword,
+                    //    $"Internal compiler error: return {stmt.Value} inference has not been attempted"
+                    //));
 
-                    sanityCheckFailed = true;
+                    return VoidObject.Void;
                 }
             }
             else
             {
                 // No return value - ensure that the return type of the current function is 'void'.
-            }
-
-            if (sanityCheckFailed)
-            {
-                return VoidObject.Void;
             }
 
             // TODO: Validate that return type in stmt.TypeReference matches that of the associated function.

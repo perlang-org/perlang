@@ -782,6 +782,38 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void indexing_field_of_unknown_type_throws_expected_error()
+        {
+            string source = """
+                public class Foo
+                {
+                    // No Bar class has been defined
+                    private bar: Bar;
+
+                    public constructor()
+                    {
+                        bar = null;
+                    }
+
+                    public get_value(): char
+                    {
+                        // The type of the returned value will not have been inferred in this case, but the error of
+                        // this is expected to be suppressed; it's not relevant since the missing Bar type has already
+                        // been reported elsewhere.
+                        return bar[0];
+                    }
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Type not found: Bar");
+        }
+
+        [Fact]
         public void defining_fields_with_incoercible_value_throws_expected_error()
         {
             string source = """
