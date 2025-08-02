@@ -43,10 +43,12 @@ namespace Perlang.Interpreter.Typing
 
             if (!expr.TypeReference.IsResolved)
             {
-                TypeValidationErrorCallback(new TypeValidationError(
-                    expr.Token,
-                    $"Internal compiler error: '{expr}' inference has not been attempted"
-                ));
+                // As elsewhere, this might be a valid scenario if other errors are present. Try to log this with
+                // 'debug' severity when possible.
+                //TypeValidationErrorCallback(new TypeValidationError(
+                //    expr.Token,
+                //    $"Internal compiler error: '{expr}' inference has not been attempted"
+                //));
             }
 
             return VoidObject.Void;
@@ -320,8 +322,6 @@ namespace Perlang.Interpreter.Typing
                     //    stmt.Keyword,
                     //    $"Internal compiler error: return {stmt.Value} inference has not been attempted"
                     //));
-
-                    return VoidObject.Void;
                 }
             }
             else
@@ -331,7 +331,8 @@ namespace Perlang.Interpreter.Typing
 
             // TODO: Validate that return type in stmt.TypeReference matches that of the associated function.
 
-            return VoidObject.Void;
+            // This is important, to ensure that the return value expression is also visited
+            return base.VisitReturnStmt(stmt);
         }
 
         public override VoidObject VisitVarStmt(Stmt.Var stmt)

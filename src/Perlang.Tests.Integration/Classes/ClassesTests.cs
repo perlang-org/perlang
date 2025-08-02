@@ -814,6 +814,37 @@ namespace Perlang.Tests.Integration.Classes
         }
 
         [Fact]
+        public void using_unknown_type_in_binary_expression_throws_expected_error()
+        {
+            string source = """
+                public class Foo
+                {
+                    // No Bar class has been defined
+                    private bar: Bar;
+
+                    public constructor()
+                    {
+                        bar = null;
+                    }
+
+                    public is_empty(): bool
+                    {
+                        // This technically lacks type information for the 'bar.length' expression, but this is expected
+                        // when using an unknown type like this. The compiler is expected to suppress the error for this.
+                        return bar.length == 0;
+                    }
+                }
+                """;
+
+            var result = EvalWithValidationErrorCatch(source);
+
+            result.Errors.Should()
+                .ContainSingle()
+                .Which
+                .Message.Should().Contain("Type not found: Bar");
+        }
+
+        [Fact]
         public void defining_fields_with_incoercible_value_throws_expected_error()
         {
             string source = """
