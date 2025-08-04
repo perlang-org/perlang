@@ -88,7 +88,7 @@ public class DoubleTests
         Assert.Matches("Cannot assign double to long variable", exception.Message);
     }
 
-    [SkippableFact]
+    [Fact]
     public void double_variable_has_expected_type_when_initialized_to_int_value()
     {
         // A 32-bit integer should be converted to `double` when assigned to a variable of that type.
@@ -103,7 +103,7 @@ public class DoubleTests
         Assert.Equal("perlang.Double", output);
     }
 
-    [SkippableFact]
+    [Fact]
     public void double_variable_has_expected_type_when_assigned_int_value_from_another_variable()
     {
         // A 32-bit integer should be converted to `double` when assigned to a variable of that type.
@@ -119,7 +119,7 @@ public class DoubleTests
         Assert.Equal("perlang.Double", output);
     }
 
-    [SkippableFact]
+    [Fact]
     public void double_variable_has_expected_type_for_large_value()
     {
         string source = @"

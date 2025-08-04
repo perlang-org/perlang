@@ -126,7 +126,7 @@ public class UintTests
             .Message.Should().Match("Cannot assign uint to int variable");
     }
 
-    [SkippableFact]
+    [Fact]
     public void int_variable_emits_expected_error_when_initializer_assigned_to_uint_variable()
     {
         string source = @"

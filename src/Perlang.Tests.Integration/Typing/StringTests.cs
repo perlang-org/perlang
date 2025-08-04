@@ -370,7 +370,7 @@ public class StringTests
             .Be("false");
     }
 
-    [SkippableFact]
+    [Fact]
     public void ascii_string_variable_has_expected_type()
     {
         string source = """
