@@ -138,7 +138,7 @@ namespace Perlang.Interpreter.Typing
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as {parameter.TypeReference.TypeKeyword} parameter to {methodName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeywordOrPerlangType} argument as {parameter.TypeReference.TypeKeywordOrPerlangType} parameter to {methodName}()"));
                     }
                 }
             }
@@ -217,14 +217,14 @@ namespace Perlang.Interpreter.Typing
                     {
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.TypeKeyword}' to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeywordOrPerlangType} argument as parameter '{parameter.Name.Lexeme}: {parameter.TypeReference.TypeKeywordOrPerlangType}' to {functionName}()"));
                     }
                     else
                     {
                         // Very likely refers to a native method, where parameter names are not available at this point.
                         TypeValidationErrorCallback(new TypeValidationError(
                             argument.TypeReference.TypeSpecifier!,
-                            $"Cannot pass {argument.TypeReference.TypeKeyword} argument as {parameter.TypeReference.TypeKeyword} parameter to {functionName}()"));
+                            $"Cannot pass {argument.TypeReference.TypeKeywordOrPerlangType} argument as {parameter.TypeReference.TypeKeywordOrPerlangType} parameter to {functionName}()"));
                     }
                 }
             }
@@ -297,7 +297,7 @@ namespace Perlang.Interpreter.Typing
                     // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                     TypeValidationErrorCallback(new TypeValidationError(
                         stmt.NameToken,
-                        $"Cannot assign {stmt.Initializer.TypeReference.TypeKeyword} to {stmt.TypeReference.TypeKeyword} field"
+                        $"Cannot assign {stmt.Initializer.TypeReference.TypeKeywordOrPerlangType} to {stmt.TypeReference.TypeKeywordOrPerlangType} field"
                     ));
                 }
                 else if (stmt.Initializer.TypeReference.IsNullObject)
@@ -371,7 +371,7 @@ namespace Perlang.Interpreter.Typing
                         // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                         TypeValidationErrorCallback(new TypeValidationError(
                             stmt.Name,
-                            $"Cannot assign {stmt.Initializer.TypeReference.TypeKeyword} to {stmt.TypeReference.TypeKeyword} variable"
+                            $"Cannot assign {stmt.Initializer.TypeReference.TypeKeywordOrPerlangType} to {stmt.TypeReference.TypeKeywordOrPerlangType} variable"
                         ));
                     }
                     else if (stmt.Initializer.TypeReference.IsNullObject)

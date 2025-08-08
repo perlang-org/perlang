@@ -222,9 +222,9 @@ internal class NameResolver : VisitorBase
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
         // the introduction of ITypeHandler, we could likely fix this more properly now)
-        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
+        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true));
         @class.TypeReference.SetPerlangType(perlangClass);
-        thisTypeReference.SetCppType(new CppType(perlangClass.Name, wrapInSharedPtr: true));
+        thisTypeReference.SetCppType(new CppType(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true));
         thisTypeReference.SetPerlangType(perlangClass);
     }
 

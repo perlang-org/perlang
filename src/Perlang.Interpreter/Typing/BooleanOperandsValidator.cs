@@ -24,7 +24,7 @@ namespace Perlang.Interpreter.Typing
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"'{expr.Left.TypeReference.TypeKeyword}' is not a valid {expr.Operator.Lexeme} operand."
+                    $"'{expr.Left.TypeReference.TypeKeywordOrPerlangType}' is not a valid {expr.Operator.Lexeme} operand."
                 ));
             }
 
@@ -32,7 +32,7 @@ namespace Perlang.Interpreter.Typing
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"'{expr.Right.TypeReference.TypeKeyword}' is not a valid {expr.Operator.Lexeme} operand."
+                    $"'{expr.Right.TypeReference.TypeKeywordOrPerlangType}' is not a valid {expr.Operator.Lexeme} operand."
                 ));
             }
 
@@ -47,7 +47,7 @@ namespace Perlang.Interpreter.Typing
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     (stmt.Condition as ITokenAware)?.Token,
-                    $"'{stmt.Condition.TypeReference.TypeKeyword}' is not a valid 'if' condition."
+                    $"'{stmt.Condition.TypeReference.TypeKeywordOrPerlangType}' is not a valid 'if' condition."
                 ));
             }
 
@@ -62,7 +62,7 @@ namespace Perlang.Interpreter.Typing
             {
                 TypeValidationErrorCallback(new TypeValidationError(
                     (stmt.Condition as ITokenAware)?.Token,
-                    $"'{stmt.Condition.TypeReference.TypeKeyword}' is not a valid 'while' condition."
+                    $"'{stmt.Condition.TypeReference.TypeKeywordOrPerlangType}' is not a valid 'while' condition."
                 ));
             }
 

@@ -275,7 +275,7 @@ namespace Perlang.Interpreter.Typing
                         expr.TypeReference.SetCppType(PerlangValueTypes.BigInt);
                     }
                     else {
-                        string message = $"Cannot assign {rightTypeReference.ToQuotedTypeKeyword()} to '{leftTypeReference.TypeKeyword}' variable";
+                        string message = $"Cannot assign {rightTypeReference.ToQuotedTypeKeyword()} to '{leftTypeReference.TypeKeywordOrPerlangType}' variable";
 
                         throw new TypeValidationError(expr.Operator, message);
                     }
@@ -978,7 +978,7 @@ namespace Perlang.Interpreter.Typing
                         // Note: this means that the CppType instances for a given type will not be shared. Can this
                         // become a problem? Perhaps we would need some form of mechanism for deducing a CppType for a
                         // given IPerlangType, which could then potentially cache the instantiated value as needed.
-                        typeReference.SetCppType(new CppType(perlangType.Name, wrapInSharedPtr: true));
+                        typeReference.SetCppType(new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true));
                         typeReference.SetPerlangType(perlangType);
                     }
 

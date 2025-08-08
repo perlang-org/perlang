@@ -95,15 +95,25 @@ namespace Perlang
                 _ => false
             };
 
-        string TypeKeyword =>
-            (CppType ?? throw new InvalidOperationException("Internal error: C++ type was unexpectedly null"))
-                .TypeKeyword ?? throw new InvalidOperationException($"Type keyword not defined for {CppType}");
+        string TypeKeywordOrPerlangType
+        {
+            get
+            {
+                if (CppType == null) {
+                    throw new InvalidOperationException("Internal error: C++ type was unexpectedly null");
+                }
+
+                return CppType.TypeKeyword ??
+                       CppType.PerlangTypeName ??
+                       throw new InvalidOperationException($"Internal error: Neither type keyword nor Perlang type defined for {CppType}");
+            }
+        }
 
         // Ensures anything but literal `null` get quoted
         string ToQuotedTypeKeyword() =>
             CppType == null || CppType == PerlangTypes.NullObject ?
             "null" :
-            "'" + TypeKeyword + "'";
+            "'" + TypeKeywordOrPerlangType + "'";
 
         /// <summary>
         /// Sets the C++ type for the type reference. This method is typically called when type inference is performed.

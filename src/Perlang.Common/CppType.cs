@@ -39,7 +39,7 @@ public record CppType : IPerlangType
 
         this.CppTypeName = cppTypeName;
         this.PerlangTypeName = perlangTypeName;
-        this.TypeKeyword = typeKeyword ?? cppTypeName;
+        this.TypeKeyword = typeKeyword;
         this.WrapInSharedPtr = wrapInSharedPtr;
         this.IsSupported = isSupported;
         this.IsNullObject = isNullObject;

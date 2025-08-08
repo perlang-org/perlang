@@ -52,7 +52,7 @@ namespace Perlang.Interpreter.Typing
                 // TODO: When is this actually triggered? We really need to look into #341 at some point.
                 TypeValidationErrorCallback(new TypeValidationError(
                     expr.Token,
-                    $"Cannot assign {sourceTypeReference.ToQuotedTypeKeyword()} to '{targetTypeReference.TypeKeyword}' variable"
+                    $"Cannot assign {sourceTypeReference.ToQuotedTypeKeyword()} to '{targetTypeReference.TypeKeywordOrPerlangType}' variable"
                 ));
             }
 

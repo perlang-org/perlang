@@ -1579,7 +1579,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 }
                 else
                 {
-                    throw new PerlangCompilerException($"Unsupported property '{expr.Name.Lexeme}' in {identifier.TypeReference.TypeKeyword}");
+                    throw new PerlangCompilerException($"Unsupported property '{expr.Name.Lexeme}' in {identifier.TypeReference.TypeKeywordOrPerlangType}");
                 }
             }
             else if (identifier.TypeReference.CppType == PerlangValueTypes.Enum)

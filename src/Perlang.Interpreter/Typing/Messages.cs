@@ -7,5 +7,5 @@ internal static class Messages
 {
     public static string UnsupportedOperandTypes(TokenType operatorType, ITypeReference leftTypeReference, ITypeReference rightTypeReference) =>
         $"Unsupported {operatorType.ToSourceString()} operand types: " +
-        $"'{leftTypeReference.TypeKeyword}' and '{rightTypeReference.TypeKeyword}'";
+        $"'{leftTypeReference.TypeKeywordOrPerlangType}' and '{rightTypeReference.TypeKeywordOrPerlangType}'";
 }
