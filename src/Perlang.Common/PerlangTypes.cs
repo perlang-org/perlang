@@ -9,13 +9,15 @@ public static class PerlangTypes
 {
     public static readonly CppType? NullObject = new CppType("NullObject", null, "null", isSupported: false);
 
-    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", null, "ASCIIString", wrapInSharedPtr: true);
+    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true);
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true);
-    public static readonly CppType UTF8String = new CppType("perlang::UTF8String", null, "UTF8String", wrapInSharedPtr: true);
+    public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true);
 
     public static readonly CppType PerlangClass = new CppType("PerlangClass", "PerlangClass", wrapInSharedPtr: true);
 
+    public static readonly CppType ASCIIStringArray = new CppType("perlang::ASCIIStringArray", "ASCIIString[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType StringArray = new CppType("perlang::StringArray", null, "string[]", wrapInSharedPtr: true, isArray: true, elementType: String);
+    public static readonly CppType UTF8StringArray = new CppType("perlang::UTF8StringArray", "UTF8String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
 
     // TODO: int64_t and onwards should use perlang::<type> wrapper types too. Right now, attempting to use them will
     // TODO: likely cause compilation errors.

@@ -371,7 +371,7 @@ public class StringTests
     }
 
     [Fact]
-    public void ascii_string_variable_has_expected_type()
+    public void implicitly_typed_ascii_string_variable_has_expected_type()
     {
         string source = """
             var s: string = "this is an ASCII string";
@@ -383,5 +383,35 @@ public class StringTests
 
         output.Should()
             .Be("perlang::ASCIIString");
+    }
+
+    [Fact]
+    public void explicitly_typed_ASCII_string_can_be_printed()
+    {
+        string source = """
+            var s: ASCIIString = "this is an ASCII string";
+
+            print(s);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("this is an ASCII string");
+    }
+
+    [Fact]
+    public void explicitly_typed_UTF8_string_can_be_printed()
+    {
+        string source = """
+            var s: UTF8String = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
+
+            print(s);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
     }
 }

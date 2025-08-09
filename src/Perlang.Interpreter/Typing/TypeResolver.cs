@@ -506,7 +506,7 @@ namespace Perlang.Interpreter.Typing
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.ClosingBracket,
-                            $"'string' cannot be indexed by '{argumentType.TypeKeyword}'")
+                            $"'string' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
                         );
                     }
 
@@ -516,9 +516,10 @@ namespace Perlang.Interpreter.Typing
                 case { } when type == PerlangTypes.AsciiString:
                     if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
                     {
+                        // TODO: Fix AsciiString references
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.ClosingBracket,
-                            $"'AsciiString' cannot be indexed by '{argumentType.TypeKeyword}'")
+                            $"'AsciiString' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
                         );
                     }
 
@@ -532,7 +533,7 @@ namespace Perlang.Interpreter.Typing
                     {
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.ClosingBracket,
-                            $"Array of type '{elementType}' cannot be indexed by '{argumentType.TypeKeyword}'")
+                            $"Array of type '{elementType}' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
                         );
                     }
 
@@ -951,6 +952,14 @@ namespace Perlang.Interpreter.Typing
 
                 case "string" or "String":
                     typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.StringArray : PerlangTypes.String);
+                    break;
+
+                case "ASCIIString":
+                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.ASCIIStringArray : PerlangTypes.AsciiString);
+                    break;
+
+                case "UTF8String":
+                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UTF8StringArray : PerlangTypes.UTF8String);
                     break;
 
                 case "void":
