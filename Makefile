@@ -132,7 +132,11 @@ run-hello-world-example: auto-generated perlang_cli_clean perlang_cli perlang_cl
 # Creating a subdirectory is important in these targets, since cmake will otherwise clutter the stdlib directory with
 # its auto-generated build scripts
 stdlib:
-	cd src/stdlib && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && make stdlib install
+	cd src/stdlib && \
+		mkdir -p out && \
+		cd out && \
+		cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && \
+		make stdlib install
 
 # perlang_cli depends on stdlib, so it must be built before this can be successfully built
 .PHONY: perlang_cli
@@ -140,7 +144,11 @@ perlang_cli: stdlib
 # Precompile the Perlang files to C++ if needed, so that they can be picked up by the CMake build
 	cd src/perlang_cli/src && $(MAKE)
 
-	cd src/perlang_cli && mkdir -p out && cd out && cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && make perlang_cli install
+	cd src/perlang_cli && \
+		mkdir -p out && \
+		cd out && \
+		cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && \
+		make perlang_cli install
 
 # Note that this removes all auto-generated files, including the C++ files which
 # are normally committed to git. This makes it easy to regenerate them from the
