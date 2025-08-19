@@ -92,7 +92,7 @@ namespace Perlang.Interpreter.Typing
                 else
                 {
                     string inTypeString = get.Object.TypeReference.CppType == null ?
-                        "" : $" in type '{get.Object.TypeReference.CppType.TypeKeyword}'";
+                        "" : $" in type '{get.Object.TypeReference.TypeKeywordOrPerlangType}'";
 
                     // This is even more odd, but we must ensure that we have well-defined semantics in the weird case
                     // where this would happen.

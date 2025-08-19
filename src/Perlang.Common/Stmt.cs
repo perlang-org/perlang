@@ -150,7 +150,7 @@ namespace Perlang
             public override string ToString()
             {
                 // TODO: Include parameters here as well.
-                return $"fun {NameToken.Lexeme}(): {ReturnTypeReference.CppType?.TypeKeyword ?? "unknown"}";
+                return $"fun {NameToken.Lexeme}(): {ReturnTypeReference.TypeKeywordOrPerlangType}";
             }
         }
 

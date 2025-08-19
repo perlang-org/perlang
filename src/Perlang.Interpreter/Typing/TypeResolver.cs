@@ -550,7 +550,7 @@ namespace Perlang.Interpreter.Typing
                 default:
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.ClosingBracket,
-                        $"Unable to index object of type '{type?.TypeKeyword ?? "null"}': operation not supported")
+                        $"Unable to index object of type '{expr.Indexee.TypeReference.TypeKeywordOrPerlangType}': operation not supported")
                     );
                     break;
             }
