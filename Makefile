@@ -136,19 +136,19 @@ stdlib:
 		mkdir -p out && \
 		cd out && \
 		cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && \
-		make stdlib install
+		$(MAKE) $(MAKEFLAGS) stdlib install
 
 # perlang_cli depends on stdlib, so it must be built before this can be successfully built
 .PHONY: perlang_cli
 perlang_cli: stdlib
 # Precompile the Perlang files to C++ if needed, so that they can be picked up by the CMake build
-	cd src/perlang_cli/src && $(MAKE)
+	cd src/perlang_cli/src && $(MAKE) $(MAKEFLAGS)
 
 	cd src/perlang_cli && \
 		mkdir -p out && \
 		cd out && \
 		cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/perlang_cli -G "Unix Makefiles" .. && \
-		make perlang_cli install
+		$(MAKE) $(MAKEFLAGS) perlang_cli install
 
 # Note that this removes all auto-generated files, including the C++ files which
 # are normally committed to git. This makes it easy to regenerate them from the

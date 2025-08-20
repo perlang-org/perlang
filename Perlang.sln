@@ -64,6 +64,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{645C
 		scripts\valgrind-suppressions.txt = scripts\valgrind-suppressions.txt
 		scripts\local_install_linux.sh = scripts\local_install_linux.sh
 		scripts\perlang-install = scripts\perlang-install
+		scripts\num_cpus = scripts\num_cpus
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{DE2D5B3C-1C11-4646-B279-C34FB5945225}"

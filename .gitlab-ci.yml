@@ -25,12 +25,12 @@ build-perlang-cli:
     # First, install the latest 'nightly' snapshot and build Perlang CLI one time. This ensures that the latest nightly
     # "works" at least as far as producing some output is concerned.
     - scripts/perlang-install
-    - make perlang_cli_clean perlang_cli
+    - make -j$(scripts/num_cpus) perlang_cli_clean perlang_cli
 
     # Then, build the rest of the Perlang compiler and install it in-place of the existing 'nightly' snapshot. Once this
     # is done, rebuild the Perlang CLI one more time. This ensures that the current commit can produce some output.
     - make install
-    - make perlang_cli_clean perlang_cli
+    - make -j$(scripts/num_cpus) perlang_cli_clean perlang_cli
 
     # Finally, ensure that the generated C++ is identical to the file(s) in the repo. These should never diff; if they
     # do, the developer must run the given command locally and commit the changes.
@@ -52,8 +52,8 @@ build-freebsd:
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
-    - gmake perlang_cli
-    - gmake stdlib
+    - gmake -j$(scripts/num_cpus) perlang_cli
+    - gmake -j$(scripts/num_cpus) stdlib
     - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
@@ -80,8 +80,8 @@ build-netbsd:
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
-    - gmake perlang_cli
-    - gmake stdlib
+    - gmake -j$(scripts/num_cpus) perlang_cli
+    - gmake -j$(scripts/num_cpus) stdlib
     - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   artifacts:
@@ -108,8 +108,8 @@ build-openbsd:
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
-    - gmake perlang_cli
-    - gmake stdlib
+    - gmake -j$(scripts/num_cpus) perlang_cli
+    - gmake -j$(scripts/num_cpus) stdlib
     - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
   variables:
@@ -145,8 +145,8 @@ valgrind-run-hello-world-example:
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
-    - make stdlib
-    - make valgrind-perlang-run-hello-world-example
+    - make -j$(scripts/num_cpus) stdlib
+    - make -j$(scripts/num_cpus) valgrind-perlang-run-hello-world-example
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -171,8 +171,8 @@ test:
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
     - make auto-generated
-    - make stdlib
-    - make perlang_cli_install_integration_test_release
+    - make -j$(scripts/num_cpus) stdlib
+    - make -j$(scripts/num_cpus) perlang_cli_install_integration_test_release
     - >
         if [[ "$TEST_MODE" == 'valgrind' ]]; then
           PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
@@ -221,7 +221,7 @@ docs-test-examples:
     #
     - make auto-generated
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish
+    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish
 
     # "Fake it till you make it". This is necessary to avoid failures trying
     # to regenerate our .cc file if the .per files have a more
@@ -251,7 +251,7 @@ binaries:
     - dotnet build
 
     # Required for the 'perlang -v' call to succeed
-    - make perlang_cli_install_debug
+    - make -j$(scripts/num_cpus) perlang_cli_install_debug
 
     # Must avoid exporting in the same line as the command, because otherwise the command will never fail (even if
     # executing the perlang binary fails)
@@ -260,8 +260,8 @@ binaries:
 
     # Compile .NET and native libraries
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $ARCH --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-    - make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
-    - make perlang_cli && cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
+    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
+    - make -j$(scripts/num_cpus) perlang_cli && cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
 
     # Create an archive from the compiled binaries
     - (pushd src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish && tar cvzf ${PROJECT_ROOT_DIR}/out/perlang-${PERLANG_VERSION}-$ARCH.tar.gz *)
