@@ -513,13 +513,12 @@ namespace Perlang.Interpreter.Typing
                     expr.TypeReference.SetCppType(PerlangValueTypes.Char);
                     break;
 
-                case { } when type == PerlangTypes.AsciiString:
+                case { } when type == PerlangTypes.AsciiString || type == PerlangTypes.UTF16String:
                     if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
                     {
-                        // TODO: Fix AsciiString references
                         typeValidationErrorCallback(new TypeValidationError(
                             expr.ClosingBracket,
-                            $"'AsciiString' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
+                            $"'{expr.Indexee.TypeReference.TypeKeywordOrPerlangType}' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
                         );
                     }
 
@@ -960,6 +959,10 @@ namespace Perlang.Interpreter.Typing
 
                 case "UTF8String":
                     typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UTF8StringArray : PerlangTypes.UTF8String);
+                    break;
+
+                case "UTF16String":
+                    typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UTF16StringArray : PerlangTypes.UTF16String);
                     break;
 
                 case "void":

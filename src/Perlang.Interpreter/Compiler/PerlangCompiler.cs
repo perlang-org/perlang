@@ -1622,7 +1622,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 throw new PerlangCompilerException($"Internal compiler error: identifier.TypeReference.CppType was unexpectedly null for {identifier}");
             }
         }
-        else if (expr.Object is Expr.Call or Expr.Grouping or Expr.Index)
+        else if (expr.Object is Expr.Call or Expr.Grouping or Expr.Index or Expr.Literal)
         {
             // TODO: Something like this would do eventually. It's pretty much impossible to perform a method call like
             // TODO: e.g. 42.get_type() in C or C++. We would at the very least have to special-case all primitives, to

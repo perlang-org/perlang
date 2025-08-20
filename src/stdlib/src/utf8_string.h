@@ -5,6 +5,7 @@
 
 #include "ascii_string.h"
 #include "perlang_string.h"
+#include "utf16_string.h"
 
 namespace perlang
 {
@@ -22,9 +23,9 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<UTF8String> from_static_string(const char* s);
 
-        // Creates a new UTF8String from an "owned string", like a string that has been allocated on the heap. The
-        // ownership of the memory is transferred to the UTF8String, which is then responsible for deallocating the
-        // memory when it is no longer needed (i.e. when no references to it remains).
+        // Creates a new UTF8String from an "owned string", which is presumed to have been allocated on the heap using
+        // the C++ "new" operator. The ownership of the memory is transferred to the UTF8String, which is then
+        // responsible for deallocating the memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
         static std::unique_ptr<UTF8String> from_owned_string(const char* s, size_t length);
 
@@ -80,6 +81,9 @@ namespace perlang
         {
             return ASCIIString::from_static_string("perlang::UTF8String");
         }
+
+        [[nodiscard]]
+        std::unique_ptr<UTF16String> as_utf16() const override;
 
         // Compares the equality of two `UTF8String`s, returning `true` if they point to the same backing byte array
         // and have the same length. Note that this method does *not* compare referential equality; two different
@@ -139,7 +143,7 @@ namespace perlang
         bool owned_;
 
         // A flag indicating whether this string contains only ASCII characters or not. Characters containing ASCII-only
-        // can trivially be compared to ASCIIString instances.
+        // content can trivially be compared to ASCIIString instances.
         std::unique_ptr<bool> is_ascii_;
     };
 

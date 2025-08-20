@@ -1,4 +1,6 @@
 #nullable enable
+#pragma warning disable SA1010
+#pragma warning disable SA1118
 namespace Perlang;
 
 /// <summary>
@@ -11,13 +13,17 @@ public static class PerlangTypes
 
     public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true);
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true);
-    public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true);
+    public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true, extraMethods: [
+        new CppFunction("as_utf16", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "UTF16String", literal: null, fileName: "", line: 0), isArray: false))
+    ]);
+    public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", null, wrapInSharedPtr: true);
 
     public static readonly CppType PerlangClass = new CppType("PerlangClass", "PerlangClass", wrapInSharedPtr: true);
 
     public static readonly CppType ASCIIStringArray = new CppType("perlang::ASCIIStringArray", "ASCIIString[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType StringArray = new CppType("perlang::StringArray", null, "string[]", wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType UTF8StringArray = new CppType("perlang::UTF8StringArray", "UTF8String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
+    public static readonly CppType UTF16StringArray = new CppType("perlang::UTF16StringArray", "UTF16String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
 
     // TODO: int64_t and onwards should use perlang::<type> wrapper types too. Right now, attempting to use them will
     // TODO: likely cause compilation errors.

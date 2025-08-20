@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string> // needed for std::to_string() on macOS
 #include <memory>
+#include <vector>
 
 #include "ascii_string.h"
 #include "bigint.h"
@@ -15,7 +16,7 @@ namespace perlang
             throw std::invalid_argument("string argument cannot be null");
         }
 
-        // Cannot use std::make_shared() since it forces the ASCIIString constructor to be made public.
+        // Cannot use std::make_unique() since it forces the ASCIIString constructor to be made public.
         auto result = new ASCIIString(str, strlen(str), false);
 
         return std::unique_ptr<ASCIIString>(result);
@@ -89,6 +90,19 @@ namespace perlang
     size_t ASCIIString::length() const
     {
         return length_;
+    }
+
+    std::unique_ptr<UTF16String> ASCIIString::as_utf16() const
+    {
+        // Widening an ASCII string to UTF16 is trivial, since we just have to loop over the data and write it to a
+        // newly allocated uint16_t array. Could probably be rewritten in asm at some point if we really want to.
+        auto s = std::vector<uint16_t>(length_);
+
+        for (size_t i = 0; i < length_; i++) {
+            s[i] = bytes_[i];
+        }
+
+        return UTF16String::from_owned_string(s);
     }
 
     bool ASCIIString::operator==(const ASCIIString& rhs) const

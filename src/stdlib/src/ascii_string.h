@@ -24,9 +24,9 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<ASCIIString> from_static_string(const char* str);
 
-        // Creates a new ASCIIString from an "owned str", like a str that has been allocated on the heap. The
-        // ownership of the memory is transferred to the ASCIIString, which is then responsible for deallocating the
-        // memory when it is no longer needed (i.e. when no references to it remains).
+        // Creates a new ASCIIString from an "owned string", which is presumed to have been allocated on the heap using
+        // the C++ "new" operator. The ownership of the memory is transferred to the ASCIIString, which is then
+        // responsible for deallocating the memory when it is no longer needed (i.e. when no references to it remains).
         [[nodiscard]]
         static std::unique_ptr<ASCIIString> from_owned_string(const char* str, size_t length);
 
@@ -75,6 +75,9 @@ namespace perlang
         {
             return ASCIIString::from_static_string("perlang::ASCIIString");
         }
+
+        [[nodiscard]]
+        std::unique_ptr<UTF16String> as_utf16() const override;
 
         // Compares the equality of two `ASCIIString`s, returning `true` if they point to the same backing byte array
         // and have the same length. Note that this method does *not* compare referential equality; two different

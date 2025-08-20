@@ -78,6 +78,52 @@ public class StringIndexing
             .Message.Should().Contain("operation not supported");
     }
 
+    [Fact]
+    public void UTF16String_variable_can_be_indexed_by_integer()
+    {
+        string source = """
+            var s: UTF16String = "åäöÅÄÖéèüÜÿŸïÏすし".as_utf16();
+            print s[14];
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should().Be("す");
+    }
+
+    [Fact]
+    public void UTF16String_literal_can_be_indexed_by_integer()
+    {
+        string source = """
+            print "åäöÅÄÖéèüÜÿŸïÏすし".as_utf16()[14];
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should().Be("す");
+    }
+
+    [Fact]
+    public void UTF16String_literal_indexed_outside_string_returns_expected_error()
+    {
+        string source = """
+            print "åäöÅÄÖéèüÜÿŸïÏすし".as_utf16()[100];
+            """;
+
+        var result = EvalWithRuntimeErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("exited with exit code 134");
+
+        // Typical messages printed here can be something like "terminate called after throwing an instance of 'std::out_of_range'
+        // what():  vector::_M_range_check: __n (which is 100) >= this->size() (which is 68)". Not terribly pretty, and
+        // we could do better if we implement bounds checking of our own, but for now...
+        result.OutputAsString.Should()
+            .Contain("std::out_of_range");
+    }
+
     [SkippableFact]
     public void ASCIIString_indexed_by_integer_returns_char_object()
     {

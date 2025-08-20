@@ -25,6 +25,7 @@ set(headers
         src/perlang_value_types.h
         src/string_array.h
         src/utf8_string.h
+        src/utf16_string.h
 )
 
 set(collections_headers
@@ -65,6 +66,7 @@ add_library(
         src/print.cc
         src/string_array.cc
         src/utf8_string.cc
+        src/utf16_string.cc
 
         src/collections/mutable_string_hash_set.cc
         src/collections/string_hash_set.cc
@@ -190,6 +192,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             test/print.cc
             test/string_builder.cc
             test/utf8_string.cc
+            test/utf16_string.cc
     )
 
     add_executable(

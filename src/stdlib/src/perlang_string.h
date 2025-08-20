@@ -8,6 +8,7 @@ class BigInt;
 namespace perlang
 {
     class UTF8String;
+    class UTF16String;
 
     // Abstract base class for all String types in Perlang
     class String
@@ -16,6 +17,7 @@ namespace perlang
         virtual ~String() = default;
 
         // TODO: Make this "internal" somehow. It should never be called from (Perlang) user code.
+        // TODO: Return const uint8_t * instead
 
         // Returns the backing byte array for this String. This method is generally to be avoided; it is safer to use
         // the String throughout the code and only call this when you really must. If you call it, you
@@ -41,6 +43,12 @@ namespace perlang
         // Returns the type of the object.
         [[nodiscard]]
         virtual std::unique_ptr<perlang::String> get_type() const = 0;
+
+        // Returns a UTF16String representation of the current string. Depending on what type of string this is called
+        // on, this might either be the same instance as the string itself, or a potentially cached UTF16 string
+        // representation of it.
+        [[nodiscard]]
+        virtual std::unique_ptr<UTF16String> as_utf16() const = 0;
 
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]

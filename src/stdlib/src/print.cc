@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <codecvt>
 
 // fmt is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
 // https://github.com/fmtlib/fmt
@@ -24,6 +25,26 @@ namespace perlang
             // For C-style (NUL-terminated, char*) strings, there's no need to use the overhead which `printf` induces.
             // `puts` can potentially be a tiny bit faster.
             puts(bytes);
+        }
+    }
+
+    void print(const UTF16String* str)
+    {
+        const char* bytes = str != nullptr ? str->bytes() : nullptr;
+
+        // Safeguard against both `str` and `str->bytes()` potentially returning `null`
+        if (bytes == nullptr) {
+            puts("null");
+        }
+        else {
+            auto data = (char16_t*)bytes;
+
+            // wstring_convert is deprecated in C++17 and removed in C++20, but should be fine for now. Once we have an
+            // as_utf8() method in UTF16String, we can use that instead.
+            std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+            std::string utf8 = convert.to_bytes(data);
+
+            puts(utf8.c_str());
         }
     }
 
@@ -62,6 +83,16 @@ namespace perlang
         print(str.get());
     }
 
+    void print(const std::unique_ptr<UTF16String>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::unique_ptr<const UTF16String>& str)
+    {
+        print(str.get());
+    }
+
     void print(const std::shared_ptr<String>& str)
     {
         print(str.get());
@@ -88,6 +119,16 @@ namespace perlang
     }
 
     void print(const std::shared_ptr<const UTF8String>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::shared_ptr<UTF16String>& str)
+    {
+        print(str.get());
+    }
+
+    void print(const std::shared_ptr<const UTF16String>& str)
     {
         print(str.get());
     }

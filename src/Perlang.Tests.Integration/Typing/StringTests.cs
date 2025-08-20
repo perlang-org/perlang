@@ -414,4 +414,20 @@ public class StringTests
         output.Should()
             .Be("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし");
     }
+
+    [Fact]
+    public void explicitly_typed_UTF16_string_can_be_printed()
+    {
+        string source = """
+            // UTF16String instances can currently not be implicitly converted from ASCII/UTF-8 literals
+            var s: UTF16String = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし🎉".as_utf16();
+
+            print(s);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし🎉");
+    }
 }

@@ -15,6 +15,7 @@
 #include "perlang_value_types.h"
 #include "string_array.h"
 #include "utf8_string.h"
+#include "utf16_string.h"
 
 #include "collections/mutable_string_hash_set.h"
 #include "collections/string_hash_set.h"
@@ -37,6 +38,7 @@ namespace perlang
     // C++ doesn't seem to have the kind of covariance we intend for Perlang. This means that we have to define these
     // for all the existing String types instead of just receiving `const String`-type parameters.
     void print(const String* str);
+    void print(const UTF16String* str);
     void print(const ASCIIString& str);
     void print(const std::unique_ptr<String>& str);
     void print(const std::unique_ptr<const String>& str);
@@ -44,12 +46,16 @@ namespace perlang
     void print(const std::unique_ptr<const ASCIIString>& str);
     void print(const std::unique_ptr<UTF8String>& str);
     void print(const std::unique_ptr<const UTF8String>& str);
+    void print(const std::unique_ptr<UTF16String>& str);
+    void print(const std::unique_ptr<const UTF16String>& str);
     void print(const std::shared_ptr<String>& str);
     void print(const std::shared_ptr<const String>& str);
     void print(const std::shared_ptr<ASCIIString>& str);
     void print(const std::shared_ptr<const ASCIIString>& str);
     void print(const std::shared_ptr<UTF8String>& str);
     void print(const std::shared_ptr<const UTF8String>& str);
+    void print(const std::shared_ptr<UTF16String>& str);
+    void print(const std::shared_ptr<const UTF16String>& str);
 
     void print(bool b);
     void print(char c);

@@ -1,4 +1,4 @@
-// utf8_string.cc - tests for the perlang::UTF8String
+// utf8_string.cc - tests for the perlang::UTF8String class
 
 #include <catch2/catch_test_macros.hpp>
 #include <memory>

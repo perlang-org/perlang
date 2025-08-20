@@ -2,6 +2,7 @@
 #pragma warning disable SA1010
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Compiler;
@@ -31,11 +32,12 @@ public record CppType : IPerlangType
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
 
-    public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null)
+    public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null, IEnumerable<CppFunction>? extraMethods = null)
     {
-        this.Methods = [
+        this.Methods = new List<CppFunction>
+        {
             new CppFunction("get_type", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "perlang::Type", literal: null, fileName: String.Empty, line: 0), isArray: false))
-        ];
+        }.Concat(extraMethods ?? []).Cast<IPerlangFunction>().ToImmutableList();
 
         this.CppTypeName = cppTypeName;
         this.PerlangTypeName = perlangTypeName;
@@ -74,6 +76,9 @@ public record CppType : IPerlangType
             throw new NotImplementedInCompiledModeException($"Wrapped type for {CppTypeName} is not supported in compiled mode");
         }
 
+        // TODO: Should this be const or not? Needed for make_shared_from_this(), but OTOH breaks string concatenation
+        // since our stdlib doesn't expected const-qualified strings. I think we ended up not having to use
+        // make_shared_from_this() so we can ignore this for now.
         return WrapInSharedPtr ? $"std::shared_ptr<{CppTypeName}>" : CppTypeName;
     }
 

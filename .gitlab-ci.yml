@@ -112,6 +112,9 @@ build-openbsd:
     - gmake stdlib
     - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
+  variables:
+    # Workaround for Clang 16 warnings triggered by deprecated codecvt_utf8_utf16<char16_t> usage in our stdlib
+    CXXFLAGS: -Wno-deprecated-declarations
   artifacts:
     when: always
     paths:
