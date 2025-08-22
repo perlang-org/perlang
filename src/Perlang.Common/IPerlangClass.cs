@@ -1,11 +1,10 @@
 #nullable enable
 
-namespace Perlang
+namespace Perlang;
+
+/// <summary>
+/// A Perlang class, implemented in C++ or Perlang.
+/// </summary>
+public interface IPerlangClass : IPerlangType
 {
-    /// <summary>
-    /// A Perlang class, implemented in C++ or Perlang.
-    /// </summary>
-    public interface IPerlangClass : IPerlangType
-    {
-    }
 }

@@ -3,47 +3,46 @@
 using System.Collections.Generic;
 using Perlang.Interpreter.NameResolution;
 
-namespace Perlang.Interpreter.Internals
+namespace Perlang.Interpreter.Internals;
+
+/// <summary>
+/// Class responsible for handling global and local bindings.
+/// </summary>
+internal class BindingHandler : IBindingHandler
 {
     /// <summary>
-    /// Class responsible for handling global and local bindings.
+    /// Map from referring expression to global binding (variable or function).
     /// </summary>
-    internal class BindingHandler : IBindingHandler
+    private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
+
+    /// <summary>
+    /// Map from referring expression to local binding (i.e. in a local scope) for variable or function.
+    /// </summary>
+    private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
+
+    public void AddGlobalExpr(Binding binding)
     {
-        /// <summary>
-        /// Map from referring expression to global binding (variable or function).
-        /// </summary>
-        private readonly IDictionary<Expr, Binding> globalBindings = new Dictionary<Expr, Binding>();
+        globalBindings[binding.ReferringExpr] = binding;
+    }
 
-        /// <summary>
-        /// Map from referring expression to local binding (i.e. in a local scope) for variable or function.
-        /// </summary>
-        private readonly IDictionary<Expr, Binding> localBindings = new Dictionary<Expr, Binding>();
+    public void AddLocalExpr(Binding binding)
+    {
+        localBindings[binding.ReferringExpr] = binding;
+    }
 
-        public void AddGlobalExpr(Binding binding)
+    public Binding? GetVariableOrFunctionBinding(Expr referringExpr)
+    {
+        if (localBindings.ContainsKey(referringExpr))
         {
-            globalBindings[binding.ReferringExpr] = binding;
+            return localBindings[referringExpr];
         }
 
-        public void AddLocalExpr(Binding binding)
+        if (globalBindings.ContainsKey(referringExpr))
         {
-            localBindings[binding.ReferringExpr] = binding;
+            return globalBindings[referringExpr];
         }
 
-        public Binding? GetVariableOrFunctionBinding(Expr referringExpr)
-        {
-            if (localBindings.ContainsKey(referringExpr))
-            {
-                return localBindings[referringExpr];
-            }
-
-            if (globalBindings.ContainsKey(referringExpr))
-            {
-                return globalBindings[referringExpr];
-            }
-
-            // The variable does not exist, neither in the list of local nor global bindings.
-            return null;
-        }
+        // The variable does not exist, neither in the list of local nor global bindings.
+        return null;
     }
 }

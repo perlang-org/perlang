@@ -1,33 +1,32 @@
 using System;
 
-namespace Perlang.Parser
+namespace Perlang.Parser;
+
+public class ParseError : Exception
 {
-    public class ParseError : Exception
+    public Token Token { get; }
+    public ParseErrorType? ParseErrorType { get; }
+
+    public ParseError(string message, Token token, ParseErrorType? errorType)
+        : base(message)
     {
-        public Token Token { get; }
-        public ParseErrorType? ParseErrorType { get; }
+        Token = token;
+        ParseErrorType = errorType;
+    }
 
-        public ParseError(string message, Token token, ParseErrorType? errorType)
-            : base(message)
+    public override string ToString()
+    {
+        string where;
+
+        if (Token.Type == TokenType.PERLANG_EOF)
         {
-            Token = token;
-            ParseErrorType = errorType;
+            where = " at end";
+        }
+        else
+        {
+            where = " at '" + Token.Lexeme + "'";
         }
 
-        public override string ToString()
-        {
-            string where;
-
-            if (Token.Type == TokenType.PERLANG_EOF)
-            {
-                where = " at end";
-            }
-            else
-            {
-                where = " at '" + Token.Lexeme + "'";
-            }
-
-            return $"[{Token.FileName}:{Token.Line}] Error{where}: {Message}";
-        }
+        return $"[{Token.FileName}:{Token.Line}] Error{where}: {Message}";
     }
 }

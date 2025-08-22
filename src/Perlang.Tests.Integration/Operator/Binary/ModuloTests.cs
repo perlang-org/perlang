@@ -5,145 +5,144 @@ using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
-namespace Perlang.Tests.Integration.Operator.Binary
+namespace Perlang.Tests.Integration.Operator.Binary;
+
+/// <summary>
+/// Tests for the % (modulo) operator.
+/// </summary>
+public class ModuloTests
 {
-    /// <summary>
-    /// Tests for the % (modulo) operator.
-    /// </summary>
-    public class ModuloTests
+    [Theory]
+    [MemberData(nameof(BinaryOperatorData.Modulo_result), MemberType = typeof(BinaryOperatorData))]
+    public void returns_remainder_of_division(string i, string j, string expectedResult)
     {
-        [Theory]
-        [MemberData(nameof(BinaryOperatorData.Modulo_result), MemberType = typeof(BinaryOperatorData))]
-        public void returns_remainder_of_division(string i, string j, string expectedResult)
-        {
-            string source = $@"
+        string source = $@"
                 print {i} % {j};
             ";
 
-            string result = EvalReturningOutputString(source);
+        string result = EvalReturningOutputString(source);
 
-            result.Should()
-                .Be(expectedResult);
-        }
+        result.Should()
+            .Be(expectedResult);
+    }
 
-        [SkippableTheory]
-        [MemberData(nameof(BinaryOperatorData.Modulo_type), MemberType = typeof(BinaryOperatorData))]
-        public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
-        {
-            Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
+    [SkippableTheory]
+    [MemberData(nameof(BinaryOperatorData.Modulo_type), MemberType = typeof(BinaryOperatorData))]
+    public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
+    {
+        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
 
-            string source = $@"
+        string source = $@"
                     print ({i} % {j}).get_type();
                 ";
 
-            string result = EvalReturningOutputString(source);
+        string result = EvalReturningOutputString(source);
 
-            result.Should()
-                .Be(expectedResult);
-        }
+        result.Should()
+            .Be(expectedResult);
+    }
 
-        [Theory]
-        [MemberData(nameof(BinaryOperatorData.Modulo_unsupported_types), MemberType = typeof(BinaryOperatorData))]
-        public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
-        {
-            string source = $@"
+    [Theory]
+    [MemberData(nameof(BinaryOperatorData.Modulo_unsupported_types), MemberType = typeof(BinaryOperatorData))]
+    public void with_unsupported_types_emits_expected_error(string i, string j, string expectedResult)
+    {
+        string source = $@"
                     print {i} % {j};
                 ";
 
-            var result = EvalWithValidationErrorCatch(source);
+        var result = EvalWithValidationErrorCatch(source);
 
-            result.Errors.Should()
-                .ContainSingle().Which
-                .Message.Should().Match(expectedResult);
-        }
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match(expectedResult);
+    }
 
-        [SkippableTheory]
-        [ClassData(typeof(TestCultures))]
-        public async Task modulo_operation_works_on_different_cultures(CultureInfo cultureInfo)
-        {
-            CultureInfo.CurrentCulture = cultureInfo;
+    [SkippableTheory]
+    [ClassData(typeof(TestCultures))]
+    public async Task modulo_operation_works_on_different_cultures(CultureInfo cultureInfo)
+    {
+        CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
+        string source = @"
                 12.34 % 0.3
             ";
 
-            object result = Eval(source);
+        object result = Eval(source);
 
-            // IEEE 754... :-)
-            Assert.Equal(0.04000000000000031, result);
-        }
+        // IEEE 754... :-)
+        Assert.Equal(0.04000000000000031, result);
+    }
 
-        [SkippableTheory]
-        [ClassData(typeof(TestCultures))]
-        public async Task modulo_operation_combined_with_others_without_grouping(CultureInfo cultureInfo)
-        {
-            CultureInfo.CurrentCulture = cultureInfo;
+    [SkippableTheory]
+    [ClassData(typeof(TestCultures))]
+    public async Task modulo_operation_combined_with_others_without_grouping(CultureInfo cultureInfo)
+    {
+        CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
+        string source = @"
                 2 * 5 / 10 * 4 % 2.1
             ";
 
-            object result = Eval(source);
+        object result = Eval(source);
 
-            Assert.Equal(1.9, result);
-        }
+        Assert.Equal(1.9, result);
+    }
 
-        [SkippableTheory]
-        [ClassData(typeof(TestCultures))]
-        public async Task modulo_operation_combined_with_others_with_grouping_first_operators(CultureInfo cultureInfo)
-        {
-            CultureInfo.CurrentCulture = cultureInfo;
+    [SkippableTheory]
+    [ClassData(typeof(TestCultures))]
+    public async Task modulo_operation_combined_with_others_with_grouping_first_operators(CultureInfo cultureInfo)
+    {
+        CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
+        string source = @"
                 (2 * 5 / 10 * 4) % 2.1
             ";
 
-            object result = Eval(source);
+        object result = Eval(source);
 
-            Assert.Equal(1.9, result);
-        }
+        Assert.Equal(1.9, result);
+    }
 
-        [SkippableTheory]
-        [ClassData(typeof(TestCultures))]
-        public async Task modulo_operation_combined_with_others_with_grouping_last_operators(CultureInfo cultureInfo)
-        {
-            CultureInfo.CurrentCulture = cultureInfo;
+    [SkippableTheory]
+    [ClassData(typeof(TestCultures))]
+    public async Task modulo_operation_combined_with_others_with_grouping_last_operators(CultureInfo cultureInfo)
+    {
+        CultureInfo.CurrentCulture = cultureInfo;
 
-            string source = @"
+        string source = @"
                 2 * 5 / 10 * (4 % 2.1)
             ";
 
-            object result = Eval(source);
+        object result = Eval(source);
 
-            Assert.Equal(1.9, result);
-        }
+        Assert.Equal(1.9, result);
+    }
 
-        [Fact]
-        public void modulo_operation_on_non_number_with_number_throws_expected_error()
-        {
-            string source = @"
+    [Fact]
+    public void modulo_operation_on_non_number_with_number_throws_expected_error()
+    {
+        string source = @"
                 ""1"" % 1;
             ";
 
-            var result = EvalWithValidationErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
+        var result = EvalWithValidationErrorCatch(source);
+        var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.Errors);
-            Assert.Equal("Unsupported % operand types: 'ASCIIString' and 'int'", exception.Message);
-        }
+        Assert.Single(result.Errors);
+        Assert.Equal("Unsupported % operand types: 'ASCIIString' and 'int'", exception.Message);
+    }
 
-        [Fact]
-        public void modulo_operation_on_number_with_non_number_throws_expected_error()
-        {
-            string source = @"
+    [Fact]
+    public void modulo_operation_on_number_with_non_number_throws_expected_error()
+    {
+        string source = @"
                 1 % ""1"";
             ";
 
-            var result = EvalWithValidationErrorCatch(source);
-            var exception = result.Errors.FirstOrDefault();
+        var result = EvalWithValidationErrorCatch(source);
+        var exception = result.Errors.FirstOrDefault();
 
-            Assert.Single(result.Errors);
-            Assert.Equal("Unsupported % operand types: 'int' and 'ASCIIString'", exception.Message);
-        }
+        Assert.Single(result.Errors);
+        Assert.Equal("Unsupported % operand types: 'int' and 'ASCIIString'", exception.Message);
     }
 }

@@ -1,10 +1,9 @@
 using System;
 
-namespace Perlang.Stdlib
+namespace Perlang.Stdlib;
+
+public static class Time
 {
-    public static class Time
-    {
-        public static DateTime Now() =>
-            DateTime.Now;
-    }
+    public static DateTime Now() =>
+        DateTime.Now;
 }
