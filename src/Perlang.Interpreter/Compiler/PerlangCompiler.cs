@@ -1,5 +1,6 @@
 ﻿#nullable enable
 #pragma warning disable S112
+#pragma warning disable SA1010
 #pragma warning disable SA1118
 
 using System;
@@ -441,7 +442,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         // The name resolver must run twice, to resolve forward references. The alternative would have been something like
-        // C++-style header files, which are incredibly obnoxious and something we want to avoid like the plague.
+        // C/C++-style header files, which are incredibly obnoxious and something we want to avoid like the plague.
         nameResolver.StartSecondPass();
         nameResolver.Resolve(statements);
 
@@ -598,6 +599,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 }
 
                 if (methods.Count > 0) {
+                    // TODO: Should more rightfully be "Free function definitions", but we should fix both the header
+                    // file and the .cc file generation at the same time. The "C++ methods" may also be correct or not.
                     streamWriter.WriteLine("//");
                     streamWriter.WriteLine("// Method definitions");
                     streamWriter.WriteLine("//");
@@ -1721,66 +1724,78 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             classDefinitionBuilder.Append(field.Accept(this));
         }
 
-        // We make all methods `public` on the C++ side for now with this single `public` clause; there is no way to
-        // define methods as `private` or `internal` anyway yet.
-        classDefinitionBuilder.AppendLine("public:");
+        List<Visibility> visibilities = [Visibility.Public, Visibility.Private];
 
-        foreach (Stmt.Function method in stmt.StmtMethods) {
-            // Likewise, check this to ensure we don't generate inconsistent code with what the Perlang model expects.
-            if (method.Visibility != Visibility.Public) {
-                throw new PerlangCompilerException($"Method {method.NameToken.Lexeme} is of {method.Visibility} visibility, which is not currently supported");
+        // Ensure that we don't have any methods defined with an unsupported visibility
+        var invalidMethod = stmt.StmtMethods.FirstOrDefault(m => !visibilities.Contains(m.Visibility));
+
+        if (invalidMethod != null) {
+            throw new PerlangCompilerException($"Method {invalidMethod.NameToken.Lexeme} is of {invalidMethod.Visibility} visibility, which is not currently supported");
+        }
+
+        foreach (Visibility visibility in visibilities) {
+            if (visibility == Visibility.Public) {
+                classDefinitionBuilder.AppendLine("public:");
             }
-
-            // Definition
-            classDefinitionBuilder.Append(Indent(1));
-
-            if (method.IsConstructor) {
-                classDefinitionBuilder.Append($"{stmt.Name}(");
-            }
-            else if (method.IsDestructor) {
-                classDefinitionBuilder.Append($"~{stmt.Name}(");
+            else if (visibility == Visibility.Private) {
+                classDefinitionBuilder.AppendLine("private:");
             }
             else {
-                classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.NameToken.Lexeme}(");
+                throw new NotImplementedException($"Unsupported visibility encountered: {visibility}");
             }
 
-            for (int i = 0; i < method.Parameters.Count; i++) {
-                Parameter parameter = method.Parameters[i];
-                classDefinitionBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+            foreach (Stmt.Function method in stmt.StmtMethods.Where(m => m.Visibility == visibility)) {
+                // Definition
+                classDefinitionBuilder.Append(Indent(1));
 
-                if (i < method.Parameters.Count - 1) {
-                    classDefinitionBuilder.Append(", ");
-                }
-            }
-
-            classDefinitionBuilder.AppendLine(");");
-
-            // Implementation
-            if (!method.IsExtern) {
                 if (method.IsConstructor) {
-                    classImplementationBuilder.Append($"{stmt.Name}::{stmt.Name}(");
+                    classDefinitionBuilder.Append($"{stmt.Name}(");
                 }
                 else if (method.IsDestructor) {
-                    classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
+                    classDefinitionBuilder.Append($"~{stmt.Name}(");
                 }
                 else {
-                    classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.NameToken.Lexeme}(");
+                    classDefinitionBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {method.NameToken.Lexeme}(");
                 }
 
                 for (int i = 0; i < method.Parameters.Count; i++) {
                     Parameter parameter = method.Parameters[i];
-                    classImplementationBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+                    classDefinitionBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
 
                     if (i < method.Parameters.Count - 1) {
-                        classImplementationBuilder.Append(", ");
+                        classDefinitionBuilder.Append(", ");
                     }
                 }
 
-                classImplementationBuilder.AppendLine(") {");
-                classImplementationBuilder.Append(method.Accept(this));
-                classImplementationBuilder.AppendLine("};");
+                classDefinitionBuilder.AppendLine(");");
 
-                classImplementationBuilder.AppendLine();
+                // Implementation
+                if (!method.IsExtern) {
+                    if (method.IsConstructor) {
+                        classImplementationBuilder.Append($"{stmt.Name}::{stmt.Name}(");
+                    }
+                    else if (method.IsDestructor) {
+                        classImplementationBuilder.Append($"{stmt.Name}::~{stmt.Name}(");
+                    }
+                    else {
+                        classImplementationBuilder.Append($"{method.ReturnTypeReference.PossiblyWrappedCppType} {stmt.Name}::{method.NameToken.Lexeme}(");
+                    }
+
+                    for (int i = 0; i < method.Parameters.Count; i++) {
+                        Parameter parameter = method.Parameters[i];
+                        classImplementationBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+
+                        if (i < method.Parameters.Count - 1) {
+                            classImplementationBuilder.Append(", ");
+                        }
+                    }
+
+                    classImplementationBuilder.AppendLine(") {");
+                    classImplementationBuilder.Append(method.Accept(this));
+                    classImplementationBuilder.AppendLine("};");
+
+                    classImplementationBuilder.AppendLine();
+                }
             }
         }
 

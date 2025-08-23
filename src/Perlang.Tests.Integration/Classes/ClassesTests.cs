@@ -35,7 +35,7 @@ public class ClassesTests
     }
 
     [Fact]
-    public void class_can_be_instantiated_in_implicitly_typed_Variable_and_instance_method_can_be_called()
+    public void class_can_be_instantiated_in_implicitly_typed_variable_and_instance_method_can_be_called()
     {
         string source = """
             public class Greeter
@@ -76,6 +76,57 @@ public class ClassesTests
 
         output.Should()
             .Be("Hello World being returned from class instance method");
+    }
+
+    [Fact]
+    public void class_can_be_instantiated_and_instance_method_can_call_private_method()
+    {
+        string source = """
+            public class Greeter
+            {
+                public greet(): string
+                {
+                    return get_greeting_message();
+                }
+
+                private get_greeting_message(): string
+                {
+                    return "Hello World being returned from private instance method";
+                }
+            }
+
+            var greeter = new Greeter();
+            print greeter.greet();
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("Hello World being returned from private instance method");
+    }
+
+    [Fact]
+    public void private_method_cannot_be_called_from_outside_class()
+    {
+        string source = """
+            public class Greeter
+            {
+                private greet(): string
+                {
+                    return "This method is not expected to be callable from the outside";
+                }
+            }
+
+            var greeter = new Greeter();
+            print greeter.greet();
+            """;
+
+        var result = EvalWithCppCompilationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("error: 'greet' is a private member of 'Greeter'");
     }
 
     [Fact]

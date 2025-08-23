@@ -32,7 +32,7 @@ public class StringTests
         // determined trivially.
         string source = """
             var s: string = "this is a string";
-            
+
             print(s.length);
             """;
 
@@ -49,7 +49,7 @@ public class StringTests
     {
         string source = """
             var s: ASCIIString = "this is a string";
-            
+
             print(s.length);
             """;
 
