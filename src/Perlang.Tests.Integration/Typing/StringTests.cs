@@ -23,6 +23,58 @@ public class StringTests
     }
 
     [Fact]
+    public void string_length_throws_expected_error()
+    {
+        // String#length is not supported, because we cannot statically determine whether the result will be meaningful
+        // or not. If the content would be ASCII, it would be a non-issue but what should be return for a UTF-8 string?
+        // The number of bytes (O(1), but useless)? The number of Unicode code points? More useful, but a horrible
+        // _O(n)_ operation. For now, we leave this property only defined on ASCIIString and UTF16String where it can be
+        // determined trivially.
+        string source = """
+            var s: string = "this is a string";
+            
+            print(s.length);
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Failed to locate symbol 'length' in class perlang::String");
+    }
+
+    [Fact]
+    public void ASCIIString_variable_has_expected_length()
+    {
+        string source = """
+            var s: ASCIIString = "this is a string";
+            
+            print(s.length);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("16");
+    }
+
+    [Fact]
+    public void UTF16String_variable_with_Unicode_content_has_expected_length()
+    {
+        string source = """
+            var s: UTF16String = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし".as_utf16();
+
+            print(s.length);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("60");
+    }
+
+    [Fact]
     public void string_variable_can_be_reassigned()
     {
         string source = """

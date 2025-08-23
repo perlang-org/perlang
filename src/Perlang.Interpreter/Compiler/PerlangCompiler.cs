@@ -1598,13 +1598,23 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 // wrapped in a std::shared_ptr feels more like an implementation detail.
                 if (identifier.TypeReference.CppWrapInSharedPtr)
                 {
-                    // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling a method
-                    // on it.
-                    //
-                    // Note that this code path is used for 'this' invocations as well, resulting in 'this->method_name()'.
-                    // Because the name of the identifier is 'this', this works similarly as calling a method on any other
-                    // variable.
-                    result.Append($"{identifier.Name.Lexeme}->{expr.Name.Lexeme}");
+                    var field = identifier.TypeReference.CppType.Fields.SingleOrDefault(f => f.Name == expr.Name.Lexeme);
+
+                    if (field is CppPropertyGetter getter) {
+                        // This is a C#-style "property getter", which uses field-like syntax but calls a method under
+                        // the hood. This makes the calling code look a bit nicer, at the cost of clarity; it's not as
+                        // obvious to the reader what is going on in the machinery.
+                        result.Append($"{identifier.Name.Lexeme}->{getter.MethodName}()");
+                    }
+                    else {
+                        // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling
+                        // a method on it.
+                        //
+                        // Note that this code path is used for 'this' invocations as well, resulting in
+                        // 'this->method_name()'. Because the name of the identifier is 'this', this works similarly as
+                        // calling a method on any other variable.
+                        result.Append($"{identifier.Name.Lexeme}->{expr.Name.Lexeme}");
+                    }
                 }
                 else if (identifier.TypeReference.CppType.Methods.Any(m => m.Name == expr.Name.Lexeme) && expr.Name.Lexeme == "get_type")
                 {

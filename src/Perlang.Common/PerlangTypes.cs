@@ -11,12 +11,20 @@ public static class PerlangTypes
 {
     public static readonly CppType? NullObject = new CppType("NullObject", null, "null", isSupported: false);
 
-    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true);
+    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true, extraFields: [
+        new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
+    ]);
+
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true);
+
     public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true, extraMethods: [
         new CppFunction("as_utf16", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "UTF16String", literal: null, fileName: "", line: 0), isArray: false))
     ]);
-    public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", null, wrapInSharedPtr: true);
+
+    // TODO: Support as_utf16() here too
+    public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", null, wrapInSharedPtr: true, extraFields: [
+        new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
+    ]);
 
     public static readonly CppType PerlangClass = new CppType("PerlangClass", "PerlangClass", wrapInSharedPtr: true);
 

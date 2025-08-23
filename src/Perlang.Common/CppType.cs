@@ -1,5 +1,6 @@
 #nullable enable
 #pragma warning disable SA1010
+#pragma warning disable SA1117
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ public record CppType : IPerlangType
 {
     public string Name => CppTypeName;
 
+    // TODO: Should be an immutable Set instead for faster lookup, but preferably with Guava-style ImmutableMap
+    // semantics (where iteration order == insertion order)
     public ImmutableList<IPerlangFunction> Methods { get; }
     public ImmutableList<IPerlangField> Fields { get; }
 
@@ -32,12 +35,15 @@ public record CppType : IPerlangType
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
 
-    public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null, IEnumerable<CppFunction>? extraMethods = null)
+    public CppType(
+        string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false,
+        bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null,
+        IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
     {
         this.Methods = new List<CppFunction>
         {
             new CppFunction("get_type", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "perlang::Type", literal: null, fileName: String.Empty, line: 0), isArray: false))
-        }.Concat(extraMethods ?? []).Cast<IPerlangFunction>().ToImmutableList();
+        }.Concat(extraMethods ?? []).ToImmutableList();
 
         this.CppTypeName = cppTypeName;
         this.PerlangTypeName = perlangTypeName;
@@ -49,10 +55,11 @@ public record CppType : IPerlangType
 
         if (isArray) {
             this.ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType), "Element type must be provided for array types");
-            this.Fields =
-            [
+
+            this.Fields = new List<PerlangField>
+            {
                 new PerlangField("length", new TypeReference(PerlangValueTypes.Int64))
-            ];
+            }.Concat(extraFields ?? []).ToImmutableList();
         }
         else {
             if (elementType != null) {
@@ -60,7 +67,10 @@ public record CppType : IPerlangType
             }
 
             this.ElementType = null;
-            this.Fields = [];
+
+            this.Fields = new List<PerlangField>()
+                .Concat(extraFields ?? [])
+                .ToImmutableList();
         }
     }
 

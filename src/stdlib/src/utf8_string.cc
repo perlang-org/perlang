@@ -261,8 +261,11 @@ namespace perlang
             }
         }
 
-        // TODO: Allocate a new array as described above and copy the data it, to minimize the amount of retained heap
-        // memory. For now, we allow the algorithm to be a little bit less inefficient.
+        // Shrink the std::vector to the actual size we need, now that we know the actual length of the converted
+        // string. The +1 part is because our print() implementation expects the string to be NUL-terminated for now.
+        // We'll try to get rid of this limitation eventually.
+        data.resize(new_length + 1);
+
         return UTF16String::from_owned_string(std::move(data));
     }
 

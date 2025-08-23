@@ -55,7 +55,8 @@ namespace perlang
 
     size_t UTF16String::length() const
     {
-        return data_.size();
+        // The vector always contains an extra NUL terminating character for now, because our print() implementation needs it.
+        return data_.size() - 1;
     }
 
     bool UTF16String::is_ascii()
