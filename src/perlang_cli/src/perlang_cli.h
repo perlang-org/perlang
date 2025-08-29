@@ -9,14 +9,7 @@
 #include "perlang_stdlib.h"
 
 //
-// C++ prototypes
-//
-#include <getopt.h>
-
-extern "C" void native_main(int argc, char* const* argv);
-
-//
-// Enum definitions
+// Perlang enum definitions
 //
 namespace Visibility {
     enum Visibility {
@@ -99,7 +92,7 @@ namespace TokenType {
 };
 
 //
-// Method definitions
+// Perlang function definitions
 //
 std::shared_ptr<perlang::String> get_git_describe_version();
 std::shared_ptr<perlang::String> get_git_commit_id();
@@ -109,3 +102,10 @@ std::shared_ptr<perlang::String> get_build_host();
 void print_perlang_version();
 std::shared_ptr<perlang::String> perlang_version();
 void perlang_detailed_version();
+
+//
+// C++ prototypes
+//
+#include <getopt.h>
+
+extern "C" void native_main(int argc, char* const* argv);

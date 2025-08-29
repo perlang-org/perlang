@@ -565,22 +565,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
 """);
 
-                if (cppPrototypes.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// C++ prototypes");
-                    streamWriter.WriteLine("//");
-
-                    foreach (Token prototype in cppPrototypes)
-                    {
-                        streamWriter.WriteLine(prototype.Literal);
-                    }
-
-                    streamWriter.WriteLine();
-                }
-
                 if (classDefinitions.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Class definitions");
+                    streamWriter.WriteLine("// Perlang class definitions");
                     streamWriter.WriteLine("//");
 
                     foreach ((string _, string definition) in classDefinitions) {
@@ -590,7 +577,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
                 if (enums.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Enum definitions");
+                    streamWriter.WriteLine("// Perlang enum definitions");
                     streamWriter.WriteLine("//");
 
                     foreach ((string _, string definition) in enums) {
@@ -599,14 +586,28 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 }
 
                 if (methods.Count > 0) {
-                    // TODO: Should more rightfully be "Free function definitions", but we should fix both the header
-                    // file and the .cc file generation at the same time. The "C++ methods" may also be correct or not.
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Method definitions");
+                    streamWriter.WriteLine("// Perlang function definitions");
                     streamWriter.WriteLine("//");
 
                     foreach (var (key, value) in methods) {
                         streamWriter.WriteLine($"{value.ReturnType} {key}({value.ParametersString});");
+                    }
+
+                    // Try to avoid an extra newline at the end of the file
+                    if (cppPrototypes.Count > 0) {
+                        streamWriter.WriteLine();
+                    }
+                }
+
+                if (cppPrototypes.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// C++ prototypes");
+                    streamWriter.WriteLine("//");
+
+                    foreach (Token prototype in cppPrototypes)
+                    {
+                        streamWriter.WriteLine(prototype.Literal);
                     }
                 }
             }
@@ -638,25 +639,20 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
 """);
 
-                if (cppMethods.Count > 0) {
+                if (classImplementations.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// C++ methods");
+                    streamWriter.WriteLine("// Perlang class implementations");
                     streamWriter.WriteLine("//");
 
-                    foreach (Token method in cppMethods)
-                    {
-                        streamWriter.WriteLine(method.Literal);
-                    }
-
-                    // Try to avoid an extra newline at the end of the file
-                    if (methods.Count > 0) {
+                    foreach (var (_, classImplementation) in classImplementations) {
+                        streamWriter.Write(classImplementation);
                         streamWriter.WriteLine();
                     }
                 }
 
                 if (methods.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Method declarations");
+                    streamWriter.WriteLine("// Perlang function declarations");
                     streamWriter.WriteLine("//");
 
                     foreach (var (key, value) in methods) {
@@ -667,14 +663,14 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     }
                 }
 
-                if (classImplementations.Count > 0) {
+                if (cppMethods.Count > 0) {
                     streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Class implementations");
+                    streamWriter.WriteLine("// C++ methods");
                     streamWriter.WriteLine("//");
 
-                    foreach (var (_, classImplementation) in classImplementations) {
-                        streamWriter.Write(classImplementation);
-                        streamWriter.WriteLine();
+                    foreach (Token method in cppMethods)
+                    {
+                        streamWriter.WriteLine(method.Literal);
                     }
                 }
             }

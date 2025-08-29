@@ -11,6 +11,42 @@
 #include "perlang_cli.h"
 
 //
+// Perlang function declarations
+//
+std::shared_ptr<perlang::String> get_git_describe_version() {
+    return perlang::ASCIIString::from_static_string("##GIT_DESCRIBE_VERSION##");
+}
+
+std::shared_ptr<perlang::String> get_git_commit_id() {
+    return perlang::ASCIIString::from_static_string("##GIT_COMMIT_ID##");
+}
+
+std::shared_ptr<perlang::String> get_build_timestamp() {
+    return perlang::ASCIIString::from_static_string("##BUILD_TIMESTAMP##");
+}
+
+std::shared_ptr<perlang::String> get_build_user() {
+    return perlang::ASCIIString::from_static_string("##BUILD_USER##");
+}
+
+std::shared_ptr<perlang::String> get_build_host() {
+    return perlang::ASCIIString::from_static_string("##BUILD_HOST##");
+}
+
+void print_perlang_version() {
+    perlang::print(perlang_version());
+}
+
+std::shared_ptr<perlang::String> perlang_version() {
+    return (*(*get_git_describe_version() + *perlang::ASCIIString::from_static_string("+")) + *get_git_commit_id());
+}
+
+void perlang_detailed_version() {
+    perlang::print((*perlang::ASCIIString::from_static_string("Perlang version: ") + *perlang_version()));
+    perlang::print((*(*(*(*(*(*(*perlang::ASCIIString::from_static_string("Built from git commit ") + *get_git_commit_id()) + *perlang::ASCIIString::from_static_string(", ")) + *get_build_timestamp()) + *perlang::ASCIIString::from_static_string(" by ")) + *get_build_user()) + *perlang::ASCIIString::from_static_string("@")) + *get_build_host()));
+}
+
+//
 // C++ methods
 //
 extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
@@ -53,40 +89,3 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 
     // Pass control back to the C# code
 }
-
-//
-// Method declarations
-//
-std::shared_ptr<perlang::String> get_git_describe_version() {
-    return perlang::ASCIIString::from_static_string("##GIT_DESCRIBE_VERSION##");
-}
-
-std::shared_ptr<perlang::String> get_git_commit_id() {
-    return perlang::ASCIIString::from_static_string("##GIT_COMMIT_ID##");
-}
-
-std::shared_ptr<perlang::String> get_build_timestamp() {
-    return perlang::ASCIIString::from_static_string("##BUILD_TIMESTAMP##");
-}
-
-std::shared_ptr<perlang::String> get_build_user() {
-    return perlang::ASCIIString::from_static_string("##BUILD_USER##");
-}
-
-std::shared_ptr<perlang::String> get_build_host() {
-    return perlang::ASCIIString::from_static_string("##BUILD_HOST##");
-}
-
-void print_perlang_version() {
-    perlang::print(perlang_version());
-}
-
-std::shared_ptr<perlang::String> perlang_version() {
-    return (*(*get_git_describe_version() + *perlang::ASCIIString::from_static_string("+")) + *get_git_commit_id());
-}
-
-void perlang_detailed_version() {
-    perlang::print((*perlang::ASCIIString::from_static_string("Perlang version: ") + *perlang_version()));
-    perlang::print((*(*(*(*(*(*(*perlang::ASCIIString::from_static_string("Built from git commit ") + *get_git_commit_id()) + *perlang::ASCIIString::from_static_string(", ")) + *get_build_timestamp()) + *perlang::ASCIIString::from_static_string(" by ")) + *get_build_user()) + *perlang::ASCIIString::from_static_string("@")) + *get_build_host()));
-}
-
