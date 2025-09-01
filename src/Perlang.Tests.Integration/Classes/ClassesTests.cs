@@ -809,6 +809,66 @@ public class ClassesTests
     }
 
     [Fact]
+    public void class_can_define_private_field_of_int_array_type()
+    {
+        string source = """
+            public class ArrayContainer
+            {
+                private mutable ints: int[] = [1, 2, 3];
+
+                public greet(): void
+                {
+                    print ints[0];
+                    print ints[1];
+                    print ints[2];
+                }
+            }
+
+            var container = new ArrayContainer();
+            container.greet();
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "1",
+                "2",
+                "3"
+            );
+    }
+
+    [Fact]
+    public void class_can_define_private_field_of_string_array_type()
+    {
+        string source = """
+            public class ArrayContainer
+            {
+                private mutable strings: string[] = ["one", "two", "three"];
+
+                public greet(): void
+                {
+                    print strings[0];
+                    print strings[1];
+                    print strings[2];
+                }
+            }
+
+            var container = new ArrayContainer();
+            container.greet();
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "one",
+                "two",
+                "three"
+            );
+    }
+
+    [Fact]
     public void class_defining_field_of_unknown_type_throws_expected_error()
     {
         string source = """

@@ -574,6 +574,7 @@ internal class TypeResolver : VisitorBase
         // and use that as the inferred type of the collection initializer.
         if (expr.Elements.Select(e => e.TypeReference.CppType).Distinct().Count() > 1)
         {
+            // TODO: Fails because CppType objects which are equal do not compare as equal.
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Token,
                 "All elements in a collection initializer must have the same type")

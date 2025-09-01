@@ -660,8 +660,11 @@ public class PerlangParser
             throw Error(name, "Fields must be declared as private.");
         }
 
-        // TODO: This doesn't support array types yet.
+        bool isArray = false;
         Token typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+
+        if (IsAtArray())
+            isArray = true;
 
         Expr initializer = null;
 
@@ -679,7 +682,7 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after field definition.");
         }
 
-        return new Stmt.Field(name, visibility, isMutable, initializer, new TypeReference(typeSpecifier, isArray: false));
+        return new Stmt.Field(name, visibility, isMutable, initializer, new TypeReference(typeSpecifier, isArray: isArray));
     }
 
     private Stmt.Enum Enum()
