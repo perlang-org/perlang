@@ -121,7 +121,9 @@ public record CppType : IPerlangType
             var t when t == PerlangTypes.String => PerlangTypes.StringArray,
             var t when t == PerlangTypes.UTF8String => PerlangTypes.StringArray,
 
-            _ => throw new NotImplementedInCompiledModeException($"Array type for {CppTypeName} is currently not supported")
+            // Other types typically means array of user-defined type. We implement all of these as a generic
+            // ObjectArray for simplicity, and can cast the individual elements to the more specific type as needed.
+            var t => new CppType("perlang::ObjectArray", t.Name, wrapInSharedPtr: true, isArray: true, elementType: t)
         };
     }
 
@@ -158,8 +160,8 @@ public record CppType : IPerlangType
     public override int GetHashCode()
     {
         var hashCode = default(HashCode);
-        hashCode.Add(Methods);
-        hashCode.Add(Fields);
+
+        // Like above, ignoring Fields and Methods here for now
         hashCode.Add(CppTypeName);
         hashCode.Add(TypeKeyword);
         hashCode.Add(WrapInSharedPtr);
@@ -167,6 +169,7 @@ public record CppType : IPerlangType
         hashCode.Add(IsNullObject);
         hashCode.Add(IsArray);
         hashCode.Add(ElementType);
+
         return hashCode.ToHashCode();
     }
 

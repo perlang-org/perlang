@@ -29,5 +29,4 @@ namespace perlang
         size_t length_;
         bool owned_;
     };
-
 }

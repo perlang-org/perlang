@@ -10,6 +10,7 @@
 #include "ascii_string.h"
 #include "bigint.h"
 #include "int_array.h"
+#include "object_array.h"
 #include "perlang_string.h"
 #include "perlang_type.h"
 #include "perlang_value_types.h"

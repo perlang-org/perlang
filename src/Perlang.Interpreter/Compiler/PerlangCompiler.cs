@@ -1338,9 +1338,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             case var t when t == PerlangTypes.Int32Array:
                 result.Append("std::initializer_list<int32_t> ");
                 break;
+
             case var t when t == PerlangTypes.StringArray:
                 result.Append("std::initializer_list<std::shared_ptr<const perlang::String>> ");
                 break;
+
+            // This one is done by name, because we initialize custom CppType instances for arrays of user-defined types
+            // (instead of just using PerlangTypes.ObjectArray)
+            case var t when t.CppTypeName == PerlangTypes.ObjectArray.CppTypeName:
+                result.Append("std::initializer_list<std::shared_ptr<const perlang::Object>> ");
+                break;
+
             default:
                 throw new PerlangCompilerException($"Type {collectionInitializer.TypeReference.CppType!.CppTypeName} is not supported for collection initializers");
         }
@@ -1633,11 +1641,34 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
         else if (expr.Object is Expr.Call or Expr.Grouping or Expr.Index or Expr.Literal)
         {
-            // TODO: Something like this would do eventually. It's pretty much impossible to perform a method call like
-            // TODO: e.g. 42.get_type() in C or C++. We would at the very least have to special-case all primitives, to
-            // TODO: emulate something similar in the Perlang world. It would give a nice, Smalltalk/Ruby:ish feel to the
-            // TODO: language I think.
-            result.Append(expr.Object.Accept(this));
+            // TODO: At the basic level, this could be {expr.Object.Accept(this)}.{expr.Name.Lexeme}, if we ignore the
+            // TODO: fact that non-stack-allocated objects need to be called using -> syntax. An interesting fact is
+            // TODO: that it's pretty much impossible to perform a method call like e.g. 42.get_type() in C or C++. We
+            // TODO: would at the very least have to special-case all primitives, to emulate something similar in the
+            // TODO: Perlang world. It would give a nice, Smalltalk/Ruby:ish feel to the language I think.
+
+            if (expr.Object is Expr.Index index && index.Indexee.TypeReference.CppType!.CppTypeName == PerlangTypes.ObjectArray.CppTypeName) {
+                // We want to construct something like this:
+                //
+                //     ((Name *)((*a)[0]).get())
+                //
+                // The type casting is necessary to be able to perform method calls on derived types. Without this, only
+                // methods defined on the base class (perlang::Object) would be callable.
+                //
+                // Note that the cast also discards any "const" qualifiers on the object being cast (e.g. `const
+                // perlang::Object`). This is ugly, but if we consider the generated C++ more a form of "intermediate
+                // representation"/"compiler assembly-language" than C++ code you would normally write, it'll perhaps
+                // make a bit more sense. We'll aim for handling const-ness on the Perlang side eventually.
+                result.Append($"(({index.TypeReference.CppType!.CppTypeName} *)(");
+                result.Append(expr.Object.Accept(this));
+                result.Append(").get())");
+            }
+            else {
+                // We expect the Accept() method to return something like this:
+                //
+                //     (*a)[0]
+                result.Append(expr.Object.Accept(this));
+            }
 
             if (expr.Object.TypeReference.CppWrapInSharedPtr) {
                 result.Append("->");
@@ -1705,7 +1736,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         var previousClass = currentClass;
         currentClass = stmt;
 
-        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} : public std::enable_shared_from_this<{{stmt.Name}}> {""");
+        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} : public std::enable_shared_from_this<{{stmt.Name}}>, public perlang::Object {""");
 
         classDefinitionBuilder.AppendLine("private:");
 

@@ -471,10 +471,11 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitIndexExpr(expr);
 
-        CppType? type = expr.Indexee.TypeReference.CppType;
+        CppType? cppType = expr.Indexee.TypeReference.CppType;
+        IPerlangType? perlangType = expr.Indexee.TypeReference.PerlangType;
         CppType? argumentType = expr.Argument.TypeReference.CppType;
 
-        if (type == null)
+        if (cppType == null)
         {
             // This could be an issue, but OTOH this can be legal if an unresolved type is used and the error has
             // already been reported. If we had a logging framework in place, this would make sense to log at
@@ -498,10 +499,10 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        switch (type)
+        switch (cppType)
         {
             // TODO: This code path is still used when indexing e.g. Libc.environ() (which is a Dictionary<string, string>)
-            case { } when type == PerlangTypes.StringArray:
+            case { } when cppType == PerlangTypes.StringArray:
                 if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
                 {
                     typeValidationErrorCallback(new TypeValidationError(
@@ -513,7 +514,7 @@ internal class TypeResolver : VisitorBase
                 expr.TypeReference.SetCppType(PerlangValueTypes.Char);
                 break;
 
-            case { } when type == PerlangTypes.AsciiString || type == PerlangTypes.UTF16String:
+            case { } when cppType == PerlangTypes.AsciiString || cppType == PerlangTypes.UTF16String:
                 if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
                 {
                     typeValidationErrorCallback(new TypeValidationError(
@@ -525,8 +526,8 @@ internal class TypeResolver : VisitorBase
                 expr.TypeReference.SetCppType(PerlangValueTypes.Char);
                 break;
 
-            case { } when type.IsArray:
-                CppType elementType = type.GetElementType()!;
+            case { } when cppType.IsArray:
+                CppType elementType = cppType.GetElementType()!;
 
                 if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
                 {
@@ -537,9 +538,10 @@ internal class TypeResolver : VisitorBase
                 }
 
                 expr.TypeReference.SetCppType(elementType);
+                expr.TypeReference.SetPerlangType(perlangType);
                 break;
 
-            case { } when type == PerlangTypes.NullObject:
+            case { } when cppType == PerlangTypes.NullObject:
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.ClosingBracket,
                     "'null' reference cannot be indexed")
@@ -585,9 +587,11 @@ internal class TypeResolver : VisitorBase
 
         // Infer the type of the collection initializer from the first element, since we have now validated that all
         // elements have the same type.
-        CppType elementType = expr.Elements.First().TypeReference.CppType!;
-        CppType collectionType = elementType.MakeArrayType();
+        ITypeReference firstElementTypeReference = expr.Elements.First().TypeReference;
+        CppType elementCppType = firstElementTypeReference.CppType!;
+        CppType collectionType = elementCppType.MakeArrayType();
         expr.TypeReference.SetCppType(collectionType);
+        expr.TypeReference.SetPerlangType(firstElementTypeReference.PerlangType);
 
         return VoidObject.Void;
     }
@@ -894,7 +898,7 @@ internal class TypeResolver : VisitorBase
     {
         if (typeReference.TypeSpecifier == null)
         {
-            // No explicit type was specified. We let the inferred type handling deal with this type
+            // No explicit type was specified. We let the inferred type handling deal with this type.
             return;
         }
 
@@ -988,11 +992,22 @@ internal class TypeResolver : VisitorBase
                 IPerlangType? perlangType = typeHandler.GetType(lexeme);
 
                 if (perlangType != null) {
-                    // Note: this means that the CppType instances for a given type will not be shared. Can this
-                    // become a problem? Perhaps we would need some form of mechanism for deducing a CppType for a
-                    // given IPerlangType, which could then potentially cache the instantiated value as needed.
-                    typeReference.SetCppType(new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true));
-                    typeReference.SetPerlangType(perlangType);
+                    if (typeReference.IsArray) {
+                        // TODO: Creating a new CppType for the array here might be a bit weird, but we don't have any
+                        // TODO: good way around it given that we want a CppType with the ElementType set to our
+                        // TODO: concrete (derived, non-perlang::Object) type. We solve this by using name-based
+                        // TODO: comparisons elsewhere, to do special handling of ObjectArray in Get expressions.
+                        var elementType = new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true);
+                        typeReference.SetCppType(new CppType("perlang::ObjectArray", perlangType.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
+                        typeReference.SetPerlangType(perlangType);
+                    }
+                    else {
+                        // Note: this means that the CppType instances for a given type will not be shared. Can this
+                        // become a problem? Perhaps we would need some form of mechanism for deducing a CppType for a
+                        // given IPerlangType, which could then potentially cache the instantiated value as needed.
+                        typeReference.SetCppType(new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true));
+                        typeReference.SetPerlangType(perlangType);
+                    }
                 }
 
                 break;

@@ -1,6 +1,7 @@
 #nullable enable
 #pragma warning disable SA1010
 #pragma warning disable SA1118
+#pragma warning disable SA1515
 namespace Perlang;
 
 /// <summary>
@@ -10,6 +11,7 @@ namespace Perlang;
 public static class PerlangTypes
 {
     public static readonly CppType? NullObject = new CppType("NullObject", null, "null", isSupported: false);
+    public static readonly CppType? PerlangObject = new CppType("PerlangObject", null, "object", wrapInSharedPtr: true);
 
     public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true, extraFields: [
         new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
@@ -21,8 +23,8 @@ public static class PerlangTypes
         new CppFunction("as_utf16", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "UTF16String", literal: null, fileName: "", line: 0), isArray: false))
     ]);
 
-    // TODO: Support as_utf16() here too
     public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", null, wrapInSharedPtr: true, extraFields: [
+        // TODO: Support as_utf16() here too
         new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
     ]);
 
@@ -32,6 +34,8 @@ public static class PerlangTypes
     public static readonly CppType StringArray = new CppType("perlang::StringArray", null, "string[]", wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType UTF8StringArray = new CppType("perlang::UTF8StringArray", "UTF8String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType UTF16StringArray = new CppType("perlang::UTF16StringArray", "UTF16String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
+
+    public static readonly CppType ObjectArray = new CppType("perlang::ObjectArray", null, null, wrapInSharedPtr: true, isArray: true, elementType: PerlangObject);
 
     // TODO: int64_t and onwards should use perlang::<type> wrapper types too. Right now, attempting to use them will
     // TODO: likely cause compilation errors.

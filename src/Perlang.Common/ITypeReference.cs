@@ -115,6 +115,9 @@ public interface ITypeReference
             "null" :
             "'" + TypeKeywordOrPerlangType + "'";
 
+    // TODO: Make it impossible (or at least harder) to set CppType without also setting PerlangType. As it stands right
+    // now, the code makes it unnecessarily easy to make mistakes where PerlangType is left unset.
+
     /// <summary>
     /// Sets the C++ type for the type reference. This method is typically called when type inference is performed.
     /// </summary>

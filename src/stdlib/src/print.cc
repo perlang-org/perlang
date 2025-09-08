@@ -8,6 +8,7 @@
 
 #include "ascii_string.h"
 #include "bigint.h"
+#include "object.h"
 #include "perlang_type.h"
 #include "internal/string_utils.h"
 
