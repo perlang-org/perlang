@@ -787,6 +787,22 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitNewExpression(expr);
 
+        if (expr.IsArray) {
+            switch (expr.TypeName.Lexeme) {
+                case "int":
+                    expr.TypeReference.SetCppType(PerlangTypes.Int32Array);
+                    break;
+                default:
+                    typeValidationErrorCallback(new TypeValidationError(
+                        expr.Token,
+                        $"Internal compiler error: Unsupported array type '{expr.TypeName.Lexeme}' for dynamic array encountered")
+                    );
+                    break;
+            }
+
+            return VoidObject.Void;
+        }
+
         var binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
         if (binding == null) {

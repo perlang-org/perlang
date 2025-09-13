@@ -21,6 +21,8 @@
 #include "collections/mutable_string_hash_set.h"
 #include "collections/string_hash_set.h"
 
+#include "exceptions/null_pointer_exception.h"
+
 #include "io/file.h"
 
 #include "text/string_builder.h"

@@ -314,13 +314,25 @@ public abstract class Expr
     {
         public Token Token => TypeName;
 
-        public Token TypeName { get; set; }
+        public Token TypeName { get; }
         public List<Expr> Parameters { get; }
+        public bool IsArray { get; }
+        public Expr? Size { get; }
 
         public NewExpression(Token typeName, List<Expr> parameters)
         {
             TypeName = typeName;
             Parameters = parameters;
+            IsArray = false;
+            Size = null;
+        }
+
+        public NewExpression(Token typeName, bool isArray, Expr size)
+        {
+            TypeName = typeName;
+            Parameters = [];
+            IsArray = isArray;
+            Size = size;
         }
 
         public override TR Accept<TR>(IVisitor<TR> visitor)
@@ -332,7 +344,12 @@ public abstract class Expr
         {
             string parametersString = String.Join(", ", Parameters);
 
-            return $"#<new {TypeName.Lexeme}({parametersString})>";
+            if (IsArray) {
+                return $"#<new {TypeName.Lexeme}[{Size}]>";
+            }
+            else {
+                return $"#<new {TypeName.Lexeme}({parametersString})>";
+            }
         }
     }
 

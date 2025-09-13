@@ -21,6 +21,7 @@ build-perlang-cli:
   stage: test
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+
   script:
     # First, install the latest 'nightly' snapshot and build Perlang CLI one time. This ensures that the latest nightly
     # "works" at least as far as producing some output is concerned.
@@ -112,9 +113,6 @@ build-openbsd:
     - gmake -j$(scripts/num_cpus) stdlib
     - gmake test-perlang-cli EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
     - gmake test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
-  variables:
-    # Workaround for Clang 16 warnings triggered by deprecated codecvt_utf8_utf16<char16_t> usage in our stdlib
-    CXXFLAGS: -Wno-deprecated-declarations
   artifacts:
     when: always
     paths:
@@ -139,6 +137,7 @@ valgrind-run-hello-world-example:
   needs: []
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+
   script:
     # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
     # files have a more recent timestamp.
@@ -155,14 +154,15 @@ test:
   stage: test
   needs: []
 
+  # TODO: Run on other operating systems than Linux too, when we are ready for it. It's
+  # probably not worth it until we are a proper LLVM language, independent
+  # of clang for generating binaries.
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+
   parallel:
     matrix:
       - TEST_MODE: ['valgrind', '']
 
-  # TODO: Run on other operating systems too, when we are ready for it. It's
-  # probably not worth it until we are a proper LLVM language, independent
-  # of clang for generating binaries.
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
   script:
     # The .per files in src/perlang_cli can sometimes be more recent than the generated .cc file, in a git checkout.
     # This will cause 'make' to try to regenerate these files. We don't want this to happen in this CI job; we have
@@ -203,6 +203,7 @@ docs-test-examples:
   needs: []
 
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+
   script:
     #
     # Technically, this part is very different from the other part which

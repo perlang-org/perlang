@@ -279,7 +279,7 @@ public abstract class Stmt
             {
                 if (TypeReference.TypeSpecifier?.Lexeme != null)
                 {
-                    return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme} = {Initializer};";
+                    return $"var {Name.Lexeme}: {TypeReference.TypeKeywordOrPerlangType} = {Initializer};";
                 }
                 else
                 {
@@ -290,7 +290,7 @@ public abstract class Stmt
             {
                 if (TypeReference.TypeSpecifier?.Lexeme != null)
                 {
-                    return $"var {Name.Lexeme}: {TypeReference.TypeSpecifier.Lexeme};";
+                    return $"var {Name.Lexeme}: {TypeReference.TypeKeywordOrPerlangType};";
                 }
                 else
                 {

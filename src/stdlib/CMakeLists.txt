@@ -35,6 +35,10 @@ set(collections_headers
         src/collections/string_hash_set.h
 )
 
+set(exceptions_headers
+        src/exceptions/null_pointer_exception.h
+)
+
 set(io_headers
         src/io/file.h
 )
@@ -140,11 +144,16 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
+# Need to put this in a separate variable and call separate_arguments() on it, to handle multiple warning flags in the
+# CXXFLAGS.
+set(EXTRA_CXXFLAGS $ENV{CXXFLAGS})
+separate_arguments(EXTRA_CXXFLAGS)
+
 target_compile_options(
-        stdlib PRIVATE -Wall -Wextra -Werror -ggdb
+        stdlib PRIVATE -Wall -Wextra -Werror -ggdb -fno-delete-null-pointer-checks
 
         # Needed so that our top-level Makefile can add extra flags for particular platforms if necessary.
-        $ENV{CXXFLAGS}
+        ${EXTRA_CXXFLAGS}
 )
 
 include(GNUInstallDirs)
@@ -165,6 +174,11 @@ install(
 install(
         FILES ${collections_headers}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/collections"
+)
+
+install(
+        FILES ${exceptions_headers}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/exceptions"
 )
 
 install(
@@ -191,6 +205,7 @@ install(
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(TEST_SRC
             test/ascii_string.cc
+            test/int_array_tests.cc
             test/perlang_string.cc
             test/print.cc
             test/string_builder.cc

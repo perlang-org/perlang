@@ -30,12 +30,21 @@ ifeq ($(UNAME), Linux)
 else ifeq ($(UNAME), FreeBSD)
     SHELL := /usr/local/bin/bash -e -o pipefail
 
-    # Workaround for Clang 18 warnings triggered by deprecated declarations in the libc++ LLVM C++ library.
-    export CXXFLAGS=-Wno-deprecated-declarations
+    # no-deprecated-declarations: Workaround for Clang warnings triggered by deprecated declarations in the libc++ LLVM
+    # C++ library.
+    # no-tautological-undefined-compare: Needed since we detect attempts to index a null pointer. Depends on
+    # -fno-delete-null-pointer-checks to work properly.
+    export CXXFLAGS=-Wno-deprecated-declarations -Wno-tautological-undefined-compare
 else ifeq ($(UNAME), NetBSD)
     SHELL := /usr/pkg/bin/bash -e -o pipefail
 else ifeq ($(UNAME), OpenBSD)
     SHELL := /usr/local/bin/bash -e -o pipefail
+
+    # no-deprecated-declarations: Workaround for Clang warnings triggered by deprecated declarations in the libc++ LLVM
+    # C++ library.
+    # no-tautological-undefined-compare: Needed since we detect attempts to index a null pointer. Depends on
+    # -fno-delete-null-pointer-checks to work properly.
+	export CXXFLAGS=-Wno-deprecated-declarations -Wno-tautological-undefined-compare
 else
     $(error Unsupported operating system $(UNAME) encountered)
 endif

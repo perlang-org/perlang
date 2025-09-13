@@ -14,6 +14,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using JetBrains.Annotations;
 using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
 using static Perlang.Internal.Utils;
@@ -747,6 +748,10 @@ public class PerlangParser
             {
                 return new Expr.Assign(get, value);
             }
+            else if (expr is Expr.Index index)
+            {
+                return new Expr.Assign(index, value);
+            }
 
             Error(equals, $"Invalid assignment target: {expr}");
         }
@@ -1071,27 +1076,37 @@ public class PerlangParser
         {
             Token typeName = Consume(IDENTIFIER, "Expecting name of class to instantiate");
 
-            Match(LEFT_PAREN);
-
-            var parameters = new List<Expr>();
-
-            while (!Peek().Type.Equals(RIGHT_PAREN) && !IsAtEnd)
+            if (Match(LEFT_PAREN))
             {
-                parameters.Add(Expression());
+                var parameters = new List<Expr>();
 
-                if (Match(COMMA))
+                while (!Peek().Type.Equals(RIGHT_PAREN) && !IsAtEnd)
                 {
-                    continue;
+                    parameters.Add(Expression());
+
+                    if (Match(COMMA))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    break;
-                }
+
+                Consume(RIGHT_PAREN, "Expect ')' at end of constructor parameters.");
+
+                return new Expr.NewExpression(typeName, parameters);
             }
+            else if (Match(LEFT_SQUARE_BRACKET))
+            {
+                // This can be a dynamically allocated array. Consume an expression representing its size.
+                Expr size = Expression();
 
-            Consume(RIGHT_PAREN, "Expect ')' at end of constructor parameters.");
+                Consume(RIGHT_SQUARE_BRACKET, "Expect ']' in array creation.");
 
-            return new Expr.NewExpression(typeName, parameters);
+                return new Expr.NewExpression(typeName, isArray: true, size);
+            }
         }
 
         if (Check(SEMICOLON))
@@ -1111,6 +1126,7 @@ public class PerlangParser
     /// </summary>
     /// <param name="types">One or more token types to match.</param>
     /// <returns>`true` if a matching token was found and consumed, `false` otherwise.</returns>
+    [MustUseReturnValue]
     private bool Match(params TokenType[] types)
     {
         foreach (TokenType type in types)

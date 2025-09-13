@@ -398,6 +398,10 @@ internal class NameResolver : VisitorBase
 
             ResolvePropertyPath(expr, get.FullNameParts);
         }
+        else if (expr.Target is Expr.Index index) {
+            Resolve(index.Indexee);
+            Resolve(index.Argument);
+        }
         else {
             throw new PerlangCompilerException($"Unsupported expression type encountered: {expr.Target}");
         }

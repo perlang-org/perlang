@@ -25,6 +25,24 @@ public class VarTests
     }
 
     [Fact]
+    public void accessing_uninitialized_variable_emits_expected_error()
+    {
+        string source = @"
+                var a: int;
+
+                print a;
+            ";
+
+        var result = EvalWithCppCompilationErrorCatch(source);
+
+        // Note that this is not detected on the Perlang side, but is raw clang error that we rely on for now.
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("variable 'a' is uninitialized");
+    }
+
+    [Fact]
     public void collide_with_parameter_throws_expected_error()
     {
         string source = @"

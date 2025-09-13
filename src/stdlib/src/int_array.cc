@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "exceptions/null_pointer_exception.h"
 #include "int_array.h"
 
 namespace perlang
@@ -18,8 +19,19 @@ namespace perlang
         owned_ = true;
     }
 
-    int IntArray::operator[](size_t index) const
+    IntArray::IntArray(size_t length)
     {
+        arr_ = (int32_t*)calloc(length, sizeof(int32_t));
+        length_ = length;
+        owned_ = true;
+    }
+
+    int32_t IntArray::operator[](size_t index) const
+    {
+        if (this == nullptr) {
+            throw NullPointerException();
+        }
+
         if (index >= length_) {
             throw std::out_of_range("index out of range (" + std::to_string(index) + " > " + std::to_string(length_ - 1) + ")");
         }
@@ -27,7 +39,16 @@ namespace perlang
         return arr_[index];
     }
 
-    IntArray::IntArray(const int32_t* arr, size_t length, bool owned)
+    void IntArray::set(size_t index, int32_t value)
+    {
+        if (index >= length_) {
+            throw std::out_of_range("index out of range (" + std::to_string(index) + " > " + std::to_string(length_ - 1) + ")");
+        }
+
+        arr_[index] = value;
+    }
+
+    IntArray::IntArray(int32_t* arr, size_t length, bool owned)
     {
         arr_ = arr;
         length_ = length;

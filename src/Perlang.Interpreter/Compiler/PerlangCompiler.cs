@@ -904,6 +904,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 throw new PerlangCompilerException($"Invalid assignment target: {expr.Target}");
             }
         }
+        else if (expr.Target is Expr.Index index)
+        {
+            // TODO: Don't use "->" unconditionally here
+            return $"{index.Indexee.Accept(this)}->set({index.Argument.Accept(this)}, {expr.Value.Accept(this)})";
+        }
         else {
             throw new PerlangCompilerException($"Invalid assignment target: {expr.Target}");
         }
@@ -1693,17 +1698,30 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         // The NewExpression is expected to already have been resolved into an unambiguous constructor here, at which
         // point we merely create the corresponding C++ call and expect it to do the right thing.
-        result.Append($"std::make_unique<{expr.TypeReference.CppType!.CppTypeName}>(");
+        result.Append($"std::make_unique<{expr.TypeReference.CppType!.CppTypeName}>");
 
-        for (int i = 0; i < expr.Parameters.Count; i++) {
-            result.Append(expr.Parameters[i].Accept(this));
-
-            if (i != expr.Parameters.Count - 1) {
-                result.Append(", ");
-            }
+        if (expr.IsArray && expr.Parameters.Count > 0) {
+            throw new PerlangCompilerException("Internal error: Expression is marked both as creating an array and having constructor parameters. This is currently not supported.");
         }
 
-        result.Append(")");
+        if (expr.IsArray) {
+            result.Append("(");
+            result.Append(expr.Size!.Accept(this));
+            result.Append(")");
+        }
+        else {
+            result.Append("(");
+
+            for (int i = 0; i < expr.Parameters.Count; i++) {
+                result.Append(expr.Parameters[i].Accept(this));
+
+                if (i != expr.Parameters.Count - 1) {
+                    result.Append(", ");
+                }
+            }
+
+            result.Append(")");
+        }
 
         return result.ToString();
     }
