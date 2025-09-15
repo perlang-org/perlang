@@ -787,23 +787,34 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitNewExpression(expr);
 
+        var binding = bindingHandler.GetVariableOrFunctionBinding(expr);
+        var classBinding = binding as ClassBinding;
+
         if (expr.IsArray) {
             switch (expr.TypeName.Lexeme) {
                 case "int":
                     expr.TypeReference.SetCppType(PerlangTypes.Int32Array);
                     break;
                 default:
-                    typeValidationErrorCallback(new TypeValidationError(
-                        expr.Token,
-                        $"Internal compiler error: Unsupported array type '{expr.TypeName.Lexeme}' for dynamic array encountered")
-                    );
+                    // TODO: Would be cleaner to check if the type in question is assignable to perlang::Object. For
+                    // now, this check will be good enough since it will match all custom classes.
+                    if (classBinding != null) {
+                        var elementType = new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true);
+                        expr.TypeReference.SetCppType(new CppType("perlang::ObjectArray", classBinding.PerlangClass!.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
+                    }
+                    else {
+                        typeValidationErrorCallback(
+                            new TypeValidationError(
+                                expr.Token,
+                                $"Internal compiler error: Dynamic arrays of type '{expr.TypeName.Lexeme}' are currently not supported")
+                        );
+                    }
+
                     break;
             }
 
             return VoidObject.Void;
         }
-
-        var binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
         if (binding == null) {
             typeValidationErrorCallback(new TypeValidationError(
@@ -814,7 +825,7 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        if (!(binding is ClassBinding classBinding)) {
+        if (classBinding == null) {
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Token,
                 $"Internal compiler error: Unexpected type '{binding}' encountered; expected ClassBinding")

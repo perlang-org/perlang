@@ -35,6 +35,9 @@ public static class PerlangTypes
     public static readonly CppType UTF8StringArray = new CppType("perlang::UTF8StringArray", "UTF8String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
     public static readonly CppType UTF16StringArray = new CppType("perlang::UTF16StringArray", "UTF16String[]", null, wrapInSharedPtr: true, isArray: true, elementType: String);
 
+    // Note: should normally never be used directly, but rather new CppType() instances with the _same name_ as this
+    // type should be created. This is needed because the elementType of the CppType instance needs to refer to the
+    // real, concrete type being wrapped in an ObjectArray.
     public static readonly CppType ObjectArray = new CppType("perlang::ObjectArray", null, null, wrapInSharedPtr: true, isArray: true, elementType: PerlangObject);
 
     // TODO: int64_t and onwards should use perlang::<type> wrapper types too. Right now, attempting to use them will

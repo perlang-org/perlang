@@ -16,6 +16,8 @@ namespace perlang
         // deallocated when it's no longer needed.
         StringArray(std::initializer_list<std::shared_ptr<const perlang::String>> arr);
 
+        // TODO: Support array constructor with fixed size (see IntArrayTests for relevant tests that can be copied)
+
         ~StringArray();
 
         std::shared_ptr<const perlang::String> operator[](size_t index) const;
