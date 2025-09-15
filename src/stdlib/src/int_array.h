@@ -11,7 +11,7 @@ namespace perlang
         // Creates a new IntArray from a copied array of integers.
         explicit IntArray(std::initializer_list<int32_t> arr);
 
-        // Creates a new IntArray of the given length.
+        // Creates a new IntArray of the given size.
         explicit IntArray(size_t length);
 
      private:

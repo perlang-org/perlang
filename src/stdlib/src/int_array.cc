@@ -26,6 +26,20 @@ namespace perlang
         owned_ = true;
     }
 
+    IntArray::IntArray(int32_t* arr, size_t length, bool owned)
+    {
+        arr_ = arr;
+        length_ = length;
+        owned_ = owned;
+    }
+
+    IntArray::~IntArray()
+    {
+        if (owned_) {
+            free((void*)arr_);
+        }
+    }
+
     int32_t IntArray::operator[](size_t index) const
     {
         if (this == nullptr) {
@@ -46,19 +60,5 @@ namespace perlang
         }
 
         arr_[index] = value;
-    }
-
-    IntArray::IntArray(int32_t* arr, size_t length, bool owned)
-    {
-        arr_ = arr;
-        length_ = length;
-        owned_ = owned;
-    }
-
-    IntArray::~IntArray()
-    {
-        if (owned_) {
-            free((void*)arr_);
-        }
     }
 }
