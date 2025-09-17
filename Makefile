@@ -218,7 +218,7 @@ test-perlang-cli: perlang_cli
 
 # Note: run `make prepare-new-dev-version` when updating this, to ensure that
 # snapshot releases have the correct -V info.
-NEXT_RELEASE_VERSION=0.7.0
+NEXT_RELEASE_VERSION=0.8.0
 NEXT_RELEASE_TAG=v$(NEXT_RELEASE_VERSION)
 
 prepare-new-dev-version:
