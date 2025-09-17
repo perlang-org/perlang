@@ -255,8 +255,9 @@ binaries:
     - make -j$(scripts/num_cpus) perlang_cli_install_debug
 
     # Must avoid exporting in the same line as the command, because otherwise the command will never fail (even if
-    # executing the perlang binary fails)
-    - PERLANG_VERSION=$(src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v)
+    # executing the perlang binary fails). The 'sed' part is needed because the version will otherwise be 0.7.0+b92cf3a,
+    # which includes characters not valid for files in a GitLab release.
+    - PERLANG_VERSION=$(src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v | sed s/+[[:alnum:]]*$//)
     - export PERLANG_VERSION
 
     # Compile .NET and native libraries
