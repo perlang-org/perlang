@@ -869,6 +869,51 @@ public class ClassesTests
     }
 
     [Fact]
+    public void class_can_define_private_field_of_custom_class_array_type()
+    {
+        string source = """
+            public class CustomType
+            {
+                public name(): string
+                {
+                    return "CustomType";
+                }
+            }
+
+            public class ArrayContainer
+            {
+                private mutable custom_types_: CustomType[] = new CustomType[3];
+
+                public constructor()
+                {
+                    custom_types_[0] = new CustomType();
+                    custom_types_[1] = new CustomType();
+                    custom_types_[2] = new CustomType();
+                }
+
+                public greet(): void
+                {
+                    print custom_types_[0].name();
+                    print custom_types_[1].name();
+                    print custom_types_[2].name();
+                }
+            }
+
+            var container = new ArrayContainer();
+            container.greet();
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "CustomType",
+                "CustomType",
+                "CustomType"
+            );
+    }
+
+    [Fact]
     public void class_defining_field_of_unknown_type_throws_expected_error()
     {
         string source = """
@@ -972,6 +1017,60 @@ public class ClassesTests
             .ContainSingle()
             .Which
             .Message.Should().Contain("Cannot assign int to string field");
+    }
+
+    [Fact]
+    public void class_defining_field_of_unknown_array_type_throws_expected_error()
+    {
+        string source = """
+            // CustomType has not been defined
+
+            public class ArrayContainer
+            {
+                private mutable custom_types_: CustomType[] = new CustomType[3];
+            }
+
+            var container = new ArrayContainer();
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Type 'CustomType' could not be found");
+    }
+
+    [Fact]
+    public void multiple_type_not_found_errors_are_reported_separately()
+    {
+        string source = """
+            // CustomType has not been defined
+
+            public class ArrayContainer
+            {
+                private mutable custom_types_: CustomType[] = new CustomType[3];
+
+                public constructor()
+                {
+                    // Despite the CustomType already being reported as not found, these occurrences will also emit
+                    // separate errors for this type. This is unlike languages like C# where the compiler seemingly
+                    // silence all but the first "type not found" errors for a given type.
+                    custom_types_[0] = new CustomType();
+                    custom_types_[1] = new CustomType();
+                    custom_types_[2] = new CustomType();
+                }
+            }
+
+            var container = new ArrayContainer();
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .HaveCount(4)
+            .And
+            .AllSatisfy(ve => ve.Message.Should().Contain("Type 'CustomType' could not be found"));
     }
 
     [Fact]

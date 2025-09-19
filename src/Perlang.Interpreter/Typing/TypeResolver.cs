@@ -802,11 +802,17 @@ internal class TypeResolver : VisitorBase
                         var elementType = new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true);
                         expr.TypeReference.SetCppType(new CppType("perlang::ObjectArray", classBinding.PerlangClass!.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
                     }
-                    else {
+                    else if (binding != null) {
                         typeValidationErrorCallback(
                             new TypeValidationError(
                                 expr.Token,
                                 $"Internal compiler error: Dynamic arrays of type '{expr.TypeName.Lexeme}' are currently not supported")
+                        );
+                    }
+                    else {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            expr.Token,
+                            $"Type '{expr.Token.Lexeme}' could not be found")
                         );
                     }
 
