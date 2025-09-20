@@ -12,6 +12,17 @@ internal class PerlangCliLibrary : ILibrary
         ctx.IgnoreTranslationUnits(["tommath.h"]);
         ctx.IgnoreClassWithName("BigInt");
         ctx.IgnoreClassWithName("String");
+
+        // Disabled since they depend on Delegates class which doesn't seem to be included in generated C# binding code
+        // (CppSharp bug?)
+        ctx.IgnoreClassWithName("ASCIIString");
+        ctx.IgnoreClassWithName("NullPointerException");
+        ctx.IgnoreClassWithName("UTF8String");
+        ctx.IgnoreClassWithName("UTF16String");
+
+        // Disabled since PerlangValueTypes exist on both the C++ and C# side
+        ctx.IgnoreClassWithName("PerlangValueTypes");
+
         ctx.IgnoreFunctionWithPattern("mp_*");
         ctx.IgnoreFunctionWithPattern("Mp*");
     }

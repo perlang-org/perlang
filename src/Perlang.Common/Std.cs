@@ -145,59 +145,10 @@ namespace Std
 
 namespace Std
 {
-    namespace Tuple
-    {
-        [StructLayout(LayoutKind.Explicit, Size = 8)]
-        public unsafe partial struct __Internal
-        {
-            [FieldOffset(0)]
-            internal global::Std.DefaultDelete.__Internal _M_head_impl;
-
-            [FieldOffset(0)]
-            internal __IntPtr _M_head_impl1;
-        }
-    }
 }
 
 namespace Std
 {
-    namespace UniquePtr
-    {
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
-        public unsafe partial struct __Internalc__N_std_S_unique_ptr__1_nC___N_std_S_default_delete__1S0_
-        {
-            internal global::Std.UniqPtrData.__Internalc__N_std_S___uniq_ptr_data__1C___N_std_S_default_delete__1_nC_Vb1_Vb1 _M_t;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
-        public unsafe partial struct __Internalc__N_std_S_unique_ptr__b___N_std_S_default_delete__b
-        {
-            internal global::Std.UniqPtrData.__Internalc__N_std_S___uniq_ptr_data__b___N_std_S_default_delete__b_Vb1_Vb1 _M_t;
-        }
-    }
-
-    namespace UniqPtrData
-    {
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
-        public unsafe partial struct __Internalc__N_std_S___uniq_ptr_data__1C___N_std_S_default_delete__1_nC_Vb1_Vb1
-        {
-            internal global::Std.Tuple.__Internal _M_t;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
-        public unsafe partial struct __Internalc__N_std_S___uniq_ptr_data__b___N_std_S_default_delete__b_Vb1_Vb1
-        {
-            internal global::Std.Tuple.__Internal _M_t;
-        }
-    }
-
-    namespace DefaultDelete
-    {
-        [StructLayout(LayoutKind.Sequential, Size = 1)]
-        public unsafe partial struct __Internal
-        {
-        }
-    }
 }
 
 namespace Std
@@ -517,10 +468,6 @@ namespace Std
 
 namespace Std
 {
-}
-
-namespace Std
-{
     namespace Vector
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -562,4 +509,12 @@ namespace Std
         }
 
     }
+}
+
+namespace Std
+{
+}
+
+namespace Std
+{
 }
