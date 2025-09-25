@@ -1316,6 +1316,9 @@ namespace Perlang
                 [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang11collections13StringHashSet6concatERKS1_", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern void Concat(__IntPtr @return, __IntPtr __instance, __IntPtr _0);
 
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang11collections13StringHashSet28delete_values_wrapper_resultENS0_11StringArrayE", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern void DeleteValuesWrapperResult(__IntPtr __instance, global::Perlang.Collections.StringArray.__Internal string_array);
+
                 [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang11collections13StringHashSet14values_wrapperEv", CallingConvention = __CallingConvention.Cdecl)]
                 internal static extern global::Perlang.Collections.StringArray.__Internal ValuesWrapper(__IntPtr __instance);
             }
@@ -1441,6 +1444,14 @@ namespace Perlang
                 var _____ret = global::Perlang.Collections.StringHashSet.__CreateInstance(___ret);
                 global::Perlang.Collections.StringHashSet.__Internal.dtor(new __IntPtr(&___ret));
                 return _____ret;
+            }
+
+            public void DeleteValuesWrapperResult(global::Perlang.Collections.StringArray string_array)
+            {
+                if (ReferenceEquals(string_array, null))
+                    throw new global::System.ArgumentNullException("string_array", "Cannot be null because it is passed by value.");
+                var __arg0 = string_array.__Instance;
+                __Internal.DeleteValuesWrapperResult(__Instance, *(global::Perlang.Collections.StringArray.__Internal*) __arg0);
             }
 
             public static explicit operator global::Perlang.Collections.StringHashSet(global::Perlang.Collections.MutableStringHashSet _0)

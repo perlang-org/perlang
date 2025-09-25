@@ -55,12 +55,17 @@ namespace perlang::collections
         int index = 0;
 
         for (const auto& key : data_) {
-            // Note: this approach means that the value returned from values_wrapper() can only safely ne used during
+            // Note: this approach means that the value returned from values_wrapper() can only safely be used during
             // the lifetime of the containing StringHashSet; after it has been destroyed, the backing buffer may no
             // longer exist.
             result.items[index++] = key.get()->bytes();
         }
 
         return result;
+    }
+
+    void StringHashSet::delete_values_wrapper_result(StringArray string_array)
+    {
+        delete[] string_array.items;
     }
 }

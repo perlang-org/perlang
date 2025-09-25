@@ -6,6 +6,7 @@
 
 namespace perlang::collections
 {
+    // Used for returning data to C#
     struct StringArray {
         const char** items;
         unsigned long size;
@@ -26,7 +27,10 @@ namespace perlang::collections
         StringHashSet concat(const StringHashSet&);
         std::vector<std::shared_ptr<perlang::String>> values();
 
-        // Interop-oriented version of the above, callable from CppSharp
+        // Interop-oriented version of the above, callable from CppSharp. Note that the memory allocated by this method
+        // must be freed by calling delete_values_wrapper_result() to avoid leaking memory.
         StringArray values_wrapper();
+
+        void delete_values_wrapper_result(StringArray string_array);
     };
 }

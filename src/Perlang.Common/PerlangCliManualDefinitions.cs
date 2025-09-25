@@ -18,17 +18,24 @@ namespace Perlang
     {
         public partial class StringHashSet
         {
-            // TODO: This doesn't work at all. Returns bogus strings.
             public IEnumerable<string> Values
             {
                 get
                 {
-                    var stringArray = __Internal.ValuesWrapper(__Instance);
+                    StringArray.__Internal stringArray = default;
 
-                    for (ulong i = 0; i < stringArray.size; i++)
-                    {
-                        IntPtr ptr = Marshal.ReadIntPtr(stringArray.items, (int)i * IntPtr.Size);
-                        yield return Marshal.PtrToStringUTF8(ptr);
+                    try {
+                        stringArray = __Internal.ValuesWrapper(__Instance);
+
+                        for (ulong i = 0; i < stringArray.size; i++) {
+                            IntPtr ptr = Marshal.ReadIntPtr(stringArray.items, (int)i * IntPtr.Size);
+                            yield return Marshal.PtrToStringUTF8(ptr);
+                        }
+                    }
+                    finally {
+                        if (stringArray.items != default) {
+                            __Internal.DeleteValuesWrapperResult(__Instance, stringArray);
+                        }
                     }
                 }
             }
