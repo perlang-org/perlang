@@ -31,13 +31,14 @@ public record CppType : IPerlangType
     public bool IsSupported { get; }
     public bool IsNullObject { get; }
     public bool IsArray { get; }
+    public bool IsEnum { get; }
     public CppType? ElementType { get; }
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
 
     public CppType(
         string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false,
-        bool isSupported = true, bool isNullObject = false, bool isArray = false, CppType? elementType = null,
+        bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
         IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
     {
         this.Methods = new List<CppFunction>
@@ -52,6 +53,7 @@ public record CppType : IPerlangType
         this.IsSupported = isSupported;
         this.IsNullObject = isNullObject;
         this.IsArray = isArray;
+        this.IsEnum = isEnum;
 
         if (isArray) {
             this.ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType), "Element type must be provided for array types");

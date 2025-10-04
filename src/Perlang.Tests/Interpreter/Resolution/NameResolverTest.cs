@@ -4,9 +4,9 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Perlang.Interpreter.Compiler;
-using Perlang.Interpreter.Internals;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Parser;
+using Perlang.Tests.TestHelpers;
 using Xunit;
 
 namespace Perlang.Tests.Interpreter.Resolution;
@@ -52,7 +52,7 @@ public class NameResolverTest
         var resolver = new NameResolver(
             ImmutableDictionary<string, Type>.Empty,
             compiler.BindingHandler,
-            new AssertFailAddGlobalClassHandler(),
+            new AssertFailAddTypeHandler(),
             AssertFailNameResolutionErrorHandler
         );
 
@@ -79,18 +79,5 @@ public class NameResolverTest
     private static void AssertFailRuntimeErrorHandler(RuntimeError runtimeError)
     {
         throw runtimeError;
-    }
-
-    private class AssertFailAddGlobalClassHandler : ITypeHandler
-    {
-        public void AddClass(string name, IPerlangClass perlangClass)
-        {
-            throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
-        }
-
-        public IPerlangType? GetType(string name)
-        {
-            return null;
-        }
     }
 }

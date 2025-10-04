@@ -767,7 +767,7 @@ internal class TypeResolver : VisitorBase
             {
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.Name,
-                    $"Enum member '{expr.Name.Lexeme}' not found in enum '{perlangEnum.Name.Lexeme}'")
+                    $"Enum member '{expr.Name.Lexeme}' not found in enum '{perlangEnum.Name}'")
                 );
 
                 return VoidObject.Void;
@@ -901,8 +901,6 @@ internal class TypeResolver : VisitorBase
             ResolveExplicitTypes(stmt.TypeReference);
         }
 
-        // TODO: The CppType of stmt.Initializer should be determined here, I think. But how?
-
         return base.VisitFieldStmt(stmt);
     }
 
@@ -1032,6 +1030,18 @@ internal class TypeResolver : VisitorBase
                         // TODO: comparisons elsewhere, to do special handling of ObjectArray in Get expressions.
                         var elementType = new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true);
                         typeReference.SetCppType(new CppType("perlang::ObjectArray", perlangType.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
+                        typeReference.SetPerlangType(perlangType);
+                    }
+                    else if (perlangType.IsEnum) {
+                        // Enums are not wrapped in std::shared_ptr, but the isEnum parameter is important to set here
+                        // for the compiler to be able to generate the correct code for enum member accesses.
+
+                        // The C++ type name is a bit over-complicated for these because we use a hack inspired by
+                        // https://stackoverflow.com/a/46294875/227779 for the underlying C++ representation for enums
+                        // at the moment.
+                        string cppTypeName = $"{perlangType.Name}::{perlangType.Name}";
+
+                        typeReference.SetCppType(new CppType(cppTypeName, perlangType.Name, isEnum: true));
                         typeReference.SetPerlangType(perlangType);
                     }
                     else {

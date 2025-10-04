@@ -10,9 +10,14 @@ public interface ITypeReference
     Token? TypeSpecifier { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this type represents an array type, e.g. `string[]` or `int[]`.
+    /// Gets a value indicating whether this type represents an array type, e.g. `string[]` or `int[]`, or not.
     /// </summary>
     bool IsArray { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this type represents an enum type or not.
+    /// </summary>
+    bool IsEnum { get; }
 
     /// <summary>
     /// Gets the C++ type that this <see cref="ITypeReference"/> refers to. <c>null</c> means that type inference has

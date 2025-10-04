@@ -366,4 +366,62 @@ public class EnumTests
             .Which
             .Message.Should().Contain("Enum member 'PURPLE' not found in enum 'Color'");
     }
+
+    [Fact]
+    public void enum_can_be_used_as_explicit_type_for_local_variable()
+    {
+        const string source = """
+            enum Color {
+                RED,
+                GREEN,
+                BLUE
+            }
+
+            var a: Color = Color.BLUE;
+            var b: Color = Color.GREEN;
+            var c: Color = Color.RED;
+
+            print a;
+            print b;
+            print c;
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .Equal(
+                "2",
+                "1",
+                "0"
+            );
+    }
+
+    [Fact]
+    public void enum_can_be_used_as_implicit_type_for_local_variable()
+    {
+        const string source = """
+            enum Color {
+                RED,
+                GREEN,
+                BLUE
+            }
+
+            var a = Color.BLUE;
+            var b = Color.GREEN;
+            var c = Color.RED;
+
+            print a;
+            print b;
+            print c;
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .Equal(
+                "2",
+                "1",
+                "0"
+            );
+    }
 }

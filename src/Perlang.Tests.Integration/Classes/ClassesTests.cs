@@ -914,6 +914,47 @@ public class ClassesTests
     }
 
     [Fact]
+    public void class_can_define_private_field_of_enum_type()
+    {
+        string source = """
+            enum Color
+            {
+                Red,
+                Green,
+                Blue
+            }
+
+            public class SomeClass
+            {
+                private color_: Color;
+
+                public constructor()
+                {
+                    color_ = Color.Green;
+                }
+
+                public greet(): void
+                {
+                    print color_;
+                }
+            }
+
+            var container = new SomeClass();
+            container.greet();
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        // TODO: In a perfect world, this would perhaps rather print the enumeration label than the numeric value (as in
+        // C#). I wonder how that's actually implemented in the C# CLR, given that enums are syntactic sugar over
+        // integers...
+        output.Should()
+            .BeEquivalentTo(
+                "1"
+            );
+    }
+
+    [Fact]
     public void class_defining_field_of_unknown_type_throws_expected_error()
     {
         string source = """

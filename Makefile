@@ -51,7 +51,9 @@ endif
 
 CLANGPP=clang++-14
 
-all: auto-generated auto-generated-bindings perlang_cli
+# auto-generated-bindings should rightfully be included here, but doing so makes the target always fail because of
+# https://github.com/mono/CppSharp/issues/1930
+all: auto-generated perlang_cli
 	dotnet build
 
 release:

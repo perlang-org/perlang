@@ -264,6 +264,7 @@ internal class NameResolver : VisitorBase
 
         var perlangEnum = new PerlangEnum(name, enumMembers);
         globals[name.Lexeme] = new EnumBindingFactory(perlangEnum);
+        typeHandler.AddEnum(name.Lexeme, perlangEnum);
     }
 
     private void ResolveLocalOrGlobal(Expr referringExpr, Token name)

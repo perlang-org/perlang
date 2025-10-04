@@ -96,9 +96,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     private readonly PerlangEnvironment globals = new();
 
     /// <summary>
-    /// A collection of all currently defined global classes (both native/.NET and classes defined in Perlang code.)
+    /// A collection of all currently defined global types (both native C++ types and types defined in Perlang code.)
     /// </summary>
-    private readonly IDictionary<string, IPerlangType> globalClasses = new Dictionary<string, IPerlangType>();
+    private readonly IDictionary<string, IPerlangType> globalTypes = new Dictionary<string, IPerlangType>();
 
     private readonly ImmutableDictionary<string, Type> nativeClasses;
     private readonly IDictionary<string, Method> methods;
@@ -565,22 +565,22 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
 """);
 
-                if (classDefinitions.Count > 0) {
-                    streamWriter.WriteLine("//");
-                    streamWriter.WriteLine("// Perlang class definitions");
-                    streamWriter.WriteLine("//");
-
-                    foreach ((string _, string definition) in classDefinitions) {
-                        streamWriter.WriteLine(definition);
-                    }
-                }
-
                 if (enums.Count > 0) {
                     streamWriter.WriteLine("//");
                     streamWriter.WriteLine("// Perlang enum definitions");
                     streamWriter.WriteLine("//");
 
                     foreach ((string _, string definition) in enums) {
+                        streamWriter.WriteLine(definition);
+                    }
+                }
+
+                if (classDefinitions.Count > 0) {
+                    streamWriter.WriteLine("//");
+                    streamWriter.WriteLine("// Perlang class definitions");
+                    streamWriter.WriteLine("//");
+
+                    foreach ((string _, string definition) in classDefinitions) {
                         streamWriter.WriteLine(definition);
                     }
                 }
@@ -828,6 +828,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
         catch (SystemException e)
         {
+            // TODO: Rephrase this a bit now that compilation is perhaps not "experimental" anymore but our default mode
+            // of operation.
             throw new ApplicationException(
                 "Failed running clang. Experimental compilation is only supported on Linux-based systems. If running a " +
                 "Debian/Ubuntu-based distribution, please ensure that the clang-14 package is installed since experimental " +
@@ -866,12 +868,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public void AddClass(string name, IPerlangClass perlangClass)
     {
-        globalClasses[name] = perlangClass;
+        globalTypes[name] = perlangClass;
+    }
+
+    public void AddEnum(string name, PerlangEnum perlangEnum)
+    {
+        globalTypes[name] = perlangEnum;
     }
 
     public IPerlangType? GetType(string name)
     {
-        if (globalClasses.TryGetValue(name, out IPerlangType? perlangType)) {
+        if (globalTypes.TryGetValue(name, out IPerlangType? perlangType)) {
             return perlangType;
         }
         else {
@@ -1571,8 +1578,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         if (expr.Object is Expr.Identifier identifier)
         {
-            if (globalClasses.ContainsKey(identifier.Name.Lexeme))
+            if (globalTypes.TryGetValue(identifier.Name.Lexeme, out IPerlangType? perlangType) && !perlangType.IsEnum)
             {
+                // TODO: This isn't really correct for Perlang classes and enums (only for Libc/etc classes)
                 // These classes are put in the `perlang::stdlib` namespace in the C++ world
                 result.Append($"perlang::stdlib::{identifier.Name.Lexeme}");
 
@@ -1594,7 +1602,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     throw new PerlangCompilerException($"Unsupported property '{expr.Name.Lexeme}' in {identifier.TypeReference.TypeKeywordOrPerlangType}");
                 }
             }
-            else if (identifier.TypeReference.CppType == PerlangValueTypes.Enum)
+            else if (identifier.TypeReference.IsEnum)
             {
                 // Enums are represented as C++ enum classes, so we can just use the enum name directly
                 result.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
@@ -1635,7 +1643,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 }
                 else
                 {
-                    // TODO: This is the wrong exception type; should rather be something like InvalidOperationException
                     throw new InvalidOperationException($"Calling method {expr.Name.Lexeme} on {identifier} which is of type {identifier.TypeReference.CppType.CppTypeName} is not supported");
                 }
             }

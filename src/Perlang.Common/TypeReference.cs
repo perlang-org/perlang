@@ -57,6 +57,8 @@ public class TypeReference : ITypeReference
 
     public bool IsArray => CppType?.IsArray ?? isArray;
 
+    public bool IsEnum => CppType?.IsEnum ?? false;
+
     public CppType? CppType { get; private set; }
 
     public string? PossiblyWrappedCppType =>
@@ -83,7 +85,7 @@ public class TypeReference : ITypeReference
     /// </summary>
     /// <param name="typeSpecifier">The token providing the type specifier (e.g. 'int' or 'string').</param>
     /// <param name="isArray">Whether the type is an array or not.</param>
-    public TypeReference(Token? typeSpecifier, bool isArray)
+    public TypeReference(Token? typeSpecifier, bool isArray = false)
     {
         TypeSpecifier = typeSpecifier;
         this.isArray = isArray;
