@@ -27,6 +27,8 @@
 
 #include "text/string_builder.h"
 
+// TODO: Extract to separate header files instead of keeping it in a single file
+
 namespace perlang
 {
     namespace stdlib
@@ -40,9 +42,16 @@ namespace perlang
 
     // C++ doesn't seem to have the kind of covariance we intend for Perlang. This means that we have to define these
     // for all the existing String types instead of just receiving `const String`-type parameters.
+
+    // Overload for pointer arguments
+    void print(const Object* obj);
     void print(const String* str);
     void print(const UTF16String* str);
     void print(const ASCIIString& str);
+
+    // unique_ptr overloads
+    void print(const std::unique_ptr<Object>& obj);
+    void print(const std::unique_ptr<const Object>& obj);
     void print(const std::unique_ptr<String>& str);
     void print(const std::unique_ptr<const String>& str);
     void print(const std::unique_ptr<ASCIIString>& str);
@@ -51,6 +60,10 @@ namespace perlang
     void print(const std::unique_ptr<const UTF8String>& str);
     void print(const std::unique_ptr<UTF16String>& str);
     void print(const std::unique_ptr<const UTF16String>& str);
+
+    // shared_ptr overloads
+    void print(const std::shared_ptr<Object>& obj);
+    void print(const std::shared_ptr<const Object>& obj);
     void print(const std::shared_ptr<String>& str);
     void print(const std::shared_ptr<const String>& str);
     void print(const std::shared_ptr<ASCIIString>& str);
@@ -60,6 +73,7 @@ namespace perlang
     void print(const std::shared_ptr<UTF16String>& str);
     void print(const std::shared_ptr<const UTF16String>& str);
 
+    // Overloads for built-in value types
     void print(bool b);
     void print(char c);
     void print(char16_t c);

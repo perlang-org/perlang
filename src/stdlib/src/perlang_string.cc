@@ -1,9 +1,15 @@
 #include <cstring>
 
 #include "perlang_stdlib.h"
+#include "perlang_string.h"
 
 namespace perlang
 {
+    std::shared_ptr<const String> String::to_string() const
+    {
+        return shared_from_this();
+    }
+
     // Would be nice to inline this, but it's hard because of forward declaration of UTF8String in perlang_string.h and
     // circular dependencies. We'll have to live with this until we can reimplement it in Perlang... :)
     bool String::operator==(UTF8String& rhs)

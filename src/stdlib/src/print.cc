@@ -9,11 +9,23 @@
 #include "ascii_string.h"
 #include "bigint.h"
 #include "object.h"
+#include "perlang_stdlib.h"
 #include "perlang_type.h"
 #include "internal/string_utils.h"
 
 namespace perlang
 {
+    // Global constant in an anonymous namespace, to avoid polluting the public API
+    namespace
+    {
+        const std::shared_ptr<const String> null_string = ASCIIString::from_static_string("null");
+    }
+
+    void print(const Object* obj)
+    {
+        print(obj != nullptr ? obj->to_string() : null_string);
+    }
+
     void print(const String* str)
     {
         const char* bytes = str != nullptr ? str->bytes() : nullptr;
@@ -54,6 +66,16 @@ namespace perlang
         print(&str);
     }
 
+    void print(const std::unique_ptr<Object>& obj)
+    {
+        print(obj.get());
+    }
+
+    void print(const std::unique_ptr<const Object>& obj)
+    {
+        print(obj.get());
+    }
+
     void print(const std::unique_ptr<String>& str)
     {
         print(str.get());
@@ -92,6 +114,16 @@ namespace perlang
     void print(const std::unique_ptr<const UTF16String>& str)
     {
         print(str.get());
+    }
+
+    void print(const std::shared_ptr<Object>& obj)
+    {
+        print(obj.get());
+    }
+
+    void print(const std::shared_ptr<const Object>& obj)
+    {
+        print(obj.get());
     }
 
     void print(const std::shared_ptr<String>& str)

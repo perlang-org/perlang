@@ -66,6 +66,11 @@ public static class TypeCoercer
         return CanBeCoercedInto(targetTypeReference.CppType, sourceTypeReference.CppType, numericLiteral);
     }
 
+    // TODO: Consider merging this with CppType.IsAssignableTo(). Right now, these methods both perform part of the
+    // logic for assignment coercion; it could make sense to merge it all into a single method. The CanBeCoercedInto()
+    // method was created at a time when CppType didn't exist, so adding custom logic to the CLR Type class was not an
+    // option at that time.
+
     /// <summary>
     /// Determines if a value of <paramref name="sourceType"/> can be coerced into
     /// <paramref name="targetType"/>.

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <memory> // std::unique_ptr
+#include <memory> // std::unique_ptr, std::enable_shared_from_this
+
+#include "object.h"
 
 // Forward declarations to avoid circular dependencies
 class BigInt;
@@ -11,11 +13,9 @@ namespace perlang
     class UTF16String;
 
     // Abstract base class for all String types in Perlang
-    class String
+    class String : public Object, public std::enable_shared_from_this<String>
     {
      public:
-        virtual ~String() = default;
-
         // TODO: Make this "internal" somehow. It should never be called from (Perlang) user code.
         // TODO: Return const uint8_t * instead
 
@@ -49,6 +49,8 @@ namespace perlang
         // representation of it.
         [[nodiscard]]
         virtual std::unique_ptr<UTF16String> as_utf16() const = 0;
+
+        std::shared_ptr<const String> to_string() const override;
 
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]

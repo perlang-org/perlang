@@ -857,7 +857,7 @@ internal class TypeResolver : VisitorBase
             // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
             typeValidationErrorCallback(new TypeValidationError(
                 stmt.NameToken,
-                $"Inferred typing is not yet supported for function '{stmt.NameToken.Lexeme}'")
+                $"Inferred typing of return type is not yet supported (attempted to be used in function '{stmt.NameToken.Lexeme}'")
             );
         }
 
@@ -965,8 +965,6 @@ internal class TypeResolver : VisitorBase
                 typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UInt64Array : PerlangValueTypes.UInt64);
                 break;
 
-            // TODO: add bigint here too
-
             // "Float" is called "Single" in C#/.NET, but Java uses `float` and `Float`. In this case, I think it
             // makes little sense to make them inconsistent.
             case "float" or "Float":
@@ -999,6 +997,10 @@ internal class TypeResolver : VisitorBase
 
             case "UTF16String":
                 typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.UTF16StringArray : PerlangTypes.UTF16String);
+                break;
+
+            case "object":
+                typeReference.SetCppType(typeReference.IsArray ? PerlangTypes.ObjectArray : PerlangTypes.PerlangObject);
                 break;
 
             case "void":

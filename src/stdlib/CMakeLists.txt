@@ -19,6 +19,7 @@ set(headers
         src/ascii_string.h
         src/bigint.h
         src/int_array.h
+        src/integer.h
         src/object.h
         src/object_array.h
         src/perlang_stdlib.h
@@ -66,6 +67,8 @@ add_library(
         src/bigint_mod.cc
         src/bigint_pow.cc
         src/int_array.cc
+        src/integer.cc
+        src/object.cc
         src/object_array.cc
         src/perlang_string.cc
         src/perlang_type.cc

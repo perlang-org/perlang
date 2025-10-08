@@ -11,7 +11,7 @@ namespace Perlang;
 public static class PerlangTypes
 {
     public static readonly CppType? NullObject = new CppType("NullObject", null, "null", isSupported: false);
-    public static readonly CppType? PerlangObject = new CppType("PerlangObject", null, "object", wrapInSharedPtr: true);
+    public static readonly CppType? PerlangObject = new CppType("perlang::Object", null, "object", wrapInSharedPtr: true);
 
     public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true, extraFields: [
         new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")

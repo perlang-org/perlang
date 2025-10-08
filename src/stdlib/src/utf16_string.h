@@ -6,7 +6,7 @@
 
 namespace perlang
 {
-    class UTF16String : public String, std::enable_shared_from_this<UTF16String>
+    class UTF16String : public String
     {
      public:
         // Creates a new UTF16String from an "owned string", which is presumed to have been allocated on the heap using
@@ -29,7 +29,7 @@ namespace perlang
 
      private:
         // Private constructor for creating a new UTF16String from an array of UTF16LE bytes.
-        UTF16String(std::vector<uint16_t> string);
+        explicit UTF16String(std::vector<uint16_t> string);
 
      public:
         ~UTF16String() override;

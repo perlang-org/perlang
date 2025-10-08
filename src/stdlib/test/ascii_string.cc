@@ -8,4 +8,7 @@ TEST_CASE( "perlang::ASCIIString, throws expected error when initialized with no
 {
     // Assert
     REQUIRE_THROWS_AS(perlang::ASCIIString::from_static_string("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし"), std::exception);
+
+    std::shared_ptr<perlang::Object> o = perlang::Object::convert_from(perlang::ASCIIString::from_static_string("this is a string"));
+    perlang::print(o);
 }

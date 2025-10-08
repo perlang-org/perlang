@@ -1,3 +1,5 @@
+#pragma once
+
 #include "perlang_string.h"
 
 namespace perlang

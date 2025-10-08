@@ -894,9 +894,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public object VisitAssignExpr(Expr.Assign expr)
     {
+        string? assignmentSource = GetValueMatchingTargetType(
+            expr.Target.TypeReference.CppType,
+            expr.Value.TypeReference.CppType ?? throw new PerlangCompilerException("Value CppType unexpectedly null"),
+            expr.Value
+        );
+
         if (expr.Target is Expr.Identifier identifier)
         {
-            return $"{identifier.Name.Lexeme} = {expr.Value.Accept(this)}";
+            return $"{identifier.Name.Lexeme} = {assignmentSource}";
         }
         else if (expr.Target is Expr.Get get)
         {
@@ -904,7 +910,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             {
                 // TODO: Should probably not use "->" unconditionally here, since it won't work if/when we introduce
                 // TODO: stack-allocated (local) objects.
-                return $"{objectIdentifier.Name.Lexeme}->{get.Name.Lexeme} = {expr.Value.Accept(this)}";
+                return $"{objectIdentifier.Name.Lexeme}->{get.Name.Lexeme} = {assignmentSource}";
             }
             else
             {
@@ -914,7 +920,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         else if (expr.Target is Expr.Index index)
         {
             // TODO: Don't use "->" unconditionally here
-            return $"{index.Indexee.Accept(this)}->set({index.Argument.Accept(this)}, {expr.Value.Accept(this)})";
+            return $"{index.Indexee.Accept(this)}->set({index.Argument.Accept(this)}, {assignmentSource})";
         }
         else {
             throw new PerlangCompilerException($"Invalid assignment target: {expr.Target}");
@@ -2056,7 +2062,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         if (stmt.Initializer != null)
         {
-            result.AppendLine($" = {stmt.Initializer.Accept(this)};");
+            string? value = GetValueMatchingTargetType(
+                stmt.TypeReference.CppType,
+                stmt.Initializer.TypeReference.CppType ?? throw new PerlangCompilerException("Initializer CppType unexpectedly null"),
+                stmt.Initializer
+            );
+
+            result.AppendLine($" = {value};");
         }
         else
         {
@@ -2079,6 +2091,23 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     }
 
     private static string Indent(int level) => String.Empty.PadLeft(level * 4);
+
+    private string? GetValueMatchingTargetType(CppType? targetCppType, CppType sourceCppType, Expr sourceExpr)
+    {
+        // Right now, we have custom logic here for assigning "any value type" to perlang::Object. In the future, we
+        // could make this a more generic conversion mechanism where custom (implicit) conversions could be supported
+        // somehow. Also note that this is duplicated in multiple places
+        if (targetCppType == PerlangTypes.PerlangObject && sourceCppType != PerlangTypes.PerlangObject)
+        {
+            return $"perlang::Object::convert_from({sourceExpr.Accept(this)})";
+        }
+        else
+        {
+            // This includes cases when targetCppType is null, which can regretfully happen right now even for valid
+            // scenarios.
+            return (string?)sourceExpr.Accept(this);
+        }
+    }
 
     private record Method(string Name, IImmutableList<Parameter> Parameters, string ReturnType, NativeStringBuilder MethodBody)
     {

@@ -100,6 +100,12 @@ public record CppType : IPerlangType
             return true;
         }
 
+        // Anything that is not `null` can be implicitly converted to `object`. The actual assignment might require some
+        // conversion though, which is handled elsewhere.
+        if (targetType == PerlangTypes.PerlangObject && this != PerlangTypes.NullObject) {
+            return true;
+        }
+
         // Let's do a super-simple implementation of this for starters. To be able to check subclassing/interfaces etc,
         // we'll need more type/reflection metadata I think.
         return this == targetType;
