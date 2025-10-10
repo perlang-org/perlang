@@ -155,7 +155,7 @@ guide.
 ## License
 
 * The Perlang compiler (everything in the `src/` directory except for
-  `src/stdlib`) is licensed under [LGPL v2.1 only](LICENSE)
+  `src/stdlib`) is licensed under the [GNU LGPL (v2.1 only) license](LICENSE).
 * The Perlang standard library (`src/stdlib`) is licensed under the [MIT
   (Expat)](LICENSE-MIT) license.
 
