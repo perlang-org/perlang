@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		Makefile = Makefile
 		.gitignore = .gitignore
 		.gitlab-ci.yml = .gitlab-ci.yml
+		LICENSE = LICENSE
+		LICENSE-MIT = LICENSE-MIT
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "release-notes", "release-notes", "{3223DBA6-64AE-41B5-8864-6FDD232FCE7F}"

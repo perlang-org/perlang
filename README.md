@@ -154,7 +154,17 @@ guide.
 
 ## License
 
-[MIT (Expat)](LICENSE)
+* The Perlang compiler (everything in the `src/` directory except for
+  `src/stdlib`) is licensed under [LGPL v2.1 only](LICENSE)
+* The Perlang standard library (`src/stdlib`) is licensed under the [MIT
+  (Expat)](LICENSE-MIT) license.
+
+Note that programs compiled with the Perlang compiler are not to be considered
+"derivative works" in a legal sense; you may use any license of your choice for
+Perlang programs (even though we are of course happy if you choose a [free
+software](https://en.wikipedia.org/wiki/Free_software) license for your work).
+
+### More license details
 
 [perlang-install](scripts/perlang-install) is originally based on
 [rustup-init](https://github.com/rust-lang/rustup/blob/master/rustup-init.sh),
