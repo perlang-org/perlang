@@ -73,6 +73,9 @@ namespace perlang
         // checking; attempting to read outside the string will result in an exception.
         char16_t operator[](size_t index) const;
 
+        // Workaround false -Werror=overloaded-virtual positives
+        using String::operator+;
+
         // Concatenates this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         std::unique_ptr<String> operator+(String& rhs) const override;

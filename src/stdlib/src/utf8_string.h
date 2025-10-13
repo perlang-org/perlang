@@ -96,6 +96,9 @@ namespace perlang
         // documentation for more semantic details about the implementation.
         bool operator!=(const UTF8String& rhs) const;
 
+        // Workaround false -Werror=overloaded-virtual positives
+        using String::operator+;
+
         // Concatenate this string with another string. The memory for the new string is allocated from the heap.
         [[nodiscard]]
         std::unique_ptr<String> operator+(String& rhs) const override;
