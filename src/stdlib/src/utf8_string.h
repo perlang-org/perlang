@@ -79,7 +79,7 @@ namespace perlang
         [[nodiscard]]
         std::unique_ptr<String> get_type() const override
         {
-            return ASCIIString::from_static_string("perlang::UTF8String");
+            return ASCIIString::from_static_string("perlang.UTF8String");
         }
 
         [[nodiscard]]

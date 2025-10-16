@@ -24,7 +24,7 @@ public class ObjectTests
         string output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("perlang.Object");
+            .Be("perlang.Integer");
     }
 
     [Fact]

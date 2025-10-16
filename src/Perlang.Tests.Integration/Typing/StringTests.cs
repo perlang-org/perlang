@@ -434,7 +434,7 @@ public class StringTests
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("perlang::ASCIIString");
+            .Be("perlang.ASCIIString");
     }
 
     [Fact]

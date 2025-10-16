@@ -39,11 +39,6 @@ namespace perlang
         [[nodiscard]]
         virtual bool is_ascii() = 0;
 
-        // TODO: Should return perlang::type or similar, like System.Type in .NET
-        // Returns the type of the object.
-        [[nodiscard]]
-        virtual std::unique_ptr<perlang::String> get_type() const = 0;
-
         // Returns a UTF16String representation of the current string. Depending on what type of string this is called
         // on, this might either be the same instance as the string itself, or a potentially cached UTF16 string
         // representation of it.

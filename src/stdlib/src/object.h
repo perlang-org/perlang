@@ -13,8 +13,10 @@ namespace perlang
      public:
         virtual ~Object() = default;
 
+        // TODO: Should return perlang::type or similar, like System.Type in .NET
+        // Returns the type of the object.
         [[nodiscard]]
-        std::unique_ptr<String> get_type() const;
+        virtual std::unique_ptr<String> get_type() const;
 
         // Expected to be overridden by child classes, to provide an implementation more suitable for a particular type.
         [[nodiscard]]
