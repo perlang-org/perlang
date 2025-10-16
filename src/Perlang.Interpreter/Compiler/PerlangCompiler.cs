@@ -1927,7 +1927,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         // rest comes from visiting the expression itself
         result.Append(Indent(indentationLevel));
         result.Append(stmt.Expression.Accept(this));
-        result.AppendLine(";"); // detta löser inte problemet
+        result.AppendLine(";");
 
         return result.ToString();
     }
