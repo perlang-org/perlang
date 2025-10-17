@@ -11,6 +11,7 @@
 #include "bigint.h"
 #include "int_array.h"
 #include "object_array.h"
+#include "perlang_char.h"
 #include "perlang_string.h"
 #include "perlang_type.h"
 #include "perlang_value_types.h"
@@ -22,6 +23,7 @@
 #include "collections/string_hash_set.h"
 
 #include "exceptions/null_pointer_exception.h"
+#include "exceptions/illegal_state_exception.h"
 
 #include "io/file.h"
 

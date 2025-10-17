@@ -22,6 +22,7 @@ set(headers
         src/integer.h
         src/object.h
         src/object_array.h
+        src/perlang_char.h
         src/perlang_stdlib.h
         src/perlang_string.h
         src/perlang_type.h
@@ -38,6 +39,7 @@ set(collections_headers
 
 set(exceptions_headers
         src/exceptions/null_pointer_exception.h
+        src/exceptions/illegal_state_exception.h
 )
 
 set(io_headers
@@ -70,6 +72,7 @@ add_library(
         src/integer.cc
         src/object.cc
         src/object_array.cc
+        src/perlang_char.cc
         src/perlang_string.cc
         src/perlang_type.cc
         src/perlang_value_types.cc

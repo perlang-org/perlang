@@ -1,4 +1,9 @@
+#pragma once
+
+#include <memory>
 #include <stdexcept>
+
+#include "perlang_string.h"
 
 namespace perlang
 {
