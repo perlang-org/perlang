@@ -1049,7 +1049,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 // expression like `2 + 4294967295`)
                 //
                 // String types are special-cased here, since they are wrapped in std::shared_ptr and cannot be cast to
-                // e.g perlang::String directly (because this will make the C++ compiler attempt to perform a copy to an
+                // e.g. perlang::String directly (because this will make the C++ compiler attempt to perform a copy to an
                 // abstract, non-instantiable type).
                 if (expr.TypeReference.CppType != expr.Left.TypeReference.CppType && !(
                         expr.TypeReference.CppType == PerlangTypes.String ||
@@ -1513,13 +1513,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         {
             case PIPE_PIPE:
                 result.Append(expr.Left.Accept(this));
-                result.Append("||");
+                result.Append(" || ");
                 result.Append(expr.Right.Accept(this));
                 break;
 
             case AMPERSAND_AMPERSAND:
                 result.Append(expr.Left.Accept(this));
-                result.Append("&&");
+                result.Append(" && ");
                 result.Append(expr.Right.Accept(this));
                 break;
 

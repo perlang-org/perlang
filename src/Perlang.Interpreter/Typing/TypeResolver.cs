@@ -364,6 +364,12 @@ internal class TypeResolver : VisitorBase
                          (leftTypeReference.CppType == PerlangValueTypes.BigInt || rightTypeReference.CppType == PerlangValueTypes.BigInt)) {
                     expr.TypeReference.SetCppType(PerlangValueTypes.Bool);
                 }
+                else if (leftTypeReference.CppType == PerlangValueTypes.Char && rightTypeReference.CppType == PerlangValueTypes.Char) {
+                    // Comparisons like 'char > char' is valid, as long as both operand types are 'char'. If not, some
+                    // form of explicit cast should be used to ensure the user gets what they expect (but we don't
+                    // support typecasting yet).
+                    expr.TypeReference.SetCppType(PerlangValueTypes.Bool);
+                }
                 else {
                     string message = Messages.UnsupportedOperandTypes(expr.Operator.Type, leftTypeReference, rightTypeReference);
                     throw new TypeValidationError(expr.Operator, message);
