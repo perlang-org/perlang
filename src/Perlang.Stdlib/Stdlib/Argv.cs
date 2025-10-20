@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
-using Perlang.Exceptions;
 
 namespace Perlang.Stdlib;
 
@@ -45,7 +44,7 @@ public class Argv
         }
         else
         {
-            throw new IllegalStateException("No arguments left");
+            throw new Perlang.Exceptions.IllegalStateException("No arguments left");
         }
     }
 }

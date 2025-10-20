@@ -7,7 +7,7 @@ namespace Perlang.Interpreter.Typing;
 /// </summary>
 public class TypeValidationError : ValidationError
 {
-    public TypeValidationError(Token token, string message)
+    public TypeValidationError(IToken token, string message)
         : base(token, message)
     {
     }

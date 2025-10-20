@@ -13,7 +13,6 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using Perlang.Compiler;
-using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
 using Perlang.Interpreter.CodeAnalysis;
 using Perlang.Interpreter.Immutability;
@@ -392,8 +391,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         ImmutableList<Stmt> statements;
-        ImmutableList<Token> cppPrototypes;
-        ImmutableList<Token> cppMethods;
+        ImmutableList<IToken> cppPrototypes;
+        ImmutableList<IToken> cppMethods;
 
         if (result.HasStatements)
         {
@@ -407,13 +406,18 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             // caller). In compiled mode, single expressions typically don't make _sense_ but they are used by some unit
             // test(s). We wrap them as statements to make the compiler be able to deal with them.
             statements = ImmutableList.Create<Stmt>(new Stmt.ExpressionStmt(result.Expr!));
-            cppPrototypes = ImmutableList<Token>.Empty;
-            cppMethods = ImmutableList<Token>.Empty;
+            cppPrototypes = ImmutableList<IToken>.Empty;
+            cppMethods = ImmutableList<IToken>.Empty;
         }
         else
         {
-            throw new IllegalStateException("syntax was neither Expr nor list of Stmt");
+            throw new Perlang.Exceptions.IllegalStateException("syntax was neither Expr nor list of Stmt");
         }
+
+        // Ensure that tokens allocated get properly cleaned up when the process exits
+        TokenCleaner.DisposeOnShutdown(cppPrototypes);
+        TokenCleaner.DisposeOnShutdown(cppMethods);
+        TokenCleaner.DisposeOnShutdown(result.Tokens);
 
         //
         // Resolving names phase
@@ -605,7 +609,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     streamWriter.WriteLine("// C++ prototypes");
                     streamWriter.WriteLine("//");
 
-                    foreach (Token prototype in cppPrototypes)
+                    foreach (IToken prototype in cppPrototypes)
                     {
                         streamWriter.WriteLine(prototype.Literal);
                     }
@@ -668,7 +672,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     streamWriter.WriteLine("// C++ methods");
                     streamWriter.WriteLine("//");
 
-                    foreach (Token method in cppMethods)
+                    foreach (IToken method in cppMethods)
                     {
                         streamWriter.WriteLine(method.Literal);
                     }

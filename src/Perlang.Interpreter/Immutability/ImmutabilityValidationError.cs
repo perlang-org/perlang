@@ -7,7 +7,7 @@ namespace Perlang.Interpreter.Immutability;
 /// </summary>
 public class ImmutabilityValidationError : ValidationError
 {
-    public ImmutabilityValidationError(Token token, string message)
+    public ImmutabilityValidationError(IToken token, string message)
         : base(token, message)
     {
     }

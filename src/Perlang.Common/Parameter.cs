@@ -2,13 +2,13 @@ namespace Perlang;
 
 public class Parameter
 {
-    public Token Name { get; }
+    public IToken Name { get; }
     public ITypeReference TypeReference { get; }
 
-    public Token TypeSpecifier => TypeReference.TypeSpecifier;
+    public IToken TypeSpecifier => TypeReference.TypeSpecifier;
     public bool IsArray => TypeReference.IsArray;
 
-    public Parameter(Token name, ITypeReference typeReference)
+    public Parameter(IToken name, ITypeReference typeReference)
     {
         Name = name;
         TypeReference = typeReference;

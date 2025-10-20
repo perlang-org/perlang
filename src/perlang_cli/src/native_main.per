@@ -48,7 +48,7 @@ fun perlang_detailed_version(): void
 #c++-methods
 extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 {
-    // This is the entry pint for the perlang CLI. It is currently C++-based and is called by the C# code. Because of
+    // This is the entry point for the perlang CLI. It is currently C++-based and is called by the C# code. Because of
     // the parameter it takes, it cannot be replaced by pure Perlang for now.
     //
     // C++ code can quite easily call into Perlang code though, so what we can do is to call Perlang functions to

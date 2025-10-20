@@ -15,7 +15,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
-using Perlang.Exceptions;
 using Perlang.Internal.Extensions;
 using static Perlang.Internal.Utils;
 using static Perlang.TokenType;
@@ -49,10 +48,10 @@ public class PerlangParser
     }
 
     private readonly ParseErrorHandler parseErrorHandler;
-    private readonly List<Token> tokens;
+    private readonly List<IToken> tokens;
 
-    private readonly List<Token> cppPrototypes = new List<Token>();
-    private readonly List<Token> cppMethods = new List<Token>();
+    private readonly List<IToken> cppPrototypes = new List<IToken>();
+    private readonly List<IToken> cppMethods = new List<IToken>();
 
     private int current;
 
@@ -80,7 +79,7 @@ public class PerlangParser
         //
 
         bool hasScanErrors = false;
-        var tokens = new List<Token>();
+        var tokens = new List<IToken>();
 
         foreach (SourceFile sourceFile in sourceFiles) {
             var scanner = new Scanner(sourceFile.FileName, sourceFile.Source, scanError =>
@@ -98,10 +97,10 @@ public class PerlangParser
             }
         }
 
-        // This was previously included in the ScanTokens() result, but this didn't work once we started support
+        // This was previously included in the ScanTokens() result, but this didn't work once we started supporting
         // multiple sourceFiles (because that will cause the Parser to stop when reaching the EOF after the first
-        // file, instead of continue processing the other ones)
-        tokens.Add(new Token(PERLANG_EOF, String.Empty, literal: null, fileName: String.Empty, line: 0));
+        // file, instead of continuing processing the other ones)
+        tokens.Add(perlang_cli.CreateNullToken(PERLANG_EOF, String.Empty, file_name: String.Empty, line: 0));
 
         //
         // Parsing phase
@@ -118,7 +117,7 @@ public class PerlangParser
             allowSemicolonElision: replMode
         );
 
-        (object syntax, List<Token> cppPrototypes, List<Token> cppMethods) = parser.ParseExpressionOrStatements();
+        (object syntax, List<IToken> cppPrototypes, List<IToken> cppMethods) = parser.ParseExpressionOrStatements();
 
         if (hasParseErrors)
         {
@@ -134,22 +133,22 @@ public class PerlangParser
         {
             if (cppPrototypes.Count > 0 || cppMethods.Count > 0)
             {
-                throw new IllegalStateException("C++ code is not supported when evaluating an expression");
+                throw new Perlang.Exceptions.IllegalStateException("C++ code is not supported when evaluating an expression");
             }
 
-            return ScanAndParseResult.OfExpr(expr);
+            return ScanAndParseResult.OfExpr(expr, tokens);
         }
         else if (syntax is List<Stmt> stmts)
         {
-            return ScanAndParseResult.OfStmts(stmts, cppPrototypes, cppMethods);
+            return ScanAndParseResult.OfStmts(stmts, cppPrototypes, cppMethods, tokens);
         }
         else
         {
-            throw new IllegalStateException($"syntax expected to be Expr or List<Stmt>, not {syntax}");
+            throw new Perlang.Exceptions.IllegalStateException($"syntax expected to be Expr or List<Stmt>, not {syntax}");
         }
     }
 
-    public PerlangParser(List<Token> tokens, ParseErrorHandler parseErrorHandler, bool allowSemicolonElision)
+    public PerlangParser(List<IToken> tokens, ParseErrorHandler parseErrorHandler, bool allowSemicolonElision)
     {
         this.parseErrorHandler = parseErrorHandler;
         this.tokens = tokens;
@@ -191,7 +190,7 @@ public class PerlangParser
     /// </summary>
     /// <returns>A tuple with an <see cref="Expr"/> or a list of <see cref="Stmt"/> objects, a list of C++ prototypes
     /// and a list of C++ methods.</returns>
-    public (object Syntax, List<Token> CppPrototypes, List<Token> CppMethods) ParseExpressionOrStatements()
+    private (object Syntax, List<IToken> CppPrototypes, List<IToken> CppMethods) ParseExpressionOrStatements()
     {
         allowExpression = true;
 
@@ -234,7 +233,7 @@ public class PerlangParser
 
             if (Check(PUBLIC) || Check(PRIVATE))
             {
-                Token visibilityToken = Advance();
+                IToken visibilityToken = Advance();
 
                 var isExtern = isExternDeclaration;
                 var isMutable = false;
@@ -243,7 +242,7 @@ public class PerlangParser
                 {
                     { Type: PUBLIC } => Visibility.Public,
                     { Type: PRIVATE } => Visibility.Private,
-                    _ => throw new IllegalStateException($"Unexpected token type {visibilityToken.Type}")
+                    _ => throw new Perlang.Exceptions.IllegalStateException($"Unexpected token type {visibilityToken.Type}")
                 };
 
                 if (Match(EXTERN)) {
@@ -395,7 +394,7 @@ public class PerlangParser
 
     private Stmt ReturnStatement()
     {
-        Token keyword = Previous();
+        IToken keyword = Previous();
         Expr value = null;
 
         if (!Check(SEMICOLON))
@@ -419,13 +418,13 @@ public class PerlangParser
             throw Error(Advance(), "Reserved keyword encountered");
         }
 
-        Token name = Consume(IDENTIFIER, "Expecting variable name.");
+        IToken name = Consume(IDENTIFIER, "Expecting variable name.");
 
         BlockReservedIdentifiers(name);
 
         // Support optional typing on this form:
         // var s: String;
-        Token typeSpecifier = null;
+        IToken typeSpecifier = null;
         bool isArray = false;
 
         if (Match(COLON))
@@ -479,7 +478,7 @@ public class PerlangParser
 
     private Stmt.Class Class(Visibility visibility, bool isExtern)
     {
-        Token name = Consume(IDENTIFIER, "Expecting class name.");
+        IToken name = Consume(IDENTIFIER, "Expecting class name.");
         Consume(LEFT_BRACE, "Expecting '{' before class body.");
 
         List<Stmt.Function> methods = [];
@@ -527,7 +526,7 @@ public class PerlangParser
 
     private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable, bool isExtern)
     {
-        Token name;
+        IToken name;
 
         bool isConstructor = kind == "constructor";
         bool isDestructor = kind == "destructor";
@@ -577,11 +576,11 @@ public class PerlangParser
                     throw Error(Advance(), "Reserved keyword encountered");
                 }
 
-                Token parameterName = Consume(IDENTIFIER, "Expect parameter name.");
+                IToken parameterName = Consume(IDENTIFIER, "Expect parameter name.");
 
                 BlockReservedIdentifiers(parameterName);
 
-                Token parameterTypeSpecifier = null;
+                IToken parameterTypeSpecifier = null;
                 bool isArray = false;
 
                 // Parameters can optionally use a specific type. If the type is not provided, the compiler will
@@ -600,7 +599,7 @@ public class PerlangParser
 
         Consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
-        Token returnTypeSpecifier = null;
+        IToken returnTypeSpecifier = null;
         bool isReturnTypeArray = false;
         TypeReference returnTypeReference;
 
@@ -651,7 +650,7 @@ public class PerlangParser
         }
     }
 
-    private Stmt.Field FieldDeclaration(Token name, Visibility visibility, bool isMutable, bool isExtern)
+    private Stmt.Field FieldDeclaration(IToken name, Visibility visibility, bool isMutable, bool isExtern)
     {
         // This a bit strict, but we currently enforce it like this. Public fields definitely feel like an
         // anti-pattern, and I think we'll keep it like this for some time to see what it feels like. For 'struct'
@@ -662,7 +661,7 @@ public class PerlangParser
         }
 
         bool isArray = false;
-        Token typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
+        IToken typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
         if (IsAtArray())
             isArray = true;
@@ -688,13 +687,13 @@ public class PerlangParser
 
     private Stmt.Enum Enum()
     {
-        Token name = Consume(IDENTIFIER, "Enum name expected.");
+        IToken name = Consume(IDENTIFIER, "Enum name expected.");
         Consume(LEFT_BRACE, "Expect '{' after enum keyword.");
 
         Dictionary<string, Expr> members = new Dictionary<string, Expr>();
 
         do {
-            Token enumValue = Consume(IDENTIFIER, "Expect identifier for enum value.");
+            IToken enumValue = Consume(IDENTIFIER, "Expect identifier for enum value.");
 
             // Enum values can optionally have a value assigned to them.
             Expr value = null;
@@ -737,7 +736,7 @@ public class PerlangParser
 
         if (Match(EQUAL))
         {
-            Token equals = Previous();
+            IToken equals = Previous();
             Expr value = Assignment();
 
             if (expr is Expr.Identifier identifier)
@@ -762,7 +761,7 @@ public class PerlangParser
             // retain the original token however, to be able to special-case them in other parts of the code. This
             // is not currently necessary but it makes the code more predictable, again following the "explicit is
             // better than implicit" philosophy.
-            Token token = Previous();
+            IToken token = Previous();
 
             // Calling Addition() here will give us the whole content of the right-hand part of the expression,
             // including an arbitrary number of other binary expressions. This makes things like "i += 1 + 5 - 3"
@@ -790,7 +789,7 @@ public class PerlangParser
 
         if (Match(PLUS_PLUS))
         {
-            Token increment = Previous();
+            IToken increment = Previous();
 
             if (expr is Expr.Identifier identifier)
             {
@@ -801,7 +800,7 @@ public class PerlangParser
         }
         else if (Match(MINUS_MINUS))
         {
-            Token decrement = Previous();
+            IToken decrement = Previous();
 
             if (expr is Expr.Identifier identifier)
             {
@@ -820,7 +819,7 @@ public class PerlangParser
 
         while (Match(PIPE_PIPE))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = And();
             expr = new Expr.Logical(expr, @operator, right);
         }
@@ -834,7 +833,7 @@ public class PerlangParser
 
         while (Match(AMPERSAND_AMPERSAND))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = Equality();
             expr = new Expr.Logical(expr, @operator, right);
         }
@@ -848,7 +847,7 @@ public class PerlangParser
 
         while (Match(BANG_EQUAL, EQUAL_EQUAL))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = Comparison();
             expr = new Expr.Binary(expr, @operator, right);
         }
@@ -862,7 +861,7 @@ public class PerlangParser
 
         while (Match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = Addition();
             expr = new Expr.Binary(expr, @operator, right);
         }
@@ -876,7 +875,7 @@ public class PerlangParser
 
         while (Match(MINUS, PLUS))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = Multiplication();
             expr = new Expr.Binary(expr, @operator, right);
         }
@@ -890,7 +889,7 @@ public class PerlangParser
 
         while (Match(SLASH, STAR, STAR_STAR, PERCENT, LESS_LESS, GREATER_GREATER))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = UnaryPrefix();
             expr = new Expr.Binary(expr, @operator, right);
         }
@@ -902,7 +901,7 @@ public class PerlangParser
     {
         if (Match(BANG, MINUS))
         {
-            Token @operator = Previous();
+            IToken @operator = Previous();
             Expr right = UnaryPrefix();
 
             // We detect MINUS + NUMBER here and convert it to a single Expr.Literal() (with constant value) instead
@@ -955,7 +954,7 @@ public class PerlangParser
             }
             else if (Match(DOT))
             {
-                Token name = Consume(IDENTIFIER, "Expect identifier after '.'.");
+                IToken name = Consume(IDENTIFIER, "Expect identifier after '.'.");
                 expr = new Expr.Get(expr, name);
             }
             else
@@ -985,7 +984,7 @@ public class PerlangParser
             while (Match(COMMA));
         }
 
-        Token paren = Consume(RIGHT_PAREN, "Expect ')' after arguments.");
+        IToken paren = Consume(RIGHT_PAREN, "Expect ')' after arguments.");
 
         return new Expr.Call(callee, paren, arguments);
     }
@@ -993,7 +992,7 @@ public class PerlangParser
     private Expr FinishIndex(Expr indexee)
     {
         Expr argument = Expression();
-        Token closingBracket = Consume(RIGHT_SQUARE_BRACKET, "Expect '] after index argument'");
+        IToken closingBracket = Consume(RIGHT_SQUARE_BRACKET, "Expect '] after index argument'");
 
         return new Expr.Index(indexee, closingBracket, argument);
     }
@@ -1024,7 +1023,9 @@ public class PerlangParser
 
         if (Match(CHAR))
         {
-            char c = (char)Previous().Literal!;
+            // Double casting needed to avoid InvalidCastException: Unable to cast object of type 'System.UInt16' to
+            // type 'System.Char'
+            char c = (char)(ushort)Previous().Literal!;
 
             return new Expr.Literal(c);
         }
@@ -1074,7 +1075,7 @@ public class PerlangParser
 
         if (Match(NEW))
         {
-            Token typeName = Consume(IDENTIFIER, "Expecting name of class to instantiate");
+            IToken typeName = Consume(IDENTIFIER, "Expecting name of class to instantiate");
 
             if (Match(LEFT_PAREN))
             {
@@ -1150,7 +1151,7 @@ public class PerlangParser
     /// <param name="parseErrorType">An optional parameter indicating the type of parse error.</param>
     /// <returns>The matched token.</returns>
     /// <exception cref="InternalParseError">The token does not match.</exception>
-    private Token Consume(TokenType type, string message, ParseErrorType? parseErrorType = null)
+    private IToken Consume(TokenType type, string message, ParseErrorType? parseErrorType = null)
     {
         if (Check(type))
         {
@@ -1181,7 +1182,7 @@ public class PerlangParser
     /// does nothing.
     /// </summary>
     /// <returns>The token at the stream position before advancing it.</returns>
-    private Token Advance()
+    private IToken Advance()
     {
         if (!IsAtEnd)
         {
@@ -1218,12 +1219,12 @@ public class PerlangParser
     /// </summary>
     /// <returns>A token.</returns>
     [DebuggerStepThrough]
-    private Token Peek()
+    private IToken Peek()
     {
         return tokens[current];
     }
 
-    private Token PeekNext()
+    private IToken PeekNext()
     {
         if (tokens.Count > current + 1) {
             return tokens[current + 1];
@@ -1238,12 +1239,12 @@ public class PerlangParser
     /// </summary>
     /// <returns>A token.</returns>
     [DebuggerStepThrough]
-    private Token Previous()
+    private IToken Previous()
     {
         return tokens[current - 1];
     }
 
-    private InternalParseError Error(Token token, string message, ParseErrorType? parseErrorType = null)
+    private InternalParseError Error(IToken token, string message, ParseErrorType? parseErrorType = null)
     {
         parseErrorHandler(new ParseError(message, token, parseErrorType));
 
@@ -1288,7 +1289,7 @@ public class PerlangParser
     /// </summary>
     /// <param name="token">A token with the name of an identifier.</param>
     /// <exception cref="Error">The given token represents a reserved keyword.</exception>
-    private void BlockReservedIdentifiers(Token token)
+    private void BlockReservedIdentifiers(IToken token)
     {
         // "Reserved for future use". These are not currently supported in Perlang, but we reserve them for
         // future use and define them now already (making it impossible to use when e.g. defining a variable of

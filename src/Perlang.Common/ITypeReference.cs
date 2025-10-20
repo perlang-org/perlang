@@ -7,7 +7,7 @@ namespace Perlang;
 
 public interface ITypeReference
 {
-    Token? TypeSpecifier { get; }
+    IToken? TypeSpecifier { get; }
 
     /// <summary>
     /// Gets a value indicating whether this type represents an array type, e.g. `string[]` or `int[]`, or not.

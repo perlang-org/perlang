@@ -19,8 +19,9 @@ public static class PerlangTypes
 
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true);
 
+    // TODO: Dispose of Token created here
     public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true, extraMethods: [
-        new CppFunction("as_utf16", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "UTF16String", literal: null, fileName: "", line: 0)))
+        new CppFunction("as_utf16", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "UTF16String", file_name: "", line: 0)))
     ]);
 
     public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", null, wrapInSharedPtr: true, extraFields: [

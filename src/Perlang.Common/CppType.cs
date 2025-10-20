@@ -41,10 +41,14 @@ public record CppType : IPerlangType
         bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
         IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
     {
+#pragma warning disable CA2000
         this.Methods = new List<CppFunction>
         {
-            new CppFunction("get_type", parameters: [], new TypeReference(new Token(TokenType.IDENTIFIER, "perlang::Type", literal: null, fileName: String.Empty, line: 0), isArray: false))
+            // Deallocation of this gets handled by cleanup code in PerlangCompiler, by utilizing the TokenCleaner
+            // IDisposable helper class.
+            new CppFunction("get_type", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "perlang::Type", file_name: "", line: 0), isArray: false))
         }.Concat(extraMethods ?? []).ToImmutableList();
+#pragma warning restore CA2000
 
         this.CppTypeName = cppTypeName;
         this.PerlangTypeName = perlangTypeName;

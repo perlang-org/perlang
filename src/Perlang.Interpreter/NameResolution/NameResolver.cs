@@ -107,7 +107,7 @@ internal class NameResolver : VisitorBase
     /// the variable to shadow variables in outer scopes with the same name.
     /// </summary>
     /// <param name="name">The name of the variable or function.</param>
-    private void Declare(Token name)
+    private void Declare(IToken name)
     {
         if (IsEmpty(scopes))
         {
@@ -170,7 +170,7 @@ internal class NameResolver : VisitorBase
     /// <param name="name">The variable or function name.</param>
     /// <param name="typeReference">An `ITypeReference` describing the variable or function.</param>
     /// <param name="function">The function statement should be provided here.</param>
-    private void DefineFunction(Token name, ITypeReference typeReference, Stmt.Function function)
+    private void DefineFunction(IToken name, ITypeReference typeReference, Stmt.Function function)
     {
         if (typeReference == null)
         {
@@ -188,7 +188,7 @@ internal class NameResolver : VisitorBase
         scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
     }
 
-    private void DefineClass(Token name, IPerlangClass perlangClass)
+    private void DefineClass(IToken name, IPerlangClass perlangClass)
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
@@ -209,8 +209,12 @@ internal class NameResolver : VisitorBase
     {
         var thisTypeReference = new TypeReference(null, isArray: false);
 
+        // Deallocation of this gets handled by cleanup code in PerlangCompiler, by utilizing the TokenCleaner
+        // IDisposable helper class.
         var thisField = new Stmt.Field(
-            new Token(TokenType.THIS, "this", literal: null, @class.NameToken.FileName, @class.NameToken.Line),
+#pragma warning disable CA2000
+            perlang_cli.CreateNullToken(TokenType.THIS, "this", @class.NameToken.FileName, @class.NameToken.Line),
+#pragma warning restore CA2000
             Visibility.Private,
             isMutable: false,
             initializer: null,
@@ -249,7 +253,7 @@ internal class NameResolver : VisitorBase
     }
 
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
-    private void DefineEnum(Token name, Dictionary<string, Expr?> enumMembers)
+    private void DefineEnum(IToken name, Dictionary<string, Expr?> enumMembers)
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
@@ -267,7 +271,7 @@ internal class NameResolver : VisitorBase
         typeHandler.AddEnum(name.Lexeme, perlangEnum);
     }
 
-    private void ResolveLocalOrGlobal(Expr referringExpr, Token name)
+    private void ResolveLocalOrGlobal(Expr referringExpr, IToken name)
     {
         // Loop over all the scopes, from the innermost and outwards, trying to find a registered "binding factory"
         // that matches this name.

@@ -14,37 +14,41 @@ public class ScanAndParseResult
 
     public Expr? Expr { get; }
     public List<Stmt>? Statements { get; }
-    public List<Token> CppMethods { get; set; }
-    public List<Token> CppPrototypes { get; set; }
+    public List<IToken> CppMethods { get; }
+    public List<IToken> CppPrototypes { get; }
+    public List<IToken> Tokens { get; }
 
     public bool HasExpr => Expr != null;
     public bool HasStatements => Statements != null;
 
     private ScanAndParseResult()
     {
-        CppMethods = new List<Token>();
-        CppPrototypes = new List<Token>();
+        CppMethods = new List<IToken>();
+        CppPrototypes = new List<IToken>();
+        Tokens = new List<IToken>();
     }
 
-    private ScanAndParseResult(Expr expr) : this()
+    private ScanAndParseResult(Expr expr, List<IToken> tokens) : this()
     {
         Expr = expr;
+        Tokens = tokens;
     }
 
-    private ScanAndParseResult(List<Stmt> statements, List<Token> cppPrototypes, List<Token> cppMethods)
+    private ScanAndParseResult(List<Stmt> statements, List<IToken> cppPrototypes, List<IToken> cppMethods, List<IToken> tokens)
     {
         Statements = statements;
         CppPrototypes = cppPrototypes;
         CppMethods = cppMethods;
+        Tokens = tokens;
     }
 
-    public static ScanAndParseResult OfExpr(Expr expr)
+    public static ScanAndParseResult OfExpr(Expr expr, List<IToken> tokens)
     {
-        return new ScanAndParseResult(expr);
+        return new ScanAndParseResult(expr, tokens);
     }
 
-    public static ScanAndParseResult OfStmts(List<Stmt> stmts, List<Token> cppPrototypes, List<Token> cppMethods)
+    public static ScanAndParseResult OfStmts(List<Stmt> stmts, List<IToken> cppPrototypes, List<IToken> cppMethods, List<IToken> tokens)
     {
-        return new ScanAndParseResult(stmts, cppPrototypes, cppMethods);
+        return new ScanAndParseResult(stmts, cppPrototypes, cppMethods, tokens);
     }
 }

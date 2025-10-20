@@ -12,10 +12,10 @@ namespace Perlang.Parser;
 /// </remarks>
 public class CompilerWarning : Exception
 {
-    public Token Token { get; }
+    public IToken Token { get; }
     public WarningType WarningType { get; }
 
-    public CompilerWarning(string message, Token token, WarningType warningType)
+    public CompilerWarning(string message, IToken token, WarningType warningType)
         : base(message)
     {
         Token = token;

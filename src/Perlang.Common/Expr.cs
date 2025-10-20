@@ -76,7 +76,7 @@ public abstract class Expr
         /// cref="TargetNameString"/> is typically preferably since it supports <c>foo.bar.baz</c> notation for field
         /// access.
         /// </summary>
-        public Token TargetName => (Target as Identifier)?.Name ?? (Target as Get)?.Name ??
+        public IToken TargetName => (Target as Identifier)?.Name ?? (Target as Get)?.Name ??
             throw new PerlangCompilerException($"Internal error: Assignment target is of unexpected type: {Target}");
 
         public string TargetNameString =>
@@ -98,16 +98,16 @@ public abstract class Expr
             return $"#<Assign {Target} = {Value}>";
         }
 
-        public Token Token => TargetName;
+        public IToken Token => TargetName;
     }
 
     public class Binary : Expr, ITokenAware
     {
         public Expr Left { get; }
-        public Token Operator { get; }
+        public IToken Operator { get; }
         public Expr Right { get; }
 
-        public Binary(Expr left, Token @operator, Expr right)
+        public Binary(Expr left, IToken @operator, Expr right)
         {
             Left = left;
             Operator = @operator;
@@ -124,14 +124,14 @@ public abstract class Expr
             return $"{Left} {Operator} {Right}";
         }
 
-        public Token Token => Operator;
+        public IToken Token => Operator;
     }
 
     public class Call : Expr, ITokenAware
     {
         public Expr Callee { get; }
         public ITokenAware TokenAwareCallee => (ITokenAware)Callee;
-        public Token Paren { get; }
+        public IToken Paren { get; }
         public List<Expr> Arguments { get; }
 
         public string? CalleeToString
@@ -153,7 +153,7 @@ public abstract class Expr
             }
         }
 
-        public Call(Expr callee, Token paren, List<Expr> arguments)
+        public Call(Expr callee, IToken paren, List<Expr> arguments)
         {
             // TODO: This would much more rightfully be a compile-time check. This is hard to achieve though, but we
             // might be able to make it somewhat better by introducing a TokenAwareExpr of some form (see also
@@ -186,7 +186,7 @@ public abstract class Expr
             }
         }
 
-        public Token Token => Paren;
+        public IToken Token => Paren;
     }
 
     public class Index : Expr, ITokenAware
@@ -196,14 +196,14 @@ public abstract class Expr
         /// </summary>
         public Expr Indexee { get; }
 
-        public Token ClosingBracket { get; }
+        public IToken ClosingBracket { get; }
 
         /// <summary>
         /// Gets the position in the object being indexed to retrieve.
         /// </summary>
         public Expr Argument { get; }
 
-        public Index(Expr indexee, Token closingBracket, Expr argument)
+        public Index(Expr indexee, IToken closingBracket, Expr argument)
         {
             Indexee = indexee;
             ClosingBracket = closingBracket;
@@ -217,7 +217,7 @@ public abstract class Expr
 
         // TODO: Add a better ToString() implementation
 
-        public Token Token => ClosingBracket;
+        public IToken Token => ClosingBracket;
     }
 
     public class Grouping : Expr, ITokenAware
@@ -234,14 +234,14 @@ public abstract class Expr
             return visitor.VisitGroupingExpr(this);
         }
 
-        public Token? Token => (Expression as ITokenAware)?.Token;
+        public IToken? Token => (Expression as ITokenAware)?.Token;
     }
 
     public class CollectionInitializer : Expr, ITokenAware
     {
         public ImmutableList<Expr> Elements { get; }
 
-        public CollectionInitializer(List<Expr> elements, Token token)
+        public CollectionInitializer(List<Expr> elements, IToken token)
         {
             Elements = elements.ToImmutableList();
             Token = token;
@@ -252,7 +252,7 @@ public abstract class Expr
             return visitor.VisitCollectionInitializerExpr(this);
         }
 
-        public Token Token { get; }
+        public IToken Token { get; }
     }
 
     /// <summary>
@@ -289,10 +289,10 @@ public abstract class Expr
     public class Logical : Expr, ITokenAware
     {
         public Expr Left { get; }
-        public Token Operator { get; }
+        public IToken Operator { get; }
         public Expr Right { get; }
 
-        public Logical(Expr left, Token @operator, Expr right)
+        public Logical(Expr left, IToken @operator, Expr right)
         {
             Left = left;
             Operator = @operator;
@@ -304,7 +304,7 @@ public abstract class Expr
             return visitor.VisitLogicalExpr(this);
         }
 
-        public Token Token => Operator;
+        public IToken Token => Operator;
     }
 
     /// <summary>
@@ -312,14 +312,14 @@ public abstract class Expr
     /// </summary>
     public class NewExpression : Expr, ITokenAware
     {
-        public Token Token => TypeName;
+        public IToken Token => TypeName;
 
-        public Token TypeName { get; }
+        public IToken TypeName { get; }
         public List<Expr> Parameters { get; }
         public bool IsArray { get; }
         public Expr? Size { get; }
 
-        public NewExpression(Token typeName, List<Expr> parameters)
+        public NewExpression(IToken typeName, List<Expr> parameters)
         {
             TypeName = typeName;
             Parameters = parameters;
@@ -327,7 +327,7 @@ public abstract class Expr
             Size = null;
         }
 
-        public NewExpression(Token typeName, bool isArray, Expr size)
+        public NewExpression(IToken typeName, bool isArray, Expr size)
         {
             TypeName = typeName;
             Parameters = [];
@@ -359,10 +359,10 @@ public abstract class Expr
     /// </summary>
     public class UnaryPrefix : Expr, ITokenAware
     {
-        public Token Operator { get; }
+        public IToken Operator { get; }
         public Expr Right { get; }
 
-        public UnaryPrefix(Token @operator, Expr right)
+        public UnaryPrefix(IToken @operator, Expr right)
         {
             Operator = @operator;
             Right = right;
@@ -373,7 +373,7 @@ public abstract class Expr
             return visitor.VisitUnaryPrefixExpr(this);
         }
 
-        public Token Token => Operator;
+        public IToken Token => Operator;
     }
 
     /// <summary>
@@ -382,10 +382,10 @@ public abstract class Expr
     public class UnaryPostfix : Expr, ITokenAware
     {
         public Expr Left { get; }
-        public Token Name { get; }
-        public Token Operator { get; }
+        public IToken Name { get; }
+        public IToken Operator { get; }
 
-        public UnaryPostfix(Expr left, Token name, Token @operator)
+        public UnaryPostfix(Expr left, IToken name, IToken @operator)
         {
             Left = left;
             Name = name;
@@ -397,7 +397,7 @@ public abstract class Expr
             return visitor.VisitUnaryPostfixExpr(this);
         }
 
-        public Token Token => Operator;
+        public IToken Token => Operator;
     }
 
     /// <summary>
@@ -405,13 +405,13 @@ public abstract class Expr
     /// </summary>
     public class Identifier : Expr, ITokenAware
     {
-        public Token Name { get; }
+        public IToken Name { get; }
         public bool IsCollection { get; }
-        public Token Token => Name;
+        public IToken Token => Name;
 
         public override string[] FullNameParts => [Name.Lexeme];
 
-        public Identifier(Token name, bool isCollection = false)
+        public Identifier(IToken name, bool isCollection = false)
         {
             Name = name;
             IsCollection = isCollection;
@@ -436,7 +436,7 @@ public abstract class Expr
         /// <summary>
         /// Gets the name of the field/property/method that is being accessed.
         /// </summary>
-        public Token Name { get; }
+        public IToken Name { get; }
 
         // TODO: Would be much nicer to have this be without setter, but there is no easy way to accomplish this,
         // TODO: since the MethodInfo data isn't available at construction time. Also, we replace this with the
@@ -445,7 +445,7 @@ public abstract class Expr
 
         public ImmutableArray<IPerlangFunction> PerlangMethods { get; set; } = ImmutableArray<IPerlangFunction>.Empty;
 
-        public Get(Expr @object, Token name)
+        public Get(Expr @object, IToken name)
         {
             Object = @object;
             Name = name;
@@ -456,7 +456,7 @@ public abstract class Expr
             return visitor.VisitGetExpr(this);
         }
 
-        public Token Token => Name;
+        public IToken Token => Name;
 
         // TODO: Memoize this at some point if seems needed; this is incredibly inefficient.
         public override string[] FullNameParts => Enumerable.Concat(Object.FullNameParts, [Name.Lexeme]).ToArray();

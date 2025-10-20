@@ -10,9 +10,9 @@ public abstract class ValidationError : PerlangInterpreterException
     /// <summary>
     /// Gets the approximate location at which the error occurred.
     /// </summary>
-    public Token Token { get; }
+    public IToken Token { get; }
 
-    protected ValidationError(Token token, string message)
+    protected ValidationError(IToken token, string message)
         : base(message)
     {
         Token = token;

@@ -45,7 +45,7 @@ public abstract class Stmt
         public static readonly Class None = new Class();
 
         public string Name { get; }
-        public Token NameToken { get; }
+        public IToken NameToken { get; }
         public Visibility Visibility { get; }
         public ImmutableList<IPerlangFunction> Methods { get; }
         public ImmutableList<Function> StmtMethods { get; }
@@ -68,7 +68,7 @@ public abstract class Stmt
             TypeReference = null!;
         }
 
-        public Class(Token name, Visibility visibility, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
+        public Class(IToken name, Visibility visibility, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
         {
             Name = name.Lexeme;
             NameToken = name;
@@ -113,7 +113,7 @@ public abstract class Stmt
     public class Function : Stmt, IPerlangFunction
     {
         public new Class Class { get; private set; }
-        public Token NameToken { get; }
+        public IToken NameToken { get; }
         public string Name => NameToken.Lexeme;
         public Visibility Visibility { get; }
         public ImmutableList<Parameter> Parameters { get; }
@@ -123,7 +123,7 @@ public abstract class Stmt
         public bool IsDestructor { get; set; }
         public bool IsExtern { get; }
 
-        public Function(Token name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
+        public Function(IToken name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
             bool isConstructor, bool isDestructor, bool isExtern) {
             NameToken = name ?? throw new System.ArgumentNullException(nameof(name));
             Visibility = visibility;
@@ -156,14 +156,14 @@ public abstract class Stmt
 
     public class Field : Stmt, IPerlangField
     {
-        public Token NameToken { get; }
+        public IToken NameToken { get; }
         public string Name => NameToken.Lexeme;
         public Visibility Visibility { get; }
         public bool IsMutable { get; }
         public Expr? Initializer { get; }
         public ITypeReference TypeReference { get; }
 
-        public Field(Token name, Visibility visibility, bool isMutable, Expr? initializer, ITypeReference typeReference)
+        public Field(IToken name, Visibility visibility, bool isMutable, Expr? initializer, ITypeReference typeReference)
         {
             NameToken = name;
             Visibility = visibility;
@@ -240,10 +240,10 @@ public abstract class Stmt
 
     public class Return : Stmt
     {
-        public Token Keyword { get; }
+        public IToken Keyword { get; }
         public Expr? Value { get; }
 
-        public Return(Token keyword, Expr? value)
+        public Return(IToken keyword, Expr? value)
         {
             Keyword = keyword;
             Value = value;
@@ -257,11 +257,11 @@ public abstract class Stmt
 
     public class Var : Stmt
     {
-        public Token Name { get; }
+        public IToken Name { get; }
         public Expr? Initializer { get; }
         public ITypeReference TypeReference { get; }
 
-        public Var(Token name, Expr? initializer, TypeReference typeReference)
+        public Var(IToken name, Expr? initializer, TypeReference typeReference)
         {
             Name = name;
             Initializer = initializer;
@@ -319,10 +319,10 @@ public abstract class Stmt
 
     public class Enum : Stmt
     {
-        public Token Name { get; }
+        public IToken Name { get; }
         public Dictionary<string, Expr?> Members { get; }
 
-        public Enum(Token name, Dictionary<string, Expr?> members)
+        public Enum(IToken name, Dictionary<string, Expr?> members)
         {
             Members = members;
             Name = name;

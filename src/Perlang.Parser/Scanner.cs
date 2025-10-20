@@ -159,7 +159,7 @@ public class Scanner
     private readonly string source;
     private readonly ScanErrorHandler scanErrorHandler;
 
-    private readonly List<Token> tokens = new();
+    private readonly List<IToken> tokens = new();
     private int start;
     private int current;
     private int line = 1;
@@ -171,7 +171,7 @@ public class Scanner
         this.scanErrorHandler = scanErrorHandler;
     }
 
-    public List<Token> ScanTokens()
+    public List<IToken> ScanTokens()
     {
         if (Peek() == '#' && PeekNext() == '!')
         {
@@ -420,7 +420,7 @@ public class Scanner
         var numberBase = NumericToken.Base.DECIMAL;
         int startOffset = 0;
 
-        char currentChar = Char.ToLower(Peek());
+        char currentChar = System.Char.ToLower(Peek());
 
         if (currentChar is 'b' or 'o' or 'x')
         {
@@ -783,7 +783,7 @@ public class Scanner
             2 => c is '0' or '1',
             8 => c is >= '0' and <= '7',
             10 => c is >= '0' and <= '9',
-            16 => c is >= '0' and <= '9' || (Char.ToUpper(c) >= 'A' && Char.ToUpper(c) <= 'F'),
+            16 => c is >= '0' and <= '9' || (System.Char.ToUpper(c) >= 'A' && System.Char.ToUpper(c) <= 'F'),
             _ => throw new ArgumentException($"Base {@base} is not supported")
         };
 
@@ -803,10 +803,22 @@ public class Scanner
     private void AddToken(TokenType type, object literal = null)
     {
         string text = source[start..current];
-        tokens.Add(new Token(type, text, literal, fileName, line));
+
+        if (literal is string stringLiteral) {
+            tokens.Add(perlang_cli.CreateStringToken(type, text, stringLiteral, fileName, line));
+        }
+        else if (literal is null) {
+            tokens.Add(perlang_cli.CreateNullToken(type, text, fileName, line));
+        }
+        else if (literal is char charLiteral) {
+            tokens.Add(perlang_cli.CreateCharToken(type, text, charLiteral, fileName, line));
+        }
+        else {
+            throw new NotImplementedException($"Unsupported literal type: {literal.GetType()}");
+        }
     }
 
-    private void AddToken(Token token)
+    private void AddToken(IToken token)
     {
         tokens.Add(token);
     }

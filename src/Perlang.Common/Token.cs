@@ -1,33 +1,29 @@
+#pragma warning disable SA1601
+#pragma warning disable S2372
+#pragma warning disable S3903
 #nullable enable
-using System;
 
-namespace Perlang;
+using Perlang;
+using Perlang.Compiler;
 
-public class Token
+public partial class Token : IToken
 {
-    public TokenType Type { get; }
-    public string Lexeme { get; }
-    public object? Literal { get; }
-    public string FileName { get; }
-    public int Line { get; }
+    public string Lexeme => perlang_cli.GetTokenLexeme(this);
 
-    public Token(TokenType type, string lexeme, object? literal, string fileName, int line)
+    public object? Literal
     {
-        // TODO: Replace with non-nullable references instead. https://gitlab.perlang.org/perlang/perlang/-/issues/39
-        Type = type;
-        Lexeme = lexeme ?? throw new ArgumentException("lexeme cannot be null");
-        Literal = literal;
-        FileName = fileName;
-        Line = line;
-    }
-
-    public override string ToString()
-    {
-        if (Literal != null) {
-            return $"{Type} {Lexeme} {Literal}";
-        }
-        else {
-            return $"{Type} {Lexeme}";
+        get {
+            if (perlang_cli.IsStringToken(this)) {
+                return perlang_cli.GetTokenStringLiteral(this);
+            }
+            else if (perlang_cli.IsCharToken(this)) {
+                return perlang_cli.GetTokenCharLiteral(this);
+            }
+            else {
+                throw new PerlangCompilerException("Internal error: Unexpected token type encountered");
+            }
         }
     }
+
+    public string FileName => perlang_cli.GetTokenFileName(this);
 }

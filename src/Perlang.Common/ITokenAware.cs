@@ -11,5 +11,5 @@ public interface ITokenAware
     /// <summary>
     /// Gets the token that this expression represents, or a token close to it. If `null`, the token is unknown.
     /// </summary>
-    public Token? Token { get; }
+    public IToken? Token { get; }
 }

@@ -326,7 +326,7 @@ public class Program : IDisposable
         hadRuntimeError = true;
     }
 
-    private void Error(Token token, string message)
+    private void Error(IToken token, string message)
     {
         if (token.Type == TokenType.PERLANG_EOF)
         {
@@ -345,7 +345,7 @@ public class Program : IDisposable
         hadError = true;
     }
 
-    private void Warn(Token token, string message)
+    private void Warn(IToken token, string message)
     {
         if (token.Type == TokenType.PERLANG_EOF)
         {

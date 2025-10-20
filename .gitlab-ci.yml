@@ -145,7 +145,11 @@ valgrind-run-hello-world-example:
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
     - make -j$(scripts/num_cpus) stdlib
-    - make -j$(scripts/num_cpus) valgrind-perlang-run-hello-world-example
+
+    # TODO: Doesn't complete within 60 minutes. Disabled for now, until we hopefully can remove the .NET runtime
+    # dependency altogether at some point. More details about the slowness:
+    # https://gitlab.perlang.org/perlang/perlang/-/merge_requests/639#note_4125
+    #- make -j$(scripts/num_cpus) valgrind-perlang-run-hello-world-example
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

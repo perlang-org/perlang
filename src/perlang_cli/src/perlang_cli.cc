@@ -11,6 +11,38 @@
 #include "perlang_cli.h"
 
 //
+// Perlang class implementations
+//
+Token::Token(TokenType::TokenType token_type, std::shared_ptr<perlang::String> lexeme, std::shared_ptr<perlang::Object> literal, std::shared_ptr<perlang::String> file_name, int32_t line) {
+    token_type_ = token_type;
+    lexeme_ = lexeme;
+    literal_ = literal;
+    file_name_ = file_name;
+    line_ = line;
+};
+
+TokenType::TokenType Token::type() {
+    return token_type_;
+};
+
+std::shared_ptr<perlang::String> Token::lexeme() {
+    return lexeme_;
+};
+
+std::shared_ptr<perlang::Object> Token::literal() {
+    return literal_;
+};
+
+std::shared_ptr<perlang::String> Token::file_name() {
+    return file_name_;
+};
+
+int32_t Token::line() {
+    return line_;
+};
+
+
+//
 // Perlang function declarations
 //
 std::shared_ptr<perlang::String> get_git_describe_version() {
@@ -51,7 +83,7 @@ void perlang_detailed_version() {
 //
 extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 {
-    // This is the entry pint for the perlang CLI. It is currently C++-based and is called by the C# code. Because of
+    // This is the entry point for the perlang CLI. It is currently C++-based and is called by the C# code. Because of
     // the parameter it takes, it cannot be replaced by pure Perlang for now.
     //
     // C++ code can quite easily call into Perlang code though, so what we can do is to call Perlang functions to
@@ -88,4 +120,89 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
     }
 
     // Pass control back to the C# code
+}
+Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
+{
+    if (literal == nullptr) {
+        throw std::invalid_argument("literal argument cannot be null");
+    }
+
+    return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::UTF8String::from_copied_string(literal), perlang::UTF8String::from_copied_string(file_name), line);
+}
+
+Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line)
+{
+    return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::Char::from(literal), perlang::UTF8String::from_copied_string(file_name), line);
+}
+
+Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line)
+{
+    return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), nullptr, perlang::UTF8String::from_copied_string(file_name), line);
+}
+
+// Must be called explicitly from the C# side, since CppSharp doesn't give us an easy way to pass ownership over to C#.
+void delete_token(Token* token)
+{
+    delete token;
+}
+
+bool is_string_token(Token* token)
+{
+    auto literal = token->literal().get();
+
+    // TODO: Replace with proper is_assignable_to() check once we have a more sophisticated perlang::Type
+    // implementation, supporting it.
+    if (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.ASCIIString") ||
+        *literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.UTF8String")) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool is_char_token(Token* token)
+{
+    auto literal = token->literal().get();
+
+    return (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.Char"));
+}
+
+const char* get_token_lexeme(Token* token)
+{
+    // TODO: This (and the other similar methods) work, under the crude assumption that the underlying string is
+    // actually UTF-8 encoded (i.e. no UTF16String). When the 'as_utf8()' method exists in the String class, we should
+    // use that to ensure that we don't get any surprises here.
+    return token->lexeme()->bytes();
+}
+
+const char* get_token_string_literal(Token* token)
+{
+    auto literal = token->literal().get();
+
+    // TODO: Replace with is_assignable_to() check
+    if (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.ASCIIString") ||
+        *literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.UTF8String")) {
+        return ((perlang::String*)literal)->bytes();
+    }
+    else {
+        throw perlang::IllegalStateException(*perlang::ASCIIString::from_static_string("Token expected to be string, not ") + *literal->get_type());
+    }
+}
+
+uint16_t get_token_char_literal(Token* token)
+{
+    auto literal = token->literal().get();
+
+    if (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.Char")) {
+        return ((perlang::Char*)literal)->value();
+    }
+    else {
+        throw perlang::IllegalStateException(*perlang::ASCIIString::from_static_string("Token expected to be string, not ") + *literal->get_type());
+    }
+}
+
+const char* get_token_file_name(Token* token)
+{
+    return token->file_name()->bytes();
 }

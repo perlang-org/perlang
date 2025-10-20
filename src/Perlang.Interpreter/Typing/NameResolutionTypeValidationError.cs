@@ -15,7 +15,7 @@ namespace Perlang.Interpreter.Typing;
 /// </remarks>
 public class NameResolutionTypeValidationError : TypeValidationError
 {
-    public NameResolutionTypeValidationError(Token token, string message)
+    public NameResolutionTypeValidationError(IToken token, string message)
         : base(token, message)
     {
     }

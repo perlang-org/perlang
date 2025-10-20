@@ -14,7 +14,7 @@ namespace Perlang;
 /// </summary>
 public class TypeReference : ITypeReference
 {
-    public Token? TypeSpecifier { get; }
+    public IToken? TypeSpecifier { get; }
 
     public bool IsResolved =>
         CppType != null;
@@ -85,7 +85,7 @@ public class TypeReference : ITypeReference
     /// </summary>
     /// <param name="typeSpecifier">The token providing the type specifier (e.g. 'int' or 'string').</param>
     /// <param name="isArray">Whether the type is an array or not.</param>
-    public TypeReference(Token? typeSpecifier, bool isArray = false)
+    public TypeReference(IToken? typeSpecifier, bool isArray = false)
     {
         TypeSpecifier = typeSpecifier;
         this.isArray = isArray;

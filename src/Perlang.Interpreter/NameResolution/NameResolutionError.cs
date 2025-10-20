@@ -8,9 +8,9 @@ namespace Perlang.Interpreter.NameResolution;
 /// </summary>
 public class NameResolutionError : Exception
 {
-    public Token Token { get; }
+    public IToken Token { get; }
 
-    public NameResolutionError(string message, Token token)
+    public NameResolutionError(string message, IToken token)
         : base(message)
     {
         Token = token;

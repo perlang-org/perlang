@@ -92,6 +92,26 @@ namespace TokenType {
 };
 
 //
+// Perlang class definitions
+//
+class Token : public std::enable_shared_from_this<Token>, public perlang::Object {
+private:
+    TokenType::TokenType token_type_;
+    std::shared_ptr<perlang::String> lexeme_;
+    std::shared_ptr<perlang::Object> literal_;
+    std::shared_ptr<perlang::String> file_name_;
+    int32_t line_;
+public:
+    Token(TokenType::TokenType token_type, std::shared_ptr<perlang::String> lexeme, std::shared_ptr<perlang::Object> literal, std::shared_ptr<perlang::String> file_name, int32_t line);
+    TokenType::TokenType type();
+    std::shared_ptr<perlang::String> lexeme();
+    std::shared_ptr<perlang::Object> literal();
+    std::shared_ptr<perlang::String> file_name();
+    int32_t line();
+private:
+};
+
+//
 // Perlang function definitions
 //
 std::shared_ptr<perlang::String> get_git_describe_version();
@@ -109,3 +129,15 @@ void perlang_detailed_version();
 #include <getopt.h>
 
 extern "C" void native_main(int argc, char* const* argv);
+Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
+Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
+Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);
+void delete_token(Token* token);
+
+bool is_string_token(Token* token);
+bool is_char_token(Token* token);
+
+const char* get_token_lexeme(Token* token);
+const char* get_token_string_literal(Token* token);
+uint16_t get_token_char_literal(Token* token);
+const char* get_token_file_name(Token* token);

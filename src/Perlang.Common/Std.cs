@@ -17,10 +17,6 @@ using __IntPtr = global::System.IntPtr;
 
 namespace Std
 {
-}
-
-namespace Std
-{
     namespace Allocator
     {
         [StructLayout(LayoutKind.Sequential, Size = 1)]
@@ -157,7 +153,20 @@ namespace Std
 
 namespace Std
 {
+}
+
+namespace Std
+{
     namespace SharedCount
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public unsafe partial struct __Internal
+        {
+            internal __IntPtr _M_pi;
+        }
+    }
+
+    namespace WeakCount
     {
         [StructLayout(LayoutKind.Sequential, Size = 8)]
         public unsafe partial struct __Internal
@@ -176,6 +185,16 @@ namespace Std
         {
             internal __IntPtr _M_ptr;
             internal global::Std.SharedCount.__Internal _M_refcount;
+        }
+    }
+
+    namespace WeakPtr
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public unsafe partial struct __Internal
+        {
+            internal __IntPtr _M_ptr;
+            internal global::Std.WeakCount.__Internal _M_refcount;
         }
     }
 }
@@ -517,4 +536,25 @@ namespace Std
 
 namespace Std
 {
+    public unsafe partial class CowString
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public partial struct __Internal
+        {
+            internal global::Std.CowString._0.__Internal _0;
+        }
+
+        public unsafe partial struct _0
+        {
+            [StructLayout(LayoutKind.Explicit, Size = 8)]
+            public partial struct __Internal
+            {
+                [FieldOffset(0)]
+                internal __IntPtr _M_p;
+
+                [FieldOffset(0)]
+                internal fixed sbyte _M_bytes[8];
+            }
+        }
+    }
 }
