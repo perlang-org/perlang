@@ -442,13 +442,14 @@ namespace Perlang
         PRIVATE = 57,
         PUBLIC = 58,
         RETURN = 59,
-        SUPER = 60,
-        THIS = 61,
-        TRUE = 62,
-        VAR = 63,
-        WHILE = 64,
-        RESERVED_WORD = 65,
-        PERLANG_EOF = 66
+        STATIC = 60,
+        SUPER = 61,
+        THIS = 62,
+        TRUE = 63,
+        VAR = 64,
+        WHILE = 65,
+        RESERVED_WORD = 66,
+        PERLANG_EOF = 67
     }
 }
 

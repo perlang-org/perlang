@@ -8,13 +8,15 @@ namespace Perlang.Interpreter.NameResolution;
 /// </summary>
 internal class ClassBinding : Binding
 {
-    public IPerlangClass? PerlangClass { get; }
+    public IPerlangClass PerlangClass { get; }
+    public TypeReference ClassTypeReference { get; }
 
     public override string ObjectType => "class";
 
-    public ClassBinding(Expr referringExpr, IPerlangClass? perlangClass)
-        : base(new TypeReference(typeof(IPerlangClass)), referringExpr)
+    public ClassBinding(Expr referringExpr, IPerlangClass perlangClass, TypeReference classTypeReference)
+        : base(classTypeReference, referringExpr)
     {
         PerlangClass = perlangClass;
+        ClassTypeReference = classTypeReference;
     }
 }

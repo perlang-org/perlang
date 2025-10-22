@@ -1588,7 +1588,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         if (expr.Object is Expr.Identifier identifier)
         {
-            if (globalTypes.TryGetValue(identifier.Name.Lexeme, out IPerlangType? perlangType) && !perlangType.IsEnum)
+            if (globalTypes.TryGetValue(identifier.Name.Lexeme, out IPerlangType? perlangType) && !perlangType.IsEnum && perlangType is not IPerlangClass)
             {
                 // TODO: This isn't really correct for Perlang classes and enums (only for Libc/etc classes)
                 // These classes are put in the `perlang::stdlib` namespace in the C++ world
@@ -1636,7 +1636,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                         // obvious to the reader what is going on in the machinery.
                         result.Append($"{identifier.Name.Lexeme}->{getter.MethodName}()");
                     }
-                    else {
+                    else if (identifier.TypeReference.IsClassReference) {
+                        // This is a field/property access or method call on a class itself, e.g. a static method call.
+                        result.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
+                    }
+                    else
+                    {
                         // This is possibly (an instance of) a Perlang class. Generate the expected C++ code for calling
                         // a method on it.
                         //
@@ -1809,6 +1814,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             foreach (Stmt.Function method in stmt.StmtMethods.Where(m => m.Visibility == visibility)) {
                 // Definition
                 classDefinitionBuilder.Append(Indent(1));
+
+                if (method.IsStatic) {
+                    classDefinitionBuilder.Append("static ");
+                }
 
                 if (method.IsConstructor) {
                     classDefinitionBuilder.Append($"{stmt.Name}(");

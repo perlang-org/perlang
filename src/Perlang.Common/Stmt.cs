@@ -122,9 +122,10 @@ public abstract class Stmt
         public bool IsConstructor { get; set; }
         public bool IsDestructor { get; set; }
         public bool IsExtern { get; }
+        public bool IsStatic { get; }
 
         public Function(IToken name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body, TypeReference returnTypeReference,
-            bool isConstructor, bool isDestructor, bool isExtern) {
+            bool isConstructor, bool isDestructor, bool isExtern, bool isStatic) {
             NameToken = name ?? throw new System.ArgumentNullException(nameof(name));
             Visibility = visibility;
             Parameters = parameters.ToImmutableList();
@@ -133,6 +134,7 @@ public abstract class Stmt
             IsConstructor = isConstructor;
             IsDestructor = isDestructor;
             IsExtern = isExtern;
+            IsStatic = isStatic;
             Class = Stmt.Class.None;
         }
 

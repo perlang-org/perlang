@@ -53,6 +53,7 @@ public class Scanner
             { "mutable", MUTABLE },
             { "public", PUBLIC },
             { "private", PRIVATE },
+            { "static", STATIC },
 
             //
             // Currently not supported keywords, but reserved for future use
@@ -80,7 +81,6 @@ public class Scanner
             // Visibility, static/instance, etc
             { "protected", RESERVED_WORD },
             { "internal", RESERVED_WORD },
-            { "static", RESERVED_WORD },
             { "volatile", RESERVED_WORD },
 
             // Standard functions

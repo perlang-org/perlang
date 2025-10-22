@@ -231,12 +231,16 @@ public class PerlangParser
                 throw Error(Previous(), "'extern' keyword must come after visibility");
             }
 
+            // TODO: We should all the modifiers more uniformly here (but possibly enforce a certain order of them, à la
+            // JLS but more stringently). Right now, we will not parse code which says "mutable extern" instead of
+            // "extern mutable", for example.
             if (Check(PUBLIC) || Check(PRIVATE))
             {
                 IToken visibilityToken = Advance();
 
                 var isExtern = isExternDeclaration;
                 var isMutable = false;
+                var isStatic = false;
 
                 var visibility = visibilityToken switch
                 {
@@ -244,6 +248,10 @@ public class PerlangParser
                     { Type: PRIVATE } => Visibility.Private,
                     _ => throw new Perlang.Exceptions.IllegalStateException($"Unexpected token type {visibilityToken.Type}")
                 };
+
+                if (Match(STATIC)) {
+                    isStatic = true;
+                }
 
                 if (Match(EXTERN)) {
                     isExtern = true;
@@ -253,18 +261,38 @@ public class PerlangParser
                     isMutable = true;
                 }
 
-                if (Match(CLASS)) return Class(visibility, isExtern);
-                if (Match(CONSTRUCTOR)) return Function("constructor", visibility, isExtern);
-                if (Match(DESTRUCTOR)) return Function("destructor", visibility, isExtern);
+                if (Match(CLASS)) {
+                    if (isStatic) {
+                        // This is something we want to support, but right now we don't have the mechanics in place to
+                        // correctly validate that static classes meet the constraints (contains only static methods,
+                        // can only contain static constructor(s) and/or destructor(s), etc)
+                        throw Error(Peek(), "'static' modifier is currently not supported for classes (only methods)");
+                    }
+
+                    if (isMutable) {
+                        throw Error(Peek(), "'mutable' modifier is not valid for classes (only fields)");
+                    }
+
+                    return Class(visibility, isExtern);
+                }
+
+                // TODO: These should also check that isMutable is not set. 'static' constructors should be supported;
+                // 'static' _destructors_ feels odd but could perhaps be used for something like atexit() hooks? Could
+                // be useful, I guess.
+                if (Match(CONSTRUCTOR)) return Function("constructor", visibility, isExtern, isStatic);
+                if (Match(DESTRUCTOR)) return Function("destructor", visibility, isExtern, isStatic);
 
                 // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
                 // support instance and static fields here too, which will make things considerably more challenging
                 // (since we are leaning towards dropping the slightly obnoxious 'fun' keyword for functions.
                 // Obnoxious it is, but it does simplify the parsing of the code significantly).
-                return FunctionOrField("method", visibility, isMutable, isExtern);
+                return FunctionOrField("method", visibility, isMutable, isExtern, isStatic);
             }
 
-            if (Match(FUN)) return Function("function", Visibility.Unspecified, isExtern: false);
+            // TODO: Support 'static fun' definitions for static functions too. I'm thinking about dropping the 'fun'
+            // syntax anyway, so we could perhaps take both of these changes at a similar time.
+            if (Match(FUN)) return Function("function", Visibility.Unspecified, isExtern: false, isStatic: false);
+
             if (Match(VAR)) return VarDeclaration();
             if (Match(ENUM)) return Enum();
 
@@ -514,17 +542,17 @@ public class PerlangParser
         return @class;
     }
 
-    private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable, bool isExtern)
+    private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable, bool isExtern, bool isStatic)
     {
-        return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable, isExtern);
+        return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable, isExtern, isStatic);
     }
 
-    private Stmt Function(string kind, Visibility visibility, bool isExtern)
+    private Stmt Function(string kind, Visibility visibility, bool isExtern, bool isStatic)
     {
-        return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null, isExtern);
+        return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null, isExtern, isStatic);
     }
 
-    private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable, bool isExtern)
+    private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable, bool isExtern, bool isStatic)
     {
         IToken name;
 
@@ -637,7 +665,7 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after field definition.");
 
             return new Stmt.Function(
-                name, visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true
+                name, visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true, isStatic
             );
         }
         else {
@@ -645,7 +673,7 @@ public class PerlangParser
             List<Stmt> body = Block();
 
             return new Stmt.Function(
-                name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false
+                name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false, isStatic
             );
         }
     }

@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable SA1623
+
 using System;
 using Perlang.Compiler;
 
@@ -18,6 +20,12 @@ public interface ITypeReference
     /// Gets a value indicating whether this type represents an enum type or not.
     /// </summary>
     bool IsEnum { get; }
+
+    /// <summary>
+    /// Does this reference refer to a class itself, rather to an instance of a class? (i.e. Class.some_method()
+    /// notation.)
+    /// </summary>
+    bool IsClassReference { get; }
 
     /// <summary>
     /// Gets the C++ type that this <see cref="ITypeReference"/> refers to. <c>null</c> means that type inference has
@@ -135,4 +143,6 @@ public interface ITypeReference
     void SetCppTypeFromClrType(Type clrType);
 
     void SetPerlangType(IPerlangType? perlangType);
+
+    void MarkAsClassReference();
 }

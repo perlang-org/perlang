@@ -188,7 +188,7 @@ internal class NameResolver : VisitorBase
         scopes.Last()[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
     }
 
-    private void DefineClass(IToken name, IPerlangClass perlangClass)
+    private void DefineClass(IToken name, IPerlangClass perlangClass, TypeReference typeReference)
     {
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
@@ -201,7 +201,7 @@ internal class NameResolver : VisitorBase
             return;
         }
 
-        globals[name.Lexeme] = new ClassBindingFactory(perlangClass);
+        globals[name.Lexeme] = new ClassBindingFactory(perlangClass, typeReference);
         typeHandler.AddClass(name.Lexeme, perlangClass);
     }
 
@@ -531,7 +531,7 @@ internal class NameResolver : VisitorBase
     {
         Declare(stmt.NameToken);
 
-        DefineClass(stmt.NameToken, stmt);
+        DefineClass(stmt.NameToken, stmt, stmt.TypeReference);
 
         Stmt.Class? enclosingClass = currentClass;
         currentClass = stmt;

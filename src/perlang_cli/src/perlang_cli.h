@@ -81,6 +81,7 @@ namespace TokenType {
         PRIVATE,
         PUBLIC,
         RETURN,
+        STATIC,
         SUPER,
         THIS,
         TRUE,

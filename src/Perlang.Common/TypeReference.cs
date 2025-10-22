@@ -53,11 +53,18 @@ public class TypeReference : ITypeReference
     public void SetPerlangType(IPerlangType? perlangType) =>
         PerlangType = perlangType;
 
+    public void MarkAsClassReference()
+    {
+        IsClassReference = true;
+    }
+
     private readonly bool isArray;
 
     public bool IsArray => CppType?.IsArray ?? isArray;
 
     public bool IsEnum => CppType?.IsEnum ?? false;
+
+    public bool IsClassReference { get; private set; }
 
     public CppType? CppType { get; private set; }
 

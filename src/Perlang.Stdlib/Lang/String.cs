@@ -1,11 +1,11 @@
 #nullable enable
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 #pragma warning disable S101
 #pragma warning disable SA1300
 #pragma warning disable SA1302
 #pragma warning disable SA1623
+
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Perlang.Lang;
 

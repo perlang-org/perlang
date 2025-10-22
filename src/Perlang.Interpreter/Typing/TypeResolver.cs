@@ -420,6 +420,8 @@ internal class TypeResolver : VisitorBase
         {
             if (get.ClrMethods.Any() && get.TypeReference.IsResolved)
             {
+                // TODO: Remove this, shouldn't be required any more since we don't allow calling CLR methods.
+
                 // All is fine, we have a type.
                 expr.TypeReference.SetCppType(get.TypeReference.CppType);
                 expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
@@ -658,12 +660,11 @@ internal class TypeResolver : VisitorBase
     {
         Binding? binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
-        if (binding is ClassBinding)
+        if (binding is ClassBinding classBinding)
         {
-            //expr.TypeReference.SetClrType(typeof(IPerlangClass));
-
-            // TODO: Figure out a good way to handle this in our new world
-            throw new NotImplementedException();
+            expr.TypeReference.SetCppType(classBinding.ClassTypeReference.CppType);
+            expr.TypeReference.SetPerlangType(classBinding.PerlangClass);
+            expr.TypeReference.MarkAsClassReference();
         }
         else if (binding == null)
         {

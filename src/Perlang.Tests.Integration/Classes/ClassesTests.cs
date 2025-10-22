@@ -13,6 +13,51 @@ namespace Perlang.Tests.Integration.Classes;
 public class ClassesTests
 {
     [Fact]
+    public void static_method_can_be_called_without_instance()
+    {
+        string source = """
+            public class Greeter
+            {
+                public static say_hello(): void
+                {
+                    print("Hello World from static class method");
+                }
+            }
+
+            Greeter.say_hello();
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("Hello World from static class method");
+    }
+
+    [Fact]
+    public void static_method_can_be_called_on_class_instance()
+    {
+        string source = """
+            public class Greeter
+            {
+                public static say_hello(): void
+                {
+                    print("Hello World from static class method");
+                }
+            }
+
+            // This is a bit of an odd syntax, but it happens to be valid in C++ so our generated code happens to work.
+            // :)
+            var greeter = new Greeter();
+            greeter.say_hello();
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("Hello World from static class method");
+    }
+
+    [Fact]
     public void class_can_be_instantiated_in_explicitly_typed_variable_and_instance_method_can_be_called()
     {
         string source = """
