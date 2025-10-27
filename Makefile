@@ -53,7 +53,7 @@ CLANGPP=clang++-14
 
 # auto-generated-bindings should rightfully be included here, but doing so makes the target always fail because of
 # https://github.com/mono/CppSharp/issues/1930
-all: auto-generated perlang_cli
+all: auto-generated auto-generated-bindings perlang_cli
 	dotnet build
 
 release:
@@ -66,6 +66,26 @@ auto-generated: src/Perlang.Common/CommonConstants.Generated.cs
 auto-generated-bindings: perlang_cli
 	dotnet build src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
 	dotnet run --project src/Perlang.GenerateCppSharpBindings/Perlang.GenerateCppSharpBindings.csproj
+
+# The CppSharp-generated content has some issues, some of which is related to
+# https://github.com/mono/CppSharp/issues/1930 but also because of missing functionality at their end. For now, we
+# workaround this with a local patch that we maintain in our repo, but it would of course be nice if we could get it to
+# generate proper content out of the box.
+	cp src/Perlang.Common/PerlangCli.cs src/Perlang.Common/PerlangCli.cs-orig
+	patch -p0 < src/Perlang.GenerateCppSharpBindings/perlang-cli.patch
+
+# This rule does a lot of swapping around with the files, to make the editing workflow easy: you are always able to
+# just edit the src/Perlang.Common/PerlangCli.cs file.
+.PHONY: auto-generated-bindings-generate-patch
+auto-generated-bindings-generate-patch:
+	cp src/Perlang.Common/PerlangCli.cs src/Perlang.Common/PerlangCli.cs-edited
+	cp src/Perlang.Common/PerlangCli.cs-orig src/Perlang.Common/PerlangCli.cs
+	diff -u src/Perlang.Common/PerlangCli.cs src/Perlang.Common/PerlangCli.cs-edited > src/Perlang.GenerateCppSharpBindings/perlang-cli.patch || true
+	mv src/Perlang.Common/PerlangCli.cs-edited src/Perlang.Common/PerlangCli.cs
+
+.PHONY: auto-generated-bindings-clean
+auto-generated-bindings-clean:
+	rm src/Perlang.Common/PerlangCli.cs-orig src/Perlang.Common/PerlangCli.cs-edited
 
 src/Perlang.Common/CommonConstants.Generated.cs: scripts/update_common_constants.rb
 	scripts/update_common_constants.rb

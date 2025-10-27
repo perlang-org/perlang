@@ -253,7 +253,7 @@ public unsafe partial class perlang_cli
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z19create_string_tokenN9TokenType9TokenTypeEPKcS2_S2_i", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr CreateStringToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string literal, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z17create_char_tokenN9TokenType9TokenTypeEPKcDsS2_i", CallingConvention = __CallingConvention.Cdecl, CharSet=CharSet.Unicode)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z17create_char_tokenN9TokenType9TokenTypeEPKcDsS2_i", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         internal static extern __IntPtr CreateCharToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, char literal, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
 
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z17create_null_tokenN9TokenType9TokenTypeEPKcS2_i", CallingConvention = __CallingConvention.Cdecl)]
