@@ -4,3 +4,17 @@ enum Visibility
     Public,
     Private
 }
+
+public class PerlangScanner
+{
+    public static is_alpha(c: char): bool
+    {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z');
+    }
+
+    public static is_underscore(c: char): bool
+    {
+        return c == '_';
+    }
+}

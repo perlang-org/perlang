@@ -386,7 +386,7 @@ public class Scanner
                 {
                     Number();
                 }
-                else if (IsAlpha(c) || IsUnderscore(c))
+                else if (PerlangScanner.IsAlpha(c) || PerlangScanner.IsUnderscore(c))
                 {
                     Identifier();
                 }
@@ -469,7 +469,7 @@ public class Scanner
         string numberCharacters = RemoveUnderscores(source[(start + startOffset)..current]);
         char? suffix = null;
 
-        if (IsAlpha(Peek()))
+        if (PerlangScanner.IsAlpha(Peek()))
         {
             suffix = Advance();
         }
@@ -765,17 +765,8 @@ public class Scanner
         return source[current + 1];
     }
 
-    private static bool IsAlpha(char c)
-    {
-        return (c is >= 'a' and <= 'z') ||
-               (c is >= 'A' and <= 'Z');
-    }
-
-    private static bool IsUnderscore(char c) =>
-        c is '_';
-
     private static bool IsAlphaNumeric(char c) =>
-        IsAlpha(c) || IsUnderscore(c) || IsDigit(c, NumericToken.Base.DECIMAL);
+        PerlangScanner.IsAlpha(c) || PerlangScanner.IsUnderscore(c) || IsDigit(c, NumericToken.Base.DECIMAL);
 
     private static bool IsDigit(char c, NumericToken.Base @base) =>
         (int)@base switch

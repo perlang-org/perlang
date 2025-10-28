@@ -13,6 +13,15 @@
 //
 // Perlang class implementations
 //
+bool PerlangScanner::is_alpha(char16_t c) {
+    return (c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z');
+};
+
+bool PerlangScanner::is_underscore(char16_t c) {
+    return c == L'_';
+};
+
+
 Token::Token(TokenType::TokenType token_type, std::shared_ptr<perlang::String> lexeme, std::shared_ptr<perlang::Object> literal, std::shared_ptr<perlang::String> file_name, int32_t line) {
     token_type_ = token_type;
     lexeme_ = lexeme;

@@ -95,6 +95,14 @@ namespace TokenType {
 //
 // Perlang class definitions
 //
+class PerlangScanner : public std::enable_shared_from_this<PerlangScanner>, public perlang::Object {
+private:
+public:
+    static bool is_alpha(char16_t c);
+    static bool is_underscore(char16_t c);
+private:
+};
+
 class Token : public std::enable_shared_from_this<Token>, public perlang::Object {
 private:
     TokenType::TokenType token_type_;

@@ -12,6 +12,235 @@ using __IntPtr = global::System.IntPtr;
 
 #pragma warning disable CS0109 // Member does not hide an inherited member; new keyword is not required
 
+public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 24)]
+    public partial struct __Internal
+    {
+        internal __IntPtr vptr_Object;
+        internal global::Std.WeakPtr.__Internal _M_weak_this;
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScannerC2Ev", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void ctor(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8is_alphaEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsAlpha(char c);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner13is_underscoreEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsUnderscore(char c);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::PerlangScanner> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::PerlangScanner>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::PerlangScanner managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::PerlangScanner managed)
+    {
+
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::PerlangScanner __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::PerlangScanner(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::PerlangScanner __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::PerlangScanner)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::PerlangScanner __GetInstance(__IntPtr native)
+    {
+        if (!__TryGetNativeToManagedMapping(native, out var managed))
+            throw new global::System.Exception("No managed instance was found");
+        var result = (global::PerlangScanner)managed;
+        if (result.__ownsNativeInstance)
+            result.SetupVTables();
+        return result;
+    }
+
+    internal static global::PerlangScanner __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::PerlangScanner(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        *(__Internal*) ret = native;
+        return ret.ToPointer();
+    }
+
+    private PerlangScanner(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected PerlangScanner(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+        if (!skipVTables)
+            SetupVTables(true);
+    }
+
+    public PerlangScanner()
+        : this((void*) null)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::PerlangScanner.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        __Internal.ctor(__Instance);
+        SetupVTables(GetType().FullName == "PerlangScanner");
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        *(IntPtr*)(__Instance + 0) = __VTables.Tables[0];
+        DisposePartial(disposing);
+        if (callNativeDtor)
+        {
+            var ___dtorDelegate = __VTables.GetMethodDelegate<global::Delegates.Action___IntPtr>(0, 0);
+            ___dtorDelegate(__Instance);
+        }
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+
+    public static bool IsAlpha(char c)
+    {
+        var ___ret = __Internal.IsAlpha(c);
+        return ___ret;
+    }
+
+    public static bool IsUnderscore(char c)
+    {
+        var ___ret = __Internal.IsUnderscore(c);
+        return ___ret;
+    }
+
+    public __IntPtr __PointerToObject
+    {
+        get
+        {
+            return __Instance + 0;
+        }
+    }
+
+    #region Virtual table interop
+
+    // PerlangScanner
+    private static global::Delegates.Action___IntPtr _dtorDelegateInstance;
+
+    private static void _dtorDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::PerlangScanner.__GetInstance(__instance);
+        __target.Dispose(disposing: true, callNativeDtor: true);
+    }
+
+    internal static class VTableLoader
+    {
+        private static volatile bool initialized;
+        private static readonly IntPtr*[] ManagedVTables = new IntPtr*[1];
+        private static readonly IntPtr*[] ManagedVTablesDtorOnly = new IntPtr*[1];
+        private static readonly IntPtr[] Thunks = new IntPtr[1];
+        private static CppSharp.Runtime.VTables VTables;
+        private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
+            SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
+
+        static VTableLoader()
+        {
+            _dtorDelegateInstance += _dtorDelegateHook;
+            Thunks[0] = Marshal.GetFunctionPointerForDelegate(_dtorDelegateInstance);
+        }
+
+        public static CppSharp.Runtime.VTables SetupVTables(IntPtr instance, bool destructorOnly = false)
+        {
+            if (!initialized)
+            {
+                lock (ManagedVTables)
+                {
+                    if (!initialized)
+                    {
+                        initialized = true;
+                        VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
+                        VTables.Methods = new Delegate[1][];
+                        ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 6, 2);
+                        ManagedVTablesDtorOnly[0][1] = Thunks[0];
+                        ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 6, 2);
+                        ManagedVTables[0][1] = Thunks[0];
+                        VTables.Methods[0] = new Delegate[6];
+                    }
+                }
+            }
+
+            if (destructorOnly)
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTablesDtorOnly[0];
+            }
+            else
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTables[0];
+            }
+            return VTables;
+        }
+    }
+
+    protected CppSharp.Runtime.VTables __vtables;
+    internal virtual CppSharp.Runtime.VTables __VTables
+    {
+        get {
+            if (__vtables.IsEmpty)
+                __vtables.Tables = new IntPtr[] { *(IntPtr*)(__Instance + 0) };
+            return __vtables;
+        }
+
+        set {
+            __vtables = value;
+        }
+    }
+    internal virtual void SetupVTables(bool destructorOnly = false)
+    {
+        if (__VTables.IsTransient)
+            __VTables = VTableLoader.SetupVTables(__Instance, destructorOnly);
+    }
+    #endregion
+}
+
 public unsafe partial class Token : global::Perlang.IObject, IDisposable
 {
     [StructLayout(LayoutKind.Sequential, Size = 88)]
@@ -3086,6 +3315,12 @@ namespace Std
     {
         [StructLayout(LayoutKind.Sequential, Size = 16)]
         public unsafe partial struct __Internalc__N_std_S_enable_shared_from_this____S_Token
+        {
+            internal global::Std.WeakPtr.__Internal _M_weak_this;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public unsafe partial struct __Internalc__N_std_S_enable_shared_from_this____S_PerlangScanner
         {
             internal global::Std.WeakPtr.__Internal _M_weak_this;
         }
