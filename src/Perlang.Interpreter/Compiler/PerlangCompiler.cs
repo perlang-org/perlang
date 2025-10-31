@@ -789,9 +789,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     // but we silence it for now.
                     "-Wno-shift-count-overflow",
 
+                    // Too strict to make this a hard error by default. It's a code smell, but making it be enabled by
+                    // default feels too annoying.
+                    "-Wno-error=unused-private-field",
+
                     // Doesn't make sense, but some of our unit tests produce such warnings
-                    "-Wno-unused-value",
-                    "-Wno-unused-variable",
+                    "-Wno-error=unused-value",
+                    "-Wno-error=unused-variable",
 
                     // Order here is critical: we must list the C++ source *before* the libstdlib.a reference, since the
                     // linker will otherwise be unable to resolve references from the C++ file to e.g. perlang::*
