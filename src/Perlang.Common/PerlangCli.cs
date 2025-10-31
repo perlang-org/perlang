@@ -499,6 +499,10 @@ public unsafe partial class perlang_cli
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsCharToken(__IntPtr token);
 
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z13is_null_tokenP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsNullToken(__IntPtr token);
+
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z16get_token_lexemeP5Token", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr GetTokenLexeme(__IntPtr token);
 
@@ -565,6 +569,13 @@ public unsafe partial class perlang_cli
     {
         var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
         var ___ret = __Internal.IsCharToken(__arg0);
+        return ___ret;
+    }
+
+    public static bool IsNullToken(global::Token token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var ___ret = __Internal.IsNullToken(__arg0);
         return ___ret;
     }
 

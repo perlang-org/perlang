@@ -159,6 +159,11 @@ bool is_string_token(Token* token)
 {
     auto literal = token->literal().get();
 
+    // This will be the case for null tokens
+    if (literal == nullptr) {
+        return false;
+    }
+
     // TODO: Replace with proper is_assignable_to() check once we have a more sophisticated perlang::Type
     // implementation, supporting it.
     if (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.ASCIIString") ||
@@ -174,7 +179,18 @@ bool is_char_token(Token* token)
 {
     auto literal = token->literal().get();
 
+    // This will be the case for null tokens
+    if (literal == nullptr) {
+        return false;
+    }
+
     return (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.Char"));
+}
+
+bool is_null_token(Token* token)
+{
+    auto literal = token->literal().get();
+    return literal == nullptr;
 }
 
 const char* get_token_lexeme(Token* token)

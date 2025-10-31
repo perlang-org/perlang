@@ -12,12 +12,16 @@ public partial class Token : IToken
 
     public object? Literal
     {
-        get {
+        get
+        {
             if (perlang_cli.IsStringToken(this)) {
                 return perlang_cli.GetTokenStringLiteral(this);
             }
             else if (perlang_cli.IsCharToken(this)) {
                 return perlang_cli.GetTokenCharLiteral(this);
+            }
+            else if (perlang_cli.IsNullToken(this)) {
+                return null;
             }
             else {
                 throw new PerlangCompilerException("Internal error: Unexpected token type encountered");

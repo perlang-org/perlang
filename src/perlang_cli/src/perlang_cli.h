@@ -145,6 +145,7 @@ void delete_token(Token* token);
 
 bool is_string_token(Token* token);
 bool is_char_token(Token* token);
+bool is_null_token(Token* token);
 
 const char* get_token_lexeme(Token* token);
 const char* get_token_string_literal(Token* token);
