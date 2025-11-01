@@ -97,9 +97,23 @@ namespace TokenType {
 //
 class PerlangScanner : public std::enable_shared_from_this<PerlangScanner>, public perlang::Object {
 private:
+    std::shared_ptr<perlang::UTF16String> source;
+    int32_t start = 0;
+    int32_t current = 0;
+    int32_t line = 1;
 public:
+    PerlangScanner(std::shared_ptr<perlang::UTF8String> source);
+    char16_t peek();
+    char16_t peek_next();
     static bool is_alpha(char16_t c);
     static bool is_underscore(char16_t c);
+    bool is_at_end();
+    char16_t advance();
+    int32_t get_line();
+    void advance_line();
+    int32_t get_start();
+    void set_start_to_current();
+    int32_t get_current();
 private:
 };
 
@@ -138,6 +152,8 @@ void perlang_detailed_version();
 #include <getopt.h>
 
 extern "C" void native_main(int argc, char* const* argv);
+PerlangScanner* create_perlang_scanner(const char* source);
+void delete_perlang_scanner(PerlangScanner* scanner);
 Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
 Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
 Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);

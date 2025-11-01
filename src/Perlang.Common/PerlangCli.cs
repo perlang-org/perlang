@@ -14,14 +14,15 @@ using __IntPtr = global::System.IntPtr;
 
 public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposable
 {
-    [StructLayout(LayoutKind.Sequential, Size = 24)]
+    [StructLayout(LayoutKind.Sequential, Size = 56)]
     public partial struct __Internal
     {
         internal __IntPtr vptr_Object;
         internal global::Std.WeakPtr.__Internal _M_weak_this;
-
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScannerC2Ev", CallingConvention = __CallingConvention.Cdecl)]
-        internal static extern void ctor(__IntPtr __instance);
+        internal global::Std.SharedPtr.__Internal source;
+        internal int start;
+        internal int current;
+        internal int line;
 
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8is_alphaEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -30,6 +31,34 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner13is_underscoreEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsUnderscore(char c);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner7advanceEv", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern char Advance(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner12advance_lineEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void AdvanceLine(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner20set_start_to_currentEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void SetStartToCurrent(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner4peekEv", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern char Peek(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner9peek_nextEv", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern char PeekNext(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner9is_at_endEv", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsAtEnd(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8get_lineEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern int GetLine(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner9get_startEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern int GetStart(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner11get_currentEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern int GetCurrent(__IntPtr __instance);
     }
 
     public __IntPtr __Instance { get; protected set; }
@@ -107,16 +136,6 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
             SetupVTables(true);
     }
 
-    public PerlangScanner()
-        : this((void*) null)
-    {
-        __Instance = Marshal.AllocHGlobal(sizeof(global::PerlangScanner.__Internal));
-        __ownsNativeInstance = true;
-        __RecordNativeToManagedMapping(__Instance, this);
-        __Internal.ctor(__Instance);
-        SetupVTables(GetType().FullName == "PerlangScanner");
-    }
-
     public void Dispose()
     {
         Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
@@ -141,6 +160,22 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         __Instance = IntPtr.Zero;
     }
 
+    public char Advance()
+    {
+        var ___ret = __Internal.Advance(__Instance);
+        return ___ret;
+    }
+
+    public void AdvanceLine()
+    {
+        __Internal.AdvanceLine(__Instance);
+    }
+
+    public void SetStartToCurrent()
+    {
+        __Internal.SetStartToCurrent(__Instance);
+    }
+
     public static bool IsAlpha(char c)
     {
         var ___ret = __Internal.IsAlpha(c);
@@ -158,6 +193,60 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         get
         {
             return __Instance + 0;
+        }
+    }
+
+    public char Peek
+    {
+        get
+        {
+            var ___ret = __Internal.Peek(__Instance);
+            return ___ret;
+        }
+    }
+
+    public char PeekNext
+    {
+        get
+        {
+            var ___ret = __Internal.PeekNext(__Instance);
+            return ___ret;
+        }
+    }
+
+    public bool IsAtEnd
+    {
+        get
+        {
+            var ___ret = __Internal.IsAtEnd(__Instance);
+            return ___ret;
+        }
+    }
+
+    public int Line
+    {
+        get
+        {
+            var ___ret = __Internal.GetLine(__Instance);
+            return ___ret;
+        }
+    }
+
+    public int Start
+    {
+        get
+        {
+            var ___ret = __Internal.GetStart(__Instance);
+            return ___ret;
+        }
+    }
+
+    public int Current
+    {
+        get
+        {
+            var ___ret = __Internal.GetCurrent(__Instance);
+            return ___ret;
         }
     }
 
@@ -479,6 +568,12 @@ public unsafe partial class perlang_cli
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "native_main", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void NativeMain(int argc, sbyte** argv);
 
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22create_perlang_scannerPKc", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern __IntPtr CreatePerlangScanner([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string source);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22delete_perlang_scannerP14PerlangScanner", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void DeletePerlangScanner(__IntPtr scanner);
+
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z19create_string_tokenN9TokenType9TokenTypeEPKcS2_S2_i", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr CreateStringToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string literal, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
 
@@ -529,6 +624,19 @@ public unsafe partial class perlang_cli
     public static void NativeMain(int argc, sbyte** argv)
     {
         __Internal.NativeMain(argc, argv);
+    }
+
+    public static global::PerlangScanner CreatePerlangScanner(string source)
+    {
+        var ___ret = __Internal.CreatePerlangScanner(source);
+        var __result0 = global::PerlangScanner.__GetOrCreateInstance(___ret, true);
+        return __result0;
+    }
+
+    public static void DeletePerlangScanner(global::PerlangScanner scanner)
+    {
+        var __arg0 = scanner is null ? __IntPtr.Zero : scanner.__Instance;
+        __Internal.DeletePerlangScanner(__arg0);
     }
 
     public static global::Token CreateStringToken(global::Perlang.TokenType token_type, string lexeme, string literal, string file_name, int line)

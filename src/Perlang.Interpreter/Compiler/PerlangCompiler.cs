@@ -415,9 +415,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         // Ensure that tokens allocated get properly cleaned up when the process exits
-        TokenCleaner.DisposeOnShutdown(cppPrototypes);
-        TokenCleaner.DisposeOnShutdown(cppMethods);
-        TokenCleaner.DisposeOnShutdown(result.Tokens);
+        ManagedResourceCleaner.DisposeTokensOnShutdown(cppPrototypes);
+        ManagedResourceCleaner.DisposeTokensOnShutdown(cppMethods);
+        ManagedResourceCleaner.DisposeTokensOnShutdown(result.Tokens);
 
         //
         // Resolving names phase
@@ -1310,6 +1310,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public object VisitIndexExpr(Expr.Index expr)
     {
+        // (Old comment, leaving since it still adds value. Range checking is done one the stdlib side, in the indexing
+        // operator implementations)
         // TODO: Consider doing range checking at this point. In general, try to figure out a balanced approach in the
         // TODO: "safe" vs "fast" dichotomy. C and C++ are fast (no array bounds checking) but can blow up in your face
         // TODO: if you're not careful. Java and .NET are safe (all array indexing is bounds-checked) but this

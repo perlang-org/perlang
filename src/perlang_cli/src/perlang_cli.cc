@@ -13,12 +13,59 @@
 //
 // Perlang class implementations
 //
+PerlangScanner::PerlangScanner(std::shared_ptr<perlang::UTF8String> source) {
+    this->source = source->as_utf16();
+};
+
+char16_t PerlangScanner::peek() {
+    if (is_at_end())         {
+            return '\0';
+        }
+    return (*source)[current];
+};
+
+char16_t PerlangScanner::peek_next() {
+    if (current + 1 >= source->length())         {
+            return '\0';
+        }
+    return (*source)[current + 1];
+};
+
 bool PerlangScanner::is_alpha(char16_t c) {
     return (c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z');
 };
 
 bool PerlangScanner::is_underscore(char16_t c) {
     return c == L'_';
+};
+
+bool PerlangScanner::is_at_end() {
+    return current >= source->length();
+};
+
+char16_t PerlangScanner::advance() {
+    current++;
+    return (*source)[current - 1];
+};
+
+int32_t PerlangScanner::get_line() {
+    return line;
+};
+
+void PerlangScanner::advance_line() {
+    line++;
+};
+
+int32_t PerlangScanner::get_start() {
+    return start;
+};
+
+void PerlangScanner::set_start_to_current() {
+    start = current;
+};
+
+int32_t PerlangScanner::get_current() {
+    return current;
 };
 
 
@@ -129,6 +176,18 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
     }
 
     // Pass control back to the C# code
+}
+// Create a Perlang scanner instance. Because Perlang strings aren't directly usable from C#, we add this C++-based
+// wrapper method which is easier to P/Invoke using CppSharp.
+PerlangScanner* create_perlang_scanner(const char* source)
+{
+    auto source_string = perlang::UTF8String::from_copied_string(source);
+    return new PerlangScanner(std::move(source_string));
+}
+
+void delete_perlang_scanner(PerlangScanner* scanner)
+{
+    delete scanner;
 }
 Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
 {

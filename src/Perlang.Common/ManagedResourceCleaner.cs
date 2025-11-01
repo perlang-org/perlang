@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Perlang.Interpreter.Compiler;
+namespace Perlang;
 
-internal static class TokenCleaner
+public static class ManagedResourceCleaner
 {
-    public static void DisposeOnShutdown(IEnumerable<IToken> tokens)
+    public static void DisposeTokensOnShutdown(IEnumerable<IToken> tokens)
     {
-        AppDomain.CurrentDomain.ProcessExit += (sender, args) => {
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => {
             foreach (IToken token in tokens) {
                 if (token is Token t) {
                     // t.Dispose() wouldn't be enough since __ownsNativeInstance is false for the instances returned by
@@ -18,5 +18,10 @@ internal static class TokenCleaner
                 }
             }
         };
+    }
+
+    public static void DisposeOnShutdown(IDisposable disposable)
+    {
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => disposable.Dispose();
     }
 }

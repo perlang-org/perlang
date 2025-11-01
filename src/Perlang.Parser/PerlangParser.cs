@@ -82,11 +82,21 @@ public class PerlangParser
         var tokens = new List<IToken>();
 
         foreach (SourceFile sourceFile in sourceFiles) {
+            // Disposed via DisposeOnShutdown() call below
+#pragma warning disable CA2000
             var scanner = new Scanner(sourceFile.FileName, sourceFile.Source, scanError =>
             {
                 hasScanErrors = true;
                 scanErrorHandler(scanError);
             });
+#pragma warning restore CA2000
+
+            // Cannot use normal IDisposable here since that seems to cause the PerlangScanner class to be deallocated
+            // too early, leading to process crashes. Valgrind would be able to help me pinpoint the exact cause for
+            // this, but valgrinding the whole .NET test runner process here is considered unfeasible. We'll live with
+            // this as an approximation for now; the important part is to ensure that we don't leak memory, not to
+            // achieve 100% perfect lifetime for this object.
+            ManagedResourceCleaner.DisposeOnShutdown(scanner);
 
             tokens.AddRange(scanner.ScanTokens());
 

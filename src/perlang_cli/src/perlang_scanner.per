@@ -1,3 +1,8 @@
+#c++-prototypes
+PerlangScanner* create_perlang_scanner(const char* source);
+void delete_perlang_scanner(PerlangScanner* scanner);
+#/c++-prototypes
+
 enum Visibility
 {
     Unspecified,
@@ -7,6 +12,48 @@ enum Visibility
 
 public class PerlangScanner
 {
+    private source: UTF16String;
+
+    private mutable start: int = 0;
+    private mutable current: int = 0;
+    private mutable line: int = 1;
+
+    // We have glue code later in this file (in inline C++) to be able to call this constructor, because it expects a
+    // std::shared_ptr<perlang::UTF8String> parameter which is impossible to use directly from C#
+    public constructor(source: UTF8String)
+    {
+        // We always want this to be a UTF16String, so we can index it (because "string" is a generic string which may
+        // or may not be indexable, depending on the underlying binary representation).
+        this.source = source.as_utf16();
+    }
+
+    /// <summary>
+    /// Returns the current character of the input stream, without advancing the current position.
+    /// </summary>
+    /// <returns>The character at the current position, or `\0` if at EOF.</returns>
+    public peek(): char
+    {
+        if (is_at_end()) {
+            return '\0';
+        }
+
+        return source[current];
+    }
+
+    /// <summary>
+    /// Returns the character immediately after the current character of the input stream, without advancing the
+    /// current position.
+    /// </summary>
+    /// <returns>The character at the given position, or `\0` if at EOF.</returns>
+    public peek_next(): char
+    {
+        if (current + 1 >= source.length) {
+            return '\0';
+        }
+
+        return source[current + 1];
+    }
+
     public static is_alpha(c: char): bool
     {
         return (c >= 'a' && c <= 'z') ||
@@ -17,4 +64,62 @@ public class PerlangScanner
     {
         return c == '_';
     }
+
+    public is_at_end(): bool
+    {
+        return current >= source.length;
+    }
+
+    /// <summary>
+    /// Moves the cursor one step forward and returns the element which was previously current.
+    /// </summary>
+    /// <returns>The current element, before advancing the cursor.</returns>
+    public advance(): char
+    {
+        current++;
+        return source[current - 1];
+    }
+
+    // TODO: replace with field access once we are rewritten
+    public get_line(): int
+    {
+        return line;
+    }
+
+    // TODO: replace with plain line++ calls when the whole scanner has been rewritten in Perlang
+    public advance_line(): void
+    {
+        line++;
+    }
+
+    // TODO: likewise, all the following methods can be replaced with field access when we are done with the conversion.
+    public get_start(): int
+    {
+        return start;
+    }
+
+    public set_start_to_current(): void
+    {
+        start = current;
+    }
+
+    public get_current(): int
+    {
+        return current;
+    }
 }
+
+#c++-methods
+// Create a Perlang scanner instance. Because Perlang strings aren't directly usable from C#, we add this C++-based
+// wrapper method which is easier to P/Invoke using CppSharp.
+PerlangScanner* create_perlang_scanner(const char* source)
+{
+    auto source_string = perlang::UTF8String::from_copied_string(source);
+    return new PerlangScanner(std::move(source_string));
+}
+
+void delete_perlang_scanner(PerlangScanner* scanner)
+{
+    delete scanner;
+}
+#/c++-methods

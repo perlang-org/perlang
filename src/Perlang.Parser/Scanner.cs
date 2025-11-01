@@ -21,7 +21,7 @@ namespace Perlang.Parser;
 /// stream-based implementation instead. An individual source file is unlikely to become much larger than a few
 /// thousand lines at most, so just using a plain `String` is probably the easiest, reasonable approach for now.
 /// </remarks>
-public class Scanner
+public class Scanner : IDisposable
 {
     // NOTE: When making changes here, remember to adjust highlightjs-perlang.js also to ensure syntax highlighting
     // on the website matches the real set of keywords in the language.
@@ -160,33 +160,33 @@ public class Scanner
     private readonly ScanErrorHandler scanErrorHandler;
 
     private readonly List<IToken> tokens = new();
-    private int start;
-    private int current;
-    private int line = 1;
+    private readonly PerlangScanner perlangScanner;
 
     public Scanner(string fileName, string source, ScanErrorHandler scanErrorHandler)
     {
         this.fileName = fileName;
         this.source = source;
         this.scanErrorHandler = scanErrorHandler;
+
+        this.perlangScanner = perlang_cli.CreatePerlangScanner(source);
     }
 
     public List<IToken> ScanTokens()
     {
-        if (Peek() == '#' && PeekNext() == '!')
+        if (perlangScanner.Peek == '#' && perlangScanner.PeekNext == '!')
         {
             // The input stream starts with a shebang (typically '#!/usr/bin/env perlang') line. The shebang
             // continues until the end of the line.
-            while (Peek() != '\n' && !IsAtEnd())
+            while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd)
             {
-                Advance();
+                perlangScanner.Advance();
             }
         }
 
-        while (!IsAtEnd())
+        while (!perlangScanner.IsAtEnd)
         {
             // We are at the beginning of the next lexeme.
-            start = current;
+            perlangScanner.SetStartToCurrent();
             ScanToken();
         }
 
@@ -195,7 +195,8 @@ public class Scanner
 
     private void ScanToken()
     {
-        char c = Advance();
+        // TODO: Try to get this to not be a property but a normal method.
+        char c = perlangScanner.Advance();
 
         // Note: case values are sorted in ASCII order, which makes it easy and unambiguous to add new content.
         //
@@ -212,7 +213,7 @@ public class Scanner
 
             // LFs are tracked to increase the newline count.
             case '\n':
-                line++;
+                perlangScanner.AdvanceLine();
                 break;
 
             case '!':
@@ -284,9 +285,9 @@ public class Scanner
                 if (Match('/'))
                 {
                     // A comment continues until the end of the line.
-                    while (Peek() != '\n' && !IsAtEnd())
+                    while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd)
                     {
-                        Advance();
+                        perlangScanner.Advance();
                     }
                 }
                 else
@@ -392,7 +393,7 @@ public class Scanner
                 }
                 else
                 {
-                    scanErrorHandler(new ScanError("Unexpected character " + c, fileName, line));
+                    scanErrorHandler(new ScanError("Unexpected character " + c, fileName, perlangScanner.Line));
                 }
 
                 break;
@@ -401,13 +402,13 @@ public class Scanner
 
     private void Identifier()
     {
-        while (IsAlphaNumeric(Peek()))
+        while (IsAlphaNumeric(perlangScanner.Peek))
         {
-            Advance();
+            perlangScanner.Advance();
         }
 
         // See if the identifier is a reserved word.
-        string text = source[start..current];
+        string text = source[perlangScanner.Start..perlangScanner.Current];
         var type = ReservedKeywords.ContainsKey(text) ? ReservedKeywords.Get(text) : IDENTIFIER;
 
         AddToken(type);
@@ -420,7 +421,7 @@ public class Scanner
         var numberBase = NumericToken.Base.DECIMAL;
         int startOffset = 0;
 
-        char currentChar = System.Char.ToLower(Peek());
+        char currentChar = System.Char.ToLower(perlangScanner.Peek);
 
         if (currentChar is 'b' or 'o' or 'x')
         {
@@ -443,42 +444,42 @@ public class Scanner
             // Moving the `start` pointer forward is important, since the parsing methods do not accept a prefix
             // like 0b or 0x being present. Adding a `startOffset` here feels safer than mutating `start`,
             // especially in case parsing fails somehow.
-            Advance();
+            perlangScanner.Advance();
             startOffset = 2;
         }
 
-        while (IsDigit(Peek(), numberBase) || Peek() == '_')
+        while (IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
         {
-            Advance();
+            perlangScanner.Advance();
         }
 
         // Look for a fractional part.
-        if (Peek() == '.' && IsDigit(PeekNext(), numberBase))
+        if (perlangScanner.Peek == '.' && IsDigit(perlangScanner.PeekNext, numberBase))
         {
             isFractional = true;
 
             // Consume the "."
-            Advance();
+            perlangScanner.Advance();
 
-            while (IsDigit(Peek(), numberBase) || Peek() == '_')
+            while (IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
             {
-                Advance();
+                perlangScanner.Advance();
             }
         }
 
-        string numberCharacters = RemoveUnderscores(source[(start + startOffset)..current]);
+        string numberCharacters = RemoveUnderscores(source[(perlangScanner.Start + startOffset)..perlangScanner.Current]);
         char? suffix = null;
 
-        if (PerlangScanner.IsAlpha(Peek()))
+        if (PerlangScanner.IsAlpha(perlangScanner.Peek))
         {
-            suffix = Advance();
+            suffix = perlangScanner.Advance();
         }
 
         // Note that numbers are not parsed at this stage. We deliberately postpone it to the parsing stage, to be
         // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
         // from Lox) worked poorly with our idea of "narrowing down" constants to the smallest possible integer. See
         // #302 for some more details.
-        AddToken(new NumericToken(fileName, source[start..current], line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
+        AddToken(new NumericToken(fileName, source[perlangScanner.Start..perlangScanner.Current], perlangScanner.Line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
     }
 
     private static string RemoveUnderscores(string s)
@@ -496,28 +497,28 @@ public class Scanner
     private void String()
     {
         // TODO: Add support for the same escape sequences we support for `char` literals
-        while (Peek() != '"' && !IsAtEnd())
+        while (perlangScanner.Peek != '"' && !perlangScanner.IsAtEnd)
         {
-            if (Peek() == '\n')
+            if (perlangScanner.Peek == '\n')
             {
-                line++;
+                perlangScanner.AdvanceLine();
             }
 
-            Advance();
+            perlangScanner.Advance();
         }
 
         // Unterminated string.
-        if (IsAtEnd())
+        if (perlangScanner.IsAtEnd)
         {
-            scanErrorHandler(new ScanError("Unterminated string.", fileName, line));
+            scanErrorHandler(new ScanError("Unterminated string.", fileName, perlangScanner.Line));
             return;
         }
 
         // The closing ".
-        Advance();
+        perlangScanner.Advance();
 
         // Trim the surrounding quotes.
-        string value = source[(start + 1)..(current - 1)];
+        string value = source[(perlangScanner.Start + 1)..(perlangScanner.Current - 1)];
         AddToken(STRING, value);
     }
 
@@ -525,47 +526,47 @@ public class Scanner
     // be one option, but the directives we currently support are in fact closer to preprocessor-like directives.
     private void PreprocessorDirective()
     {
-        while (Peek() != '\n' && !IsAtEnd()) {
-            Advance();
+        while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd) {
+            perlangScanner.Advance();
         }
 
         // TrimEnd() call needed to workaround Windows CR+LF line endings
-        string startDirective = source[(start + 1)..current].TrimEnd();
-        int valueStart = current;
+        string startDirective = source[(perlangScanner.Start + 1)..perlangScanner.Current].TrimEnd();
+        int valueStart = perlangScanner.Current;
 
         switch (startDirective) {
             case "c++-prototypes":
             {
-                while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
-                    if (Peek() == '\n') {
-                        line++;
+                while (!(perlangScanner.Peek == '#' && perlangScanner.PeekNext == '/') && !perlangScanner.IsAtEnd) {
+                    if (perlangScanner.Peek == '\n') {
+                        perlangScanner.AdvanceLine();
                     }
 
-                    Advance();
+                    perlangScanner.Advance();
                 }
 
-                if (IsAtEnd()) {
-                    scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, line));
+                if (perlangScanner.IsAtEnd) {
+                    scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, perlangScanner.Line));
                     return;
                 }
 
                 // Consume the '#'
-                Advance();
+                perlangScanner.Advance();
 
-                int endDirectiveStart = current;
+                int endDirectiveStart = perlangScanner.Current;
 
-                while (Peek() != '\n' && !IsAtEnd()) {
-                    Advance();
+                while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd) {
+                    perlangScanner.Advance();
                 }
 
-                string endDirective = source[endDirectiveStart..current].Trim();
+                string endDirective = source[endDirectiveStart..perlangScanner.Current].Trim();
 
                 if (endDirective == "/c++-prototypes") {
                     string value = source[valueStart..(endDirectiveStart - 1)];
                     AddToken(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES, value.Trim());
                 }
                 else {
-                    scanErrorHandler(new ScanError($"Expected '/c++-prototypes' but got '{endDirective}'.", fileName, line));
+                    scanErrorHandler(new ScanError($"Expected '/c++-prototypes' but got '{endDirective}'.", fileName, perlangScanner.Line));
                 }
 
                 break;
@@ -573,43 +574,43 @@ public class Scanner
 
             case "c++-methods":
             {
-                while (!(Peek() == '#' && PeekNext() == '/') && !IsAtEnd()) {
-                    if (Peek() == '\n') {
-                        line++;
+                while (!(perlangScanner.Peek == '#' && perlangScanner.PeekNext == '/') && !perlangScanner.IsAtEnd) {
+                    if (perlangScanner.Peek == '\n') {
+                        perlangScanner.AdvanceLine();
                     }
 
-                    Advance();
+                    perlangScanner.Advance();
                 }
 
-                if (IsAtEnd()) {
-                    scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, line));
+                if (perlangScanner.IsAtEnd) {
+                    scanErrorHandler(new ScanError($"Unterminated preprocessor directive {startDirective}.", fileName, perlangScanner.Line));
                     return;
                 }
 
                 // Consume the '#'
-                Advance();
+                perlangScanner.Advance();
 
-                int endDirectiveStart = current;
+                int endDirectiveStart = perlangScanner.Current;
 
-                while (Peek() != '\n' && !IsAtEnd()) {
-                    Advance();
+                while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd) {
+                    perlangScanner.Advance();
                 }
 
-                string endDirective = source[endDirectiveStart..current].Trim();
+                string endDirective = source[endDirectiveStart..perlangScanner.Current].Trim();
 
                 if (endDirective == "/c++-methods") {
                     string value = source[valueStart..(endDirectiveStart - 1)];
                     AddToken(PREPROCESSOR_DIRECTIVE_CPP_METHODS, value.Trim());
                 }
                 else {
-                    scanErrorHandler(new ScanError($"Expected '/c++-methods' but got '{endDirective}'.", fileName, line));
+                    scanErrorHandler(new ScanError($"Expected '/c++-methods' but got '{endDirective}'.", fileName, perlangScanner.Line));
                 }
 
                 break;
             }
 
             default:
-                scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", fileName, line));
+                scanErrorHandler(new ScanError($"Unknown preprocessor directive {startDirective}.", fileName, perlangScanner.Line));
                 break;
         }
     }
@@ -623,14 +624,14 @@ public class Scanner
         // other characters which require more space are unsupported.
         if (!Match('\\')) {
             if (Match('\'')) {
-                scanErrorHandler(new ScanError("Character literal cannot be empty.", fileName, line));
+                scanErrorHandler(new ScanError("Character literal cannot be empty.", fileName, perlangScanner.Line));
                 return;
             }
 
-            c = Advance();
+            c = perlangScanner.Advance();
         }
         else {
-            char escapeCharacter = Advance();
+            char escapeCharacter = perlangScanner.Advance();
 
             switch (escapeCharacter) {
                 case '\'':
@@ -657,7 +658,7 @@ public class Scanner
                 default: {
                     // Handle \0 specially, while falling through to the error handler below for other, "normal"
                     // octal sequences like \033
-                    if (escapeCharacter == '0' && Peek() == '\'') {
+                    if (escapeCharacter == '0' && perlangScanner.Peek == '\'') {
                         c = '\0';
                         break;
                     }
@@ -668,19 +669,19 @@ public class Scanner
                     sb.Append('\\');
                     sb.Append(escapeCharacter);
 
-                    while (!IsAtEnd()) {
-                        // The order of the checks here is important, since we don't want to sb.Append(Peek()) the
+                    while (!perlangScanner.IsAtEnd) {
+                        // The order of the checks here is important, since we don't want to sb.Append(perlangScanner.Peek) the
                         // trailing ' character.
                         if (Match('\'')) {
-                            scanErrorHandler(new ScanError($"Unsupported escape sequence: {sb}.", fileName, line));
+                            scanErrorHandler(new ScanError($"Unsupported escape sequence: {sb}.", fileName, perlangScanner.Line));
                             return;
                         }
 
-                        sb.Append(Peek());
-                        Advance();
+                        sb.Append(perlangScanner.Peek);
+                        perlangScanner.Advance();
                     }
 
-                    scanErrorHandler(new ScanError("Unterminated character literal.", fileName, line));
+                    scanErrorHandler(new ScanError("Unterminated character literal.", fileName, perlangScanner.Line));
                     return;
                 }
             }
@@ -691,23 +692,23 @@ public class Scanner
         // not sure that's a price we're willing to pay (since it also means we need to make indexable strings be
         // encoded in UTF-32).
         if (c > 0xD800 && c < 0xDFFF) {
-            char d = Advance();
+            char d = perlangScanner.Advance();
 
             // Deliberately do not return inside these blocks, to ensure we handle "unterminated unsupported UTF-16
             // literals" as well.
             if (d > 0xDC00 && d < 0xDFFF) {
                 // TODO: Could include the actual surrogate pair in the error message here, or at least the exact column
                 // TODO: location
-                scanErrorHandler(new ScanError("Character literal can only contain characters from the Basic Multilingual Plane", fileName, line));
+                scanErrorHandler(new ScanError("Character literal can only contain characters from the Basic Multilingual Plane", fileName, perlangScanner.Line));
             }
             else {
-                scanErrorHandler(new ScanError("Invalid UTF-16 surrogate pair encountered", fileName, line));
+                scanErrorHandler(new ScanError("Invalid UTF-16 surrogate pair encountered", fileName, perlangScanner.Line));
             }
         }
 
-        if (IsAtEnd() || !Match('\''))
+        if (perlangScanner.IsAtEnd || !Match('\''))
         {
-            scanErrorHandler(new ScanError("Unterminated character literal.", fileName, line));
+            scanErrorHandler(new ScanError("Unterminated character literal.", fileName, perlangScanner.Line));
             return;
         }
 
@@ -722,47 +723,19 @@ public class Scanner
     /// <returns>`true` if the character matches, `false` if it doesn't matches or if we are at EOF.</returns>
     private bool Match(char expected)
     {
-        if (IsAtEnd())
+        if (perlangScanner.IsAtEnd)
         {
             return false;
         }
 
-        if (source[current] != expected)
+        if (source[perlangScanner.Current] != expected)
         {
             return false;
         }
 
-        current++;
+        // TODO: Replace with current++ once we are rewritten in Perlang
+        perlangScanner.Advance();
         return true;
-    }
-
-    /// <summary>
-    /// Returns the current character of the input stream, without advancing the current position.
-    /// </summary>
-    /// <returns>The character at the current position, or `\0` if at EOF.</returns>
-    private char Peek()
-    {
-        if (IsAtEnd())
-        {
-            return '\0';
-        }
-
-        return source[current];
-    }
-
-    /// <summary>
-    /// Returns the character immediately after the current character of the input stream, without advancing the
-    /// current position.
-    /// </summary>
-    /// <returns>The character at the given position, or `\0` if at EOF.</returns>
-    private char PeekNext()
-    {
-        if (current + 1 >= source.Length)
-        {
-            return '\0';
-        }
-
-        return source[current + 1];
     }
 
     private static bool IsAlphaNumeric(char c) =>
@@ -778,31 +751,18 @@ public class Scanner
             _ => throw new ArgumentException($"Base {@base} is not supported")
         };
 
-    private bool IsAtEnd() =>
-        current >= source.Length;
-
-    /// <summary>
-    /// Moves the cursor one step forward and returns the element which was previously current.
-    /// </summary>
-    /// <returns>The current element, before advancing the cursor.</returns>
-    private char Advance()
-    {
-        current++;
-        return source[current - 1];
-    }
-
     private void AddToken(TokenType type, object literal = null)
     {
-        string text = source[start..current];
+        string text = source[perlangScanner.Start..perlangScanner.Current];
 
         if (literal is string stringLiteral) {
-            tokens.Add(perlang_cli.CreateStringToken(type, text, stringLiteral, fileName, line));
+            tokens.Add(perlang_cli.CreateStringToken(type, text, stringLiteral, fileName, perlangScanner.Line));
         }
         else if (literal is null) {
-            tokens.Add(perlang_cli.CreateNullToken(type, text, fileName, line));
+            tokens.Add(perlang_cli.CreateNullToken(type, text, fileName, perlangScanner.Line));
         }
         else if (literal is char charLiteral) {
-            tokens.Add(perlang_cli.CreateCharToken(type, text, charLiteral, fileName, line));
+            tokens.Add(perlang_cli.CreateCharToken(type, text, charLiteral, fileName, perlangScanner.Line));
         }
         else {
             throw new NotImplementedException($"Unsupported literal type: {literal.GetType()}");
@@ -812,5 +772,10 @@ public class Scanner
     private void AddToken(IToken token)
     {
         tokens.Add(token);
+    }
+
+    public void Dispose()
+    {
+        perlang_cli.DeletePerlangScanner(perlangScanner);
     }
 }

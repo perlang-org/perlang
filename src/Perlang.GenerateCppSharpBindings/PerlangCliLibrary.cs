@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
@@ -7,8 +8,14 @@ namespace Perlang.GenerateCppSharpBindings;
 
 internal class PerlangCliLibrary : ILibrary
 {
+    private List<(Class, Property)> removedProperties = [];
+
     public void Preprocess(Driver driver, ASTContext ctx)
     {
+        // Cannot be setup in SetupPasses, because the pass needs to run after GetterSetterToPropertyPass has converted
+        // methods to properties.
+        driver.AddTranslationUnitPass(new RemoveAdvancePropertyPass(removedProperties));
+
         ctx.IgnoreTranslationUnits(["tommath.h"]);
         ctx.IgnoreClassWithName("BigInt");
         ctx.IgnoreClassWithName("String");
@@ -29,7 +36,9 @@ internal class PerlangCliLibrary : ILibrary
 
     public void Postprocess(Driver driver, ASTContext ctx)
     {
-        // no-op
+        foreach ((Class @class, Property property) in removedProperties) {
+            @class.Properties.Remove(property);
+        }
     }
 
     public void Setup(Driver driver)
@@ -65,6 +74,28 @@ internal class PerlangCliLibrary : ILibrary
         {
             @enum.Namespace.Name = "Perlang";
             return base.VisitEnumDecl(@enum);
+        }
+    }
+
+    private class RemoveAdvancePropertyPass : TranslationUnitPass
+    {
+        private readonly List<(Class, Property)> removedProperties;
+
+        public RemoveAdvancePropertyPass(List<(Class, Property)> removedProperties)
+        {
+            this.removedProperties = removedProperties;
+        }
+
+        public override bool VisitProperty(Property property)
+        {
+            if (property.Name == "Advance") {
+                property.GetMethod.GenerationKind = GenerationKind.Generate;
+
+                // Cannot remove at this stage since it will cause "Collection was modified" exceptions
+                removedProperties.Add(((Class)property.Namespace, property));
+            }
+
+            return base.VisitProperty(property);
         }
     }
 }

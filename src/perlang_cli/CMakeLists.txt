@@ -32,7 +32,9 @@ target_include_directories(
 )
 
 target_compile_options(
-        perlang_cli PRIVATE -Wall -Wextra -Werror -ggdb
+        perlang_cli PRIVATE -Wall -Wextra -Werror
+        -Wno-sign-compare # Needed to be able to compare int and size_t
+        -ggdb
 )
 
 # This is necessary to avoid the linker from dropping symbols from the libstdlib.a that are not explicitly used by
