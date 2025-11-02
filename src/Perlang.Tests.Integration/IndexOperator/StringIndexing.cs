@@ -55,7 +55,7 @@ public class StringIndexing
             .Message.Should().Contain("exited with exit code 134");
 
         result.OutputAsString.Should()
-            .Contain("Index 10 is out-of-bounds for a string with length 6");
+            .Contain("Index 10 is out-of-bounds for a string with length 6 (valid range: 0..5)");
     }
 
     [Fact]
@@ -117,11 +117,8 @@ public class StringIndexing
             .Which
             .Message.Should().Contain("exited with exit code 134");
 
-        // Typical messages printed here can be something like "terminate called after throwing an instance of 'std::out_of_range'
-        // what():  vector::_M_range_check: __n (which is 100) >= this->size() (which is 68)". Not terribly pretty, and
-        // we could do better if we implement bounds checking of our own, but for now...
         result.OutputAsString.Should()
-            .Contain("std::out_of_range");
+            .Contain("Index 100 is out-of-bounds for a string with length 16 (valid range: 0..15)");
     }
 
     [SkippableFact]

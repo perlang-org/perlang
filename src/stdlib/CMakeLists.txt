@@ -143,6 +143,7 @@ add_library(
 )
 
 # Enable C++ 17 support. This is required on e.g. AppleClang 13
+# TODO: Upgrade this to C++ 20, so we could use things like std::format
 set_property(TARGET stdlib PROPERTY CXX_STANDARD 17)
 
 target_include_directories(

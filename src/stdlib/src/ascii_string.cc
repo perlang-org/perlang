@@ -131,7 +131,7 @@ namespace perlang
             return bytes_.get()[index];
         }
         else {
-            throw std::out_of_range("Index " + std::to_string(index) + " is out-of-bounds for a string with length " + std::to_string(this->length_));
+            throw std::out_of_range(fmt::format("Index {0} is out-of-bounds for a string with length {1} (valid range: 0..{2})", index, length_, length_ - 1));
         }
     }
 

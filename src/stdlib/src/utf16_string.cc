@@ -4,6 +4,7 @@
 #include "bigint.h"
 #include "utf8_string.h"
 #include "utf16_string.h"
+#include "exceptions/null_pointer_exception.h"
 #include "internal/string_utils.h"
 
 namespace perlang
@@ -47,12 +48,6 @@ namespace perlang
         throw std::logic_error("UTF16String::release_bytes() is not supported; this class uses another data structure under the hood");
     }
 
-    // TODO: See if we really must implement this method in this class
-//    std::unique_ptr<const char[]> UTF16String::release_bytes()
-//    {
-//        return std::move(data_);
-//    }
-
     size_t UTF16String::length() const
     {
         // The vector always contains an extra NUL terminating character for now, because our print() implementation needs it.
@@ -90,7 +85,19 @@ namespace perlang
 
     char16_t UTF16String::operator[](size_t index) const
     {
-        return data_.at(index);
+        if (this == nullptr) {
+            throw NullPointerException();
+        }
+
+        if (index < length()) {
+            // Since we have performed the bounds checking manually now, we can now use the more "dangerous" index
+            // operator rather than at(), which would perform bounds checking again.
+            return data_[index];
+        }
+        else {
+            throw std::out_of_range(fmt::format("Index {0} is out-of-bounds for a string with length {1} (valid range: 0..{2})", index, length(), length() - 1));
+        }
+
     }
 
     std::unique_ptr<String> UTF16String::operator+(String&) const
