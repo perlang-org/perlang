@@ -18,27 +18,31 @@ PerlangScanner::PerlangScanner(std::shared_ptr<perlang::UTF8String> source) {
 };
 
 bool PerlangScanner::match(char16_t expected) {
-    if (is_at_end())         {
-            return false;
-        }
-    if ((*source)[current] != expected)         {
-            return false;
-        }
+    if (is_at_end())
+    {
+        return false;
+    }
+    if ((*source)[current] != expected)
+    {
+        return false;
+    }
     current++;
     return true;
 };
 
 char16_t PerlangScanner::peek() {
-    if (is_at_end())         {
-            return '\0';
-        }
+    if (is_at_end())
+    {
+        return '\0';
+    }
     return (*source)[current];
 };
 
 char16_t PerlangScanner::peek_next() {
-    if (current + 1 >= source->length())         {
-            return '\0';
-        }
+    if (current + 1 >= source->length())
+    {
+        return '\0';
+    }
     return (*source)[current + 1];
 };
 

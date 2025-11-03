@@ -2010,30 +2010,42 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         using var result = NativeStringBuilder.Create();
 
         result.Append(Indent(indentationLevel));
-        result.Append($"if ({stmt.Condition.Accept(this)}) ");
+        result.Append($"if ({stmt.Condition.Accept(this)})");
 
         if (!(stmt.ThenBranch is Stmt.Block))
         {
-            result.AppendLine();
+            result.Append(" ");
+            indentationLevel++;
         }
 
-        indentationLevel++;
+        result.AppendLine();
+
         result.Append(stmt.ThenBranch.Accept(this));
-        indentationLevel--;
+
+        if (!(stmt.ThenBranch is Stmt.Block))
+        {
+            indentationLevel--;
+        }
 
         if (stmt.ElseBranch != null)
         {
             result.Append(Indent(indentationLevel));
-            result.Append("else ");
+            result.Append("else");
 
             if (!(stmt.ElseBranch is Stmt.Block))
             {
-                result.AppendLine();
+                result.Append(" ");
+                indentationLevel++;
             }
 
-            indentationLevel++;
+            result.AppendLine();
+
             result.Append(stmt.ElseBranch.Accept(this));
-            indentationLevel--;
+
+            if (!(stmt.ElseBranch is Stmt.Block))
+            {
+                indentationLevel--;
+            }
         }
 
         return result.ToString();
