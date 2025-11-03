@@ -17,6 +17,17 @@ PerlangScanner::PerlangScanner(std::shared_ptr<perlang::UTF8String> source) {
     this->source = source->as_utf16();
 };
 
+bool PerlangScanner::match(char16_t expected) {
+    if (is_at_end())         {
+            return false;
+        }
+    if ((*source)[current] != expected)         {
+            return false;
+        }
+    current++;
+    return true;
+};
+
 char16_t PerlangScanner::peek() {
     if (is_at_end())         {
             return '\0';

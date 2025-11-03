@@ -103,6 +103,7 @@ private:
     int32_t line = 1;
 public:
     PerlangScanner(std::shared_ptr<perlang::UTF8String> source);
+    bool match(char16_t expected);
     char16_t peek();
     char16_t peek_next();
     static bool is_alpha(char16_t c);

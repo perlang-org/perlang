@@ -24,6 +24,10 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         internal int current;
         internal int line;
 
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner5matchEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool Match(__IntPtr __instance, char expected);
+
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8is_alphaEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsAlpha(char c);
@@ -158,6 +162,12 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         if (__ownsNativeInstance)
             Marshal.FreeHGlobal(__Instance);
         __Instance = IntPtr.Zero;
+    }
+
+    public bool Match(char expected)
+    {
+        var ___ret = __Internal.Match(__Instance, expected);
+        return ___ret;
     }
 
     public char Advance()

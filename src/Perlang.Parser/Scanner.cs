@@ -195,7 +195,6 @@ public class Scanner : IDisposable
 
     private void ScanToken()
     {
-        // TODO: Try to get this to not be a property but a normal method.
         char c = perlangScanner.Advance();
 
         // Note: case values are sorted in ASCII order, which makes it easy and unambiguous to add new content.
@@ -217,7 +216,7 @@ public class Scanner : IDisposable
                 break;
 
             case '!':
-                AddToken(Match('=') ? BANG_EQUAL : BANG);
+                AddToken(perlangScanner.Match('=') ? BANG_EQUAL : BANG);
                 break;
             case '"':
                 String();
@@ -231,7 +230,7 @@ public class Scanner : IDisposable
                 AddToken(PERCENT);
                 break;
             case '&':
-                AddToken(Match('&') ? AMPERSAND_AMPERSAND : AMPERSAND);
+                AddToken(perlangScanner.Match('&') ? AMPERSAND_AMPERSAND : AMPERSAND);
                 break;
             case '\'':
                 CharLiteral();
@@ -243,14 +242,14 @@ public class Scanner : IDisposable
                 AddToken(RIGHT_PAREN);
                 break;
             case '*':
-                AddToken(Match('*') ? STAR_STAR : STAR);
+                AddToken(perlangScanner.Match('*') ? STAR_STAR : STAR);
                 break;
             case '+':
-                if (Match('+'))
+                if (perlangScanner.Match('+'))
                 {
                     AddToken(PLUS_PLUS);
                 }
-                else if (Match('='))
+                else if (perlangScanner.Match('='))
                 {
                     AddToken(PLUS_EQUAL);
                 }
@@ -264,11 +263,11 @@ public class Scanner : IDisposable
                 AddToken(COMMA);
                 break;
             case '-':
-                if (Match('-'))
+                if (perlangScanner.Match('-'))
                 {
                     AddToken(MINUS_MINUS);
                 }
-                else if (Match('='))
+                else if (perlangScanner.Match('='))
                 {
                     AddToken(MINUS_EQUAL);
                 }
@@ -282,7 +281,7 @@ public class Scanner : IDisposable
                 AddToken(DOT);
                 break;
             case '/':
-                if (Match('/'))
+                if (perlangScanner.Match('/'))
                 {
                     // A comment continues until the end of the line.
                     while (perlangScanner.Peek != '\n' && !perlangScanner.IsAtEnd)
@@ -306,11 +305,11 @@ public class Scanner : IDisposable
                 AddToken(SEMICOLON);
                 break;
             case '<':
-                if (Match('='))
+                if (perlangScanner.Match('='))
                 {
                     AddToken(LESS_EQUAL);
                 }
-                else if (Match('<'))
+                else if (perlangScanner.Match('<'))
                 {
                     AddToken(LESS_LESS);
                 }
@@ -321,14 +320,14 @@ public class Scanner : IDisposable
 
                 break;
             case '=':
-                AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
+                AddToken(perlangScanner.Match('=') ? EQUAL_EQUAL : EQUAL);
                 break;
             case '>':
-                if (Match('='))
+                if (perlangScanner.Match('='))
                 {
                     AddToken(GREATER_EQUAL);
                 }
-                else if (Match('>'))
+                else if (perlangScanner.Match('>'))
                 {
                     AddToken(GREATER_GREATER);
                 }
@@ -373,7 +372,7 @@ public class Scanner : IDisposable
                 AddToken(LEFT_BRACE);
                 break;
             case '|':
-                AddToken(Match('|') ? PIPE_PIPE : PIPE);
+                AddToken(perlangScanner.Match('|') ? PIPE_PIPE : PIPE);
                 break;
             case '}':
                 AddToken(RIGHT_BRACE);
@@ -622,8 +621,8 @@ public class Scanner : IDisposable
         // The first character is expected to be either a character or a backslash. Anything else is considering
         // invalid. Note that only 1-byte and 2-byte characters are supported in character literals; e.g. emojis and
         // other characters which require more space are unsupported.
-        if (!Match('\\')) {
-            if (Match('\'')) {
+        if (!perlangScanner.Match('\\')) {
+            if (perlangScanner.Match('\'')) {
                 scanErrorHandler(new ScanError("Character literal cannot be empty.", fileName, perlangScanner.Line));
                 return;
             }
@@ -672,7 +671,7 @@ public class Scanner : IDisposable
                     while (!perlangScanner.IsAtEnd) {
                         // The order of the checks here is important, since we don't want to sb.Append(perlangScanner.Peek) the
                         // trailing ' character.
-                        if (Match('\'')) {
+                        if (perlangScanner.Match('\'')) {
                             scanErrorHandler(new ScanError($"Unsupported escape sequence: {sb}.", fileName, perlangScanner.Line));
                             return;
                         }
@@ -706,36 +705,13 @@ public class Scanner : IDisposable
             }
         }
 
-        if (perlangScanner.IsAtEnd || !Match('\''))
+        if (perlangScanner.IsAtEnd || !perlangScanner.Match('\''))
         {
             scanErrorHandler(new ScanError("Unterminated character literal.", fileName, perlangScanner.Line));
             return;
         }
 
         AddToken(CHAR, c);
-    }
-
-    /// <summary>
-    /// Checks if the current character of the input stream matches the given character. If it matches, the
-    /// character is consumed.
-    /// </summary>
-    /// <param name="expected">The character to look for.</param>
-    /// <returns>`true` if the character matches, `false` if it doesn't matches or if we are at EOF.</returns>
-    private bool Match(char expected)
-    {
-        if (perlangScanner.IsAtEnd)
-        {
-            return false;
-        }
-
-        if (source[perlangScanner.Current] != expected)
-        {
-            return false;
-        }
-
-        // TODO: Replace with current++ once we are rewritten in Perlang
-        perlangScanner.Advance();
-        return true;
     }
 
     private static bool IsAlphaNumeric(char c) =>

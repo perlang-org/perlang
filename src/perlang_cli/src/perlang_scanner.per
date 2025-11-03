@@ -28,6 +28,28 @@ public class PerlangScanner
     }
 
     /// <summary>
+    /// Checks if the current character of the input stream matches the given character. If it matches, the
+    /// character is consumed.
+    /// </summary>
+    /// <param name="expected">The character to look for.</param>
+    /// <returns>`true` if the character matches, `false` if it doesn't matches or if we are at EOF.</returns>
+    public match(expected: char): bool
+    {
+        if (is_at_end())
+        {
+            return false;
+        }
+
+        if (source[current] != expected)
+        {
+            return false;
+        }
+
+        current++;
+        return true;
+    }
+
+    /// <summary>
     /// Returns the current character of the input stream, without advancing the current position.
     /// </summary>
     /// <returns>The character at the current position, or `\0` if at EOF.</returns>
