@@ -11,6 +11,12 @@ namespace perlang
         [[nodiscard]]
         static std::unique_ptr<Char> from(char16_t literal);
 
+        [[nodiscard]]
+        static char16_t to_upper(char16_t literal);
+
+        [[nodiscard]]
+        static char16_t to_lower(char16_t literal);
+
      private:
         explicit Char(const char16_t value)
             : value_(value)

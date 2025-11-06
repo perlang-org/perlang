@@ -179,11 +179,11 @@ test:
     - make -j$(scripts/num_cpus) perlang_cli_install_integration_test_release
     - >
         if [[ "$TEST_MODE" == 'valgrind' ]]; then
-          PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
           make valgrind-test-stdlib;
+          PERLANG_RUN_WITH_VALGRIND=true dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
         else
-          dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
           make test-stdlib EXTRA_CATCH_REPORTER="--reporter JUnit::out=native-stdlib-junit-log.xml";
+          dotnet test --configuration Release --verbosity minimal --logger "junit;LogFilePath=junit-log.xml";
         fi
   artifacts:
     when: always
