@@ -130,7 +130,7 @@ public class TypingTests
         Assert.Equal(expectedType, result);
     }
 
-    [SkippableFact]
+    [Fact]
     public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_int_variable()
     {
         string source = @"
@@ -144,7 +144,7 @@ public class TypingTests
         Assert.Equal("perlang.Int32", result);
     }
 
-    [SkippableFact]
+    [Fact]
     public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_long_variable()
     {
         string source = @"
@@ -158,7 +158,7 @@ public class TypingTests
         Assert.Equal("perlang.Int64", result);
     }
 
-    [SkippableFact]
+    [Fact]
     public void var_declaration_with_initializer_correctly_infers_type_from_assignment_source_expression()
     {
         string source = @"

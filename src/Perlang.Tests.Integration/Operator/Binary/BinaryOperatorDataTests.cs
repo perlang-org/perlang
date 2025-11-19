@@ -224,13 +224,13 @@ public class BinaryOperatorDataTests
                 // This is what the CLR version of this used to look like. No longer even compiling since we are moving
                 // to CppType instead of using CLR type for our type data.
                 //TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
-                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+                throw new SkipException("Evaluating and returning a result is not supported in compiled mode");
             }
 
             if (!TypesForEvaluatedValues.ContainsKey(o2))
             {
                 //TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
-                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+                throw new SkipException("Evaluating and returning a result is not supported in compiled mode");
             }
 
             CppType leftType = TypesForEvaluatedValues[o1];

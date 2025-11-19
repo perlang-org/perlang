@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class LessTests
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Less), MemberType = typeof(BinaryOperatorData))]
     private void performs_less_than_comparison(string i, string j, string expectedResult)
     {

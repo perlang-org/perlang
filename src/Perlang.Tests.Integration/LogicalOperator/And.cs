@@ -113,7 +113,7 @@ public class And
         Assert.Matches("'ASCIIString' is not a valid && operand", exception.Message);
     }
 
-    [SkippableFact]
+    [Fact]
     public void result_of_and_is_boolean()
     {
         string source = @"

@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class NotEqualTests
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.NotEqual), MemberType = typeof(BinaryOperatorData))]
     private void performs_non_equality_comparison(string i, string j, string expectedResult)
     {

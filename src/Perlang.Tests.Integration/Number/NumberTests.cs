@@ -55,7 +55,7 @@ public class NumberTests
         Assert.Matches("Expect expression", exception.Message);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_integer()
     {
         string source = @"
@@ -67,7 +67,7 @@ public class NumberTests
         Assert.Equal(123, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_integer_with_underscores()
     {
         string source = @"
@@ -79,7 +79,7 @@ public class NumberTests
         Assert.Equal(123456, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_zero()
     {
         string source = @"
@@ -91,7 +91,7 @@ public class NumberTests
         Assert.Equal(0, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_negative_zero()
     {
         string source = @"
@@ -103,7 +103,7 @@ public class NumberTests
         Assert.Equal(-0, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_negative_integer()
     {
         string source = @"
@@ -115,7 +115,7 @@ public class NumberTests
         Assert.Equal(-123, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_negative_larger_integer()
     {
         string source = @"
@@ -127,7 +127,7 @@ public class NumberTests
         Assert.Equal(-2147483648, result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_float(CultureInfo cultureInfo)
     {
@@ -143,7 +143,7 @@ public class NumberTests
             .Be(123.456f);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_float_has_expected_type(CultureInfo cultureInfo)
     {
@@ -159,7 +159,7 @@ public class NumberTests
             .BeOfType<float>();
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_negative_float(CultureInfo cultureInfo)
     {
@@ -175,7 +175,7 @@ public class NumberTests
             .Be(-0.001f);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_float_with_underscore_in_integer_part(CultureInfo cultureInfo)
     {
@@ -191,7 +191,7 @@ public class NumberTests
             .Be(12345.678f);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_float_with_underscore_in_fractional_part(CultureInfo cultureInfo)
     {
@@ -207,7 +207,7 @@ public class NumberTests
             .Be(123.45678f);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_double_with_suffix(CultureInfo cultureInfo)
     {
@@ -223,7 +223,7 @@ public class NumberTests
             .Be(123.456d);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_double_with_suffix_has_expected_type(CultureInfo cultureInfo)
     {
@@ -239,7 +239,7 @@ public class NumberTests
             .BeOfType<double>();
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_double_with_implicit_suffix(CultureInfo cultureInfo)
     {
@@ -255,7 +255,7 @@ public class NumberTests
             .Be(123.456d);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task literal_double_with_implicit_suffix_has_expected_type(CultureInfo cultureInfo)
     {
@@ -271,7 +271,7 @@ public class NumberTests
             .BeOfType<double>();
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_binary()
     {
         string source = @"
@@ -283,7 +283,7 @@ public class NumberTests
         Assert.Equal(42, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_binary_with_underscores()
     {
         string source = @"
@@ -295,7 +295,7 @@ public class NumberTests
         Assert.Equal(42, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_octal()
     {
         string source = @"
@@ -307,7 +307,7 @@ public class NumberTests
         Assert.Equal(493, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_hexadecimal()
     {
         string source = @"
@@ -319,7 +319,7 @@ public class NumberTests
         Assert.Equal(3234512922, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void literal_hexadecimal_with_underscores()
     {
         string source = @"

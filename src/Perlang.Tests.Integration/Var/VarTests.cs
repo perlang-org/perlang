@@ -92,13 +92,11 @@ public class VarTests
         Assert.Matches("Error at 'arg': Variable with this name already declared in this scope.", exception.ToString());
     }
 
-    [SkippableFact]
+    [Fact(Skip = "use of undeclared identifier 'a'")]
     public void early_bound()
     {
         // This is a bit of an edge case. Unsure if we need to care about it in compiled mode, at least not
         // initially.
-        Skip.If(PerlangMode.ExperimentalCompilation, "Early-bound variable test is not supported in compiled mode");
-
         string source = @"
                 var a = ""outer"";
                 {

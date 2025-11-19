@@ -113,7 +113,7 @@ public class Or
         Assert.Matches("'string' is not a valid || operand", exception.Message);
     }
 
-    [SkippableFact]
+    [Fact]
     public void result_of_or_is_boolean()
     {
         string source = @"

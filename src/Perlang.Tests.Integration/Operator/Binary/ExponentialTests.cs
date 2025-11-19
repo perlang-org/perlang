@@ -13,7 +13,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 /// <summary>
 /// Tests for the ** (exponential) operator. The operator works pretty much like in Ruby.
 ///
-/// The type of the returned value is varies depending on the input types.
+/// The type of the returned value is varying depending on the input types.
 /// </summary>
 public class ExponentialTests
 {
@@ -35,15 +35,17 @@ public class ExponentialTests
     [MemberData(nameof(BinaryOperatorData.Exponential_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
                     print ({i} ** {j}).get_type();
                 ";
 
-        string result = EvalReturningOutputString(source);
+        var result = EvalWithCppCompilationErrorCatch(source);
 
-        result.Should()
+        if (result.Errors.Count > 0) {
+            throw new SkipException(result.Errors.First().Message);
+        }
+
+        result.OutputAsString.Should()
             .Be(expectedResult);
     }
 
@@ -92,7 +94,7 @@ public class ExponentialTests
         }
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void exponential_negative_and_positive_integer_literals()
     {
         string source = @"
@@ -104,7 +106,7 @@ public class ExponentialTests
         Assert.Equal(new BigInteger(-1000), result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void exponential_negative_and_positive_integer_literals_again()
     {
         // This tests an important edge case where we differ from MRI Ruby. Try it in 'irb' and you'll see what I
@@ -134,7 +136,7 @@ public class ExponentialTests
         Assert.Equal(new BigInteger(59049), result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task exponential_operator_works_on_different_cultures(CultureInfo cultureInfo)
     {
@@ -165,7 +167,7 @@ public class ExponentialTests
         Assert.Equal("perlang.Double", result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task exponential_integer_and_negative_float_literals(CultureInfo cultureInfo)
     {
@@ -180,7 +182,7 @@ public class ExponentialTests
         Assert.Equal(0.00031622776601683794, result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void exponential_integer_literals_and_multiplication()
     {
         string source = @"
@@ -192,7 +194,7 @@ public class ExponentialTests
         Assert.Equal(new BigInteger(2048), result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void exponential_bigint_and_int()
     {
         string source = @"
@@ -204,7 +206,7 @@ public class ExponentialTests
         Assert.Equal(BigInteger.Parse("2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376"), result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void exponential_multiple_times()
     {
         string source = @"

@@ -32,7 +32,7 @@ public class PostfixDecrement
         Assert.Equal(new[] { "-1" }, output);
     }
 
-    [SkippableTheory]
+    [Theory]
     [InlineData("int", "1", "perlang.Int32", "en-US")]
     [InlineData("int", "1", "perlang.Int32", "sv-SE")]
     [InlineData("long", "4294967296", "perlang.Int64", "en-US")]

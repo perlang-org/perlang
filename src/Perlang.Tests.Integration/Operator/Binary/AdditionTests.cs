@@ -3,6 +3,7 @@
 #pragma warning disable CS1998
 
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -29,23 +30,25 @@ public class AdditionTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Not all types support get_type() calls yet
     [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
     private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
                 print ({i} + {j}).get_type();
             ";
 
-        string result = EvalReturningOutputString(source);
+        var result = EvalWithCppCompilationErrorCatch(source);
 
-        result.Should()
+        if (result.Errors.Count > 0) {
+            throw new SkipException(result.Errors.First().Message);
+        }
+
+        result.OutputAsString.Should()
             .Be(expectedType);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
     private void local_variable_inference_returns_expected_type(string i, string j, string expectedType)
     {

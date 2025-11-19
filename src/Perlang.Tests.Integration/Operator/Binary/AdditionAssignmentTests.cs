@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -30,20 +31,22 @@ public class AdditionAssignmentTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Not all types support get_type() calls yet
     [MemberData(nameof(BinaryOperatorData.AdditionAssignment_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
                 var i = {i};
                 print (i += {j}).get_type();
             ";
 
-        string output = EvalReturningOutputString(source);
+        var result = EvalWithCppCompilationErrorCatch(source);
 
-        output.Should()
+        if (result.Errors.Count > 0) {
+            throw new SkipException(result.Errors.First().Message);
+        }
+
+        result.OutputAsString.Should()
             .Be(expectedType);
     }
 

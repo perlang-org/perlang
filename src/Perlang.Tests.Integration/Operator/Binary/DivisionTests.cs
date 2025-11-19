@@ -32,17 +32,19 @@ public class DivisionTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Not all types support get_type() calls yet
     [MemberData(nameof(BinaryOperatorData.Division_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
                     print ({i} / {j}).get_type();
                 ";
 
-        string result = EvalReturningOutputString(source);
+        var result = EvalWithCppCompilationErrorCatch(source);
+
+        if (result.Errors.Count > 0) {
+            throw new SkipException(result.Errors.First().Message);
+        }
 
         result.Should()
             .Be(expectedResult);
@@ -63,7 +65,7 @@ public class DivisionTests
             .Message.Should().Match(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task dividing_doubles_works_on_different_cultures(CultureInfo cultureInfo)
     {
@@ -132,6 +134,8 @@ public class DivisionTests
     [SkippableFact]
     public void division_by_zero_halts_execution()
     {
+        // TODO: The exact example below is actually caught by -Werror, but we should try dividing two variables
+        // instead (which cannot be statically analyzed to be division by zero)
         Skip.If(PerlangMode.ExperimentalCompilation, "Division by zero has undefined behavior in compiled mode.");
 
         string source = @"

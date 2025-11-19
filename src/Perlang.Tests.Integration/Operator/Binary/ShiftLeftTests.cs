@@ -109,7 +109,7 @@ public class ShiftLeftTests
         Assert.Equal("24", result);
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void takes_precedence_over_power_operator()
     {
         string source = @"

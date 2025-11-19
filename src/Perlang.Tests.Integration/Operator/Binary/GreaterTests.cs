@@ -6,7 +6,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class GreaterTests
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Greater), MemberType = typeof(BinaryOperatorData))]
     private void performs_greater_than_comparison(string i, string j, string expectedResult)
     {

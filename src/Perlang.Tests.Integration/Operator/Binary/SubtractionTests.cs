@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
@@ -6,7 +7,7 @@ namespace Perlang.Tests.Integration.Operator.Binary;
 
 public class SubtractionTests
 {
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Subtraction_result), MemberType = typeof(BinaryOperatorData))]
     private void performs_subtraction(string i, string j, string expectedResult)
     {
@@ -23,12 +24,10 @@ public class SubtractionTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Not all types support get_type() calls yet
     [MemberData(nameof(BinaryOperatorData.Subtraction_type), MemberType = typeof(BinaryOperatorData))]
     private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
             var i1 = {i};
             var i2 = {j};
@@ -36,9 +35,13 @@ public class SubtractionTests
             print (i1 - i2).get_type();
         ";
 
-        string result = EvalReturningOutputString(source);
+        var result = EvalWithCppCompilationErrorCatch(source);
 
-        result.Should()
+        if (result.Errors.Count > 0) {
+            throw new SkipException(result.Errors.First().Message);
+        }
+
+        result.OutputAsString.Should()
             .Be(expectedType);
     }
 

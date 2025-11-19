@@ -24,7 +24,7 @@ public class PrefixNegation
             .Be("100");
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void negation_of_negative_int()
     {
         string source = @"
@@ -52,7 +52,7 @@ public class PrefixNegation
             .Be("-123");
     }
 
-    [SkippableFact]
+    [SkippableFact] // Evaluating and returning a result is not supported in compiled mode
     public void negation_of_positive_int()
     {
         // Note: there is a certain logic in the parsing of the unary prefix operator, converting "- 123" into a single
