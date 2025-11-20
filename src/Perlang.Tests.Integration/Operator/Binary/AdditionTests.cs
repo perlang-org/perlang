@@ -3,7 +3,6 @@
 #pragma warning disable CS1998
 
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -30,7 +29,7 @@ public class AdditionTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory] // Not all types support get_type() calls yet
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Addition_type), MemberType = typeof(BinaryOperatorData))]
     private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
@@ -38,13 +37,9 @@ public class AdditionTests
                 print ({i} + {j}).get_type();
             ";
 
-        var result = EvalWithCppCompilationErrorCatch(source);
+        string output = EvalReturningOutputString(source);
 
-        if (result.Errors.Count > 0) {
-            throw new SkipException(result.Errors.First().Message);
-        }
-
-        result.OutputAsString.Should()
+        output.Should()
             .Be(expectedType);
     }
 

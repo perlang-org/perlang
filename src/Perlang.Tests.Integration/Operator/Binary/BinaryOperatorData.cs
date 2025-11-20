@@ -1,7 +1,6 @@
 #pragma warning disable SA1515
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -417,18 +416,18 @@ public static class BinaryOperatorData
             new object[] { "4294967295", "18446744073709551615", "4294967296", "perlang.UInt64" }, // Positive integer overflow
             new object[] { "4294967295", "18446744073709551616", "-18446744069414584321", "perlang.BigInt" },
             new object[] { "4294967295", "2.0f", "4.294967E+09", "perlang.Float" },
-            new object[] { "4294967295", "2.0", "4294967293", typeof(double) },
+            new object[] { "4294967295", "2.0", "4294967293", "perlang.Double" },
             new object[] { "9223372036854775807", "2", "9223372036854775805", "perlang.Int64" },
             new object[] { "9223372036854775807", "4294967295", "9223372032559808512", "perlang.Int64" },
             new object[] { "9223372036854775807", "9223372036854775807", "0", "perlang.Int64" },
             new object[] { "9223372036854775807", "18446744073709551616", "-9223372036854775809", "perlang.BigInt" },
             new object[] { "9223372036854775807", "2.0f", "9.223372E+18", "perlang.Float" },
-            new object[] { "9223372036854775807", "2.0", "9.22337203685478E+18", typeof(double) },
+            new object[] { "9223372036854775807", "2.0", "9.22337203685478E+18", "perlang.Double" },
             new object[] { "18446744073709551615", "4294967295", "18446744069414584320", "perlang.UInt64" },
             new object[] { "18446744073709551615", "18446744073709551615", "0", "perlang.UInt64" },
             new object[] { "18446744073709551615", "18446744073709551616", "-1", "perlang.BigInt" },
             new object[] { "18446744073709551615", "2.0f", "1.844674E+19", "perlang.Float" },
-            new object[] { "18446744073709551615", "2.0", "1.84467440737096E+19", typeof(double) },
+            new object[] { "18446744073709551615", "2.0", "1.84467440737096E+19", "perlang.Double" },
             new object[] { "18446744073709551616", "2", "18446744073709551614", "perlang.BigInt" },
             new object[] { "18446744073709551616", "4294967295", "18446744069414584321", "perlang.BigInt" },
             new object[] { "18446744073709551616", "9223372036854775807", "9223372036854775809", "perlang.BigInt" },
@@ -438,14 +437,14 @@ public static class BinaryOperatorData
             new object[] { "2.0f", "4294967295", "-4.294967E+09", "perlang.Float" },
             new object[] { "2.0f", "9223372036854775807", "-9.223372E+18", "perlang.Float" },
             new object[] { "2.0f", "18446744073709551615", "-1.844674E+19", "perlang.Float" },
-            new object[] { "2.0f", "2.0f", "0", typeof(float) },
-            new object[] { "2.0f", "2.0", "0", typeof(double) },
-            new object[] { "-12.0", "-34", "22", typeof(double) },
-            new object[] { "-12.0", "4294967295", "-4294967307", typeof(double) },
-            new object[] { "-12.0", "9223372036854775807", "-9.22337203685478E+18", typeof(double) },
-            new object[] { "-12.0", "18446744073709551615", "-1.84467440737096E+19", typeof(double) },
-            new object[] { "2.0", "2.0f", "0", typeof(double) },
-            new object[] { "12.0", "34.0", "-22", typeof(double) }, // Doubles with fraction part zero => fraction part excluded in string representation.
+            new object[] { "2.0f", "2.0f", "0", "perlang.Float" },
+            new object[] { "2.0f", "2.0", "0", "perlang.Double" },
+            new object[] { "-12.0", "-34", "22", "perlang.Double" },
+            new object[] { "-12.0", "4294967295", "-4294967307", "perlang.Double" },
+            new object[] { "-12.0", "9223372036854775807", "-9.22337203685478E+18", "perlang.Double" },
+            new object[] { "-12.0", "18446744073709551615", "-1.84467440737096E+19", "perlang.Double" },
+            new object[] { "2.0", "2.0f", "0", "perlang.Double" },
+            new object[] { "12.0", "34.0", "-22", "perlang.Double" }, // Doubles with fraction part zero => fraction part excluded in string representation.
         };
 
     public static IEnumerable<object[]> Subtraction_unsupported_types =>
@@ -481,23 +480,23 @@ public static class BinaryOperatorData
             new object[] { "9223372036854775807", "4294967295", "9223372032559808512", "perlang.Int64" },
             new object[] { "9223372036854775807", "9223372036854775807", "0", "perlang.Int64" },
             new object[] { "18446744073709551615", "4294967295", "18446744069414584320", "perlang.UInt64" },
-            new object[] { "18446744073709551615", "18446744073709551615", "0", typeof(ulong) },
-            new object[] { "18446744073709551616", "2", "18446744073709551614", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "4294967295", "18446744069414584321", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "9223372036854775807", "9223372036854775809", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551615", "1", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551617", "-1", typeof(BigInteger) },
-            new object[] { "2.0f", "2147483647", "-2.147484E+09", typeof(float) },
-            new object[] { "2.0f", "4294967295", "-4.294967E+09", typeof(float) },
-            new object[] { "2.0f", "9223372036854775807", "-9.223372E+18", typeof(float) },
-            new object[] { "2.0f", "18446744073709551615", "-1.844674E+19", typeof(float) },
-            new object[] { "2.0f", "34.0f", "-32", typeof(float) },
-            new object[] { "12.0", "34.0f", "-22", typeof(double) },
-            new object[] { "-12.0", "-34", "22", typeof(double) }, // Doubles with fraction part zero => fraction part excluded in string representation.
-            new object[] { "-12.0", "4294967295", "-4294967307", typeof(double) },
-            new object[] { "-12.0", "9223372036854775807", "-9.22337203685478E+18", typeof(double) },
-            new object[] { "12.0", "18446744073709551615", "-1.84467440737096E+19", typeof(double) },
-            new object[] { "12.0", "34.0", "-22", typeof(double) },
+            new object[] { "18446744073709551615", "18446744073709551615", "0", "perlang.UInt64" },
+            new object[] { "18446744073709551616", "2", "18446744073709551614", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "4294967295", "18446744069414584321", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "9223372036854775807", "9223372036854775809", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551615", "1", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551617", "-1", "perlang.BigInt" },
+            new object[] { "2.0f", "2147483647", "-2.147484E+09", "perlang.Float" },
+            new object[] { "2.0f", "4294967295", "-4.294967E+09", "perlang.Float" },
+            new object[] { "2.0f", "9223372036854775807", "-9.223372E+18", "perlang.Float" },
+            new object[] { "2.0f", "18446744073709551615", "-1.844674E+19", "perlang.Float" },
+            new object[] { "2.0f", "34.0f", "-32", "perlang.Float" },
+            new object[] { "12.0", "34.0f", "-22", "perlang.Double" },
+            new object[] { "-12.0", "-34", "22", "perlang.Double" }, // Doubles with fraction part zero => fraction part excluded in string representation.
+            new object[] { "-12.0", "4294967295", "-4294967307", "perlang.Double" },
+            new object[] { "-12.0", "9223372036854775807", "-9.22337203685478E+18", "perlang.Double" },
+            new object[] { "12.0", "18446744073709551615", "-1.84467440737096E+19", "perlang.Double" },
+            new object[] { "12.0", "34.0", "-22", "perlang.Double" },
         };
 
     public static IEnumerable<object[]> SubtractionAssignment_unsupported_types =>
@@ -623,22 +622,22 @@ public static class BinaryOperatorData
             new object[] { "18446744073709551615", "4294967295", "4294967294", "perlang.UInt64" }, // Integer overflow
             new object[] { "18446744073709551615", "18446744073709551615", "18446744073709551614", "perlang.UInt64" },
             new object[] { "18446744073709551616", "2", "18446744073709551618", "perlang.BigInt" },
-            new object[] { "18446744073709551616", "4294967295", "18446744078004518911", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "9223372036854775807", "27670116110564327423", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551615", "36893488147419103231", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551617", "36893488147419103233", typeof(BigInteger) },
+            new object[] { "18446744073709551616", "4294967295", "18446744078004518911", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "9223372036854775807", "27670116110564327423", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551615", "36893488147419103231", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551617", "36893488147419103233", "perlang.BigInt" },
             new object[] { "2.0f", "2147483647", "2.147484E+09", "perlang.Float" },
-            new object[] { "2.0f", "4294967295", "4.294967E+09", typeof(float) },
-            new object[] { "2.0f", "9223372036854775807", "9.223372E+18", typeof(float) },
-            new object[] { "2.0f", "18446744073709551615", "1.844674E+19", typeof(float) },
-            new object[] { "2.0f", "2.0f", "4", typeof(float) },
-            new object[] { "-12.0", "-34", "-46", typeof(double) },
-            new object[] { "-12.0", "4294967295", "4294967283", typeof(double) },
-            new object[] { "-12.0", "9223372036854775807", "9.22337203685478E+18", typeof(double) },
-            new object[] { "-12.0", "18446744073709551615", "1.84467440737096E+19", typeof(double) },
-            new object[] { "12.0", "34.0", "46", typeof(double) }, // Doubles with fraction part zero => fraction part excluded in string representation.
-            new object[] { "12.1", "34.2", "46.3", typeof(double) },
-            new object[] { "12.0", "340282349999999991754788743781432688640.0f", "3.40282346638529E+38", typeof(double) },
+            new object[] { "2.0f", "4294967295", "4.294967E+09", "perlang.Float" },
+            new object[] { "2.0f", "9223372036854775807", "9.223372E+18", "perlang.Float" },
+            new object[] { "2.0f", "18446744073709551615", "1.844674E+19", "perlang.Float" },
+            new object[] { "2.0f", "2.0f", "4", "perlang.Float" },
+            new object[] { "-12.0", "-34", "-46", "perlang.Double" },
+            new object[] { "-12.0", "4294967295", "4294967283", "perlang.Double" },
+            new object[] { "-12.0", "9223372036854775807", "9.22337203685478E+18", "perlang.Double" },
+            new object[] { "-12.0", "18446744073709551615", "1.84467440737096E+19", "perlang.Double" },
+            new object[] { "12.0", "34.0", "46", "perlang.Double" }, // Doubles with fraction part zero => fraction part excluded in string representation.
+            new object[] { "12.1", "34.2", "46.3", "perlang.Double" },
+            new object[] { "12.0", "340282349999999991754788743781432688640.0f", "3.40282346638529E+38", "perlang.Double" },
         };
 
     public static IEnumerable<object[]> AdditionAssignment_unsupported_types =>
@@ -693,44 +692,44 @@ public static class BinaryOperatorData
             new object[] { "34", "5", "6", "perlang.Int32" }, // `int` division => expecting to be truncated.
             new object[] { "2147483647", "4294967295", "0", "perlang.Int64" },
             new object[] { "2147483647", "9223372036854775807", "0", "perlang.Int64" },
-            new object[] { "2147483647", "18446744073709551616", "0", typeof(BigInteger) },
-            new object[] { "2147483647", "340282349999999991754788743781432688640.0f", "6.310888E-30", typeof(float) },
+            new object[] { "2147483647", "18446744073709551616", "0", "perlang.BigInt" },
+            new object[] { "2147483647", "340282349999999991754788743781432688640.0f", "6.310888E-30", "perlang.Float" },
             new object[] { "4294967295", "2", "2147483647", "perlang.Int64" },
             new object[] { "4294967295", "4294967295", "1", "perlang.UInt32" },
             new object[] { "4294967295", "9223372036854775807", "0", "perlang.Int64" },
             new object[] { "4294967295", "18446744073709551615", "0", "perlang.UInt64" },
-            new object[] { "4294967295", "18446744073709551616", "0", typeof(BigInteger) },
-            new object[] { "4294967295", "340282349999999991754788743781432688640.0f", "1.262178E-29", typeof(float) },
-            new object[] { "4294967295", "12.0", "357913941.25", typeof(double) },
+            new object[] { "4294967295", "18446744073709551616", "0", "perlang.BigInt" },
+            new object[] { "4294967295", "340282349999999991754788743781432688640.0f", "1.262178E-29", "perlang.Float" },
+            new object[] { "4294967295", "12.0", "357913941.25", "perlang.Double" },
             new object[] { "9223372036854775807", "2", "4611686018427387903", "perlang.Int64" },
             new object[] { "9223372036854775807", "4294967295", "2147483648", "perlang.Int64" },
             new object[] { "9223372036854775807", "9223372036854775807", "1", "perlang.Int64" },
-            new object[] { "9223372036854775807", "18446744073709551616", "0", typeof(BigInteger) },
-            new object[] { "9223372036854775807", "340282349999999991754788743781432688640.0f", "2.710506E-20", typeof(float) },
-            new object[] { "9223372036854775807", "12.0", "7.68614336404565E+17", typeof(double) },
-            new object[] { "18446744073709551615", "4294967295", "4294967297", typeof(ulong) },
-            new object[] { "18446744073709551615", "18446744073709551615", "1", typeof(ulong) },
-            new object[] { "18446744073709551615", "18446744073709551616", "0", typeof(BigInteger) },
-            new object[] { "18446744073709551615", "340282349999999991754788743781432688640.0f", "5.421012E-20", typeof(float) },
-            new object[] { "18446744073709551615", "12.0", "1.53722867280913E+18", typeof(double) },
-            new object[] { "18446744073709551616", "2", "9223372036854775808", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "4294967295", "4294967297", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "9223372036854775807", "2", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551615", "1", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551616", "1", typeof(BigInteger) },
-            new object[] { "340282349999999991754788743781432688640.0f", "2147483647", "1.584563E+29", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "4294967295", "7.922816E+28", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "9223372036854775807", "3.689349E+19", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "18446744073709551615", "1.844674E+19", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "340282349999999991754788743781432688640.0f", "1", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "12.0", "2.83568622198774E+37", typeof(double) },
-            new object[] { "34.0", "5", "6.8", typeof(double) },
-            new object[] { "12.0", "4294967295", "2.79396772449696E-09", typeof(double) },
-            new object[] { "12.0", "18446744073709551615", "6.50521303491303E-19", typeof(double) },
-            new object[] { "34.0", "9223372036854775807", "3.68628738645072E-18", typeof(double) },
-            new object[] { "34.0", "340282349999999991754788743781432688640.0f", "9.99170257754133E-38", typeof(double) },
-            new object[] { "34.0", "5.0", "6.8", typeof(double) },
-            new object[] { "34", "5.0", "6.8", typeof(double) }
+            new object[] { "9223372036854775807", "18446744073709551616", "0", "perlang.BigInt" },
+            new object[] { "9223372036854775807", "340282349999999991754788743781432688640.0f", "2.710506E-20", "perlang.Float" },
+            new object[] { "9223372036854775807", "12.0", "7.68614336404565E+17", "perlang.Double" },
+            new object[] { "18446744073709551615", "4294967295", "4294967297", "perlang.UInt64" },
+            new object[] { "18446744073709551615", "18446744073709551615", "1", "perlang.UInt64" },
+            new object[] { "18446744073709551615", "18446744073709551616", "0", "perlang.BigInt" },
+            new object[] { "18446744073709551615", "340282349999999991754788743781432688640.0f", "5.421012E-20", "perlang.Float" },
+            new object[] { "18446744073709551615", "12.0", "1.53722867280913E+18", "perlang.Double" },
+            new object[] { "18446744073709551616", "2", "9223372036854775808", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "4294967295", "4294967297", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "9223372036854775807", "2", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551615", "1", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551616", "1", "perlang.BigInt" },
+            new object[] { "340282349999999991754788743781432688640.0f", "2147483647", "1.584563E+29", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "4294967295", "7.922816E+28", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "9223372036854775807", "3.689349E+19", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "18446744073709551615", "1.844674E+19", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "340282349999999991754788743781432688640.0f", "1", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "12.0", "2.83568622198774E+37", "perlang.Double" },
+            new object[] { "34.0", "5", "6.8", "perlang.Double" },
+            new object[] { "12.0", "4294967295", "2.79396772449696E-09", "perlang.Double" },
+            new object[] { "12.0", "18446744073709551615", "6.50521303491303E-19", "perlang.Double" },
+            new object[] { "34.0", "9223372036854775807", "3.68628738645072E-18", "perlang.Double" },
+            new object[] { "34.0", "340282349999999991754788743781432688640.0f", "9.99170257754133E-38", "perlang.Double" },
+            new object[] { "34.0", "5.0", "6.8", "perlang.Double" },
+            new object[] { "34", "5.0", "6.8", "perlang.Double" }
         };
 
     public static IEnumerable<object[]> Division_unsupported_types =>
@@ -758,45 +757,45 @@ public static class BinaryOperatorData
             new object[] { "5", "3", "15", "perlang.Int32" },
             new object[] { "2", "4294967295", "8589934590", "perlang.Int64" },
             new object[] { "2", "9223372036854775807", "-2", "perlang.Int64" },
-            new object[] { "2", "18446744073709551616", "36893488147419103232", typeof(BigInteger) },
-            new object[] { "12", "34.0", "408", typeof(double) },
+            new object[] { "2", "18446744073709551616", "36893488147419103232", "perlang.BigInt" },
+            new object[] { "12", "34.0", "408", "perlang.Double" },
             new object[] { "1073741824", "2", "-2147483648", "perlang.Int32" }, // Becomes negative because of signed `int` overflow.
-            new object[] { "2147483647", "2.0f", "4.294967E+09", typeof(float) },
+            new object[] { "2147483647", "2.0f", "4.294967E+09", "perlang.Float" },
             new object[] { "4294967295", "2", "8589934590", "perlang.Int64" },
             new object[] { "4294967295", "4294967295", "1", "perlang.UInt32" }, // Unsigned integer overflow
             new object[] { "4294967295", "9223372036854775807", "9223372032559808513", "perlang.Int64" }, // Signed integer overflow
-            new object[] { "4294967295", "18446744073709551615", "18446744069414584321", typeof(ulong) }, // Unsigned integer overflow
-            new object[] { "4294967295", "18446744073709551616", "79228162495817593519834398720", typeof(BigInteger) },
-            new object[] { "4294967295", "2.0f", "8.589935E+09", typeof(float) },
-            new object[] { "4294967295", "12.0", "51539607540", typeof(double) },
+            new object[] { "4294967295", "18446744073709551615", "18446744069414584321", "perlang.UInt64" }, // Unsigned integer overflow
+            new object[] { "4294967295", "18446744073709551616", "79228162495817593519834398720", "perlang.BigInt" },
+            new object[] { "4294967295", "2.0f", "8.589935E+09", "perlang.Float" },
+            new object[] { "4294967295", "12.0", "51539607540", "perlang.Double" },
             new object[] { "9223372036854775807", "2", "-2", "perlang.Int64" },
             new object[] { "9223372036854775807", "4294967295", "9223372032559808513", "perlang.Int64" }, // Overflow
             new object[] { "9223372036854775807", "9223372036854775807", "1", "perlang.Int64" },
-            new object[] { "9223372036854775807", "18446744073709551616", "170141183460469231713240559642174554112", typeof(BigInteger) },
-            new object[] { "9223372036854775807", "2.0f", "1.844674E+19", typeof(float) },
-            new object[] { "9223372036854775807", "12.0", "1.10680464442257E+20", typeof(double) },
-            new object[] { "18446744073709551615", "4294967295", "18446744069414584321", typeof(ulong) }, // Unsigned integer overflow
-            new object[] { "18446744073709551615", "18446744073709551615", "1", typeof(ulong) }, // Unsigned integer overflow
-            new object[] { "18446744073709551615", "18446744073709551616", "340282366920938463444927863358058659840", typeof(BigInteger) },
-            new object[] { "18446744073709551615", "2.0f", "3.689349E+19", typeof(float) },
-            new object[] { "18446744073709551615", "12.0", "2.21360928884515E+20", typeof(double) },
-            new object[] { "18446744073709551616", "2", "36893488147419103232", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "4294967295", "79228162495817593519834398720", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "9223372036854775807", "170141183460469231713240559642174554112", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551615", "340282366920938463444927863358058659840", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551616", "340282366920938463463374607431768211456", typeof(BigInteger) },
-            new object[] { "2.0f", "2147483647", "4.294967E+09", typeof(float) },
-            new object[] { "2.0f", "4294967295", "8.589935E+09", typeof(float) },
-            new object[] { "2.0f", "9223372036854775807", "1.844674E+19", typeof(float) },
-            new object[] { "2.0f", "18446744073709551615", "3.689349E+19", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "2.0f", "Infinity", typeof(float) },
-            new object[] { "340282349999999991754788743781432688640.0f", "2.0", "6.80564693277058E+38", typeof(double) },
-            new object[] { "12.0", "5", "60", typeof(double) },
-            new object[] { "12.0", "4294967295", "51539607540", typeof(double) },
-            new object[] { "12.0", "9223372036854775807", "1.10680464442257E+20", typeof(double) },
-            new object[] { "12.0", "18446744073709551615", "2.21360928884515E+20", typeof(double) },
-            new object[] { "12.34", "340282349999999991754788743781432688640.0f", "4.19908415751945E+39", typeof(double) },
-            new object[] { "12.34", "0.3", "3.702", typeof(double) }
+            new object[] { "9223372036854775807", "18446744073709551616", "170141183460469231713240559642174554112", "perlang.BigInt" },
+            new object[] { "9223372036854775807", "2.0f", "1.844674E+19", "perlang.Float" },
+            new object[] { "9223372036854775807", "12.0", "1.10680464442257E+20", "perlang.Double" },
+            new object[] { "18446744073709551615", "4294967295", "18446744069414584321", "perlang.UInt64" }, // Unsigned integer overflow
+            new object[] { "18446744073709551615", "18446744073709551615", "1", "perlang.UInt64" }, // Unsigned integer overflow
+            new object[] { "18446744073709551615", "18446744073709551616", "340282366920938463444927863358058659840", "perlang.BigInt" },
+            new object[] { "18446744073709551615", "2.0f", "3.689349E+19", "perlang.Float" },
+            new object[] { "18446744073709551615", "12.0", "2.21360928884515E+20", "perlang.Double" },
+            new object[] { "18446744073709551616", "2", "36893488147419103232", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "4294967295", "79228162495817593519834398720", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "9223372036854775807", "170141183460469231713240559642174554112", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551615", "340282366920938463444927863358058659840", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551616", "340282366920938463463374607431768211456", "perlang.BigInt" },
+            new object[] { "2.0f", "2147483647", "4.294967E+09", "perlang.Float" },
+            new object[] { "2.0f", "4294967295", "8.589935E+09", "perlang.Float" },
+            new object[] { "2.0f", "9223372036854775807", "1.844674E+19", "perlang.Float" },
+            new object[] { "2.0f", "18446744073709551615", "3.689349E+19", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "2.0f", "Infinity", "perlang.Float" },
+            new object[] { "340282349999999991754788743781432688640.0f", "2.0", "6.80564693277058E+38", "perlang.Double" },
+            new object[] { "12.0", "5", "60", "perlang.Double" },
+            new object[] { "12.0", "4294967295", "51539607540", "perlang.Double" },
+            new object[] { "12.0", "9223372036854775807", "1.10680464442257E+20", "perlang.Double" },
+            new object[] { "12.0", "18446744073709551615", "2.21360928884515E+20", "perlang.Double" },
+            new object[] { "12.34", "340282349999999991754788743781432688640.0f", "4.19908415751945E+39", "perlang.Double" },
+            new object[] { "12.34", "0.3", "3.702", "perlang.Double" }
         };
 
     public static IEnumerable<object[]> Multiplication_unsupported_types =>
@@ -821,32 +820,32 @@ public static class BinaryOperatorData
     private static IEnumerable<object[]> Exponential_result_and_type =>
         new List<object[]>
         {
-            new object[] { "2", "10", "1024", typeof(BigInteger) }, // Currently always expanded to a big integer type, even for cases like this where it would not be required
-            new object[] { "2.1", "10", "1667.9880978201", typeof(double) },
-            new object[] { "2.0", "10.0", "1024", typeof(double) },
-            new object[] { "2", "9.9", "955.425783333691", typeof(double) },
-            new object[] { "2147483647", "2.0f", "4.61168601413242E+18", typeof(double) },
-            new object[] { "2147483647", "2.0", "4.61168601413242E+18", typeof(double) },
-            new object[] { "4294967295", "2", "18446744065119617025", typeof(BigInteger) },
-            new object[] { "4294967295", "340282349999999991754788743781432688640.0f", "Infinity", typeof(double) },
-            new object[] { "4294967295", "12.0", "3.94020060863065E+115", typeof(double) },
-            new object[] { "9223372036854775807", "2", "85070591730234615847396907784232501249", typeof(BigInteger) },
-            new object[] { "9223372036854775807", "2.0f", "8.50705917302346E+37", typeof(double) },
-            new object[] { "9223372036854775807", "2.0", "8.50705917302346E+37", typeof(double) },
-            new object[] { "18446744073709551615", "2", "340282366920938463426481119284349108225", typeof(BigInteger) },
-            new object[] { "18446744073709551615", "2.0f", "3.40282366920938E+38", typeof(double) },
-            new object[] { "18446744073709551615", "2.0", "3.40282366920938E+38", typeof(double) },
-            new object[] { "18446744073709551616", "2", "340282366920938463463374607431768211456", typeof(BigInteger) },
-            new object[] { "340282349999999991754788743781432688640.0f", "2147483647", "Infinity", typeof(double) },
-            new object[] { "340282349999999991754788743781432688640.0f", "4294967295", "Infinity", typeof(double) },
-            new object[] { "340282349999999991754788743781432688640.0f", "9223372036854775807", "Infinity", typeof(double) },
-            new object[] { "340282349999999991754788743781432688640.0f", "18446744073709551615", "Infinity", typeof(double) },
-            new object[] { "340282349999999991754788743781432688640.0f", "340282349999999991754788743781432688640.0f", "Infinity", typeof(double) },
-            new object[] { "340282349999999991754788743781432688640.0f", "12.0", "Infinity", typeof(double) },
-            new object[] { "2.0", "4294967295", "Infinity", typeof(double) },
-            new object[] { "2.0", "9223372036854775807", "Infinity", typeof(double) },
-            new object[] { "12.0", "18446744073709551615", "Infinity", typeof(double) },
-            new object[] { "12.0", "340282349999999991754788743781432688640.0f", "Infinity", typeof(double) },
+            new object[] { "2", "10", "1024", "perlang.BigInt" }, // Currently always expanded to a big integer type, even for cases like this where it would not be required
+            new object[] { "2.1", "10", "1667.9880978201", "perlang.Double" },
+            new object[] { "2.0", "10.0", "1024", "perlang.Double" },
+            new object[] { "2", "9.9", "955.425783333691", "perlang.Double" },
+            new object[] { "2147483647", "2.0f", "4.61168601413242E+18", "perlang.Double" },
+            new object[] { "2147483647", "2.0", "4.61168601413242E+18", "perlang.Double" },
+            new object[] { "4294967295", "2", "18446744065119617025", "perlang.BigInt" },
+            new object[] { "4294967295", "340282349999999991754788743781432688640.0f", "Infinity", "perlang.Double" },
+            new object[] { "4294967295", "12.0", "3.94020060863065E+115", "perlang.Double" },
+            new object[] { "9223372036854775807", "2", "85070591730234615847396907784232501249", "perlang.BigInt" },
+            new object[] { "9223372036854775807", "2.0f", "8.50705917302346E+37", "perlang.Double" },
+            new object[] { "9223372036854775807", "2.0", "8.50705917302346E+37", "perlang.Double" },
+            new object[] { "18446744073709551615", "2", "340282366920938463426481119284349108225", "perlang.BigInt" },
+            new object[] { "18446744073709551615", "2.0f", "3.40282366920938E+38", "perlang.Double" },
+            new object[] { "18446744073709551615", "2.0", "3.40282366920938E+38", "perlang.Double" },
+            new object[] { "18446744073709551616", "2", "340282366920938463463374607431768211456", "perlang.BigInt" },
+            new object[] { "340282349999999991754788743781432688640.0f", "2147483647", "Infinity", "perlang.Double" },
+            new object[] { "340282349999999991754788743781432688640.0f", "4294967295", "Infinity", "perlang.Double" },
+            new object[] { "340282349999999991754788743781432688640.0f", "9223372036854775807", "Infinity", "perlang.Double" },
+            new object[] { "340282349999999991754788743781432688640.0f", "18446744073709551615", "Infinity", "perlang.Double" },
+            new object[] { "340282349999999991754788743781432688640.0f", "340282349999999991754788743781432688640.0f", "Infinity", "perlang.Double" },
+            new object[] { "340282349999999991754788743781432688640.0f", "12.0", "Infinity", "perlang.Double" },
+            new object[] { "2.0", "4294967295", "Infinity", "perlang.Double" },
+            new object[] { "2.0", "9223372036854775807", "Infinity", "perlang.Double" },
+            new object[] { "12.0", "18446744073709551615", "Infinity", "perlang.Double" },
+            new object[] { "12.0", "340282349999999991754788743781432688640.0f", "Infinity", "perlang.Double" },
         };
 
     public static IEnumerable<object[]> Exponential_unsupported_types =>
@@ -889,49 +888,49 @@ public static class BinaryOperatorData
         {
             new object[] { "2", "4294967295", "2", "perlang.Int64" },
             new object[] { "5", "3", "2", "perlang.Int32" },
-            new object[] { "2", "9223372036854775807", "2", typeof(long) },
-            new object[] { "2", "18446744073709551616", "2", typeof(BigInteger) },
-            new object[] { "9", "2.0", "1", typeof(double) },
-            new object[] { "2147483647", "2", "1", typeof(int) },
-            new object[] { "2147483647", "2.0f", "0", typeof(float) }, //  This mimics the semantics of C#; 2147483647 implicitly converted to float becomes 2147483648, because of IEEE-754
-            new object[] { "2147483647", "2.0", "1", typeof(double) },
-            new object[] { "-2147483648", "2", "0", typeof(int) },
-            new object[] { "4294967295", "2", "1", typeof(long) },
-            new object[] { "4294967295", "4294967295", "0", typeof(uint) },
-            new object[] { "4294967295", "9223372036854775807", "4294967295", typeof(long) },
-            new object[] { "4294967295", "18446744073709551615", "4294967295", typeof(ulong) },
-            new object[] { "4294967295", "18446744073709551616", "4294967295", typeof(BigInteger) },
-            new object[] { "4294967295", "12", "3", typeof(long) }, // TODO: should be uint
-            new object[] { "4294967295", "12.0f", "4", typeof(float) }, //  This mimics the semantics of C#; 4294967295 implicitly converted to float becomes 4294967296, because of IEEE-754
-            new object[] { "4294967295", "12.0", "3", typeof(double) },
-            new object[] { "9223372036854775807", "2", "1", typeof(long) },
-            new object[] { "9223372036854775807", "4294967295", "2147483647", typeof(long) },
-            new object[] { "9223372036854775807", "9223372036854775807", "0", typeof(long) },
-            new object[] { "9223372036854775807", "18446744073709551616", "9223372036854775807", typeof(BigInteger) },
-            new object[] { "9223372036854775807", "12.0f", "8", typeof(float) },
-            new object[] { "9223372036854775807", "12.0", "8", typeof(double) },
-            new object[] { "18446744073709551615", "4294967295", "0", typeof(ulong) },
-            new object[] { "18446744073709551615", "18446744073709551615", "0", typeof(ulong) },
-            new object[] { "18446744073709551615", "18446744073709551616", "18446744073709551615", typeof(BigInteger) },
-            new object[] { "18446744073709551615", "12.0f", "4", typeof(float) },
-            new object[] { "18446744073709551615", "12.0", "4", typeof(double) },
-            new object[] { "18446744073709551616", "3", "1", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "4294967295", "1", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "9223372036854775807", "2", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551615", "1", typeof(BigInteger) },
-            new object[] { "18446744073709551616", "18446744073709551616", "0", typeof(BigInteger) },
-            new object[] { "9.0f", "2147483647", "9", typeof(float) },
-            new object[] { "9.0f", "4294967295", "9", typeof(float) },
-            new object[] { "9.0f", "9223372036854775807", "9", typeof(float) },
-            new object[] { "9.0f", "18446744073709551615", "9", typeof(float) },
-            new object[] { "9.0f", "2.0f", "1", typeof(float) },
-            new object[] { "9.0f", "2.0", "1", typeof(double) },
-            new object[] { "12.0", "2", "0", typeof(double) },
-            new object[] { "12.0", "4294967295", "12", typeof(double) },
-            new object[] { "12.0", "9223372036854775807", "12", typeof(double) },
-            new object[] { "12.0", "18446744073709551615", "12", typeof(double) },
-            new object[] { "9.0", "2.0f", "1", typeof(double) },
-            new object[] { "9.0", "2.0", "1", typeof(double) },
+            new object[] { "2", "9223372036854775807", "2", "perlang.Int64" },
+            new object[] { "2", "18446744073709551616", "2", "perlang.BigInt" },
+            new object[] { "9", "2.0", "1", "perlang.Double" },
+            new object[] { "2147483647", "2", "1", "perlang.Int32" },
+            new object[] { "2147483647", "2.0f", "0", "perlang.Float" }, //  This mimics the semantics of C#; 2147483647 implicitly converted to float becomes 2147483648, because of IEEE-754
+            new object[] { "2147483647", "2.0", "1", "perlang.Double" },
+            new object[] { "-2147483648", "2", "0", "perlang.Int32" },
+            new object[] { "4294967295", "2", "1", "perlang.Int64" },
+            new object[] { "4294967295", "4294967295", "0", "perlang.UInt32" },
+            new object[] { "4294967295", "9223372036854775807", "4294967295", "perlang.Int64" },
+            new object[] { "4294967295", "18446744073709551615", "4294967295", "perlang.UInt64" },
+            new object[] { "4294967295", "18446744073709551616", "4294967295", "perlang.BigInt" },
+            new object[] { "4294967295", "12", "3", "perlang.Int64" }, // TODO: should be uint
+            new object[] { "4294967295", "12.0f", "4", "perlang.Float" }, //  This mimics the semantics of C#; 4294967295 implicitly converted to float becomes 4294967296, because of IEEE-754
+            new object[] { "4294967295", "12.0", "3", "perlang.Double" },
+            new object[] { "9223372036854775807", "2", "1", "perlang.Int64" },
+            new object[] { "9223372036854775807", "4294967295", "2147483647", "perlang.Int64" },
+            new object[] { "9223372036854775807", "9223372036854775807", "0", "perlang.Int64" },
+            new object[] { "9223372036854775807", "18446744073709551616", "9223372036854775807", "perlang.BigInt" },
+            new object[] { "9223372036854775807", "12.0f", "8", "perlang.Float" },
+            new object[] { "9223372036854775807", "12.0", "8", "perlang.Double" },
+            new object[] { "18446744073709551615", "4294967295", "0", "perlang.UInt64" },
+            new object[] { "18446744073709551615", "18446744073709551615", "0", "perlang.UInt64" },
+            new object[] { "18446744073709551615", "18446744073709551616", "18446744073709551615", "perlang.BigInt" },
+            new object[] { "18446744073709551615", "12.0f", "4", "perlang.Float" },
+            new object[] { "18446744073709551615", "12.0", "4", "perlang.Double" },
+            new object[] { "18446744073709551616", "3", "1", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "4294967295", "1", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "9223372036854775807", "2", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551615", "1", "perlang.BigInt" },
+            new object[] { "18446744073709551616", "18446744073709551616", "0", "perlang.BigInt" },
+            new object[] { "9.0f", "2147483647", "9", "perlang.Float" },
+            new object[] { "9.0f", "4294967295", "9", "perlang.Float" },
+            new object[] { "9.0f", "9223372036854775807", "9", "perlang.Float" },
+            new object[] { "9.0f", "18446744073709551615", "9", "perlang.Float" },
+            new object[] { "9.0f", "2.0f", "1", "perlang.Float" },
+            new object[] { "9.0f", "2.0", "1", "perlang.Double" },
+            new object[] { "12.0", "2", "0", "perlang.Double" },
+            new object[] { "12.0", "4294967295", "12", "perlang.Double" },
+            new object[] { "12.0", "9223372036854775807", "12", "perlang.Double" },
+            new object[] { "12.0", "18446744073709551615", "12", "perlang.Double" },
+            new object[] { "9.0", "2.0f", "1", "perlang.Double" },
+            new object[] { "9.0", "2.0", "1", "perlang.Double" },
         };
 
     public static IEnumerable<object[]> Modulo_unsupported_types =>
@@ -956,12 +955,12 @@ public static class BinaryOperatorData
     private static IEnumerable<object[]> ShiftLeft_result_and_type =>
         new List<object[]>
         {
-            new object[] { "1", "10", "1024", typeof(int) },
-            new object[] { "1073741824", "1", "-2147483648", typeof(int) }, // Signed wraparound => becomes negative
-            new object[] { "4294967295", "2", "4294967292", typeof(uint) },
-            new object[] { "9223372036854775807", "2", "-4", typeof(long) }, // Signed wraparound => becomes negative
-            new object[] { "18446744073709551615", "2", "18446744073709551612", typeof(ulong) }, // Unsigned integer wraparound
-            new object[] { "18446744073709551616", "2", "73786976294838206464", typeof(BigInteger) },
+            new object[] { "1", "10", "1024", "perlang.Int32" },
+            new object[] { "1073741824", "1", "-2147483648", "perlang.Int32" }, // Signed wraparound => becomes negative
+            new object[] { "4294967295", "2", "4294967292", "perlang.UInt32" },
+            new object[] { "9223372036854775807", "2", "-4", "perlang.Int64" }, // Signed wraparound => becomes negative
+            new object[] { "18446744073709551615", "2", "18446744073709551612", "perlang.UInt64" }, // Unsigned integer wraparound
+            new object[] { "18446744073709551616", "2", "73786976294838206464", "perlang.BigInt" },
         };
 
     public static IEnumerable<object[]> ShiftLeft_unsupported_types =>
@@ -1022,11 +1021,11 @@ public static class BinaryOperatorData
     private static IEnumerable<object[]> ShiftRight_result_and_type =>
         new List<object[]>
         {
-            new object[] { "2147483647", "32", "2147483647", typeof(int) }, // Wraparound, handled by manual logic in PerlangCompiler
-            new object[] { "4294967295", "2", "1073741823", typeof(uint) },
-            new object[] { "9223372036854775807", "2", "2305843009213693951", typeof(long) },
-            new object[] { "18446744073709551615", "2", "4611686018427387903", typeof(ulong) },
-            new object[] { "18446744073709551616", "2", "4611686018427387904", typeof(BigInteger) },
+            new object[] { "2147483647", "32", "2147483647", "perlang.Int32" }, // Wraparound, handled by manual logic in PerlangCompiler
+            new object[] { "4294967295", "2", "1073741823", "perlang.UInt32" },
+            new object[] { "9223372036854775807", "2", "2305843009213693951", "perlang.Int64" },
+            new object[] { "18446744073709551615", "2", "4611686018427387903", "perlang.UInt64" },
+            new object[] { "18446744073709551616", "2", "4611686018427387904", "perlang.BigInt" },
         };
 
     public static IEnumerable<object[]> ShiftRight_unsupported_types =>
@@ -1085,5 +1084,5 @@ internal static class IEnumerableObjectExtensionMethods
         resultAndTypes.Select(obj => obj[..3]);
 
     internal static IEnumerable<object[]> GetTypes(this IEnumerable<object[]> resultAndTypes) =>
-        resultAndTypes.Select(obj => new[] { obj[0], obj[1], obj[3].ToString() });
+        resultAndTypes.Select(obj => new[] { obj[0], obj[1], obj[3] });
 }

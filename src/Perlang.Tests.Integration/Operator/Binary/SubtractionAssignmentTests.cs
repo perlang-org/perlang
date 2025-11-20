@@ -23,7 +23,7 @@ public class SubtractionAssignmentTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory] // Not all types support get_type() calls yet
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.SubtractionAssignment_type), MemberType = typeof(BinaryOperatorData))]
     private void with_supported_types_returns_expected_type(string i, string j, string expectedType)
     {
@@ -33,11 +33,7 @@ public class SubtractionAssignmentTests
             print (i -= {j}).get_type();
         ";
 
-        var result = EvalWithCppCompilationErrorCatch(source);
-
-        if (result.Errors.Count > 0) {
-            throw new SkipException(result.Errors.First().Message);
-        }
+        string result = EvalReturningOutputString(source);
 
         result.Should()
             .Be(expectedType);

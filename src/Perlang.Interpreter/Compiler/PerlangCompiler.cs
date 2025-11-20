@@ -1674,8 +1674,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
         else if (expr.Object is Expr.Call or Expr.Grouping or Expr.Index or Expr.Literal)
         {
+            bool isDone = false;
+
             // TODO: At the basic level, this could be {expr.Object.Accept(this)}.{expr.Name.Lexeme}, if we ignore the
-            // TODO: fact that non-stack-allocated objects need to be called using -> syntax. An interesting fact is
+            // TODO: fact that heap-allocated objects need to be called using -> syntax. An interesting fact is
             // TODO: that it's pretty much impossible to perform a method call like e.g. 42.get_type() in C or C++. We
             // TODO: would at the very least have to special-case all primitives, to emulate something similar in the
             // TODO: Perlang world. It would give a nice, Smalltalk/Ruby:ish feel to the language I think.
@@ -1696,6 +1698,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 result.Append(expr.Object.Accept(this));
                 result.Append(").get())");
             }
+            else if (expr.Object.TypeReference.CppType?.Methods.Any(m => m.Name == expr.Name.Lexeme) == true && expr.Name.Lexeme == "get_type")
+            {
+                // Special-case this (like we will need to do for all methods being called on value types, in fact)
+                result.Append($"perlang::PerlangValueTypes::get_type_{expr.Object.TypeReference.CppType!.TypeMethodNameSuffix}");
+                isDone = true;
+            }
             else {
                 // We expect the Accept() method to return something like this:
                 //
@@ -1703,14 +1711,16 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 result.Append(expr.Object.Accept(this));
             }
 
-            if (expr.Object.TypeReference.CppWrapInSharedPtr) {
-                result.Append("->");
-            }
-            else {
-                result.Append('.');
-            }
+            if (!isDone) {
+                if (expr.Object.TypeReference.CppWrapInSharedPtr) {
+                    result.Append("->");
+                }
+                else {
+                    result.Append('.');
+                }
 
-            result.Append(expr.Name.Lexeme);
+                result.Append(expr.Name.Lexeme);
+            }
         }
         else
         {

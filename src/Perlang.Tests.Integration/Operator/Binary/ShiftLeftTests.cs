@@ -21,12 +21,10 @@ public class ShiftLeftTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory]
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.ShiftLeft_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "get_type() is not yet supported in compiled mode");
-
         string source = $@"
                     print ({i} << {j}).get_type();
                 ";

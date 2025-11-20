@@ -26,7 +26,7 @@ public class ModuloTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory] // Not all types support get_type() calls yet
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Modulo_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
@@ -34,13 +34,9 @@ public class ModuloTests
                     print ({i} % {j}).get_type();
                 ";
 
-        var result = EvalWithCppCompilationErrorCatch(source);
+        string output = EvalReturningOutputString(source);
 
-        if (result.Errors.Count > 0) {
-            throw new SkipException(result.Errors.First().Message);
-        }
-
-        result.OutputAsString.Should()
+        output.Should()
             .Be(expectedResult);
     }
 
@@ -59,7 +55,7 @@ public class ModuloTests
             .Message.Should().Match(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task modulo_operation_works_on_different_cultures(CultureInfo cultureInfo)
     {
@@ -75,7 +71,7 @@ public class ModuloTests
         Assert.Equal(0.04000000000000031, result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task modulo_operation_combined_with_others_without_grouping(CultureInfo cultureInfo)
     {
@@ -90,7 +86,7 @@ public class ModuloTests
         Assert.Equal(1.9, result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task modulo_operation_combined_with_others_with_grouping_first_operators(CultureInfo cultureInfo)
     {
@@ -105,7 +101,7 @@ public class ModuloTests
         Assert.Equal(1.9, result);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task modulo_operation_combined_with_others_with_grouping_last_operators(CultureInfo cultureInfo)
     {

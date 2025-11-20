@@ -30,7 +30,7 @@ public class MultiplicationTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory] // Not all types support get_type() calls yet
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.Multiplication_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
@@ -38,13 +38,9 @@ public class MultiplicationTests
                 print ({i} * {j}).get_type();
             ";
 
-        var result = EvalWithCppCompilationErrorCatch(source);
+        string result = EvalReturningOutputString(source);
 
-        if (result.Errors.Count > 0) {
-            throw new SkipException(result.Errors.First().Message);
-        }
-
-        result.OutputAsString.Should()
+        result.Should()
             .Be(expectedResult);
     }
 
@@ -63,7 +59,7 @@ public class MultiplicationTests
             .Message.Should().Match(expectedResult);
     }
 
-    [SkippableTheory]
+    [SkippableTheory] // Evaluating and returning a result is not supported in compiled mode
     [ClassData(typeof(TestCultures))]
     public async Task multiplying_doubles_works_on_different_cultures(CultureInfo cultureInfo)
     {

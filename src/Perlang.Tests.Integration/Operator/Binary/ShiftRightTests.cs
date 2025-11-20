@@ -21,7 +21,7 @@ public class ShiftRightTests
             .Be(expectedResult);
     }
 
-    [SkippableTheory] // Not all types support get_type() calls yet
+    [Theory]
     [MemberData(nameof(BinaryOperatorData.ShiftRight_type), MemberType = typeof(BinaryOperatorData))]
     public void with_supported_types_returns_expected_type(string i, string j, string expectedResult)
     {
@@ -29,13 +29,9 @@ public class ShiftRightTests
                     print ({i} >> {j}).get_type();
                 ";
 
-        var result = EvalWithCppCompilationErrorCatch(source);
+        string result = EvalReturningOutputString(source);
 
-        if (result.Errors.Count > 0) {
-            throw new SkipException(result.Errors.First().Message);
-        }
-
-        result.OutputAsString.Should()
+        result.Should()
             .Be(expectedResult);
     }
 
