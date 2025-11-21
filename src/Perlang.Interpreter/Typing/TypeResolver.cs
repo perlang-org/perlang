@@ -1,5 +1,6 @@
 #nullable enable
 #pragma warning disable S1871
+#pragma warning disable SA1505
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -395,31 +396,24 @@ internal class TypeResolver : VisitorBase
 
     public override VoidObject VisitCallExpr(Expr.Call expr)
     {
-        try
-        {
+        try {
             Visit(expr.Callee);
         }
-        catch (NameResolutionTypeValidationError)
-        {
-            if (expr.Callee is Expr.Identifier identifier)
-            {
+        catch (NameResolutionTypeValidationError) {
+            if (expr.Callee is Expr.Identifier identifier) {
                 throw new NameResolutionTypeValidationError(identifier.Name, $"Attempting to call undefined function '{identifier.Name.Lexeme}'");
             }
-            else
-            {
+            else {
                 throw;
             }
         }
 
-        foreach (Expr argument in expr.Arguments)
-        {
+        foreach (Expr argument in expr.Arguments) {
             Visit(argument);
         }
 
-        if (expr.Callee is Expr.Get get)
-        {
-            if (get.ClrMethods.Any() && get.TypeReference.IsResolved)
-            {
+        if (expr.Callee is Expr.Get get) {
+            if (get.ClrMethods.Any() && get.TypeReference.IsResolved) {
                 // TODO: Remove this, shouldn't be required any more since we don't allow calling CLR methods.
 
                 // All is fine, we have a type.
@@ -427,45 +421,38 @@ internal class TypeResolver : VisitorBase
                 expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
                 return VoidObject.Void;
             }
-            else if (get.PerlangMethods.Any() && get.TypeReference.IsResolved)
-            {
+            else if (get.PerlangMethods.Any() && get.TypeReference.IsResolved) {
                 // All is fine, we have a type.
                 expr.TypeReference.SetCppType(get.TypeReference.CppType);
                 expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
                 return VoidObject.Void;
             }
-            else if (!get.TypeReference.IsResolved)
-            {
+            else if (!get.TypeReference.IsResolved) {
                 // This can happen when referencing an invalid method name, like Time.now().tickz()
                 return VoidObject.Void;
             }
-            else
-            {
+            else {
                 throw new TypeValidationError(
                     expr.Paren,
                     $"Internal compiler error: No methods found for {expr.CalleeToString}"
                 );
             }
         }
-        else if (expr.Callee is Expr.Identifier)
-        {
+        else if (expr.Callee is Expr.Identifier) {
             ITypeReference? typeReference = bindingHandler.GetVariableOrFunctionBinding(expr)?.TypeReference;
 
-            if (typeReference == null)
-            {
+            if (typeReference == null) {
                 throw new TypeValidationError(
                     expr.Paren,
                     $"Internal compiler error: Failed to locate type reference for {expr.CalleeToString}"
                 );
             }
-            else
-            {
+            else {
                 expr.TypeReference.SetCppType(typeReference.CppType);
                 expr.TypeReference.SetPerlangType(typeReference.PerlangType);
             }
         }
-        else
-        {
+        else {
             throw new TypeValidationError(
                 expr.Paren,
                 $"Internal compiler error: Unsupported callee expression type encountered: {expr.CalleeToString}"
@@ -483,8 +470,7 @@ internal class TypeResolver : VisitorBase
         IPerlangType? perlangType = expr.Indexee.TypeReference.PerlangType;
         CppType? argumentType = expr.Argument.TypeReference.CppType;
 
-        if (cppType == null)
-        {
+        if (cppType == null) {
             // This could be an issue, but OTOH this can be legal if an unresolved type is used and the error has
             // already been reported. If we had a logging framework in place, this would make sense to log at
             // 'debug' or 'trace' log level. Silencing for now.
@@ -497,8 +483,7 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        if (argumentType == null)
-        {
+        if (argumentType == null) {
             //typeValidationErrorCallback(new TypeValidationError(
             //    (expr.Argument as ITokenAware)?.Token ?? expr.Token,
             //    "Internal compiler error: Type of index argument expected to be resolved at this stage")
@@ -507,12 +492,10 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        switch (cppType)
-        {
+        switch (cppType) {
             // TODO: This code path is still used when indexing e.g. Libc.environ() (which is a Dictionary<string, string>)
             case { } when cppType == PerlangTypes.StringArray:
-                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
-                {
+                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32)) {
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.ClosingBracket,
                         $"'string' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
@@ -523,8 +506,7 @@ internal class TypeResolver : VisitorBase
                 break;
 
             case { } when cppType == PerlangTypes.AsciiString || cppType == PerlangTypes.UTF16String:
-                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
-                {
+                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32)) {
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.ClosingBracket,
                         $"'{expr.Indexee.TypeReference.TypeKeywordOrPerlangType}' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
@@ -537,8 +519,7 @@ internal class TypeResolver : VisitorBase
             case { } when cppType.IsArray:
                 CppType elementType = cppType.GetElementType()!;
 
-                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32))
-                {
+                if (!argumentType.IsAssignableTo(PerlangValueTypes.Int32)) {
                     typeValidationErrorCallback(new TypeValidationError(
                         expr.ClosingBracket,
                         $"Array of type '{elementType}' cannot be indexed by '{expr.Argument.TypeReference.TypeKeywordOrPerlangType}'")
@@ -582,8 +563,7 @@ internal class TypeResolver : VisitorBase
 
         // In the future, the idea is to loosen this restriction and figure out the most specific base type instead,
         // and use that as the inferred type of the collection initializer.
-        if (expr.Elements.Select(e => e.TypeReference.CppType).Distinct().Count() > 1)
-        {
+        if (expr.Elements.Select(e => e.TypeReference.CppType).Distinct().Count() > 1) {
             // TODO: Fails because CppType objects which are equal do not compare as equal.
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Token,
@@ -608,18 +588,14 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitLiteralExpr(expr);
 
-        if (expr.Value == null)
-        {
+        if (expr.Value == null) {
             expr.TypeReference.SetCppType(PerlangTypes.NullObject);
         }
-        else
-        {
-            if (expr.Value is INumericLiteral numericLiteral)
-            {
+        else {
+            if (expr.Value is INumericLiteral numericLiteral) {
                 expr.TypeReference.SetCppTypeFromClrType(numericLiteral.Value.GetType());
             }
-            else
-            {
+            else {
                 expr.TypeReference.SetCppTypeFromClrType(expr.Value.GetType());
             }
         }
@@ -660,22 +636,18 @@ internal class TypeResolver : VisitorBase
     {
         Binding? binding = bindingHandler.GetVariableOrFunctionBinding(expr);
 
-        if (binding is ClassBinding classBinding)
-        {
+        if (binding is ClassBinding classBinding) {
             expr.TypeReference.SetCppType(classBinding.ClassTypeReference.CppType);
             expr.TypeReference.SetPerlangType(classBinding.PerlangClass);
             expr.TypeReference.MarkAsClassReference();
         }
-        else if (binding == null)
-        {
+        else if (binding == null) {
             throw new NameResolutionTypeValidationError(expr.Name, $"Undefined identifier '{expr.Name.Lexeme}'");
         }
-        else
-        {
+        else {
             ITypeReference typeReference = binding.TypeReference ?? throw new PerlangCompilerException($"Internal compiler error: Type reference unexpectedly null for binding for '{expr.Name.Lexeme}'");
 
-            if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved)
-            {
+            if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved) {
                 ResolveExplicitTypes(typeReference);
             }
 
@@ -699,16 +671,15 @@ internal class TypeResolver : VisitorBase
             FieldBinding or
             VariableBinding or
             NativeClassBinding or
-            null)
-        {
+            null) {
+
             if (binding is NativeClassBinding) {
                 throw new NotImplementedInCompiledModeException("Bindings to native .NET classes are no longer supported");
             }
 
             IPerlangType? perlangType = expr.Object.TypeReference.PerlangType ?? expr.Object.TypeReference.CppType;
 
-            if (perlangType == null)
-            {
+            if (perlangType == null) {
                 // This is a legitimate code path in cases where a method call is attempted on an unknown type, like
                 // in the test var_of_non_existent_type_with_initializer_emits_expected_error. In this case, the
                 // ClrType will be null for the given `expr.Object` type reference.
@@ -756,8 +727,7 @@ internal class TypeResolver : VisitorBase
 
             // Duplicating this logic here since for forward references (methods defined later in the class),
             // types resolving will not have taken place at this point.
-            if (!firstMatchingMethod.ReturnTypeReference.IsResolved)
-            {
+            if (!firstMatchingMethod.ReturnTypeReference.IsResolved) {
                 ResolveExplicitTypes(firstMatchingMethod.ReturnTypeReference);
             }
 
@@ -766,12 +736,10 @@ internal class TypeResolver : VisitorBase
             // This being null is a valid case, since we might not be returning a Perlang-defined type.
             expr.TypeReference.SetPerlangType(firstMatchingMethod.ReturnTypeReference.PerlangType);
         }
-        else if (binding is EnumBinding enumBinding)
-        {
+        else if (binding is EnumBinding enumBinding) {
             PerlangEnum perlangEnum = enumBinding.PerlangEnum;
 
-            if (!perlangEnum.EnumMembers.ContainsKey(expr.Name.Lexeme))
-            {
+            if (!perlangEnum.EnumMembers.ContainsKey(expr.Name.Lexeme)) {
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.Name,
                     $"Enum member '{expr.Name.Lexeme}' not found in enum '{perlangEnum.Name}'")
@@ -782,8 +750,7 @@ internal class TypeResolver : VisitorBase
 
             expr.TypeReference.SetCppType(binding.TypeReference!.CppType);
         }
-        else
-        {
+        else {
             throw new NotSupportedException($"Unsupported binding type encountered: {binding}");
         }
 
@@ -859,8 +826,7 @@ internal class TypeResolver : VisitorBase
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
     {
-        if (!stmt.IsConstructor && !stmt.IsDestructor && !stmt.ReturnTypeReference.ExplicitTypeSpecified)
-        {
+        if (!stmt.IsConstructor && !stmt.IsDestructor && !stmt.ReturnTypeReference.ExplicitTypeSpecified) {
             // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
             typeValidationErrorCallback(new TypeValidationError(
                 stmt.NameToken,
@@ -868,15 +834,12 @@ internal class TypeResolver : VisitorBase
             );
         }
 
-        if (!stmt.ReturnTypeReference.IsResolved)
-        {
+        if (!stmt.ReturnTypeReference.IsResolved) {
             ResolveExplicitTypes(stmt.ReturnTypeReference);
         }
 
-        foreach (Parameter parameter in stmt.Parameters)
-        {
-            if (!parameter.TypeReference.ExplicitTypeSpecified)
-            {
+        foreach (Parameter parameter in stmt.Parameters) {
+            if (!parameter.TypeReference.ExplicitTypeSpecified) {
                 // TODO: Remove once https://gitlab.perlang.org/perlang/perlang/-/issues/43 is fully resolved.
                 typeValidationErrorCallback(new TypeValidationError(
                     stmt.NameToken,
@@ -884,13 +847,11 @@ internal class TypeResolver : VisitorBase
                 );
             }
 
-            if (!parameter.TypeReference.IsResolved)
-            {
+            if (!parameter.TypeReference.IsResolved) {
                 ResolveExplicitTypes(parameter.TypeReference);
             }
 
-            if (!parameter.TypeReference.IsResolved)
-            {
+            if (!parameter.TypeReference.IsResolved) {
                 typeValidationErrorCallback(new TypeValidationError(
                     stmt.NameToken,
                     $"Internal compiler error: Explicit type reference for '{parameter}' failed to be resolved.")
@@ -903,8 +864,7 @@ internal class TypeResolver : VisitorBase
 
     public override VoidObject VisitFieldStmt(Stmt.Field stmt)
     {
-        if (!stmt.TypeReference.IsResolved)
-        {
+        if (!stmt.TypeReference.IsResolved) {
             ResolveExplicitTypes(stmt.TypeReference);
         }
 
@@ -915,15 +875,14 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitVarStmt(stmt);
 
-        if (!stmt.TypeReference.IsResolved)
-        {
+        if (!stmt.TypeReference.IsResolved) {
             ResolveExplicitTypes(stmt.TypeReference);
         }
 
         if (!stmt.TypeReference.IsResolved &&
             !stmt.TypeReference.ExplicitTypeSpecified &&
-            stmt.Initializer != null)
-        {
+            stmt.Initializer != null) {
+
             // An explicit type has not been provided. Try inferring it from the type of value provided.
             stmt.TypeReference.SetCppType(stmt.Initializer.TypeReference.CppType);
             stmt.TypeReference.SetPerlangType(stmt.Initializer.TypeReference.PerlangType);
@@ -934,8 +893,7 @@ internal class TypeResolver : VisitorBase
 
     private void ResolveExplicitTypes(ITypeReference typeReference)
     {
-        if (typeReference.TypeSpecifier == null)
-        {
+        if (typeReference.TypeSpecifier == null) {
             // No explicit type was specified. We let the inferred type handling deal with this type.
             return;
         }
@@ -944,8 +902,7 @@ internal class TypeResolver : VisitorBase
         // qualified type names will have to come at a later stage.
         string lexeme = typeReference.TypeSpecifier.Lexeme;
 
-        switch (lexeme)
-        {
+        switch (lexeme) {
             // TODO: Replace these with a dictionary of type names in the currently imported namespaces or similar.
             // TODO: This is not really a scalable approach. :)
             //
