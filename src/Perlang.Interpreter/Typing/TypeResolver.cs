@@ -83,13 +83,13 @@ internal class TypeResolver : VisitorBase
         if (leftTypeReference.CppType!.IsNullObject) {
             throw new TypeValidationError(
                 expr.Operator,
-                $"{leftTypeReference} cannot be used with the ${expr.Operator} operator"
+                $"{leftTypeReference} cannot be used with the {expr.Operator} operator"
             );
         }
         else if (rightTypeReference.CppType!.IsNullObject) {
             throw new TypeValidationError(
                 expr.Operator,
-                $"{leftTypeReference} is cannot be used with the ${expr.Operator} operator"
+                $"{leftTypeReference} is cannot be used with the {expr.Operator} operator"
             );
         }
 
