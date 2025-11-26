@@ -89,6 +89,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2095D47A-42D
 		src\perlang_cli\src\Makefile = src\perlang_cli\src\Makefile
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stdlib", "stdlib", "{1012F0D3-639D-4311-A84D-8D33274DAEB0}"
+	ProjectSection(SolutionItems) = preProject
+		src\stdlib\Makefile = src\stdlib\Makefile
+		src\stdlib\generate-array-classes.sh = src\stdlib\generate-array-classes.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,5 +156,6 @@ Global
 		{3BDBB33E-AB96-4C30-96EF-1BF2D295E969} = {47B4A37F-6999-4510-9815-418E03D7B39E}
 		{39211519-CCE2-46EF-BBA6-2FE6094E5079} = {3BDBB33E-AB96-4C30-96EF-1BF2D295E969}
 		{2095D47A-42D5-411E-8352-78B9FE201D7F} = {39211519-CCE2-46EF-BBA6-2FE6094E5079}
+		{1012F0D3-639D-4311-A84D-8D33274DAEB0} = {3BDBB33E-AB96-4C30-96EF-1BF2D295E969}
 	EndGlobalSection
 EndGlobal

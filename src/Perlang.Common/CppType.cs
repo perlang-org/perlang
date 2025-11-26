@@ -126,7 +126,6 @@ public record CppType : IPerlangType
             var t when t == PerlangValueTypes.Float => PerlangTypes.FloatArray,
             var t when t == PerlangValueTypes.Double => PerlangTypes.DoubleArray,
             var t when t == PerlangValueTypes.Char => PerlangTypes.CharArray,
-            var t when t == PerlangValueTypes.BigInt => PerlangTypes.BigIntArray,
 
             // Slightly weird, but using a single StringArray for now to avoid covariance issues.
             var t when t == PerlangTypes.AsciiString => PerlangTypes.StringArray,

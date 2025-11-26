@@ -1363,8 +1363,26 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         switch (collectionInitializer.TypeReference.CppType) {
             // Collection initializers must be prepended with a type specifier, since the C++ compiler will not attempt
             // to guess the correct type for us.
-            case var t when t == PerlangTypes.Int32Array:
-                result.Append("std::initializer_list<int32_t> ");
+            //
+            // All the cases below are mostly the same. They are merely done as separate cases for readability.
+            case var t when t == PerlangTypes.Int32Array || t == PerlangTypes.Int64Array:
+                result.Append($"std::initializer_list<{t.ElementType!.CppTypeName}> ");
+                break;
+
+            case var t when t == PerlangTypes.UInt32Array || t == PerlangTypes.UInt64Array:
+                result.Append($"std::initializer_list<{t.ElementType!.CppTypeName}> ");
+                break;
+
+            case var t when t == PerlangTypes.FloatArray || t == PerlangTypes.DoubleArray:
+                result.Append($"std::initializer_list<{t.ElementType!.CppTypeName}> ");
+                break;
+
+            case var t when t == PerlangTypes.BoolArray || t == PerlangTypes.CharArray:
+                result.Append($"std::initializer_list<{t.ElementType!.CppTypeName}> ");
+                break;
+
+            case var t when t == PerlangTypes.BigIntArray:
+                result.Append($"std::initializer_list<{t.ElementType!.CppTypeName}> ");
                 break;
 
             case var t when t == PerlangTypes.StringArray:

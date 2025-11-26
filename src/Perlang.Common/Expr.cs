@@ -15,6 +15,8 @@ public abstract class Expr
 {
     public ITypeReference TypeReference { get; }
 
+    // TODO: Get rid of this. It looks ugly when debugging. It's better to let the FullName part be an interface that
+    // only certain expression types implement, to better take advantage of static typing.
     public virtual string[] FullNameParts => throw new NotImplementedException($"FullNameParts should be implemented for {this.GetType().Name}");
 
     public string FullName => String.Join('.', FullNameParts);

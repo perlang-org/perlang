@@ -22,6 +22,9 @@ public class TypeReference : ITypeReference
     public void SetCppType(CppType? value)
     {
         if (CppType != null && !CppType.Equals(value)) {
+            // TODO: We need to disable this too. If/when we have an ILogger, we could log it with debug/trace level
+            // (but it's unfortunately expected for now for certain forms of collection initializers)
+
             // Poor-man's fake immutability. The problem is that the C++ type isn't really known at
             // construction time of the TypeReference; it is therefore always null. It gets populated
             // at a later stage in the compilation. But, how do we mutate it? We must either allow this
@@ -37,9 +40,9 @@ public class TypeReference : ITypeReference
             // So: the best we can do is to ensure that once the property is mutated, it is at least only
             // ever mutated _once_. I wonder if that will work all the way or if there are any other nice
             // gotchas to be discovered further along the road... :-)
-            throw new ArgumentException(
-                $"CppType already set to {CppType}; property is read-only. Attempted to " +
-                $"set it to {value}");
+            // throw new ArgumentException(
+            //     $"CppType already set to {CppType}; property is read-only. Attempted to " +
+            //     $"set it to {value}");
         }
 
         CppType = value;

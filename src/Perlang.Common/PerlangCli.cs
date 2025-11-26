@@ -1070,7 +1070,7 @@ namespace Perlang
 
 namespace Perlang
 {
-    public unsafe partial class IntArray : IDisposable
+    public unsafe partial class Array : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
         public partial struct __Internal
@@ -1097,15 +1097,15 @@ namespace Perlang
 
         public __IntPtr __Instance { get; protected set; }
 
-        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.IntArray> NativeToManagedMap =
-            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.IntArray>();
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Array> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Array>();
 
-        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.IntArray managed)
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Array managed)
         {
             NativeToManagedMap[native] = managed;
         }
 
-        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IntArray managed)
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Array managed)
         {
 
             return NativeToManagedMap.TryGetValue(native, out managed);
@@ -1113,28 +1113,28 @@ namespace Perlang
 
         protected bool __ownsNativeInstance;
 
-        internal static IntArray __CreateInstance(__IntPtr native, bool skipVTables = false)
+        internal static Array __CreateInstance(__IntPtr native, bool skipVTables = false)
         {
             if (native == __IntPtr.Zero)
                 return null;
-            return new IntArray(native.ToPointer(), skipVTables);
+            return new Array(native.ToPointer(), skipVTables);
         }
 
-        internal static IntArray __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        internal static Array __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
         {
             if (native == __IntPtr.Zero)
                 return null;
             if (__TryGetNativeToManagedMapping(native, out var managed))
-                return (IntArray)managed;
+                return (Array)managed;
             var result = __CreateInstance(native, skipVTables);
             if (saveInstance)
                 __RecordNativeToManagedMapping(native, result);
             return result;
         }
 
-        internal static IntArray __CreateInstance(__Internal native, bool skipVTables = false)
+        internal static Array __CreateInstance(__Internal native, bool skipVTables = false)
         {
-            return new IntArray(native, skipVTables);
+            return new Array(native, skipVTables);
         }
 
         private static void* __CopyValue(__Internal native)
@@ -1144,34 +1144,34 @@ namespace Perlang
             return ret.ToPointer();
         }
 
-        private IntArray(__Internal native, bool skipVTables = false)
+        private Array(__Internal native, bool skipVTables = false)
             : this(__CopyValue(native), skipVTables)
         {
             __ownsNativeInstance = true;
             __RecordNativeToManagedMapping(__Instance, this);
         }
 
-        protected IntArray(void* native, bool skipVTables = false)
+        protected Array(void* native, bool skipVTables = false)
         {
             if (native == null)
                 return;
             __Instance = new __IntPtr(native);
         }
 
-        public IntArray(ulong length)
+        public Array(ulong length)
         {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.IntArray.__Internal));
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Array.__Internal));
             __ownsNativeInstance = true;
             __RecordNativeToManagedMapping(__Instance, this);
             __Internal.ctor(__Instance, length);
         }
 
-        public IntArray(global::Perlang.IntArray _0)
+        public Array(global::Perlang.Array _0)
         {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.IntArray.__Internal));
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Array.__Internal));
             __ownsNativeInstance = true;
             __RecordNativeToManagedMapping(__Instance, this);
-            *((global::Perlang.IntArray.__Internal*) __Instance) = *((global::Perlang.IntArray.__Internal*) _0.__Instance);
+            *((global::Perlang.Array.__Internal*) __Instance) = *((global::Perlang.Array.__Internal*) _0.__Instance);
         }
 
         public void Dispose()
@@ -1199,9 +1199,9 @@ namespace Perlang
             __Internal.Set(__Instance, index, value);
         }
 
-        public static explicit operator global::Perlang.IntArray(ulong length)
+        public static explicit operator global::Perlang.Array(ulong length)
         {
-            return new global::Perlang.IntArray(length);
+            return new global::Perlang.Array(length);
         }
 
         public int this[ulong index]

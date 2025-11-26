@@ -12,7 +12,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_true_for_int_to_long()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int64, PerlangValueTypes.Int32, null);
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int64, PerlangValueTypes.Int32);
 
             result.Should()
                 .BeTrue();
@@ -21,7 +21,7 @@ public static class TypeCoercerTest
         [Fact]
         void returns_false_for_long_to_int()
         {
-            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int32, PerlangValueTypes.Int64, null);
+            bool result = TypeCoercer.CanBeCoercedInto(PerlangValueTypes.Int32, PerlangValueTypes.Int64);
 
             result.Should()
                 .BeFalse();

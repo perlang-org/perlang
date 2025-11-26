@@ -1,16 +1,29 @@
+#pragma warning disable SA1515
 using FluentAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Arrays;
 
-public class IntArrayTests
+public class ArrayTests
 {
-    [Fact]
-    public void explicitly_typed_int_array_with_initializer_can_be_indexed()
+    [Theory]
+    [InlineData("int", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("long", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("uint", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("ulong", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("float", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("double", "1, 2, 3", new[] { "1", "2", "3" })]
+    [InlineData("bool", "false, true, false", new[] { "false", "true", "false" })]
+    [InlineData("char", "'a', 'b', 'c'", new[] { "a", "b", "c" })]
+    // Fails right now with this error: "All elements in a collection initializer must have the same type." (because the
+    // first two values are smaller than 2^64, so they get coerced to long and ulong respectively)
+    //[InlineData("bigint", "9223372036854775807, 18446744073709551615, 18446744073709551616", new[] { "9223372036854775807", "18446744073709551615", "18446744073709551616" })]
+    [InlineData("bigint", "18446744073709551616, 18446744073709551617, 18446744073709551618", new[] { "18446744073709551616", "18446744073709551617", "18446744073709551618" })]
+    public void explicitly_typed_array_with_initializer_can_be_indexed(string type, string collectionInitializer, string[] expectedOutput)
     {
-        string source = """
-            var a: int[] = [1, 2, 3];
+        string source = $"""
+            var a: {type}[] = [{collectionInitializer}];
 
             print a[0];
             print a[1];
@@ -20,11 +33,7 @@ public class IntArrayTests
         var output = EvalReturningOutput(source);
 
         output.Should()
-            .BeEquivalentTo(
-                "1",
-                "2",
-                "3"
-            );
+            .BeEquivalentTo(expectedOutput);
     }
 
     [Fact]

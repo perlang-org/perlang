@@ -18,8 +18,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(headers
         src/ascii_string.h
         src/bigint.h
+        src/bigint_array.h
+        src/bool_array.h
+        src/char_array.h
+        src/double_array.h
+        src/float_array.h
         src/int_array.h
         src/integer.h
+        src/long_array.h
         src/object.h
         src/object_array.h
         src/perlang_char.h
@@ -28,6 +34,8 @@ set(headers
         src/perlang_type.h
         src/perlang_value_types.h
         src/string_array.h
+        src/uint_array.h
+        src/ulong_array.h
         src/utf8_string.h
         src/utf16_string.h
 )
@@ -66,10 +74,16 @@ add_library(
         src/ascii_string.cc
         src/Base64.cc
         src/bigint.cc
+        src/bigint_array.cc
         src/bigint_mod.cc
         src/bigint_pow.cc
+        src/bool_array.cc
+        src/char_array.cc
+        src/double_array.cc
+        src/float_array.cc
         src/int_array.cc
         src/integer.cc
+        src/long_array.cc
         src/object.cc
         src/object_array.cc
         src/perlang_char.cc
@@ -78,6 +92,8 @@ add_library(
         src/perlang_value_types.cc
         src/print.cc
         src/string_array.cc
+        src/uint_array.cc
+        src/ulong_array.cc
         src/utf8_string.cc
         src/utf16_string.cc
 

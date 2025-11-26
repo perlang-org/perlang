@@ -165,6 +165,7 @@ run-hello-world-example: auto-generated perlang_cli_clean perlang_cli perlang_cl
 # its auto-generated build scripts
 stdlib:
 	cd src/stdlib && \
+		$(MAKE) $(MAKEFLAGS) auto-generated && \
 		mkdir -p out && \
 		cd out && \
 		cmake -DCMAKE_INSTALL_PREFIX:PATH=../../../lib/stdlib -G "Unix Makefiles" .. && \

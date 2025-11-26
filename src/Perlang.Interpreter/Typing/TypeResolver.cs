@@ -564,7 +564,7 @@ internal class TypeResolver : VisitorBase
         // In the future, the idea is to loosen this restriction and figure out the most specific base type instead,
         // and use that as the inferred type of the collection initializer.
         if (expr.Elements.Select(e => e.TypeReference.CppType).Distinct().Count() > 1) {
-            // TODO: Fails because CppType objects which are equal do not compare as equal.
+            // TODO: Make the exception message better, by e.g. including a list of the different types included
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Token,
                 "All elements in a collection initializer must have the same type")
@@ -886,6 +886,36 @@ internal class TypeResolver : VisitorBase
             // An explicit type has not been provided. Try inferring it from the type of value provided.
             stmt.TypeReference.SetCppType(stmt.Initializer.TypeReference.CppType);
             stmt.TypeReference.SetPerlangType(stmt.Initializer.TypeReference.PerlangType);
+        }
+
+        if (stmt.Initializer is Expr.CollectionInitializer ci && ci.TypeReference.CppType != stmt.TypeReference.CppType) {
+            bool allElementsAreLiterals = ci.Elements
+                .All(e =>e is Expr.Literal);
+
+            var initializerLiterals = ci.Elements
+                .OfType<Expr.Literal>()
+                .ToImmutableList();
+
+            // The "allElementsAreLiterals" part is relevant to avoid false positives for collections which consist of
+            // e.g. a mix of const and non-const values. In the future, "literals" should probably be treated as
+            // "constants" here.
+            CppType targetType = stmt.TypeReference.CppType!;
+            CppType sourceType = ci.TypeReference.CppType!;
+
+            if (allElementsAreLiterals && targetType.IsArray && sourceType.IsArray && TypeCoercer.CanBeCoercedInto(targetType, sourceType, initializerLiterals))
+            {
+                // Hack the collection initializer to be of the element type in this case. This makes the compiler be
+                // able to create std::shared_ptr instances of the correct type, so that the generated code can compile
+                // successfully.
+                ci.TypeReference.SetCppType(stmt.TypeReference.CppType);
+                ci.TypeReference.SetPerlangType(stmt.TypeReference.PerlangType);
+            }
+            else {
+                throw new TypeValidationError(
+                    stmt.Name,
+                    $"{ci.TypeReference.TypeKeywordOrPerlangType} collection initializer cannot be used with {stmt.TypeReference.TypeKeywordOrPerlangType} variable"
+                );
+            }
         }
 
         return VoidObject.Void;

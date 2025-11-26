@@ -134,7 +134,7 @@ internal class TypesResolvedValidator : Validator
                 // FIXME: `null` here has disadvantages as described elsewhere.
                 // FIXME: Parameter could be a Perlang class instance, in which case ClrType will be null (but CppType
                 // will be set)
-                if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference.CppType, argument.TypeReference.CppType, null)) {
+                if (!TypeCoercer.CanBeCoercedInto(parameter.TypeReference.CppType, argument.TypeReference.CppType)) {
                     // Very likely refers to a native method, where parameter names are not available at this point.
                     TypeValidationErrorCallback(new TypeValidationError(
                         argument.TypeReference.TypeSpecifier!,

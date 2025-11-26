@@ -1,10 +1,12 @@
 #include <initializer_list>
 
+#include "bigint.h"
+
 #pragma once
 
 namespace perlang
 {
-    // A class for representing mutable, fixed-size arrays of 32-bit integers.
+    // A class for representing mutable, fixed-size arrays of 32-bit signed integers.
     class IntArray
     {
      public:

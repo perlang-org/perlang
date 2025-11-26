@@ -41,17 +41,15 @@ public static class PerlangTypes
     // real, concrete type being wrapped in an ObjectArray.
     public static readonly CppType ObjectArray = new CppType("perlang::ObjectArray", null, null, wrapInSharedPtr: true, isArray: true, elementType: PerlangObject);
 
-    // TODO: int64_t and onwards should use perlang::<type> wrapper types too. Right now, attempting to use them will
-    // TODO: likely cause compilation errors.
     public static readonly CppType Int32Array = new CppType("perlang::IntArray", null, "int[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Int32);
-    public static readonly CppType Int64Array = new CppType("int64_t[]", null, "long[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Int64, isSupported: false);
-    public static readonly CppType UInt32Array = new CppType("uint32_t[]", null, "uint[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.UInt32, isSupported: false);
-    public static readonly CppType UInt64Array = new CppType("uint64_t[]", null, "ulong[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.UInt64, isSupported: false);
-    public static readonly CppType FloatArray = new CppType("float[]", null, "float[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Float, isSupported: false);
-    public static readonly CppType DoubleArray = new CppType("double[]", null, "double[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Double, isSupported: false);
-    public static readonly CppType BoolArray = new CppType("bool[]", null, "bool[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Bool, isSupported: false);
-    public static readonly CppType CharArray = new CppType("char16_t[]", null, "char[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Char, isSupported: false);
-    public static readonly CppType BigIntArray = new CppType("BigInt[]", null, "bigint[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.BigInt, isSupported: false);
+    public static readonly CppType Int64Array = new CppType("perlang::LongArray", null, "long[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Int64);
+    public static readonly CppType UInt32Array = new CppType("perlang::UIntArray", null, "uint[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.UInt32);
+    public static readonly CppType UInt64Array = new CppType("perlang::ULongArray", null, "ulong[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.UInt64);
+    public static readonly CppType FloatArray = new CppType("perlang::FloatArray", null, "float[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Float);
+    public static readonly CppType DoubleArray = new CppType("perlang::DoubleArray", null, "double[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Double);
+    public static readonly CppType BoolArray = new CppType("perlang::BoolArray", null, "bool[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Bool);
+    public static readonly CppType CharArray = new CppType("perlang::CharArray", null, "char[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.Char);
+    public static readonly CppType BigIntArray = new CppType("perlang::BigIntArray", null, "bigint[]", wrapInSharedPtr: true, isArray: true, elementType: PerlangValueTypes.BigInt);
 
     public static readonly CppType Type = new CppType("perlang::Type", "perlang.Type", wrapInSharedPtr: true);
 }
