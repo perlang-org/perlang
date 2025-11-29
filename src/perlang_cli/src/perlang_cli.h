@@ -74,6 +74,7 @@ namespace TokenType {
         FUN,
         FOR,
         IF,
+        IN,
         MUTABLE,
         NEW,
         PERLANG_NULL,

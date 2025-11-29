@@ -867,13 +867,27 @@ public class PerlangParser
 
     private Expr And()
     {
-        Expr expr = Equality();
+        Expr expr = In();
 
         while (Match(AMPERSAND_AMPERSAND))
         {
             IToken @operator = Previous();
-            Expr right = Equality();
+            Expr right = In();
             expr = new Expr.Logical(expr, @operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr In()
+    {
+        Expr expr = Equality();
+
+        while (Match(IN))
+        {
+            IToken @operator = Previous();
+            Expr right = Equality();
+            expr = new Expr.In(expr, @operator, right);
         }
 
         return expr;

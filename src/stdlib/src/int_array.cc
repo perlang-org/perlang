@@ -55,10 +55,27 @@ namespace perlang
 
     void IntArray::set(size_t index, int32_t value)
     {
+        // TODO: Add null check, but only if we can add a test that exercises the behavior.
+
         if (index >= length_) {
             throw std::out_of_range("index out of range (" + std::to_string(index) + " > " + std::to_string(length_ - 1) + ")");
         }
 
         arr_[index] = value;
+    }
+
+    bool IntArray::contains(int32_t value) const
+    {
+        if (this == nullptr) {
+            return false;
+        }
+
+        for (size_t i = 0; i < length_; i++) {
+            if (arr_[i] == value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

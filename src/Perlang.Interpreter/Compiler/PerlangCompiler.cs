@@ -1555,6 +1555,33 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         return result.ToString();
     }
 
+    public object VisitInExpr(Expr.In expr)
+    {
+        // TODO: Should we enforce either side of the expression to be constant? For now, there is no reason for it;
+        // allowing non-const expressions is likely more flexible. The big downside of not doing any const checking is
+        // that some constant forms of this expression could likely be short-circuited at compile-time to just emit a
+        // static "true" or "false" value instead. (but if so, why would the user write the expression in the first
+        // place...?)
+        using var result = NativeStringBuilder.Create();
+
+        // As can be seen below, the "in" operator is not much more than syntactic sugar for calling the "contains"
+        // method right now.
+        result.Append(expr.Right.Accept(this));
+
+        if (expr.Right.TypeReference.CppWrapInSharedPtr) {
+            result.Append("->");
+        }
+        else {
+            result.Append(".");
+        }
+
+        result.Append("contains(");
+        result.Append(expr.Left.Accept(this));
+        result.Append(")");
+
+        return result.ToString();
+    }
+
     public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         using var result = NativeStringBuilder.Create();

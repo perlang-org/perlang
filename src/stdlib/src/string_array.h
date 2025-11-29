@@ -26,6 +26,9 @@ namespace perlang
         [[nodiscard]]
         size_t length() const;
 
+        [[nodiscard]]
+        bool contains(std::shared_ptr<perlang::String> value) const;
+
      private:
         std::shared_ptr<const perlang::String>* arr_;
         size_t length_;

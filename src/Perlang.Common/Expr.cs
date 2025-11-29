@@ -37,6 +37,7 @@ public abstract class Expr
         TR VisitCollectionInitializerExpr(CollectionInitializer collectionInitializer);
         TR VisitLiteralExpr(Literal expr);
         TR VisitLogicalExpr(Logical expr);
+        TR VisitInExpr(In expr);
         TR VisitUnaryPrefixExpr(UnaryPrefix expr);
         TR VisitUnaryPostfixExpr(UnaryPostfix expr);
         TR VisitIdentifierExpr(Identifier expr);
@@ -304,6 +305,27 @@ public abstract class Expr
         public override TR Accept<TR>(IVisitor<TR> visitor)
         {
             return visitor.VisitLogicalExpr(this);
+        }
+
+        public IToken Token => Operator;
+    }
+
+    public class In : Expr, ITokenAware
+    {
+        public Expr Left { get; }
+        public IToken Operator { get; }
+        public Expr Right { get; }
+
+        public In(Expr left, IToken @operator, Expr right)
+        {
+            Left = left;
+            Operator = @operator;
+            Right = right;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitInExpr(this);
         }
 
         public IToken Token => Operator;

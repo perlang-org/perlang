@@ -26,7 +26,10 @@ namespace perlang
 
         // C++ doesn't support operator overloading for assignment. We workaround this by just providing a set method
         // instead.
-        void set(size_t index, BigInt value);
+        void set(size_t index, const BigInt& value);
+
+        [[nodiscard]]
+        bool contains(const BigInt& value) const;
 
      private:
         BigInt* arr_;

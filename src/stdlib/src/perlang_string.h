@@ -87,6 +87,13 @@ namespace perlang
 
         // Compares this string to another string, returning true if they are equal.
         [[nodiscard]]
+        inline bool operator==(const String& rhs) const
+        {
+            return const_cast<String&>(*this) == const_cast<String&>(rhs);
+        }
+
+        // Compares this string to another string, returning true if they are equal.
+        [[nodiscard]]
         inline bool operator==(const String& rhs)
         {
             return *this == const_cast<String&>(rhs);

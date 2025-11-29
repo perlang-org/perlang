@@ -125,6 +125,14 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitInExpr(Expr.In expr)
+    {
+        Visit(expr.Left);
+        Visit(expr.Right);
+
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         Visit(expr.Right);

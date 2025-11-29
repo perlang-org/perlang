@@ -48,6 +48,9 @@ namespace perlang
         // instead.
         void set(size_t index, ${_cpp_type} value);
 
+        [[nodiscard]]
+        bool contains(${_cpp_type} value) const;
+
      private:
         ${_cpp_type}* arr_;
         size_t length_;
@@ -114,11 +117,28 @@ namespace perlang
 
     void ${_class_name}::set(size_t index, ${_cpp_type} value)
     {
+        // TODO: Add null check, but only if we can add a test that exercises the behavior.
+
         if (index >= length_) {
             throw std::out_of_range("index out of range (" + std::to_string(index) + " > " + std::to_string(length_ - 1) + ")");
         }
 
         arr_[index] = value;
+    }
+
+    bool ${_class_name}::contains(${_cpp_type} value) const
+    {
+        if (this == nullptr) {
+            return false;
+        }
+
+        for (size_t i = 0; i < length_; i++) {
+            if (arr_[i] == value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 EOF

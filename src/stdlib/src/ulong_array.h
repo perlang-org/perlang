@@ -28,6 +28,9 @@ namespace perlang
         // instead.
         void set(size_t index, uint64_t value);
 
+        [[nodiscard]]
+        bool contains(uint64_t value) const;
+
      private:
         uint64_t* arr_;
         size_t length_;

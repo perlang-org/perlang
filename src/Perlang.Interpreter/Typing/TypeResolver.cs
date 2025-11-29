@@ -614,6 +614,36 @@ internal class TypeResolver : VisitorBase
         return VoidObject.Void;
     }
 
+    public override VoidObject VisitInExpr(Expr.In expr)
+    {
+        base.VisitInExpr(expr);
+
+        if (!expr.Right.TypeReference.CppType!.IsArray) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Operator,
+                $"Cannot search in '{expr.Right.TypeReference.TypeKeywordOrPerlangType}' haystack: type is not an array type")
+            );
+
+            return VoidObject.Void;
+        }
+
+        // If the left-hand side is a literal, we need to include its details in the CanBeCoercedInto() call below, to
+        // e.g. ensure that positive literals can be used for "in"-searching in uint arrays (which would otherwise be
+        // impossible because of int -> uint[])
+        var leftLiteral = expr.Left as Expr.Literal;
+
+        if (!TypeCoercer.CanBeCoercedInto(expr.Right.TypeReference.CppType?.ElementType, expr.Left.TypeReference.CppType!, leftLiteral?.Value as INumericLiteral)) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Operator,
+                $"Cannot search in '{expr.Right.TypeReference.TypeKeywordOrPerlangType}' haystack for needle of type '{expr.Left.TypeReference.TypeKeywordOrPerlangType}'")
+            );
+
+            return VoidObject.Void;
+        }
+
+        return VoidObject.Void;
+    }
+
     public override VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         base.VisitUnaryPrefixExpr(expr);

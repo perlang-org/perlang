@@ -28,6 +28,9 @@ namespace perlang
         // instead.
         void set(size_t index, double value);
 
+        [[nodiscard]]
+        bool contains(double value) const;
+
      private:
         double* arr_;
         size_t length_;

@@ -38,6 +38,7 @@ public class Scanner : IDisposable
             { "for", FOR },
             { "fun", FUN },
             { "if", IF },
+            { "in", IN },
             { "new", NEW },
             { "null", PERLANG_NULL },
             { "print", PRINT },
@@ -90,6 +91,7 @@ public class Scanner : IDisposable
             { "switch", RESERVED_WORD },
             { "break", RESERVED_WORD },
             { "continue", RESERVED_WORD },
+            { "foreach", RESERVED_WORD },
 
             // Exception handling
             { "try", RESERVED_WORD },
@@ -137,7 +139,7 @@ public class Scanner : IDisposable
 
     private static StringHashSet reservedKeywordOnlyStrings;
 
-    // Returns only the "proper" reserved keywords, not include the "reserved type keywords" listed above.
+    // Returns only the "proper" reserved keywords, not including the "reserved type keywords" listed above.
     public static StringHashSet ReservedKeywordOnlyStrings
     {
         get

@@ -4,6 +4,7 @@
 
 #include "ascii_string.h"
 #include "string_array.h"
+#include "exceptions/null_pointer_exception.h"
 
 namespace perlang
 {
@@ -41,5 +42,20 @@ namespace perlang
     size_t StringArray::length() const
     {
         return length_;
+    }
+
+    bool StringArray::contains(std::shared_ptr<perlang::String> value) const
+    {
+        if (this == nullptr) {
+            return false;
+        }
+
+        for (size_t i = 0; i < length_; i++) {
+            if (*arr_[i] == *value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

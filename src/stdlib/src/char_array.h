@@ -28,6 +28,9 @@ namespace perlang
         // instead.
         void set(size_t index, char16_t value);
 
+        [[nodiscard]]
+        bool contains(char16_t value) const;
+
      private:
         char16_t* arr_;
         size_t length_;

@@ -89,6 +89,8 @@ public record CppType : IPerlangType
     {
         if (!IsSupported)
         {
+            // TODO: Should use something like TypeKeywordOrPerlangType() here, for a better error message. This will
+            // now refer to type names that are unusable on the Perlang side.
             throw new NotImplementedInCompiledModeException($"Wrapped type for {CppTypeName} is not supported in compiled mode");
         }
 
@@ -98,6 +100,8 @@ public record CppType : IPerlangType
         return WrapInSharedPtr ? $"std::shared_ptr<{CppTypeName}>" : CppTypeName;
     }
 
+    // TODO: Should probably be made private. Outside callers should almost always call CanBeCoercedInto() instead,
+    // which supports 'int' being assignable to 'long' and so forth.
     public bool IsAssignableTo(CppType? targetType)
     {
         if (targetType == PerlangTypes.String && (this == PerlangTypes.AsciiString || this == PerlangTypes.UTF8String)) {

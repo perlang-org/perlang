@@ -232,6 +232,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             test/perlang_char.cc
             test/perlang_string.cc
             test/print.cc
+            test/string_array_tests.cc
             test/string_builder.cc
             test/utf8_string.cc
             test/utf16_string.cc
