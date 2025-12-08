@@ -229,10 +229,38 @@ get_architecture() {
 
         Darwin)
             _ostype=osx
+
+            if $ansi_escapes_are_valid; then
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: $_ostype" 1>&2
+            else
+                printf 'error: %s\n' "Unsupported OS type: $_ostype" 1>&2
+            fi
+
+            echo
+            echo 'macOS is unfortunately currently not supported by Perlang, but we are planning'
+            echo 'to support it soon. See this issue for up-to-date details:'
+            echo 'https://gitlab.perlang.org/perlang/perlang/-/issues/511'
+            echo
+
+            exit 1
             ;;
 
         MINGW* | MSYS* | CYGWIN*)
             _ostype=win
+
+            if $ansi_escapes_are_valid; then
+                printf "\33[31;1merror:\33[0m %s\n" "Unsupported OS type: $_ostype" 1>&2
+            else
+                printf 'error: %s\n' "Unsupported OS type: $_ostype" 1>&2
+            fi
+
+            echo
+            echo 'Windows is unfortunately not yet supported by Perlang, but we hope to support'
+            echo 'it in the future. See this issue for up-to-date details:'
+            echo 'https://gitlab.perlang.org/perlang/perlang/-/issues/512'
+            echo
+
+            exit 1
             ;;
 
         FreeBSD)
