@@ -1,20 +1,27 @@
 # Contributing
 
-Perlang is at a quite early state in its childhood, and directly contributing code changes is
-perhaps challenging; it's unlikely to be obvious to outside contributors where the project is
-heading. For now, this is probably where you can be of most help:
+Perlang has been developed for a few years now, but is still at a quite an early state in its
+childhood, and directly contributing code changes can be challenging; it's unlikely to be obvious to
+outside contributors where the project is heading. However, you can still participate in the project
+in e.g. the following ways:
 
-- Read existing issues, and give suggestions if you have thoughts on how particular things should be
-  implemented/platforms that would be important to support/language features that you consider very
-  useful, etc.
+- Read the commit logs as new changes are being published. We try to write meaningful git commit
+  messages, where the first line gives the overall picture and the "body" of the commit message
+  might provide more details. Each commit pushed will produce a snapshot version of the tooling that
+  you can install using our [download page](../download).
 
-You can of course also download the Perlang tooling to your machine and attempt to run it, but
-please be aware that since [the removal of the
-REPL](https://github.com/perlang-org/perlang/pull/446), "toying around" with the Perlang interpreter
-is much less obvious than what it used to be. Don't let this scare you away, though! It's just that
-we are working on reimplementing Perlang as a fully AOT-compiled language (including the REPL), so
-the intermediate result (version 0.5.0, 0.6.0 and current snapshots) might not be obviously useful
-to outsiders. At the moment, Perlang is mostly useful for developing the Perlang compiler.
+- Poke around in existing [GitLab issues](https://issues.perlang.org). While project management is
+  perhaps not our favorite chore, we try to keep these up-to-date. If you want to see where the
+  project is heading, this will give you some ideas.
+
+- Read [our mailing lists](https://lists.perlang.org). We will post project updates to these mailing
+  lists from time to time. If you want to get in touch with the people behind the project, this is
+  your best bet. You are welcome to subscribe to the mailing lists if you like; once you have
+  requested to be subscribed, we will manually confirm you before you get subscribed to the lits.
+  Here is some basic netiquette that we would appreciate if you adhere to:
+    * Use common sense.
+    * Stay on topic.
+    * If possible with your mail client, [use plain text email](https://useplaintext.email/).
 
 In the future, we hope to also provide a way to help fund the Perlang development financially. For
 those of you interested in this, it will provide a very direct way to contribute to and benefit the
