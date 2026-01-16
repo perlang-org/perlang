@@ -20,7 +20,7 @@ variables:
 build-perlang-cli:
   stage: test
 
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
 
   script:
     # First, install the latest 'nightly' snapshot and build Perlang CLI one time. This ensures that the latest nightly
@@ -136,7 +136,7 @@ valgrind-run-hello-world-example:
   stage: test
   needs: []
 
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
 
   script:
     # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
@@ -161,7 +161,7 @@ test:
   # TODO: Run on other operating systems than Linux too, when we are ready for it. It's
   # probably not worth it until we are a proper LLVM language, independent
   # of clang for generating binaries.
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
 
   parallel:
     matrix:
@@ -206,7 +206,7 @@ docs-test-examples:
   stage: test
   needs: []
 
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
 
   script:
     #
@@ -226,7 +226,7 @@ docs-test-examples:
     #
     - make auto-generated
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r linux-x64 --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/linux-x64/publish
+    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net10.0/linux-x64/publish
 
     # "Fake it till you make it". This is necessary to avoid failures trying
     # to regenerate our .cc file if the .per files have a more
@@ -245,7 +245,7 @@ docs-test-examples:
 # https://gitlab.com/gitlab-org/fleeting/plugins/aws/-/blob/7328e430d0ce9896770417d8cd7317f66342cbc0/.gitlab/ci/release.gitlab-ci.yml
 binaries:
   stage: build
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:8.0
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
   script:
@@ -261,16 +261,16 @@ binaries:
     # Must avoid exporting in the same line as the command, because otherwise the command will never fail (even if
     # executing the perlang binary fails). The 'sed' part is needed because the version will otherwise be 0.7.0+b92cf3a,
     # which includes characters not valid for files in a GitLab release.
-    - PERLANG_VERSION=$(src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v | sed s/+[[:alnum:]]*$//)
+    - PERLANG_VERSION=$(src/Perlang.ConsoleApp/bin/Debug/net10.0/perlang -v | sed s/+[[:alnum:]]*$//)
     - export PERLANG_VERSION
 
     # Compile .NET and native libraries
     - dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $ARCH --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$(pwd)/
-    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
-    - make -j$(scripts/num_cpus) perlang_cli && cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish
+    - make -j$(scripts/num_cpus) stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net10.0/$ARCH/publish
+    - make -j$(scripts/num_cpus) perlang_cli && cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.ConsoleApp/bin/Release/net10.0/$ARCH/publish
 
     # Create an archive from the compiled binaries
-    - (pushd src/Perlang.ConsoleApp/bin/Release/net8.0/$ARCH/publish && tar cvzf ${PROJECT_ROOT_DIR}/out/perlang-${PERLANG_VERSION}-$ARCH.tar.gz *)
+    - (pushd src/Perlang.ConsoleApp/bin/Release/net10.0/$ARCH/publish && tar cvzf ${PROJECT_ROOT_DIR}/out/perlang-${PERLANG_VERSION}-$ARCH.tar.gz *)
     - ls -l out/*.tar.gz
   artifacts:
     paths:

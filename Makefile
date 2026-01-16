@@ -12,10 +12,10 @@
 # This gets overridden in CI when building for another architecture
 ARCH=linux-x64
 
-DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net8.0
+DEBUG_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Debug/net10.0
 DEBUG_PERLANG=$(DEBUG_PERLANG_DIRECTORY)/perlang
 
-RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net8.0/$(ARCH)/publish
+RELEASE_PERLANG_DIRECTORY=src/Perlang.ConsoleApp/bin/Release/net10.0/$(ARCH)/publish
 RELEASE_PERLANG=$(RELEASE_PERLANG_DIRECTORY)/perlang
 
 # --undef-value-errors are caused by the .NET runtime, so we ignore them for now to avoid noise. Must also use
@@ -199,16 +199,16 @@ perlang_cli_install_release: perlang_cli
 	cp lib/perlang_cli/lib/perlang_cli.so $(RELEASE_PERLANG_DIRECTORY)
 
 perlang_cli_install_integration_test_debug: perlang_cli
-	mkdir -p src/Perlang.Tests/bin/Debug/net8.0
-	mkdir -p src/Perlang.Tests.Integration/bin/Debug/net8.0
-	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Debug/net8.0
-	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Debug/net8.0
+	mkdir -p src/Perlang.Tests/bin/Debug/net10.0
+	mkdir -p src/Perlang.Tests.Integration/bin/Debug/net10.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Debug/net10.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Debug/net10.0
 
 perlang_cli_install_integration_test_release: perlang_cli
-	mkdir -p src/Perlang.Tests/bin/Release/net8.0
-	mkdir -p src/Perlang.Tests.Integration/bin/Release/net8.0
-	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Release/net8.0
-	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Release/net8.0
+	mkdir -p src/Perlang.Tests/bin/Release/net10.0
+	mkdir -p src/Perlang.Tests.Integration/bin/Release/net10.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests/bin/Release/net10.0
+	cp lib/perlang_cli/lib/perlang_cli.so src/Perlang.Tests.Integration/bin/Release/net10.0
 
 test:
 	dotnet test --configuration Release
