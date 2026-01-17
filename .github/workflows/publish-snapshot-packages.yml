@@ -70,18 +70,18 @@ jobs:
         run: make perlang_cli_install_release ARCH=${{ matrix.arch }}
 
       - name: Rebuild stdlib
-        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/publish
+        run: make stdlib && cp -rv lib src/Perlang.ConsoleApp/bin/Release/net10.0/${{ matrix.arch }}/publish
         if: runner.os == 'Linux'
 
       #
       # Create .tar.gz archives
       #
       - name: Create ${{ matrix.arch }} .tar.gz file
-        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net8.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
-        working-directory: src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/publish
+        run: version=$(${GITHUB_WORKSPACE}/src/Perlang.ConsoleApp/bin/Debug/net10.0/perlang -v) && tar cvzf ../perlang-$version-${{ matrix.arch }}.tar.gz *
+        working-directory: src/Perlang.ConsoleApp/bin/Release/net10.0/${{ matrix.arch }}/publish
 
       - name: List .tar.gz files
-        run: ls -l src/Perlang.ConsoleApp/bin/Release/net8.0/*/*.tar.gz
+        run: ls -l src/Perlang.ConsoleApp/bin/Release/net10.0/*/*.tar.gz
 
       #
       # Upload files to releases server via rsync
@@ -91,7 +91,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO"
-          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net8.0/${{ matrix.arch }}/*.tar.gz"
+          SOURCE: "./src/Perlang.ConsoleApp/bin/Release/net10.0/${{ matrix.arch }}/*.tar.gz"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
           TARGET: ${{ secrets.SSH_REMOTE_TARGET }}
