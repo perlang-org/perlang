@@ -41,6 +41,26 @@ build-perlang-cli:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+ensure-cppsharp-bindings-up-to-date:
+  stage: test
+
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
+
+  script:
+    # "Fake it till you make it" - we don't need to regenerate the C++ sources in this CI job.
+    - mkdir -p ~/.perlang/nightly/bin
+    - cp $(which true) ~/.perlang/nightly/bin/perlang
+
+    - make -j$(scripts/num_cpus) auto-generated-bindings
+
+    # Ensure that the generated C# bindings are identical to the file(s) in the repo. These should never diff; if they
+    # do, the developer must run the given command locally and commit the changes.
+    - 'git diff --quiet || (echo -e "\e[38;5;196mERROR:\e[0m You seem to have forgotten to regenerate the CppSharp bindings from C++ sources. Run make auto-generated-bindings to regenerate them." && git diff --color=always && exit 1)'
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # Special job which builds and tests all parts of Perlang which are currently platform-independent on FreeBSD.
 build-freebsd:
   stage: test
