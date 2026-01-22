@@ -91,7 +91,7 @@ required if you want to make changes to the Perlang code itself.
 At the moment, Perlang can only be built on Linux (`amd64` is supported,
 `arm64` might work but is completely untested).
 
-#### Installing prerequisites for building
+#### Prerequisites for building
 
 * .NET 10 SDK. This can be downloaded here:
   https://learn.microsoft.com/en-us/dotnet/core/install/linux
