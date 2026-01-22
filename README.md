@@ -88,14 +88,27 @@ print(pi / (10 ** 20));
 _Note_: this is not required for writing Perlang programs. These steps are
 required if you want to make changes to the Perlang code itself.
 
+At the moment, Perlang can only be built on Linux (`amd64` is supported,
+`arm64` might work but is completely untested).
+
 #### Installing prerequisites for building
+
+* .NET 10 SDK. This can be downloaded here:
+  https://learn.microsoft.com/en-us/dotnet/core/install/linux
+
+In addition, some other Debian/Ubuntu packages are required for building the
+system:
 
 ```shell
 $ sudo apt-get install \
-      dotnet-sdk-7.0 \
+      clang-14 \
+      cmake \
       make \
       ruby
 ```
+
+The `valgrind` package is not required for normal compilation or use, but
+some Makefile rules like `make valgrind-hello-world-example` depends on it.
 
 #### Building the Perlang tooling
 
