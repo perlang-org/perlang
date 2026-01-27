@@ -47,7 +47,65 @@ public class InTests
             );
     }
 
-    // TODO: Add test for 'object[]' too, containing a user-defined class
+    // TODO: Add array test for 'object[]' too, containing a user-defined class
+
+    [Theory]
+    [InlineData("int", "1", "100", "50", "true")]
+    [InlineData("int", "1", "100", "-100", "false")]
+    [InlineData("int", "1", "100", "0", "false")]
+    [InlineData("int", "1", "100", "123", "false")]
+    [InlineData("long", "1", "100", "50", "true")]
+    [InlineData("long", "1", "100", "-100", "false")]
+    [InlineData("long", "1", "100", "0", "false")]
+    [InlineData("long", "1", "100", "123", "false")]
+    [InlineData("uint", "1", "100", "50", "true")]
+    [InlineData("uint", "1", "100", "0", "false")]
+    [InlineData("uint", "1", "100", "123", "false")]
+    [InlineData("ulong", "1", "100", "50", "true")]
+    [InlineData("ulong", "1", "100", "0", "false")]
+    [InlineData("ulong", "1", "100", "123", "false")]
+    [InlineData("char", "'a'", "'z'", "'j'", "true")]
+    [InlineData("char", "'a'", "'c'", "'d'", "false")]
+    [InlineData("bigint", "18446744073709551616", "19446744073709551616", "18446744073709551617", "true")]
+    [InlineData("bigint", "18446744073709551616", "19446744073709551616", "18446744073709551616", "true")]
+    [InlineData("bigint", "18446744073709551616", "19446744073709551616", "19446744073709551616", "true")]
+    [InlineData("bigint", "18446744073709551616", "19446744073709551616", "-100", "false")]
+    [InlineData("bigint", "18446744073709551616", "19446744073709551616", "1", "false")]
+    public void can_use_in_operator_with_range(string type, string begin, string end, string needle, string expectedResult)
+    {
+        string source = $"""
+            // Workaround for the fact that e.g. the integer literal 50
+            // cannot be implicitly used when searching in a "uint" range.
+            // When we have casting and/or support for "50.to_uint()"-style
+            // conversions, we can get rid of it.
+            var needle: {type} = {needle};
+            var begin: {type} = {begin};
+            var end: {type} = {end};
+
+            print needle in begin..end;
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                expectedResult
+            );
+    }
+
+    [Fact]
+    public void in_operator_emits_expected_error_when_range_begin_and_end_types_are_not_compatible()
+    {
+        string source = """
+            print 10 in 'a'..65;
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match("Both sides of the range must be of equal types (not 'char' and 'int')");
+    }
 
     [Fact]
     public void in_operator_returns_expected_result_when_int_array_is_null()
@@ -86,7 +144,7 @@ public class InTests
     }
 
     [Fact]
-    public void in_operator_returns_expected_result_when_operand_types_do_not_match()
+    public void in_operator_emits_expected_error_when_operand_types_do_not_match()
     {
         string source = """
             var a: int[] = [1, 2, 3];
@@ -102,7 +160,7 @@ public class InTests
     }
 
     [Fact]
-    public void in_operator_returns_expected_result_when_right_hand_operand_is_not_an_array()
+    public void in_operator_emits_expected_error_when_right_hand_operand_is_not_an_array()
     {
         string source = """
             var i: int = 1;

@@ -133,6 +133,14 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitRangeExpr(Expr.Range range)
+    {
+        Visit(range.Begin);
+        Visit(range.End);
+
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         Visit(expr.Right);

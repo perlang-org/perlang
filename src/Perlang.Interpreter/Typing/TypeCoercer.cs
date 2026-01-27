@@ -114,6 +114,16 @@ public static class TypeCoercer
     /// <returns>`true` if a source value can be coerced into the target type, `false` otherwise.</returns>
     public static bool CanBeCoercedInto(CppType? targetType, CppType? sourceType, INumericLiteral? numericLiteral = null)
     {
+        if (targetType == null)
+        {
+            throw new ArgumentNullException("targetType cannot be null", innerException: null);
+        }
+
+        if (sourceType == null)
+        {
+            throw new ArgumentNullException("sourceType cannot be null", innerException: null);
+        }
+
         if (targetType == sourceType)
         {
             return true;

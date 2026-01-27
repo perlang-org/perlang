@@ -618,6 +618,26 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitInExpr(expr);
 
+        if (expr.Right is Expr.Range range)
+        {
+            if (!range.TypeReference.IsResolved) {
+                // This can be a valid scenario if an invalid range like
+                // 'a'..65 is specified. In this case, the error is expected
+                // to have already been handled at this point and we do our
+                // best to not throw NRE or similar.
+                return VoidObject.Void;
+            }
+
+            if (!TypeCoercer.CanBeCoercedInto(range.TypeReference.CppType, expr.Left.TypeReference.CppType!)) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Operator,
+                    $"Cannot search in '{range.TypeReference.TypeKeywordOrPerlangType}' range for needle of type '{expr.Left.TypeReference.TypeKeywordOrPerlangType}'")
+                );
+            }
+
+            return VoidObject.Void;
+        }
+
         if (!expr.Right.TypeReference.CppType!.IsArray) {
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Operator,
@@ -640,6 +660,25 @@ internal class TypeResolver : VisitorBase
 
             return VoidObject.Void;
         }
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitRangeExpr(Expr.Range range)
+    {
+        base.VisitRangeExpr(range);
+
+        if (!range.Begin.TypeReference.CppType!.IsAssignableTo(range.End.TypeReference.CppType)) {
+            typeValidationErrorCallback(new TypeValidationError(
+                range.Token!,
+                $"Both sides of the range must be of equal types (not '{range.Begin.TypeReference.TypeKeywordOrPerlangType}' and '{range.End.TypeReference.TypeKeywordOrPerlangType}')")
+            );
+
+            return VoidObject.Void;
+        }
+
+        // We assume this to be available now
+        range.TypeReference.SetCppType(range.Begin.TypeReference.CppType);
 
         return VoidObject.Void;
     }

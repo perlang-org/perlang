@@ -747,68 +747,69 @@ namespace Perlang
         LEFT_SQUARE_BRACKET = 4,
         RIGHT_SQUARE_BRACKET = 5,
         COMMA = 6,
-        DOT = 7,
-        MINUS = 8,
-        PLUS = 9,
-        PERCENT = 10,
-        SINGLE_QUOTE = 11,
-        SEMICOLON = 12,
-        COLON = 13,
-        SLASH = 14,
-        QUESTION_MARK = 15,
-        CARET = 16,
-        BANG = 17,
-        BANG_EQUAL = 18,
-        EQUAL = 19,
-        EQUAL_EQUAL = 20,
-        GREATER = 21,
-        GREATER_EQUAL = 22,
-        GREATER_GREATER = 23,
-        LESS = 24,
-        LESS_EQUAL = 25,
-        LESS_LESS = 26,
-        AMPERSAND = 27,
-        AMPERSAND_AMPERSAND = 28,
-        PIPE = 29,
-        PIPE_PIPE = 30,
-        PLUS_PLUS = 31,
-        MINUS_MINUS = 32,
-        PLUS_EQUAL = 33,
-        MINUS_EQUAL = 34,
-        STAR = 35,
-        STAR_STAR = 36,
-        CHAR = 37,
-        IDENTIFIER = 38,
-        STRING = 39,
-        NUMBER = 40,
-        PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES = 41,
-        PREPROCESSOR_DIRECTIVE_CPP_METHODS = 42,
-        CLASS = 43,
-        CONSTRUCTOR = 44,
-        DESTRUCTOR = 45,
-        ELSE = 46,
-        EXTERN = 47,
-        ENUM = 48,
-        FALSE = 49,
-        FUN = 50,
-        FOR = 51,
-        IF = 52,
-        IN = 53,
-        MUTABLE = 54,
-        NEW = 55,
-        PERLANG_NULL = 56,
-        PRINT = 57,
-        PRIVATE = 58,
-        PUBLIC = 59,
-        RETURN = 60,
-        STATIC = 61,
-        SUPER = 62,
-        THIS = 63,
-        TRUE = 64,
-        VAR = 65,
-        WHILE = 66,
-        RESERVED_WORD = 67,
-        PERLANG_EOF = 68
+        MINUS = 7,
+        PLUS = 8,
+        PERCENT = 9,
+        SINGLE_QUOTE = 10,
+        SEMICOLON = 11,
+        COLON = 12,
+        SLASH = 13,
+        QUESTION_MARK = 14,
+        CARET = 15,
+        BANG = 16,
+        BANG_EQUAL = 17,
+        DOT = 18,
+        DOT_DOT = 19,
+        EQUAL = 20,
+        EQUAL_EQUAL = 21,
+        GREATER = 22,
+        GREATER_EQUAL = 23,
+        GREATER_GREATER = 24,
+        LESS = 25,
+        LESS_EQUAL = 26,
+        LESS_LESS = 27,
+        AMPERSAND = 28,
+        AMPERSAND_AMPERSAND = 29,
+        PIPE = 30,
+        PIPE_PIPE = 31,
+        PLUS_PLUS = 32,
+        MINUS_MINUS = 33,
+        PLUS_EQUAL = 34,
+        MINUS_EQUAL = 35,
+        STAR = 36,
+        STAR_STAR = 37,
+        CHAR = 38,
+        IDENTIFIER = 39,
+        STRING = 40,
+        NUMBER = 41,
+        PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES = 42,
+        PREPROCESSOR_DIRECTIVE_CPP_METHODS = 43,
+        CLASS = 44,
+        CONSTRUCTOR = 45,
+        DESTRUCTOR = 46,
+        ELSE = 47,
+        EXTERN = 48,
+        ENUM = 49,
+        FALSE = 50,
+        FUN = 51,
+        FOR = 52,
+        IF = 53,
+        IN = 54,
+        MUTABLE = 55,
+        NEW = 56,
+        PERLANG_NULL = 57,
+        PRINT = 58,
+        PRIVATE = 59,
+        PUBLIC = 60,
+        RETURN = 61,
+        STATIC = 62,
+        SUPER = 63,
+        THIS = 64,
+        TRUE = 65,
+        VAR = 66,
+        WHILE = 67,
+        RESERVED_WORD = 68,
+        PERLANG_EOF = 69
     }
 }
 
@@ -1198,6 +1199,10 @@ namespace Perlang
 
 namespace Perlang
 {
+}
+
+namespace Perlang
+{
     public unsafe partial class BoolArray : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -1507,6 +1512,141 @@ namespace Perlang
                 var ___ret = __Internal.OperatorSubscript(__Instance, index);
                 return ___ret;
             }
+        }
+    }
+}
+
+namespace Perlang
+{
+    public unsafe partial class CharRange : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 4)]
+        public partial struct __Internal
+        {
+            internal char begin_;
+            internal char end_;
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9CharRangeC2EDsDs", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void ctor(__IntPtr __instance, char begin, char end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9CharRangeC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9CharRange4fromEDsDs", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern global::Perlang.CharRange.__Internal From(char begin, char end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang9CharRange8containsEDs", CallingConvention = __CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            internal static extern bool Contains(__IntPtr __instance, char i);
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.CharRange> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.CharRange>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.CharRange managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.CharRange managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static CharRange __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new CharRange(native.ToPointer(), skipVTables);
+        }
+
+        internal static CharRange __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (CharRange)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static CharRange __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new CharRange(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private CharRange(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected CharRange(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public CharRange(char begin, char end)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.CharRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            __Internal.ctor(__Instance, begin, end);
+        }
+
+        public CharRange(global::Perlang.CharRange _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.CharRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.CharRange.__Internal*) __Instance) = *((global::Perlang.CharRange.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        public bool Contains(char i)
+        {
+            var ___ret = __Internal.Contains(__Instance, i);
+            return ___ret;
+        }
+
+        public static global::Perlang.CharRange From(char begin, char end)
+        {
+            var ___ret = __Internal.From(begin, end);
+            return global::Perlang.CharRange.__CreateInstance(___ret);
         }
     }
 }
@@ -1984,6 +2124,141 @@ namespace Perlang
 
 namespace Perlang
 {
+    public unsafe partial class IntRange : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public partial struct __Internal
+        {
+            internal int begin_;
+            internal int end_;
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang8IntRangeC2Eii", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void ctor(__IntPtr __instance, int begin, int end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang8IntRangeC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang8IntRange4fromEii", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern global::Perlang.IntRange.__Internal From(int begin, int end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang8IntRange8containsEi", CallingConvention = __CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            internal static extern bool Contains(__IntPtr __instance, int i);
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.IntRange> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.IntRange>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.IntRange managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IntRange managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static IntRange __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new IntRange(native.ToPointer(), skipVTables);
+        }
+
+        internal static IntRange __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (IntRange)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static IntRange __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new IntRange(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private IntRange(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected IntRange(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public IntRange(int begin, int end)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.IntRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            __Internal.ctor(__Instance, begin, end);
+        }
+
+        public IntRange(global::Perlang.IntRange _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.IntRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.IntRange.__Internal*) __Instance) = *((global::Perlang.IntRange.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        public bool Contains(int i)
+        {
+            var ___ret = __Internal.Contains(__Instance, i);
+            return ___ret;
+        }
+
+        public static global::Perlang.IntRange From(int begin, int end)
+        {
+            var ___ret = __Internal.From(begin, end);
+            return global::Perlang.IntRange.__CreateInstance(___ret);
+        }
+    }
+}
+
+namespace Perlang
+{
     public unsafe partial class LongArray : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -2135,6 +2410,141 @@ namespace Perlang
                 var ___ret = __Internal.OperatorSubscript(__Instance, index);
                 return ___ret;
             }
+        }
+    }
+}
+
+namespace Perlang
+{
+    public unsafe partial class LongRange : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public partial struct __Internal
+        {
+            internal long begin_;
+            internal long end_;
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9LongRangeC2Ell", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void ctor(__IntPtr __instance, long begin, long end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9LongRangeC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9LongRange4fromEll", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern global::Perlang.LongRange.__Internal From(long begin, long end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang9LongRange8containsEl", CallingConvention = __CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            internal static extern bool Contains(__IntPtr __instance, long i);
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.LongRange> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.LongRange>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.LongRange managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.LongRange managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static LongRange __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new LongRange(native.ToPointer(), skipVTables);
+        }
+
+        internal static LongRange __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (LongRange)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static LongRange __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new LongRange(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private LongRange(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected LongRange(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public LongRange(long begin, long end)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.LongRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            __Internal.ctor(__Instance, begin, end);
+        }
+
+        public LongRange(global::Perlang.LongRange _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.LongRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.LongRange.__Internal*) __Instance) = *((global::Perlang.LongRange.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        public bool Contains(long i)
+        {
+            var ___ret = __Internal.Contains(__Instance, i);
+            return ___ret;
+        }
+
+        public static global::Perlang.LongRange From(long begin, long end)
+        {
+            var ___ret = __Internal.From(begin, end);
+            return global::Perlang.LongRange.__CreateInstance(___ret);
         }
     }
 }
@@ -2887,6 +3297,141 @@ namespace Perlang
 
 namespace Perlang
 {
+    public unsafe partial class UIntRange : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public partial struct __Internal
+        {
+            internal uint begin_;
+            internal uint end_;
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9UIntRangeC2Ejj", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void ctor(__IntPtr __instance, uint begin, uint end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9UIntRangeC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang9UIntRange4fromEjj", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern global::Perlang.UIntRange.__Internal From(uint begin, uint end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang9UIntRange8containsEj", CallingConvention = __CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            internal static extern bool Contains(__IntPtr __instance, uint i);
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.UIntRange> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.UIntRange>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.UIntRange managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.UIntRange managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static UIntRange __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new UIntRange(native.ToPointer(), skipVTables);
+        }
+
+        internal static UIntRange __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (UIntRange)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static UIntRange __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new UIntRange(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private UIntRange(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected UIntRange(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public UIntRange(uint begin, uint end)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.UIntRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            __Internal.ctor(__Instance, begin, end);
+        }
+
+        public UIntRange(global::Perlang.UIntRange _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.UIntRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.UIntRange.__Internal*) __Instance) = *((global::Perlang.UIntRange.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        public bool Contains(uint i)
+        {
+            var ___ret = __Internal.Contains(__Instance, i);
+            return ___ret;
+        }
+
+        public static global::Perlang.UIntRange From(uint begin, uint end)
+        {
+            var ___ret = __Internal.From(begin, end);
+            return global::Perlang.UIntRange.__CreateInstance(___ret);
+        }
+    }
+}
+
+namespace Perlang
+{
     public unsafe partial class ULongArray : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -3038,6 +3583,141 @@ namespace Perlang
                 var ___ret = __Internal.OperatorSubscript(__Instance, index);
                 return ___ret;
             }
+        }
+    }
+}
+
+namespace Perlang
+{
+    public unsafe partial class ULongRange : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public partial struct __Internal
+        {
+            internal ulong begin_;
+            internal ulong end_;
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang10ULongRangeC2Emm", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void ctor(__IntPtr __instance, ulong begin, ulong end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang10ULongRangeC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang10ULongRange4fromEmm", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern global::Perlang.ULongRange.__Internal From(ulong begin, ulong end);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang10ULongRange8containsEm", CallingConvention = __CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            internal static extern bool Contains(__IntPtr __instance, ulong i);
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.ULongRange> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.ULongRange>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.ULongRange managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.ULongRange managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static ULongRange __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new ULongRange(native.ToPointer(), skipVTables);
+        }
+
+        internal static ULongRange __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (ULongRange)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static ULongRange __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new ULongRange(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private ULongRange(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected ULongRange(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public ULongRange(ulong begin, ulong end)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.ULongRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            __Internal.ctor(__Instance, begin, end);
+        }
+
+        public ULongRange(global::Perlang.ULongRange _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.ULongRange.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.ULongRange.__Internal*) __Instance) = *((global::Perlang.ULongRange.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        public bool Contains(ulong i)
+        {
+            var ___ret = __Internal.Contains(__Instance, i);
+            return ___ret;
+        }
+
+        public static global::Perlang.ULongRange From(ulong begin, ulong end)
+        {
+            var ___ret = __Internal.From(begin, end);
+            return global::Perlang.ULongRange.__CreateInstance(___ret);
         }
     }
 }

@@ -74,8 +74,9 @@ auto-generated-bindings: perlang_cli
 	cp src/Perlang.Common/PerlangCli.cs src/Perlang.Common/PerlangCli.cs-orig
 	patch -p0 < src/Perlang.GenerateCppSharpBindings/perlang-cli.patch
 
-# This rule does a lot of swapping around with the files, to make the editing workflow easy: you are always able to
-# just edit the src/Perlang.Common/PerlangCli.cs file.
+# This rule does a lot of swapping around with the files, to make the editing workflow easy: you are always able to just
+# edit the src/Perlang.Common/PerlangCli.cs file. Then, run "make auto-generated-bindings-generate-patch" to ensure the
+# .patch file is up-to-date.
 .PHONY: auto-generated-bindings-generate-patch
 auto-generated-bindings-generate-patch:
 	cp src/Perlang.Common/PerlangCli.cs src/Perlang.Common/PerlangCli.cs-edited

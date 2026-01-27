@@ -38,6 +38,7 @@ public abstract class Expr
         TR VisitLiteralExpr(Literal expr);
         TR VisitLogicalExpr(Logical expr);
         TR VisitInExpr(In expr);
+        TR VisitRangeExpr(Range range);
         TR VisitUnaryPrefixExpr(UnaryPrefix expr);
         TR VisitUnaryPostfixExpr(UnaryPostfix expr);
         TR VisitIdentifierExpr(Identifier expr);
@@ -329,6 +330,30 @@ public abstract class Expr
         }
 
         public IToken Token => Operator;
+    }
+
+    public class Range : Expr, ITokenAware
+    {
+        public Expr Begin { get; set; }
+        public Expr End { get; set; }
+
+        public Range(Expr begin, Expr end)
+        {
+            Begin = begin;
+            End = end;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitRangeExpr(this);
+        }
+
+        public IToken? Token { get; }
+
+        public override string ToString()
+        {
+            return $"{Begin}..{End}";
+        }
     }
 
     /// <summary>

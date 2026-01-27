@@ -1582,6 +1582,42 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         return result.ToString();
     }
 
+    public object? VisitRangeExpr(Expr.Range range)
+    {
+        using var result = NativeStringBuilder.Create();
+        string? rangeTypeName = null;
+
+        if (range.TypeReference.CppType == PerlangValueTypes.Int32) {
+            rangeTypeName = "IntRange";
+        }
+        else if (range.TypeReference.CppType == PerlangValueTypes.Int64) {
+            rangeTypeName = "LongRange";
+        }
+        else if (range.TypeReference.CppType == PerlangValueTypes.UInt32) {
+            rangeTypeName = "UIntRange";
+        }
+        else if (range.TypeReference.CppType == PerlangValueTypes.UInt64) {
+            rangeTypeName = "ULongRange";
+        }
+        else if (range.TypeReference.CppType == PerlangValueTypes.BigInt) {
+            rangeTypeName = "BigIntRange";
+        }
+        else if (range.TypeReference.CppType == PerlangValueTypes.Char) {
+            rangeTypeName = "CharRange";
+        }
+        else {
+            throw new PerlangCompilerException($"Ranges of type {range.TypeReference.TypeKeywordOrPerlangType} are not supported");
+        }
+
+        result.Append($"perlang::{rangeTypeName}::from(");
+        result.Append(range.Begin.Accept(this));
+        result.Append(", ");
+        result.Append(range.End.Accept(this));
+        result.Append(")");
+
+        return result.ToString();
+    }
+
     public object VisitUnaryPrefixExpr(Expr.UnaryPrefix expr)
     {
         using var result = NativeStringBuilder.Create();

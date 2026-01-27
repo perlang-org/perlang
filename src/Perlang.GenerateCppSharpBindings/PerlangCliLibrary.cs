@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using CppSharp;
 using CppSharp.AST;
 using CppSharp.Generators;
@@ -29,6 +30,9 @@ internal class PerlangCliLibrary : ILibrary
 
         // Disabled since PerlangValueTypes exist on both the C++ and C# side
         ctx.IgnoreClassWithName("PerlangValueTypes");
+
+        // Disabled since it depends on BigInt, which is also disabled
+        ctx.IgnoreClassWithName("BigIntRange");
 
         ctx.IgnoreFunctionWithPattern("mp_*");
         ctx.IgnoreFunctionWithPattern("Mp*");

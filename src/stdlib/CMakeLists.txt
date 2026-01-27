@@ -19,13 +19,17 @@ set(headers
         src/ascii_string.h
         src/bigint.h
         src/bigint_array.h
+        src/bigint_range.h
         src/bool_array.h
         src/char_array.h
+        src/char_range.h
         src/double_array.h
         src/float_array.h
         src/int_array.h
+        src/int_range.h
         src/integer.h
         src/long_array.h
+        src/long_range.h
         src/object.h
         src/object_array.h
         src/perlang_char.h
@@ -35,7 +39,9 @@ set(headers
         src/perlang_value_types.h
         src/string_array.h
         src/uint_array.h
+        src/uint_range.h
         src/ulong_array.h
+        src/ulong_range.h
         src/utf8_string.h
         src/utf16_string.h
 )

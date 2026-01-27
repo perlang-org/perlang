@@ -937,16 +937,32 @@ public class PerlangParser
 
     private Expr Multiplication()
     {
-        Expr expr = UnaryPrefix();
+        Expr expr = Range();
 
         while (Match(SLASH, STAR, STAR_STAR, PERCENT, LESS_LESS, GREATER_GREATER))
         {
             IToken @operator = Previous();
-            Expr right = UnaryPrefix();
+            Expr right = Range();
             expr = new Expr.Binary(expr, @operator, right);
         }
 
         return expr;
+    }
+
+    private Expr Range()
+    {
+        Expr expr = UnaryPrefix();
+
+        if (Match(DOT_DOT))
+        {
+            Expr beginExpr = expr;
+            Expr endExpr = UnaryPrefix();
+            return new Expr.Range(beginExpr, endExpr);
+        }
+        else
+        {
+            return expr;
+        }
     }
 
     private Expr UnaryPrefix()

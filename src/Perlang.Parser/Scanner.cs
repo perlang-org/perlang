@@ -280,7 +280,7 @@ public class Scanner : IDisposable
 
                 break;
             case '.':
-                AddToken(DOT);
+                AddToken(perlangScanner.Match('.') ? DOT_DOT : DOT);
                 break;
             case '/':
                 if (perlangScanner.Match('/'))
