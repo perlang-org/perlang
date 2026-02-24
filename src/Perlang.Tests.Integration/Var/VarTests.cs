@@ -25,7 +25,7 @@ public class VarTests
     }
 
     [Fact]
-    public void accessing_uninitialized_variable_emits_expected_error()
+    public void accessing_uninitialized_variable_emits_expected_compilation_error()
     {
         string source = @"
                 var a: int;

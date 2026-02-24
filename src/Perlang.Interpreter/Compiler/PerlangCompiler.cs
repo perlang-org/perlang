@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -834,13 +835,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 return targetExecutable;
             }
         }
-        catch (SystemException e)
+        catch (Win32Exception e)
         {
-            // TODO: Rephrase this a bit now that compilation is perhaps not "experimental" anymore but our default mode
-            // of operation.
             throw new ApplicationException(
-                "Failed running clang. Experimental compilation is only supported on Linux-based systems. If running a " +
-                "Debian/Ubuntu-based distribution, please ensure that the clang-14 package is installed since experimental " +
+                "Failed running clang. Native compilation is currently only supported on Linux-based systems. If running a " +
+                "Debian/Ubuntu-based distribution, please ensure that the clang-14 package is installed since native " +
                 "compilation depends on it.",
                 e
             );

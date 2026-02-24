@@ -327,7 +327,7 @@ public class ClassesTests
     }
 
     [Fact]
-    public void assigning_instance_method_void_result_to_variable_emits_expected_error()
+    public void assigning_instance_method_void_result_to_variable_emits_expected_compilation_error()
     {
         string source = """
             public class Greeter
@@ -1195,7 +1195,7 @@ public class ClassesTests
     }
 
     [Fact]
-    public void accessing_field_outside_class_throws_expected_error()
+    public void accessing_field_outside_class_throws_expected_compilation_error()
     {
         string source = """
             public class Greeter

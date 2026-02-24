@@ -84,7 +84,7 @@ public class ObjectArrayTests
     }
 
     [Fact]
-    public void indexing_object_array_with_negative_index_produces_expected_error()
+    public void indexing_object_array_with_negative_index_produces_expected_runtime_error()
     {
         string source = """
             public class SomeClass
@@ -112,7 +112,7 @@ public class ObjectArrayTests
     }
 
     [Fact]
-    public void indexing_object_array_with_initializer_outside_of_boundaries_produces_expected_error()
+    public void indexing_object_array_with_initializer_outside_of_boundaries_produces_expected_runtime_error()
     {
         string source = """
             public class SomeClass
@@ -141,7 +141,7 @@ public class ObjectArrayTests
     }
 
     [Fact]
-    public void indexing_object_array_with_fixed_size_outside_of_boundaries_produces_expected_error()
+    public void indexing_object_array_with_fixed_size_outside_of_boundaries_produces_expected_runtime_error()
     {
         string source = """
             public class SomeClass
@@ -170,7 +170,7 @@ public class ObjectArrayTests
     }
 
     [Fact]
-    public void indexing_uninitialized_object_array_with_fixed_size_produces_expected_error()
+    public void indexing_uninitialized_object_array_with_fixed_size_produces_expected_runtime_error()
     {
         string source = """
             public class SomeClass
