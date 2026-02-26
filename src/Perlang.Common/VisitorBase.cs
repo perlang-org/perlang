@@ -309,4 +309,17 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
 
         return VoidObject.Void;
     }
+
+    public virtual VoidObject VisitSwitchStmt(Stmt.Switch stmt)
+    {
+        Visit(stmt.Value);
+
+        foreach (SwitchBranch branch in stmt.Branches) {
+            foreach (Expr condition in branch.Conditions) {
+                Visit(condition);
+            }
+        }
+
+        return VoidObject.Void;
+    }
 }

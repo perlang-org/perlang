@@ -29,8 +29,10 @@ public class Scanner : IDisposable
         new Dictionary<string, TokenType>
         {
             // Currently supported keywords
+            { "case", CASE },
             { "class", CLASS },
             { "constructor", CONSTRUCTOR },
+            { "default", DEFAULT },
             { "destructor", DESTRUCTOR },
             { "else", ELSE },
             { "enum", ENUM },
@@ -44,6 +46,7 @@ public class Scanner : IDisposable
             { "print", PRINT },
             { "return", RETURN },
             { "super", SUPER },
+            { "switch", SWITCH },
             { "this", THIS },
             { "true", TRUE },
             { "var", VAR },
@@ -88,7 +91,6 @@ public class Scanner : IDisposable
             { "printf", RESERVED_WORD },
 
             // Flow control
-            { "switch", RESERVED_WORD },
             { "break", RESERVED_WORD },
             { "continue", RESERVED_WORD },
             { "foreach", RESERVED_WORD },

@@ -6,6 +6,8 @@
 #pragma warning disable SA1010
 #pragma warning disable SA1117
 #pragma warning disable SA1503
+#pragma warning disable SA1515
+#pragma warning disable S907
 #pragma warning disable S1117
 
 using System;
@@ -241,9 +243,10 @@ public class PerlangParser
                 throw Error(Previous(), "'extern' keyword must come after visibility");
             }
 
-            // TODO: We should all the modifiers more uniformly here (but possibly enforce a certain order of them, à la
-            // JLS but more stringently). Right now, we will not parse code which says "mutable extern" instead of
-            // "extern mutable", for example.
+            // TODO: We should handle all the modifiers more uniformly here (but possibly enforce a certain order of
+            // them, à la JLS but more stringently). Right now, we will not parse code which says "mutable extern"
+            // instead of "extern mutable", for example. Would be better to parse it but complain that the order is
+            // incorrect.
             if (Check(PUBLIC) || Check(PRIVATE))
             {
                 IToken visibilityToken = Advance();
@@ -326,6 +329,7 @@ public class PerlangParser
         if (Match(PRINT)) return PrintStatement();
         if (Match(RETURN)) return ReturnStatement();
         if (Match(WHILE)) return WhileStatement();
+        if (Match(SWITCH)) return SwitchStatement();
         if (Match(LEFT_BRACE)) return new Stmt.Block(Block());
 
         if (Check(PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES)) {
@@ -496,6 +500,70 @@ public class PerlangParser
         Stmt body = Statement();
 
         return new Stmt.While(condition, body);
+    }
+
+    private Stmt SwitchStatement()
+    {
+        Consume(LEFT_PAREN, "Expect '(' after 'switch'.");
+        Expr value = Expression();
+        Consume(RIGHT_PAREN, "Expect ')' after value.");
+
+        Consume(LEFT_BRACE, "Expect '{' before switch elements.");
+
+        List<SwitchBranch> branches = [];
+
+        while (Check(CASE)) {
+            List<Expr> conditions = [];
+            Advance();
+
+        new_condition:
+            // TODO: Must be compile-time constant. Once we have a mechanism in place for evaluating compile-time
+            // constants, use it here. For now, we can rely on the C++ compiler to help us. >:-)
+            Expr condition = Expression();
+            conditions.Add(condition);
+
+            Consume(COLON, "Expect ':' after case value");
+
+            if (Match(CASE)) {
+                // An arbitrary number of 'case' conditions can be provided before the actual switch "arm" (a list of
+                // statements) is defined. The easiest way to accomplish this is by this clean use of "goto". There's no
+                // need to be zealous against it.
+                goto new_condition;
+            }
+            else {
+                // Note: this code is very similar to the Block() implementation.
+                List<Stmt> statements = [];
+
+                while (!Check(CASE) && !Check(DEFAULT) && !Check(RIGHT_BRACE) && !IsAtEnd)
+                {
+                    statements.Add(Declaration(isExternDeclaration: false));
+                }
+
+                branches.Add(new SwitchBranch(conditions, new Stmt.Block(statements)));
+            }
+        }
+
+        // TODO: Consider rewriting this to support "default" in the middle of other case blocks. It's admittedly a
+        // rather unusual way to write a switch statement, but C++ supports it so why not do the same.
+
+        // A "default" branch
+        if (Match(DEFAULT)) {
+            Consume(COLON, "Expect ':' after case value");
+
+            // Note: this code is very similar to the Block() implementation.
+            List<Stmt> statements = [];
+
+            while (!Check(RIGHT_BRACE) && !IsAtEnd)
+            {
+                statements.Add(Declaration(isExternDeclaration: false));
+            }
+
+            branches.Add(new SwitchBranch([Stmt.Switch.DefaultExpr], new Stmt.Block(statements)));
+        }
+
+        Consume(RIGHT_BRACE, "Expect '}' after switch elements.");
+
+        return new Stmt.Switch(value, branches);
     }
 
     private Stmt ExpressionStatement()

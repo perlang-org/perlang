@@ -1,5 +1,4 @@
 #nullable enable
-#pragma warning disable S907
 #pragma warning disable S3218
 #pragma warning disable SA1118
 
@@ -413,5 +412,51 @@ internal class TypesResolvedValidator : Validator
         }
 
         return VoidObject.Void;
+    }
+
+    public override VoidObject VisitSwitchStmt(Stmt.Switch stmt)
+    {
+        base.VisitSwitchStmt(stmt);
+
+        var value = stmt.Value;
+        var valueType = stmt.Value.TypeReference;
+
+        if (!valueType.IsResolved)
+        {
+            throw new PerlangInterpreterException($"Internal compiler error: Switch value '{stmt.Value}' not resolved");
+        }
+
+        foreach (SwitchBranch branch in stmt.Branches) {
+            foreach (Expr condition in branch.Conditions) {
+                if (condition == Stmt.Switch.DefaultExpr) {
+                    continue;
+                }
+
+                if (!condition.TypeReference.IsResolved)
+                {
+                    throw new PerlangInterpreterException($"Internal compiler error: Switch condition '{condition}' not resolved");
+                }
+
+                if (!TypeCoercer.CanBeCoercedInto(valueType.CppType, condition.TypeReference.CppType)) {
+                    string switchExpression = FormatSwitchExpressionForError(value);
+
+                    TypeValidationErrorCallback(new TypeValidationError(
+                        condition.TypeReference.TypeSpecifier!,
+                        $"Invalid case value: '{condition}' ({condition.TypeReference.TypeKeywordOrPerlangType}) does not match switch expression '{switchExpression}' ({valueType.TypeKeywordOrPerlangType})."));
+                }
+            }
+        }
+
+        return VoidObject.Void;
+    }
+
+    private static string FormatSwitchExpressionForError(Expr value)
+    {
+        return value switch
+        {
+            Expr.Identifier identifier => identifier.FullName,
+            Expr.Get get => get.FullName,
+            _ => value.ToString() ?? throw new PerlangCompilerException("Internal compiler error: Switch expression string was null")
+        };
     }
 }

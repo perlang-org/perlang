@@ -745,6 +745,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     // dev experience. For now, let Clang warn about it when dividing with a zero constant.
                     //"-Wno-division-by-zero",
 
+                    // Implicit fallthrough is an anti-pattern. Perlang doesn't support it, so if we generate code using
+                    // it, it's likely because of a bug in the compiler.
+                    "-Wimplicit-fallthrough",
+
                     // ...but do not warn on implicit conversion from `int` to `float` or `double`. For now, we are
                     // aiming at mimicking the C# semantics in this.
                     "-Wno-implicit-int-float-conversion",
@@ -2207,6 +2211,45 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         result.Append($"while ({whileStmt.Condition.Accept(this)}) ");
         result.Append(whileStmt.Body.Accept(this));
         result.AppendLine(";");
+
+        return result.ToString();
+    }
+
+    public object VisitSwitchStmt(Stmt.Switch stmt)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        result.Append(Indent(indentationLevel));
+        result.AppendLine($"switch ({stmt.Value.Accept(this)}) {{");
+
+        indentationLevel++;
+
+        foreach (SwitchBranch switchBranch in stmt.Branches) {
+            foreach (Expr condition in switchBranch.Conditions) {
+                result.Append(Indent(indentationLevel));
+
+                if (condition == Stmt.Switch.DefaultExpr) {
+                    result.AppendLine("default:");
+                }
+                else {
+                    result.AppendLine($"case {condition.Accept(this)}:");
+                }
+            }
+
+            indentationLevel++;
+
+            // The Block visitor will automatically handle indentation
+            result.Append(switchBranch.Statements.Accept(this));
+            result.Append(Indent(indentationLevel));
+            result.AppendLine("break;");
+
+            indentationLevel--;
+        }
+
+        indentationLevel--;
+
+        result.Append(Indent(indentationLevel));
+        result.AppendLine("}");
 
         return result.ToString();
     }

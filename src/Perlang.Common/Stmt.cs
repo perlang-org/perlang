@@ -23,6 +23,7 @@ public abstract class Stmt
         TR VisitReturnStmt(Return stmt);
         TR VisitVarStmt(Var stmt);
         TR VisitWhileStmt(While stmt);
+        TR VisitSwitchStmt(Switch stmt);
     }
 
     public class Block : Stmt
@@ -316,6 +317,25 @@ public abstract class Stmt
         public override TR Accept<TR>(IVisitor<TR> visitor)
         {
             return visitor.VisitWhileStmt(this);
+        }
+    }
+
+    public class Switch : Stmt
+    {
+        public static readonly Expr DefaultExpr = new Expr.Empty();
+
+        public Expr Value { get; set; }
+        public List<SwitchBranch> Branches { get; }
+
+        public Switch(Expr value, List<SwitchBranch> branches)
+        {
+            Value = value;
+            Branches = branches;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitSwitchStmt(this);
         }
     }
 

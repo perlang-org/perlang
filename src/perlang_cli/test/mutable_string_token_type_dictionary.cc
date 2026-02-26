@@ -20,12 +20,4 @@ TEST_CASE( "MutableStringTokenTypeDictionary, contains_key returns true when an 
 
     // Assert
     REQUIRE(dictionary.get("some-key") == TokenType::TokenType::STAR_STAR);
-
-    setlocale(LC_ALL, "");
-    Color::Color a = Color::BLUE;
-    Color::Color b = Color::GREEN;
-    Color::Color c = Color::RED;
-    perlang::print(a);
-    perlang::print(b);
-    perlang::print(c);
 }
