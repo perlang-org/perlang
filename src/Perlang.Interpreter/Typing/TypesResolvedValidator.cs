@@ -37,6 +37,19 @@ internal class TypesResolvedValidator : Validator
     // Expr visitors
     //
 
+    public override VoidObject VisitAssignExpr(Expr.Assign expr)
+    {
+        base.VisitAssignExpr(expr);
+
+        if (expr.Value.TypeReference.IsNullObject)
+        {
+            // TODO: Use expr.Value.Token here instead of expr.name, #189
+            compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.TargetName, WarningType.NULL_USAGE));
+        }
+
+        return VoidObject.Void;
+    }
+
     public override VoidObject VisitBinaryExpr(Expr.Binary expr)
     {
         base.VisitBinaryExpr(expr);
@@ -397,19 +410,6 @@ internal class TypesResolvedValidator : Validator
                 stmt.TypeReference.TypeSpecifier!,
                 $"Type not found: {stmt.TypeReference.TypeSpecifier!.Lexeme}"
             ));
-        }
-
-        return VoidObject.Void;
-    }
-
-    public override VoidObject VisitAssignExpr(Expr.Assign expr)
-    {
-        base.VisitAssignExpr(expr);
-
-        if (expr.Value.TypeReference.IsNullObject)
-        {
-            // TODO: Use expr.Value.Token here instead of expr.name, #189
-            compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.TargetName, WarningType.NULL_USAGE));
         }
 
         return VoidObject.Void;
