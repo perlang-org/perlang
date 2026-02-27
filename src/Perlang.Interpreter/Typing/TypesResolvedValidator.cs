@@ -454,8 +454,7 @@ internal class TypesResolvedValidator : Validator
     {
         return value switch
         {
-            Expr.Identifier identifier => identifier.FullName,
-            Expr.Get get => get.FullName,
+            IHasFullName hasFullName => hasFullName.FullName,
             _ => value.ToString() ?? throw new PerlangCompilerException("Internal compiler error: Switch expression string was null")
         };
     }

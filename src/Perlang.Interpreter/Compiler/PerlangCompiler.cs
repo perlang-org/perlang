@@ -2161,7 +2161,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         {
             result.Append($"{Indent(indentationLevel)}return ");
 
-            if (stmt.Value is Expr.Identifier && stmt.Value.FullName == "this") {
+            if (stmt.Value is Expr.Identifier identifier && identifier.FullName == "this") {
                 // We do a special trick when returning 'this' from a method in a wrapped class, to ensure that it's
                 // always the shared_ptr that gets passed around. Will likely have to do something similar for method
                 // arguments too, when passing 'this' to a method in another class.

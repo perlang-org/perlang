@@ -15,12 +15,6 @@ public abstract class Expr
 {
     public ITypeReference TypeReference { get; }
 
-    // TODO: Get rid of this. It looks ugly when debugging. It's better to let the FullName part be an interface that
-    // only certain expression types implement, to better take advantage of static typing.
-    public virtual string[] FullNameParts => throw new NotImplementedException($"FullNameParts should be implemented for {this.GetType().Name}");
-
-    public string FullName => String.Join('.', FullNameParts);
-
     private Expr()
     {
         TypeReference = new TypeReference();
@@ -84,7 +78,9 @@ public abstract class Expr
             throw new PerlangCompilerException($"Internal error: Assignment target is of unexpected type: {Target}");
 
         public string TargetNameString =>
-            Target.FullName;
+            Target is IHasFullName hasFullName
+                ? hasFullName.FullName
+                : throw new PerlangCompilerException($"Internal error: Assignment target is of unexpected type: {Target}");
 
         public Assign(Expr target, Expr value)
         {
@@ -452,13 +448,14 @@ public abstract class Expr
     /// <summary>
     /// Represents an identifier, such as a variable name, a function name or a class.
     /// </summary>
-    public class Identifier : Expr, ITokenAware
+    public class Identifier : Expr, ITokenAware, IHasFullName
     {
         public IToken Name { get; }
         public bool IsCollection { get; }
         public IToken Token => Name;
 
-        public override string[] FullNameParts => [Name.Lexeme];
+        public string[] FullNameParts => [Name.Lexeme];
+        public string FullName => String.Join('.', FullNameParts);
 
         public Identifier(IToken name, bool isCollection = false)
         {
@@ -475,7 +472,7 @@ public abstract class Expr
             $"#<Identifier {Name.Lexeme}>";
     }
 
-    public class Get : Expr, ITokenAware
+    public class Get : Expr, ITokenAware, IHasFullName
     {
         /// <summary>
         /// Gets the target object whose field/property/method is being accessed.
@@ -508,7 +505,17 @@ public abstract class Expr
         public IToken Token => Name;
 
         // TODO: Memoize this at some point if seems needed; this is incredibly inefficient.
-        public override string[] FullNameParts => Enumerable.Concat(Object.FullNameParts, [Name.Lexeme]).ToArray();
+        public string[] FullNameParts => Enumerable.Concat(GetObjectFullNameParts(), [Name.Lexeme]).ToArray();
+        public string FullName => String.Join('.', FullNameParts);
+
+        private string[] GetObjectFullNameParts()
+        {
+            if (Object is IHasFullName hasFullName) {
+                return hasFullName.FullNameParts;
+            }
+
+            throw new PerlangCompilerException($"Internal error: Get object is of unexpected type: {Object}");
+        }
 
         public override string ToString()
         {
