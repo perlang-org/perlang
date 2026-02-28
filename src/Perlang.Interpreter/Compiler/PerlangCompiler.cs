@@ -538,6 +538,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             else {
                 // This is important to make wprintf() work correctly with non-ASCII content. Without it, all such characters
                 // are replaced with "?" in the output.
+                mainMethodContent.Append(Indent(indentationLevel));
                 mainMethodContent.AppendLine("setlocale(LC_ALL, \"\");");
             }
 
