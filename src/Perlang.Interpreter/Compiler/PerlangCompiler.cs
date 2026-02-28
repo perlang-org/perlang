@@ -2218,6 +2218,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     public object VisitSwitchStmt(Stmt.Switch stmt)
     {
         using var result = NativeStringBuilder.Create();
+        const int maxExpandedSwitchRangeEntries = 128;
 
         result.Append(Indent(indentationLevel));
         result.AppendLine($"switch ({stmt.Value.Accept(this)}) {{");
@@ -2226,12 +2227,145 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         foreach (SwitchBranch switchBranch in stmt.Branches) {
             foreach (Expr condition in switchBranch.Conditions) {
-                result.Append(Indent(indentationLevel));
-
                 if (condition == Stmt.Switch.DefaultExpr) {
+                    result.Append(Indent(indentationLevel));
                     result.AppendLine("default:");
                 }
+                else if (condition is Expr.Range range) {
+                    if (range.Begin is not Expr.Literal beginLiteral || range.End is not Expr.Literal endLiteral) {
+                        throw new PerlangCompilerException(
+                            $"Switch range '{range}' is not supported: range endpoints must be literals.");
+                    }
+
+                    if (beginLiteral.Value is IntegerLiteral<int> beginInt && endLiteral.Value is IntegerLiteral<int> endInt) {
+                        if (beginInt.Value > endInt.Value) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' is descending; only ascending ranges are supported.");
+                        }
+
+                        long entries = endInt.Value - beginInt.Value + 1L;
+
+                        if (entries > maxExpandedSwitchRangeEntries) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' expands to {entries} case labels, which exceeds the maximum of {maxExpandedSwitchRangeEntries}. Use an 'if' statement in the 'default' branch instead.");
+                        }
+
+                        for (int value = beginInt.Value; ; value++) {
+                            result.Append(Indent(indentationLevel));
+                            result.AppendLine($"case {value}:");
+
+                            if (value == endInt.Value) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (beginLiteral.Value is IntegerLiteral<long> beginLong && endLiteral.Value is IntegerLiteral<long> endLong) {
+                        if (beginLong.Value > endLong.Value) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' is descending; only ascending ranges are supported.");
+                        }
+
+                        BigInteger entries = endLong.Value - (BigInteger)beginLong.Value + 1;
+
+                        if (entries > maxExpandedSwitchRangeEntries) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' expands to {entries} case labels, which exceeds the maximum of {maxExpandedSwitchRangeEntries}. Use an 'if' statement in the 'default' branch instead.");
+                        }
+
+                        for (long value = beginLong.Value; ; value++) {
+                            result.Append(Indent(indentationLevel));
+                            result.AppendLine($"case {value}:");
+
+                            if (value == endLong.Value) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (beginLiteral.Value is IntegerLiteral<uint> beginUint && endLiteral.Value is IntegerLiteral<uint> endUint) {
+                        if (beginUint.Value > endUint.Value) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' is descending; only ascending ranges are supported.");
+                        }
+
+                        BigInteger entries = endUint.Value - (BigInteger)beginUint.Value + 1;
+
+                        if (entries > maxExpandedSwitchRangeEntries) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' expands to {entries} case labels, which exceeds the maximum of {maxExpandedSwitchRangeEntries}. Use an 'if' statement in the 'default' branch instead.");
+                        }
+
+                        for (uint value = beginUint.Value; ; value++) {
+                            result.Append(Indent(indentationLevel));
+                            result.AppendLine($"case {value}U:");
+
+                            if (value == endUint.Value) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (beginLiteral.Value is IntegerLiteral<ulong> beginUlong && endLiteral.Value is IntegerLiteral<ulong> endUlong) {
+                        if (beginUlong.Value > endUlong.Value) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' is descending; only ascending ranges are supported.");
+                        }
+
+                        BigInteger entries = endUlong.Value - (BigInteger)beginUlong.Value + 1;
+
+                        if (entries > maxExpandedSwitchRangeEntries) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' expands to {entries} case labels, which exceeds the maximum of {maxExpandedSwitchRangeEntries}. Use an 'if' statement in the 'default' branch instead.");
+                        }
+
+                        for (ulong value = beginUlong.Value; ; value++) {
+                            result.Append(Indent(indentationLevel));
+                            result.AppendLine($"case {value}UL:");
+
+                            if (value == endUlong.Value) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (beginLiteral.Value is char beginChar && endLiteral.Value is char endChar) {
+                        if (beginChar > endChar) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' is descending; only ascending ranges are supported.");
+                        }
+
+                        int entries = endChar - beginChar + 1;
+
+                        if (entries > maxExpandedSwitchRangeEntries) {
+                            throw new PerlangCompilerException(
+                                $"Switch range '{range}' expands to {entries} case labels, which exceeds the maximum of {maxExpandedSwitchRangeEntries}. Use an 'if' statement in the 'default' branch instead.");
+                        }
+
+                        for (char value = beginChar; ; value++) {
+                            string escapedValue = value switch
+                            {
+                                '\'' => "'\\''",
+                                '\\' => "'\\\\'",
+                                '\0' => "'\\0'",
+                                '\x1B' => "'\\x1B'",
+                                '\n' => "'\\n'",
+                                '\r' => "'\\r'",
+                                '\t' => "'\\t'",
+                                _ => $"L'{value}'"
+                            };
+
+                            result.Append(Indent(indentationLevel));
+                            result.AppendLine($"case {escapedValue}:");
+
+                            if (value == endChar) {
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        throw new PerlangCompilerException(
+                            $"Switch range '{range}' is not supported: only int, long, uint, ulong and char range literals are currently supported.");
+                    }
+                }
                 else {
+                    result.Append(Indent(indentationLevel));
                     result.AppendLine($"case {condition.Accept(this)}:");
                 }
             }

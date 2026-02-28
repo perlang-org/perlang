@@ -34,6 +34,37 @@ public class SwitchTests
     }
 
     [Fact]
+    public void switch_statement_can_switch_on_char_ranges()
+    {
+        string source = """
+            fun print_char_group(c: char): void
+            {
+                switch (c) {
+                    case 'a'..'c':
+                        print "first";
+                    case 'x'..'z':
+                        print "second";
+                    default:
+                        print "other";
+                }
+            }
+
+            print_char_group('b');
+            print_char_group('x');
+            print_char_group('j');
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "first",
+                "second",
+                "other"
+            );
+    }
+
+    [Fact]
     public void switch_statement_can_switch_on_integer()
     {
         string source = """
@@ -84,7 +115,6 @@ public class SwitchTests
     [Fact]
     public void switch_statement_can_have_same_branch_for_multiple_conditions()
     {
-        // TODO: When we support ranges for conditions, add a copy of this test which uses ranges instead
         string source = """
             fun print_number_group(i: int): void
             {
@@ -119,6 +149,86 @@ public class SwitchTests
                 "six to ten",
                 "other"
             );
+    }
+
+    [Fact]
+    public void switch_statement_can_switch_on_integer_ranges()
+    {
+        string source = """
+            fun print_number_group(i: int): void
+            {
+                switch (i) {
+                    case 1..5:
+                        print "one to five";
+                    case 6..10:
+                        print "six to ten";
+                    default:
+                        print "other";
+                }
+            }
+
+            print_number_group(3);
+            print_number_group(7);
+            print_number_group(42);
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .BeEquivalentTo(
+                "one to five",
+                "six to ten",
+                "other"
+            );
+    }
+
+    [Fact]
+    public void switch_statement_emits_expected_error_for_too_large_range_condition()
+    {
+        string source = """
+            var i: int = 129;
+
+            switch (i) {
+                case 1..129:
+                    print "small number";
+                default:
+                    print "other";
+            }
+            """;
+
+        var result = EvalWithCppCompilationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("exceeds the maximum of 128");
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Use an 'if' statement in the 'default' branch instead.");
+    }
+
+    [Fact]
+    public void switch_statement_emits_expected_error_for_descending_range_condition()
+    {
+        string source = """
+            var i: int = 10;
+
+            switch (i) {
+                case 10..1:
+                    print "number";
+                default:
+                    print "other";
+            }
+            """;
+
+        var result = EvalWithCppCompilationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("only ascending ranges are supported");
     }
 
     [Fact]
