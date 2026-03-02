@@ -437,6 +437,20 @@ internal class TypesResolvedValidator : Validator
                     throw new PerlangInterpreterException($"Internal compiler error: Switch condition '{condition}' not resolved");
                 }
 
+                if (valueType.IsStringType && (condition is not Expr.Literal literal || !literal.TypeReference.IsStringType)) {
+                    IToken token = condition.TypeReference.TypeSpecifier ??
+                        (condition as ITokenAware)?.Token ??
+                        (value as ITokenAware)?.Token ??
+                        throw new PerlangInterpreterException(
+                            $"Internal compiler error: Could not resolve token for switch condition '{condition}'");
+
+                    TypeValidationErrorCallback(new TypeValidationError(
+                        token,
+                        $"Invalid case value: '{condition}' in string switch must be a string literal."));
+
+                    continue;
+                }
+
                 if (!TypeCoercer.CanBeCoercedInto(valueType.CppType, condition.TypeReference.CppType)) {
                     string switchExpression = FormatSwitchExpressionForError(value);
 

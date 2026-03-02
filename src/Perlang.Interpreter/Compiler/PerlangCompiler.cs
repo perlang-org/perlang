@@ -2218,6 +2218,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public object VisitSwitchStmt(Stmt.Switch stmt)
     {
+        int switchValueVariableCounter = 0;
+
+        if (stmt.Value.TypeReference.IsStringType)
+        {
+            return VisitStringSwitchStmt(stmt, ref switchValueVariableCounter);
+        }
+
         using var result = NativeStringBuilder.Create();
         const int maxExpandedSwitchRangeEntries = 128;
 
@@ -2385,6 +2392,81 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         result.Append(Indent(indentationLevel));
         result.AppendLine("}");
+
+        return result.ToString();
+    }
+
+    private object VisitStringSwitchStmt(Stmt.Switch stmt, ref int switchValueVariableCounter)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        string switchValueVariableName = $"__perlang_internal_switch_value_{switchValueVariableCounter++}";
+        bool switchValueInitialized = false;
+
+        result.Append(Indent(indentationLevel));
+        foreach (SwitchBranch switchBranch in stmt.Branches) {
+            if (switchBranch.Conditions.Count == 1 && switchBranch.Conditions[0] == Stmt.Switch.DefaultExpr) {
+                if (!switchValueInitialized) {
+                    result.Append($"if (auto&& {switchValueVariableName} = {stmt.Value.Accept(this)}; false) {{}}");
+                    result.AppendLine();
+                    result.Append(Indent(indentationLevel));
+                    switchValueInitialized = true;
+                }
+                else {
+                    result.Append("else ");
+                }
+
+                string defaultBlockString = switchBranch.Statements.Accept(this).ToString() ?? throw new PerlangCompilerException("Internal compiler error: block string was null");
+                string blockIndent = Indent(indentationLevel);
+                string blockPrefix = $"{blockIndent}{{";
+                if (defaultBlockString.StartsWith(blockPrefix, StringComparison.Ordinal)) {
+                    defaultBlockString = defaultBlockString.Substring(blockIndent.Length);
+                }
+
+                result.Append(defaultBlockString);
+                continue;
+            }
+
+            var conditions = new List<string>();
+
+            foreach (Expr condition in switchBranch.Conditions) {
+                if (condition == Stmt.Switch.DefaultExpr) {
+                    throw new PerlangCompilerException("Internal compiler error: default condition cannot be mixed with non-default conditions");
+                }
+
+                if (condition is not Expr.Literal literal || !literal.TypeReference.IsStringType) {
+                    throw new PerlangCompilerException(
+                        $"String switch case '{condition}' is not supported: only string literals are supported.");
+                }
+
+                conditions.Add($"*{switchValueVariableName} == *{condition.Accept(this)}");
+            }
+
+            string conditionExpression = string.Join(" || ", conditions);
+
+            if (!switchValueInitialized) {
+                result.Append($"if (auto&& {switchValueVariableName} = {stmt.Value.Accept(this)}; {conditionExpression}) ");
+                switchValueInitialized = true;
+            }
+            else {
+                result.Append(Indent(indentationLevel));
+                result.Append($"else if ({conditionExpression}) ");
+            }
+
+            string branchBlockString = switchBranch.Statements.Accept(this).ToString() ?? throw new PerlangCompilerException("Internal compiler error: block string was null");
+            string branchBlockIndent = Indent(indentationLevel);
+            string branchBlockPrefix = $"{branchBlockIndent}{{";
+            if (branchBlockString.StartsWith(branchBlockPrefix, StringComparison.Ordinal)) {
+                branchBlockString = branchBlockString.Substring(branchBlockIndent.Length);
+            }
+
+            result.Append(branchBlockString);
+        }
+
+        if (!switchValueInitialized) {
+            result.Append(Indent(indentationLevel));
+            result.AppendLine($"if (auto&& {switchValueVariableName} = {stmt.Value.Accept(this)}; false) {{}}");
+        }
 
         return result.ToString();
     }

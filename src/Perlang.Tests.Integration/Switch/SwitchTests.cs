@@ -259,7 +259,7 @@ public class SwitchTests
             .Be("green");
     }
 
-    [SkippableFact(Skip = "switch condition type 'std::shared_ptr<perlang::String>' requires explicit conversion to 'bool'")]
+    [Fact]
     public void switch_statement_can_switch_on_strings()
     {
         string source = """
@@ -281,5 +281,71 @@ public class SwitchTests
 
         output.Should()
             .Be("B");
+    }
+
+    [Fact]
+    public void switch_statement_can_switch_on_strings_with_multiple_conditions_in_same_branch()
+    {
+        string source = """
+            var s: string = "brown";
+
+            switch (s) {
+                case "alpha":
+                case "brown":
+                    print "match";
+                default:
+                    print "other";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("match");
+    }
+
+    [Fact]
+    public void switch_statement_can_switch_on_strings_using_default_branch()
+    {
+        string source = """
+            var s: string = "delta";
+
+            switch (s) {
+                case "alpha":
+                    print "A";
+                case "brown":
+                    print "B";
+                default:
+                    print "other";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("other");
+    }
+
+    [Fact]
+    public void switch_statement_can_switch_on_strings_emits_expected_error_for_non_literal_condition()
+    {
+        string source = """
+            var s: string = "brown";
+            var t: string = "brown";
+
+            switch (s) {
+                case t:
+                    print "B";
+                default:
+                    print "other";
+            }
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("must be a string literal");
     }
 }
