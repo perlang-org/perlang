@@ -19,5 +19,6 @@ Follow these repo-specific rules when editing code:
 
 ## Tests and CI
 - If unsure, ask which tests to run. Prefer targeted tests over full suite.
+- Validate changes in Release configuration by running `make release`.
 - Default integration test command:
   `dotnet test src/Perlang.Tests.Integration/Perlang.Tests.Integration.csproj`
