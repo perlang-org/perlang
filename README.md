@@ -134,22 +134,20 @@ now be available in the `$PATH` instead of the previous nightly version.
 - [docs/syntax-grammar.md](docs/syntax-grammar.md): Specification of the syntax
   grammar for the Perlang language.
 - [docs](docs): The source code to the https://perlang.org web site. Built using
-  [docfx](https://dotnet.github.io/docfx).
+  [MkDocs Material](https://squidfunk.github.io/mkdocs-material/).
 
 #### Building the docs
 
-Install the [DocFX
-prerequisites](https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html#2-use-docfx-as-a-command-line-tool),
-including the Mono runtime. You should then be able to run the following:
+Install [`uv`](https://github.com/astral-sh/uv) and sync the docs dependencies:
 
 ```shell
-$ npm install -g live-server
+$ uv sync --group docs --frozen
 $ make docs
 $ make docs-serve
 ```
 
 When you make changes to the documentation, run `make docs` to regenerate them.
-The `live-server` process which is started by `make docs-serve` will
+The `mkdocs serve` process started by `make docs-serve` will
 conveniently make your browser auto-reload the changes.
 
 If you want to continuously rebuild documentation, run `make docs-autobuild` in

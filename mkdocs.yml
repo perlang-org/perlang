@@ -1,0 +1,63 @@
+site_name: Perlang
+site_url: https://perlang.org/
+
+docs_dir: docs
+site_dir: _site
+
+hooks:
+  - scripts/mkdocs_hooks.py
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      use_pygments: true
+      guess_lang: false
+      pygments_lang_class: true
+  - pymdownx.superfences
+
+extra_css:
+  - styles/asciinema-player.css
+  - styles/override.css
+  - styles/perlang-hljs.css
+
+extra_javascript:
+  - js/highlight.min.js
+  - js/highlightjs-perlang.js
+  - js/perlang-highlight-init.js
+  - js/asciinema-player.js
+
+nav:
+  - Home: index.md
+  - About:
+      - Perlang: about/index.md
+      - History: about/history/index.md
+  - Learn:
+      - Quickstart: learn/quickstart/index.md
+      - The Perlang Language: learn/the-language/index.md
+  - Download: download/index.md
+  - Contribute: contribute/index.md
+
+  # Disabled for now; not up-to-date and unsure how relevant this is right now
+  #- Syntax Grammar: syntax-grammar.md

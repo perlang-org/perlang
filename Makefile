@@ -1,8 +1,8 @@
 # src/Perlang.Common/CommonConstants.Generated.cs is not phony, but we always want
 # to force it to be regenerated.
 .PHONY: \
-	all clean darkerfx-push docs docs-serve docs-test-examples valgrind-docs-test-examples \
-	docs-validate-api-docs install install-latest-snapshot perlang_cli_clean perlang_cli_install_debug \
+	all clean docs docs-serve docs-test-examples valgrind-docs-test-examples \
+	install install-latest-snapshot perlang_cli_clean perlang_cli_install_debug \
 	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
 	test valgrind-test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
@@ -103,11 +103,8 @@ clean:
 docs-clean:
 	rm -rf _site
 
-docs: docfx/docfx.exe docs/templates/darkerfx/styles/main.css
-	mono ./docfx/docfx.exe docs/docfx.json
-
-docs/templates/darkerfx/styles/main.css: docs/templates/darkerfx/styles/main.scss
-	sass $< $(@)
+docs:
+	uv run --group docs mkdocs build --strict
 
 docs-autobuild:
 	while true; do find docs Makefile src -type f | entr -d bash -c 'scripts/time_it make docs' ; done
@@ -121,16 +118,7 @@ valgrind-docs-test-examples: perlang_cli_install_release
 	for e in docs/examples/the-language/*.per ; do echo -e \\n\\e[1m[$$e]\\e[0m ; $(VALGRIND) $(DEBUG_PERLANG) $$e ; done
 
 docs-serve:
-	live-server _site
-
-docfx/docfx.exe:
-	wget -qO- https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip | busybox unzip - -d docfx
-	chmod +x docfx/docfx.exe
-
-# Pushes local changes to the darkerfx theme to the darkerfx repo. Presumes that
-# it is checked out next to the perlang repository.
-darkerfx-push:
-	rsync -av docs/templates/darkerfx/ ../darkerfx/darkerfx/
+	uv run --group docs mkdocs serve
 
 install: auto-generated stdlib perlang_cli
 	./scripts/local_install_linux.sh

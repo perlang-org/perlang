@@ -7,6 +7,11 @@ on:
     paths:
       - .github/workflows/publish-website.yml
       - docs/**
+      - mkdocs.yml
+      - pyproject.toml
+      - uv.lock
+      - scripts/mkdocs_hooks.py
+      - Makefile
       - src/**
 
 jobs:
@@ -16,8 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Install SASS
-        run: sudo npm install -g sass
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install docs dependencies
+        run: uv sync --group docs --frozen
 
       - name: Rebuild website
         run: make -j docs
