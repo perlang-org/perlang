@@ -260,6 +260,21 @@ docs-test-examples:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+docs-build:
+  stage: test
+  needs: []
+
+  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
+
+  script:
+    - apt-get update && apt-get install -y busybox mono-complete npm
+    - npm install -g sass
+    - make docs
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # The 'binaries', 'upload-binaries' and 'release' jobs are heavily inspired by the approach taken by the aws fleeting
 # plugin:
 # https://gitlab.com/gitlab-org/fleeting/plugins/aws/-/blob/7328e430d0ce9896770417d8cd7317f66342cbc0/.gitlab/ci/release.gitlab-ci.yml

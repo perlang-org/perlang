@@ -104,7 +104,7 @@ docs-clean:
 	rm -rf _site
 
 docs: docfx/docfx.exe docs/templates/darkerfx/styles/main.css
-	./docfx/docfx.exe docs/docfx.json
+	mono ./docfx/docfx.exe docs/docfx.json
 
 docs/templates/darkerfx/styles/main.css: docs/templates/darkerfx/styles/main.scss
 	sass $< $(@)
