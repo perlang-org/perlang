@@ -1,0 +1,18 @@
+[project]
+name = "perlang-docs"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+docs = [
+  # Keep MkDocs on 1.x for now; MkDocs 2.x is currently incompatible with
+  # Material for MkDocs. See:
+  # https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+  "mkdocs>=1.6,<2",
+  "mkdocs-material>=9.5,<10",
+  "pymdown-extensions>=10.7,<11",
+]
+
+[tool.uv]
+package = false

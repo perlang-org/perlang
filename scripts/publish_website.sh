@@ -1,8 +1,7 @@
 #!/bin/bash
 
 #
-# Builds static website using DocFx and publish it to the production
-# server.
+# Builds static website using MkDocs and publish it to the production server.
 #
 
 set -e

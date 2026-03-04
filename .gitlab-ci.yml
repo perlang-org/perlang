@@ -264,12 +264,12 @@ docs-build:
   stage: test
   needs: []
 
-  image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
+  image: python:3.11-bookworm
 
   script:
-    - apt-get update && apt-get install -y busybox mono-complete npm
-    - npm install -g sass
-    - make docs
+    - pip install uv
+    - uv sync --group docs --frozen
+    - uv run --group docs mkdocs build --strict
 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

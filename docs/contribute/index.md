@@ -8,7 +8,7 @@ in e.g. the following ways:
 - Read the commit logs as new changes are being published. We try to write meaningful git commit
   messages, where the first line gives the overall picture and the "body" of the commit message
   might provide more details. Each commit pushed will produce a snapshot version of the tooling that
-  you can install using our [download page](../download).
+  you can install using our [download page](../download/index.md).
 
 - Poke around in existing [GitLab issues](https://issues.perlang.org). While project management is
   perhaps not our favorite chore, we try to keep these up-to-date. If you want to see where the

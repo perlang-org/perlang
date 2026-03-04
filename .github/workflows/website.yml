@@ -14,19 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
         with:
-          dotnet-version: 10.0.x
+          python-version: "3.11"
 
-      #
-      # Build web site
-      #
-      - name: Install SASS
-        run: sudo npm install -g sass
+      - name: Install docs dependencies
+        run: uv sync --group docs --frozen
 
       - name: Rebuild website
         run: make -j docs
-
-      - name: Ensure API docs have expected content
-        run: make docs-validate-api-docs
