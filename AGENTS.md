@@ -3,10 +3,12 @@
 Follow these repo-specific rules when editing code:
 
 ## Commits
+- Never create a commit without explicit user approval in the current conversation.
 - Commit subject: concise, ideally 50 chars, max 72.
 - Commit body: wrap at 72 chars; include why the change was made.
-- Add `Co-Authored-By` when an agent contributes materially.
+- Add `Co-authored-by` when an agent contributes materially. Expected name/email address for Codex CLI is `OpenAI Codex <noreply@openai.com>`
 - Release notes: add an entry for every change. Ask the user for the MR number.
+- If commits are made without an associated MR, `make commit-release-notes` can be used to create a release-notes-only commit.
 - C# code: one type per file. Do not put multiple classes/interfaces in the same file.
 - Error messages and user-facing strings must be in English, even if the user writes in another language.
 

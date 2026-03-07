@@ -5,6 +5,7 @@
 	install install-latest-snapshot perlang_cli_clean perlang_cli_install_debug \
 	perlang_cli_install_release perlang_cli_install_integration_test_debug perlang_cli_install_integration_test_release \
 	publish-release release run run-hello-world-example valgrind-perlang-run-hello-world-example valgrind-hello-world-example \
+	commit-release-notes \
 	test valgrind-test-stdlib src/Perlang.Common/CommonConstants.Generated.cs
 
 .PRECIOUS: %.cc
@@ -244,6 +245,11 @@ prepare-new-dev-version:
 publish-release:
 	echo $(NEXT_RELEASE_TAG) > .metadata/latest-release.txt
 	git release $(NEXT_RELEASE_TAG)
+
+# Can be used when commits are made without an associated MR. Note that the actual release notes entry must be added
+# manually.
+commit-release-notes:
+	git commit -m '(release-notes) Add entry for latest commit' release-notes
 
 # Targets used to support CI
 .PHONY: upload-release
