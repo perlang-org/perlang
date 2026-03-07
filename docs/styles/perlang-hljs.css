@@ -31,3 +31,32 @@ code.hljs {
 .hljs-number {
     color: #005cc5;
 }
+
+/* Material for MkDocs sets `data-md-color-scheme="slate"` in dark mode. */
+/* Inspired by GitHub's Dark Mode */
+[data-md-color-scheme="slate"] .hljs-comment,
+[data-md-color-scheme="slate"] .hljs-quote {
+    color: #8b949e;
+}
+
+[data-md-color-scheme="slate"] .hljs-keyword,
+[data-md-color-scheme="slate"] .hljs-selector-tag,
+[data-md-color-scheme="slate"] .hljs-literal {
+    color: #ff7b72;
+}
+
+[data-md-color-scheme="slate"] .hljs-built_in,
+[data-md-color-scheme="slate"] .hljs-type,
+[data-md-color-scheme="slate"] .hljs-name {
+    color: #d2a8ff;
+}
+
+[data-md-color-scheme="slate"] .hljs-string,
+[data-md-color-scheme="slate"] .hljs-title,
+[data-md-color-scheme="slate"] .hljs-section {
+    color: #a5d6ff;
+}
+
+[data-md-color-scheme="slate"] .hljs-number {
+    color: #79c0ff;
+}
