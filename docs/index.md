@@ -29,7 +29,8 @@ Perlang aims to be just that. Welcome to [join our journey](contribute/index.md)
 
 ## License
 
-[MIT](https://gitlab.perlang.org/perlang/perlang/-/blob/master/LICENSE)
+* [LGPLv2.1](https://gitlab.perlang.org/perlang/perlang/-/blob/master/LICENSE) (compiler and tooling)
+* [MIT (Expat)](https://gitlab.perlang.org/perlang/perlang/-/blob/master/LICENSE-MIT) (standard library)
 
 ## Thanks
 
