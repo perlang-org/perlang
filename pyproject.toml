@@ -12,6 +12,10 @@ docs = [
   "mkdocs>=1.6,<2",
   "mkdocs-material>=9.5,<10",
   "pymdown-extensions>=10.7,<11",
+
+  # click needs to be pinned to 8.2.1 to avoid breaking live-reload in Mkdocs:
+  # See: https://github.com/mkdocs/mkdocs/issues/4032
+  "click==8.2.1",
 ]
 
 [tool.uv]
