@@ -17,7 +17,7 @@ in e.g. the following ways:
 - Read [our mailing lists](https://lists.perlang.org). We will post project updates to these mailing
   lists from time to time. If you want to get in touch with the people behind the project, this is
   your best bet. You are welcome to subscribe to the mailing lists if you like; once you have
-  requested to be subscribed, we will manually confirm you before you get subscribed to the lits.
+  requested to be subscribed, we will manually confirm you before you get subscribed to the list.
   Here is some basic netiquette that we would appreciate if you adhere to:
     * Use common sense.
     * Stay on topic.

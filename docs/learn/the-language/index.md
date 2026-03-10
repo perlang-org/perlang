@@ -22,7 +22,7 @@ You can also declare variables in this scope and refer to them later in your pro
 
 ### Variables
 
-We already cheated at bit and defined a variable in the previous section, but let's look a bit more in-depth at this now. Variables can be defined in two ways: with _explicit_ or _implicit_ ("inferred") typing specified.
+We already cheated a bit and defined a variable in the previous section, but let's look a bit more in-depth at this now. Variables can be defined in two ways: with _explicit_ or _implicit_ ("inferred") typing specified.
 
 [!code-perlang[two-types-of-variables](../../examples/the-language/two-types-of-variables.per)]
 
@@ -44,7 +44,7 @@ This is because once a variable is declared, the type of this variable (explicit
 
 ### Functions
 
-Top-level functions are currently defined used the `fun` keyword. Here's a simple example of how a function can be defined and called:
+Top-level functions are currently defined using the `fun` keyword. Here's a simple example of how a function can be defined and called:
 
 [!code-perlang[defining-and-calling-a-function](../../examples/the-language/defining-and-calling-a-function.per)]
 
@@ -113,7 +113,7 @@ In its current version, Perlang does not currently support defining user-defined
 
 ### The standard library
 
-The standard library is in a very early stage of development. Is it currently being rewritten from C# to C++, and more functionality is being added to it.
+The standard library is in a very early stage of development. It is currently being rewritten from C# to C++, and more functionality is being added to it.
 
 ### The future
 

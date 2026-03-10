@@ -11,7 +11,7 @@ There are basically two ways in which you can use Perlang:
 
 In _REPL mode_, each line you type is interpreted as you press Enter. This mode is useful for doing mathematical operations (for example: `2 * 3`, `2 ** 10`, etc) as well as for doing "exploratory programming", learning how a particular class or API works. For this purpose, it works well. If you are working on a program where the program will be executed more than one time, it is typically not the right choice.
 
-In _scripting mode_, you type your program in a file and execute `perlang <filename>` (without the angle brackets). Perlang scripts conventionally follows the  `filename.per` convention, although this is no way enforced by the interpreter.
+In _scripting mode_, you type your program in a file and execute `perlang <filename>` (without the angle brackets). Perlang scripts conventionally follows the  `filename.per` convention, although this is in no way enforced by the interpreter.
 
 > In the future, we hope to add a _compiled mode_ as well, where Perlang programs are precompiled to MSIL bytecode before they are executed. It is anticipated that this will provide magnitudes better performance than the current, interpreted mode.
 

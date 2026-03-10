@@ -71,7 +71,7 @@ end
 puts("Hello world")
 ```
 
-If you save this to a file `foo.rb` and run `ruby foo.rb`, the program will run without any errors whatsoever, even though the `foo` method referenced a method does that does not exist. This is because of how method invocations work in Ruby; all method calls are by definition "legal", even when they refer to methods that do not exist. If you call an undefined method, there is even a nice little mechanism called `method_missing` which lets you define, in any class, a method called `method_missing`. All calls to non-existing methods will then be delegated to that method. An example:
+If you save this to a file `foo.rb` and run `ruby foo.rb`, the program will run without any errors whatsoever, even though the `foo` method referenced a method that does not exist. This is because of how method invocations work in Ruby; all method calls are by definition "legal", even when they refer to methods that do not exist. If you call an undefined method, there is even a nice little mechanism called `method_missing` which lets you define, in any class, a method called `method_missing`. All calls to non-existing methods will then be delegated to that method. An example:
 
 ```ruby
 def foo
@@ -94,7 +94,7 @@ $ ruby foo.rb
 You called bar with [123]
 ```
 
-Nice, huh? This functionality is what powers some of the existing [DSL:s](https://en.wikipedia.org/wiki/Domain-specific_language) written in Ruby, like som parts of the [Sequel](https://github.com/jeremyevans/sequel) library.
+Nice, huh? This functionality is what powers some of the existing [DSL:s](https://en.wikipedia.org/wiki/Domain-specific_language) written in Ruby, like some parts of the [Sequel](https://github.com/jeremyevans/sequel) library.
 
 I want to make it clear here that I _do_ think it's good to have this kind of functionality in the language sometimes, but the bad part about it is that there's absolutely no way to "turn it off" for cases where you would prefer a `use strict`-mode or similar. I have had cases when there was a typo in a method call or field/variable reference where this was not caught by the unit tests, and I released an updated version of an (internal) Ruby gem - only to realize my folly a bit later.
 
@@ -112,7 +112,7 @@ There is a joke in the industry saying that "if it compiles, ship it". Even thou
 
 The tooling and IDE support is also inherently more limited because of the above (which I consider a limitation in the Ruby language). Yes, editors like VS Code do their best to try and cover up for this, but it still feels limited.
 
-RubyMine is a world of its own, and I must admit I feel sorry I never tried it while I was living in Ruby land. After having used JetBrains InteliJ (for Java) for a couple of years at work and Rider (for C#) also for some time, I know what kind of quality the JetBrains tools typically deliver.
+RubyMine is a world of its own, and I must admit I feel sorry I never tried it while I was living in Ruby land. After having used JetBrains IntelliJ (for Java) for a couple of years at work and Rider (for C#) also for some time, I know what kind of quality the JetBrains tools typically deliver.
 
 But still: you can only get so far when the language doesn't implement the _feature_ that is static typing. Yes, I consider static typing a feature, very much so.
 

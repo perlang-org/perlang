@@ -23,7 +23,7 @@ The easiest way to install the latest build is by using the [perlang-install](ht
 <pre><code class="lang-shell hljs"><span class="hljs-meta">$ </span><span class="bash">curl -sSL https://perlang.org/install.sh | sh</span>
 </code></pre>
 
-Just as with the stable releses, if you have a previous build installed and want to overwrite it, you need to enable this in the installer. Use the following command line:
+Just as with the stable releases, if you have a previous build installed and want to overwrite it, you need to enable this in the installer. Use the following command line:
 
 <pre><code class="lang-shell hljs"><span class="hljs-meta">$ </span><span class="bash">curl -sSL https://perlang.org/install.sh | sh -s -- --force</span>
 </code></pre>
