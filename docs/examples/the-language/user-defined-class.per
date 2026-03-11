@@ -1,0 +1,21 @@
+// user-defined-class.per
+public class Greeter
+{
+    private name_: string;
+
+    public constructor(name: string)
+    {
+        this.name_ = name;
+    }
+
+    public say_hello(): void
+    {
+        // Both the fully qualified "this.name_" form and the shorter "name_" forms can be used here
+        // for  referring to the field
+        print("Hello, " + name_ + "!");
+    }
+}
+
+// Expected output: Hello, World!
+var greeter = new Greeter("World");
+greeter.say_hello();

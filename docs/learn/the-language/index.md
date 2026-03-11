@@ -52,11 +52,11 @@ Many functions take one or more parameters. Here's an example of how such a func
 
 [!code-perlang[defining-and-calling-a-function-with-parameters](../../examples/the-language/defining-and-calling-a-function-with-parameters.per)]
 
-The last example is interesting in a different way as well. It illustrates a language feature available in Perlang which we share with other languages like Java, C# and JavasScript - being able to concatenate `string` and `int` values without any conversions. Other languages like Ruby and Python are more strict in this regard, requiring an implicit conversion to `String`/`str`.
+The last example is interesting in a different way as well. It illustrates a language feature available in Perlang which we share with other languages like Java, C# and JavaScript - being able to concatenate `string` and `int` values without any conversions. Other languages like Ruby and Python are more strict in this regard, requiring an implicit conversion to `String`/`str`.
 
 I imagine the reason for this to be the dynamic nature of these languages. In a dynamic language, it is not certain that a particular variable or parameter has a given type, so forcing the user to call `i.to_s` makes quite a bit of sense. By doing so, you ensure that the operation will do what the user expected. What would happen if you try to concatenate an integer and a random DTO/model instance? Such an operation does not make so much sense, so forcing the user to call `model.to_s` if they _really_ want to do that does make the code more explicit and clear to the reader.
 
-However, in statically typed languages we can make a compile-time _guarantee_ that the implicit coercion to `string` will succeed (or produce a compilation error if this is not the case). While Perlang is not currently a compiled language, it does already have a primitive typechecker so it makes sense to mimic the behavior of our statically typed friends - Java and C#.
+As a compiled, statically typed language, Perlang can make compile-time guarantees that implicit coercions like this will succeed — or produce a compilation error if they cannot. This is consistent with the behavior of our statically typed friends — Java and C#.
 
 > Interestingly enough, JavaScript wants to be different - it is indeed a _dynamic_ programming language, but it still supports concatenation of arbitrary (non-numeric) objects. For example, doing `new Object() + new Object()` gives you the string `[object Object][object Object]`. To have a custom representation of the object being used in this case, you implement a custom `toString()` method for the object in question.
 
@@ -107,9 +107,31 @@ As can be seen, the previous `Error at 'name'` has now turned into a slightly mo
 
 ### Classes
 
-In its current version, Perlang does not currently support defining user-defined classes. Calling static methods defined on already existing (stdlib) classes, written in C#, is however possible as the following example demonstrates:
+Perlang supports defining user-defined classes with instance methods, static methods, constructors, and fields. Fields are immutable by default; use the `mutable` keyword to allow reassignment. Inheritance is not yet supported.
+
+Here is a simple example of a user-defined class with a constructor, a private field, and an instance method:
+
+[!code-perlang[user-defined-class](../../examples/the-language/user-defined-class.per)]
+
+#### Static methods
+
+Classes can also define static methods, which can be called directly on the class without instantiating it first:
+
+[!code-perlang[user-defined-class-with-static-method](../../examples/the-language/user-defined-class-with-static-method.per)]
+
+#### Destructors
+
+Like in C++, a class can define a destructor. The destructor will always be called when the object goes out of scope. This is different from languages like Java and C#, where you have less control over when an object will actually be destroyed.
+
+[!code-perlang[user-defined-class-with-destructor](../../examples/the-language/user-defined-class-with-destructor.per)]
+
+<!-- TODO: Re-enable this example once calling Base64.encode() works again. Currently
+     fails with "Internal error: C++ type for System.Object not defined".
+
+Static methods can also be called on existing stdlib classes, as the following example demonstrates:
 
 [!code-perlang[calling-base64-encode](../../examples/the-language/calling-base64-encode.per)]
+-->
 
 ### The standard library
 

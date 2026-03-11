@@ -41,5 +41,5 @@ A special thanks to our following corporate sponsors. Your contributions are hig
 
 ## Footnotes
 
-<sup>1</sup>: Classes are not [fully supported yet](https://gitlab.perlang.org/perlang/perlang/-/issues/66).<br/>
+<sup>1</sup>: Classes are supported, but more advanced features like inheritance is not yet in place. For the full story, see this page: [https://gitlab.perlang.org/perlang/perlang/-/issues/66](https://gitlab.perlang.org/perlang/perlang/-/issues/66).<br/>
 <sup>2</sup> Type-parametric polymorphism (generics) has not even been started. :-)
