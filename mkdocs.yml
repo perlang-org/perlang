@@ -36,6 +36,7 @@ markdown_extensions:
       guess_lang: false
       pygments_lang_class: true
   - pymdownx.superfences
+  - pymdownx.magiclink
 
 extra_css:
   - styles/asciinema-player.css
