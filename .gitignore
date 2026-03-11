@@ -351,9 +351,17 @@ _exported_templates/
 _site/
 .idea/
 *.o
-docfx/*.dll
-docfx/docfx.exe
-docfx/docfx.exe.config
+docs/examples/*/*.cc
+docs/examples/*/*.h
+
+# It's annoying to have to list all of these individually, but not much to do about it, given that
+# Linux binaries don't have a file extension that we can ignore more globally.
+docs/examples/quickstart/pi
+docs/examples/the-language/defining-and-calling-a-function-with-parameters
+docs/examples/the-language/switch-statement.per
+docs/examples/the-language/user-defined-class
+docs/examples/the-language/user-defined-class-with-static-method
+
 lib/
 src/Perlang.Common/CommonConstants.Generated.cs
 src/Perlang.Common/PerlangCli.cs-orig
