@@ -358,7 +358,7 @@ docs/examples/*/*.h
 # Linux binaries don't have a file extension that we can ignore more globally.
 docs/examples/quickstart/pi
 docs/examples/the-language/defining-and-calling-a-function-with-parameters
-docs/examples/the-language/switch-statement.per
+docs/examples/the-language/switch-statement
 docs/examples/the-language/user-defined-class
 docs/examples/the-language/user-defined-class-with-static-method
 

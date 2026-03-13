@@ -1,0 +1,24 @@
+// switch-statement-char.per
+fun classify_char(c: char): void
+{
+    switch (c) {
+        case 'a'..'c':
+            print "a to c";
+        case 'd'..'f':
+            print "d to f";
+        case 'q':
+            print "special case";
+        default:
+            print "other";
+    }
+}
+
+// Expected output:
+// a to c
+// d to f
+// special case
+// other
+classify_char('b');
+classify_char('e');
+classify_char('q');
+classify_char('し');

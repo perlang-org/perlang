@@ -105,6 +105,20 @@ As can be seen, the previous `Error at 'name'` has now turned into a slightly mo
 
 > The reason for why these errors seem to come in the "wrong order" in terms of the line numbers is because the compilation and analysis phase of the program happens first, as a separate stage, before the actual execution of the program beings. In other words, all compilation warnings for a program would appear before any runtime errors would be emitted.
 
+### `switch` statements
+
+Like many languages in the C family, Perlang supports `switch` statements for branching based on a value. The following types can be used as the switch expression: `int`, `char`, `string`, and `enum` types. A `default` branch can be added to handle values not matched by any `case`.
+
+A notable feature is support for _range conditions_ using the `..` operator, which allows matching a contiguous range of values in a single case. The example below shows both range conditions and "regular", single conditions.
+
+[!code-perlang[switch-statement](../../examples/the-language/switch-statement.per)]
+
+Multiple cases can share the same branch by listing them consecutively without a body between them. Note that unlike C and C++, there is no implicit fallthrough between cases — each case is independent. Because of this, there is no need to use the `break` keyword in this context.
+
+Switch statements can also branch based on `char` values:
+
+[!code-perlang[switch-statement-char](../../examples/the-language/switch-statement-char.per)]
+
 ### Classes
 
 Perlang supports defining user-defined classes with instance methods, static methods, constructors, and fields. Fields are immutable by default; use the `mutable` keyword to allow reassignment. Inheritance is not yet supported.

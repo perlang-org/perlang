@@ -1,0 +1,24 @@
+// switch-statement.per
+fun classify(i: int): void
+{
+    switch (i) {
+        case 1..5:
+            print "one to five";
+        case 6..10:
+            print "six to ten";
+        case 11:
+            print "eleven";
+        default:
+            print "other";
+    }
+}
+
+// Expected output:
+// one to five
+// six to ten
+// eleven
+// other
+classify(3);
+classify(7);
+classify(11);
+classify(42);
