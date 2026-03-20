@@ -330,4 +330,37 @@ public class NumberTests
 
         Assert.Equal(3234512922, result);
     }
+
+    [Fact]
+    public void octal_literal_with_invalid_characters_after_prefix_gives_parse_error()
+    {
+        // "0of755" illustrates extra characters between the "0o" prefix and the "755" number.
+        string source = "var file_mode = 0of755;";
+
+        var result = EvalWithParseErrorCatch(source);
+
+        result.Errors.Should().ContainSingle(e => e.Message.Contains("Octal prefix must be followed by one or more octal digits"));
+    }
+
+    [Fact]
+    public void binary_literal_with_invalid_characters_after_prefix_gives_parse_error()
+    {
+        // "0bo101" illustrates extra characters between the "0b" prefix and the "101" number.
+        string source = "var flags = 0bo101;";
+
+        var result = EvalWithParseErrorCatch(source);
+
+        result.Errors.Should().ContainSingle(e => e.Message.Contains("Binary prefix must be followed by at one or more binary digits"));
+    }
+
+    [Fact]
+    public void hexadecimal_literal_with_invalid_characters_after_prefix_gives_parse_error()
+    {
+        // "0xo1A2B" illustrates extra characters between the "0x" prefix and the "1A2B" number.
+        string source = "var flags = 0xo1A2B;";
+
+        var result = EvalWithParseErrorCatch(source);
+
+        result.Errors.Should().ContainSingle(e => e.Message.Contains("Hexadecimal prefix must be followed by one or more hexadecimal digits"));
+    }
 }
