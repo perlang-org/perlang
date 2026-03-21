@@ -68,6 +68,6 @@ Many programming language tutorials are kind of boring (_feel like calculating F
 
 ### Further reading
 
-This guide only takes some initial steps in teaching the user how to use Perlang. For example, _functions_ aren't covered at all.
+This guide only takes some initial steps in teaching the user how to use Perlang. For example, _functions_ and _classes_ aren't covered at all.
 
 For a more in-depth guide which aims to cover all parts of Perlang which are currently implemented, see the page about [the Perlang language](../the-language/index.md).
