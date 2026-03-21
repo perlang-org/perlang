@@ -12,11 +12,11 @@ For some of the functionality where the documentation is missing, we have added 
 
 ### The top-level scope
 
-Much like other scripting-based languages like JavaScript, Ruby and Python, a program in Perlang does not necessarily have to consist of a _class_ or _function_ (which is the case in languages like Java and C). This is because of the existence of a top-level scope. You can write statements in this scope, and they will be executed when the program is executed:
+Similar to script-based languages like JavaScript, Ruby and Python, a program in Perlang does not necessarily have to consist of a _class_ or _function_ (which is the case in languages like Java and C). This is because of the existence of a _top-level scope_. You can write statements in this scope, and they will be executed when the program is executed:
 
 [!code-perlang[printing-from-the-top-level-scope](../../examples/the-language/printing-from-the-top-level-scope.per)]
 
-You can also declare variables in this scope and refer to them later in your program. It makes sense to think of the top-level scope as an "implicit function" or even an "implicit class", if you come from a background in other languages where this way of thinking makes sense to you.
+You can also declare variables in this scope and refer to them later in your program. It makes sense to think of the top-level scope as an "implicit `main` method" or even an "implicit class", if you come from a background in other languages where this way of thinking makes sense to you.
 
 [!code-perlang[defining-a-variable](../../examples/the-language/defining-a-variable.per)]
 
@@ -36,11 +36,64 @@ var a: int = 1;
 a = "foo";
 ```
 
-If you try to run the above in a REPL session, you'll get an error like this:
+If you save the above and try to run it, you'll get an error like this:
 
-`Error at 'a': Cannot assign System.String to variable defined as 'System.Int32'`
+`Error at 'a': Cannot assign 'ASCIIString' to 'int' variable`
 
 This is because once a variable is declared, the type of this variable (explicitly or implicitly defined) is stored. The Perlang typechecker uses this information to ensure the type-wise correctness of your program, much like any other statically typed language.
+
+### Integer types
+
+Perlang currently supports the following integer types. Their usage is demonstrated below.
+
+| Type     | Width    | Signed | Range                                                    |
+|----------|----------|--------|----------------------------------------------------------|
+| `int`    | 32 bits  | Yes    | -2,147,483,648 to 2,147,483,647                          |
+| `uint`   | 32 bits  | No     | 0 to 4,294,967,295                                       |
+| `long`   | 64 bits  | Yes    | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807  |
+| `ulong`  | 64 bits  | No     | 0 to 18,446,744,073,709,551,615                          |
+| `bigint` | Arbitrary| Yes    | No limit                                                 |
+
+#### Automatic type inference
+
+When using `var` without an explicit type annotation, the compiler automatically selects the smallest integer type in which the literal value fits, but never smaller than 32 bits, i.e. `int` or `uint`. The following program illustrates this:
+
+[!code-perlang[integer-types](../../examples/the-language/integer-types.per)]
+
+As can be seen above, the compiler will determine the appropriate size (from `int` and upwards) to use as the type as values grow larger. Here are some other examples:
+
+```perlang
+var a = 1;                    // int   (fits in 32 bits)
+var b = -1;                   // int
+var c = 2147483648;           // uint  (too large for int, fits in 32-bit unsigned)
+var d = -2147483649;          // long  (too large for int)
+var e = 4294967296;           // long  (too large for uint, fits in 64-bit signed)
+var f = 9223372036854775808;  // ulong (too large for long)
+```
+
+#### Compile-time assignment checks
+
+Assigning an `int` to a `long` is perfectly permissible, since such assignments can be performed without data loss. In other words, the following code compiles without errors:
+
+```perlang
+var i: int = 12345;
+var v: long = i;
+```
+
+On the other hand, trying to assign a `long` to an `int` variable will fail, because the value cannot be guaranteed to fit into to the smaller variable size:
+
+```perlang
+var v: long = 8589934592;
+var i: int = v; // Error: Cannot assign long to int variable
+```
+
+In many languages, the above behaviour can be overriden using explicit casts, like `int i = (int)v` in C, C# and Java. In Perlang, such explicit casting is currently not supported.
+
+#### Alternative literal formats
+
+Integer literals can be written in decimal, hexadecimal, octal, or binary notation. When applicable, underscores can be used as digit separators for improved readability:
+
+[!code-perlang[integer-literal-formats](../../examples/the-language/integer-literal-formats.per)]
 
 ### Functions
 

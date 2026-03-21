@@ -358,11 +358,14 @@ docs/examples/*/*.h
 # Linux binaries don't have a file extension that we can ignore more globally.
 docs/examples/quickstart/pi
 docs/examples/the-language/defining-and-calling-a-function-with-parameters
+docs/examples/the-language/integer-literal-formats
+docs/examples/the-language/integer-types
 docs/examples/the-language/switch-statement
+docs/examples/the-language/switch-statement-char
 docs/examples/the-language/user-defined-class
 docs/examples/the-language/user-defined-class-with-static-method
-
 lib/
+
 src/Perlang.Common/CommonConstants.Generated.cs
 src/Perlang.Common/PerlangCli.cs-orig
 src/perlang_cli/src/perlang_cli_preprocessed.cc

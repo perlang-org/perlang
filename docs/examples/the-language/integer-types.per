@@ -1,0 +1,16 @@
+// integer-types.per
+var i = 2147483647;
+var u = 4294967295;
+var l = 9223372036854775807;
+var x = 1231231230912839019312831232;
+
+print i.get_type();
+print u.get_type();
+print l.get_type();
+print x.get_type();
+
+// Expected output:
+// perlang.Int32
+// perlang.UInt32
+// perlang.Int64
+// perlang.BigInt
