@@ -21,6 +21,11 @@ namespace perlang
         const std::shared_ptr<const String> null_string = ASCIIString::from_static_string("null");
     }
 
+    void print()
+    {
+        puts("");
+    }
+
     void print(const Object* obj)
     {
         print(obj != nullptr ? obj->to_string() : null_string);

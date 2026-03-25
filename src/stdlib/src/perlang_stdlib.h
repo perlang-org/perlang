@@ -56,6 +56,8 @@ namespace perlang
         };
     }
 
+    void print();
+
     // C++ doesn't seem to have the kind of covariance we intend for Perlang. This means that we have to define these
     // for all the existing String types instead of just receiving `const String`-type parameters.
 

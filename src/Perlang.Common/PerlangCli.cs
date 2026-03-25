@@ -4849,6 +4849,9 @@ namespace Perlang
     {
         public partial struct __Internal
         {
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void Print();
+
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEPKNS_6ObjectE", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print(__IntPtr obj);
 
@@ -4878,6 +4881,11 @@ namespace Perlang
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5printEd", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern void Print_8(double d);
+        }
+
+        public static void Print()
+        {
+            __Internal.Print();
         }
 
         public static void Print(global::Perlang.IObject obj)
