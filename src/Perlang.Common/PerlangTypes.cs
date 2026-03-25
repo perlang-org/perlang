@@ -1,5 +1,6 @@
 #nullable enable
 #pragma warning disable SA1010
+#pragma warning disable SA1117
 #pragma warning disable SA1118
 #pragma warning disable SA1515
 namespace Perlang;
@@ -13,13 +14,18 @@ public static class PerlangTypes
     public static readonly CppType? NullObject = new CppType("NullObject", null, "null", isSupported: false);
     public static readonly CppType? PerlangObject = new CppType("perlang::Object", null, "object", wrapInSharedPtr: true);
 
-    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true, extraFields: [
-        new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
-    ]);
+    public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", null, wrapInSharedPtr: true,
+        extraFields: [
+            new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
+        ],
+        extraMethods: [
+            new CppFunction("as_utf16", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "UTF16String", file_name: "", line: 0)))
+        ]
+    );
 
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true);
 
-    // TODO: Dispose of Token created here
+    // TODO: Dispose of Token created here (CreateNullToken)
     public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", null, wrapInSharedPtr: true, extraMethods: [
         new CppFunction("as_utf16", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "UTF16String", file_name: "", line: 0)))
     ]);

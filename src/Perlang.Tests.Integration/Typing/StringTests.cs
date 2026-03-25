@@ -482,4 +482,19 @@ public class StringTests
         output.Should()
             .Be("this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし🎉");
     }
+
+    [Fact]
+    public void ascii_string_can_be_converted_to_utf16_string()
+    {
+        string source = """
+            var s: UTF16String = "hello".as_utf16();
+
+            print(s);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("hello");
+    }
 }

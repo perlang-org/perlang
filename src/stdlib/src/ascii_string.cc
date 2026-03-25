@@ -96,7 +96,9 @@ namespace perlang
     {
         // Widening an ASCII string to UTF16 is trivial, since we just have to loop over the data and write it to a
         // newly allocated uint16_t array. Could probably be rewritten in asm at some point if we really want to.
-        auto s = std::vector<uint16_t>(length_);
+        // The +1 part is because our print() implementation expects the string to be NUL-terminated for now.
+        // We'll try to get rid of this limitation eventually.
+        auto s = std::vector<uint16_t>(length_ + 1);
 
         for (size_t i = 0; i < length_; i++) {
             s[i] = bytes_[i];
