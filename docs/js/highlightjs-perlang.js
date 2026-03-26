@@ -27,6 +27,16 @@ hljs.registerLanguage('perlang', function(hljs) {
             hljs.C_LINE_COMMENT_MODE,
             hljs.C_BLOCK_COMMENT_MODE,
 
+            // Identifiers must be matched before numbers, so that e.g. `UTF8String` and `UTF16String` are consumed
+            // as a whole token and the `8`/`16` parts are not incorrectly highlighted as numeric literals.
+            // className 'type' is used as the fallback for non-keyword identifiers (user-defined class names etc.).
+            {
+                className: 'type',
+                begin: /[A-Za-z_][A-Za-z0-9_]*/,
+                keywords: KEYWORDS,
+                relevance: 0
+            },
+
             {
                 className: 'number',
                 variants: [
