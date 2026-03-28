@@ -67,6 +67,9 @@ namespace perlang
         }
 
         [[nodiscard]]
+        std::unique_ptr<ASCIIString> as_ascii() const override;
+
+        [[nodiscard]]
         std::unique_ptr<UTF16String> as_utf16() const override;
 
         // Indexes the string, returning the character at the given position. Note that this method performs bounds

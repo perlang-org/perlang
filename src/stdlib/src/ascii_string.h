@@ -77,6 +77,9 @@ namespace perlang
         }
 
         [[nodiscard]]
+        std::unique_ptr<ASCIIString> as_ascii() const override;
+
+        [[nodiscard]]
         std::unique_ptr<UTF16String> as_utf16() const override;
 
         // Compares the equality of two `ASCIIString`s, returning `true` if they point to the same backing byte array

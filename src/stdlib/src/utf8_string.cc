@@ -123,9 +123,20 @@ namespace perlang
         return *is_ascii_;
     }
 
+    std::unique_ptr<ASCIIString> UTF8String::as_ascii() const
+    {
+        for (size_t i = 0; i < length_; i++) {
+            if ((uint8_t)bytes_[i] > 127) {
+                throw std::invalid_argument("Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString.");
+            }
+        }
+
+        return ASCIIString::from_copied_string(bytes_.get());
+    }
+
     std::unique_ptr<UTF16String> UTF8String::as_utf16() const
     {
-        // This would technically not be *required* to be handled separately; I was at point thinking of using a
+        // This would technically not be *required* to be handled separately; I was at one point thinking of using a
         // "do/while" construct below which would have been prone to buffer overruns, which is why I added it. Either
         // way, special-casing it so we could at some point return a (pre-instantiated) UTF16String::empty() or
         // something might not hurt.
@@ -138,11 +149,11 @@ namespace perlang
         // maximum of 4 bytes can be used per RFC3629. Each UTF-8 can be represented in at most two UTF-16 code points
         // (=4 bytes), so such characters will fit in the above.
         //
-        // This is likely to be too big for most strings we encounter, so we allocate a new array at the end of the
-        // right size. The downside of this is the extra allocation; the upside is that we don't need an extra iteration
-        // over the string just to determine its length before the allocation. Future improvements here could be to
-        // stack-allocate the intermediate buffer if the string is below a given threshold (say, 1KB or 8KB) to minimize
-        // the number of allocations further.
+        // This is likely to be too big for most strings we encounter, so we resize the array at the end to the right
+        // size. The downside of this is a potential extra allocation; the upside is that we don't need an extra
+        // iteration over the string just to determine its length before the allocation. Future improvements here could
+        // be to stack-allocate the intermediate buffer if the string is below a given threshold (say, 1KB or 8KB) to
+        // minimize the number of allocations further.
         auto data = std::vector<uint16_t>(length_ * 2);
 
         size_t i = 0;

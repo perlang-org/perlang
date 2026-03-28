@@ -9,6 +9,7 @@ class BigInt;
 
 namespace perlang
 {
+    class ASCIIString;
     class UTF8String;
     class UTF16String;
 
@@ -38,6 +39,11 @@ namespace perlang
         // this method.
         [[nodiscard]]
         virtual bool is_ascii() = 0;
+
+        // Returns an ASCIIString representation of the current string. If the string contains non-ASCII characters, an
+        // exception is thrown.
+        [[nodiscard]]
+        virtual std::unique_ptr<ASCIIString> as_ascii() const = 0;
 
         // Returns a UTF16String representation of the current string. Depending on what type of string this is called
         // on, this might either be the same instance as the string itself, or a potentially cached UTF16 string

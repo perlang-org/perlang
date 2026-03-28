@@ -22,6 +22,9 @@ namespace perlang
         return std::unique_ptr<ASCIIString>(result);
     }
 
+    // TODO: Add a boolean is_checked flag here, since some input will already be checked to be ASCII-only. In its
+    // current form, the ASCIIString constructor will perform a possibly redundant check unconditionally, which is
+    // wasteful, particularly on larger strings.
     std::unique_ptr<ASCIIString> ASCIIString::from_owned_string(const char* str, size_t length)
     {
         if (str == nullptr) {
@@ -90,6 +93,14 @@ namespace perlang
     size_t ASCIIString::length() const
     {
         return length_;
+    }
+
+    std::unique_ptr<ASCIIString> ASCIIString::as_ascii() const
+    {
+        // Making a copy here is incredibly inefficient, but there's really no way to return a _unique_ pointer here
+        // without making a new copy. Future improvements in this area could be to elaborate on if std::shared_ptr()
+        // could be an option; it might not be trivial.
+        return from_copied_string(bytes_.get());
     }
 
     std::unique_ptr<UTF16String> ASCIIString::as_utf16() const

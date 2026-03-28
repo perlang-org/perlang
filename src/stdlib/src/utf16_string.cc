@@ -50,6 +50,9 @@ namespace perlang
 
     size_t UTF16String::length() const
     {
+        // TODO: Consider caching this in the constructor, to avoid the extra overhead. Since strings are immutable, it
+        // should be perfectly safe.
+
         // The vector always contains an extra NUL terminating character for now, because our print() implementation needs it.
         return data_.size() - 1;
     }
@@ -73,6 +76,25 @@ namespace perlang
         // No uint16 elements with bit 7-15 set => this is an ASCII string.
         is_ascii_ = std::make_unique<bool>(true);
         return *is_ascii_;
+    }
+
+    std::unique_ptr<ASCIIString> UTF16String::as_ascii() const
+    {
+        size_t len = length();
+        char* buf = new char[len + 1];
+
+        for (size_t i = 0; i < len; i++) {
+            if (data_[i] > 127) {
+                delete[] buf;
+                throw std::invalid_argument("Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString.");
+            }
+
+            buf[i] = static_cast<char>(data_[i]);
+        }
+
+        buf[len] = '\0';
+
+        return ASCIIString::from_owned_string(buf, len);
     }
 
     std::unique_ptr<UTF16String> UTF16String::as_utf16() const
