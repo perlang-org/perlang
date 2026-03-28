@@ -603,6 +603,11 @@ public class PerlangParser
                 // This will happen when we run into an error and the Synchronize() method tries to advance the stream
                 // to the end of the current statement. We try to handle this as gracefully as we can here.
             }
+            else if (stmt is Stmt.ExpressionStmt expressionStmt && expressionStmt.Expression is Expr.Empty) {
+                // This can happen e.g. if a semicolon is forgotten at the end of a class. Do our best to recover in
+                // this case, to try to minimize the number of errors reported to the user.
+                return Stmt.Class.None;
+            }
             else {
                 Error(Peek(), $"Internal error: Unexpected statement encountered: {stmt}.");
             }
