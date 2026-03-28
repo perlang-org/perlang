@@ -328,14 +328,28 @@ public class Program : IDisposable
 
     private void Error(IToken token, string message)
     {
+        string where;
+
         if (token.Type == TokenType.PERLANG_EOF)
         {
-            ReportError(token.FileName, token.Line, " at end", message);
+            where = " at end";
+        }
+        else if (token.Type == TokenType.PREPROCESSOR_DIRECTIVE_CPP_METHODS)
+        {
+            // The Lexeme contains the whole preprocessor directive content in these cases, so including them makes the
+            // error messages completely bloated.
+            where = " at '#c++-methods'";
+        }
+        else if (token.Type == TokenType.PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES)
+        {
+            where = " at '#c++-prototypes'";
         }
         else
         {
-            ReportError(token.FileName, token.Line, " at '" + token.Lexeme + "'", message);
+            where = " at '" + token.Lexeme + "'";
         }
+
+        ReportError(token.FileName, token.Line, where, message);
     }
 
     private void ReportError(string fileName, int line, string where, string message)
