@@ -95,6 +95,60 @@ Integer literals can be written in decimal, hexadecimal, octal, or binary notati
 
 [!code-perlang[integer-literal-formats](../../examples/the-language/integer-literal-formats.per)]
 
+### Strings
+
+> This section reflects the currently implemented functionality; not the full intended functionality. For more details, see [#370 Implement `string` interface with smart handling of string literals](https://gitlab.perlang.org/perlang/perlang/-/issues/370).
+
+String literals in Perlang are enclosed in double quotes (`"string-value"`). The easiest way to use strings are by using type inference (i.e. "implicit typing"). The example below also shows the actual type used under the hood:
+
+[!code-perlang[string-types](../../examples/the-language/string-types.per)]
+
+The above example can also be rephrased to use the generic `string` type explicitly, like this. As illustrated, the actual types used are still the same:
+
+[!code-perlang[string-type-agnostic](../../examples/the-language/string-type-agnostic.per)]
+
+#### String types
+
+The examples above illustrate usage of three of the most common string types in Perlang: `string`, `ASCIIString` and `UTF8String`. Here is a brief explanation of how they work.
+
+* `string` is the most generic type. It can be used for code saying "I can accept any kind of string". Note that retrieving the string length, or indexing the string based on character position is not possible with this type. This is because for some string types (most notably `UTF8String`), such operations are not easily supported. If indexing the string is required, you must convert it to `ASCIIString` or `UTF16String`, by calling `as_ascii()` or `as_utf16()` respectively.
+
+* `ASCIIString` is the underlying type used for strings which contain only ASCII characters. It's an efficient type for such content, using one byte per character.
+
+* `UTF8String` is used for string literals containing non-ASCII content. It uses the UTF-8 encoding, which is space-efficient for both ASCII and non-ASCII content, but has the significant disadvantage of using _varying length_ for each character (code point). Each individual code point can be between 1 and 4 bytes, per RFC 3629.
+
+* `UTF16String` is never used implicitly for string literals, but can be used for programs that need to index a string based on position. It supports the full Unicode range, but code points outside the BMP (Basic Multilingual Plane) will use two characters using something called a _surrogate pair_. To create a `UTF16String`, call `as_utf16()` on an existing string.
+
+All these types can be used explicitly in variable declarations:
+
+[!code-perlang[string-explicit-types](../../examples/the-language/string-explicit-types.per)]
+
+#### Concatenation
+
+> Perlang currently does not support Ruby/C#-style string interpolation. For more details, see [#295 Support string interpolation](https://gitlab.perlang.org/perlang/perlang/-/issues/295)
+
+Strings can be concatenated using the `+` operator. Perlang also supports concatenating strings directly with numeric types, without requiring an explicit conversion:
+
+[!code-perlang[string-concatenation](../../examples/the-language/string-concatenation.per)]
+
+#### Comparison
+
+Strings are compared by value using the `==` operator:
+
+[!code-perlang[string-comparison](../../examples/the-language/string-comparison.per)]
+
+Note that comparisons are currently "dumb"; they perform a character-by-character comparison and do not take different locales into consideration. For example, the following strings are "semantically equivalent" (`café` vs `cafe` + combining acute accent (U+0301)), but will be compared as non-equal with our current operator:
+
+[!code-perlang[string-comparison-unicode](../../examples/the-language/string-comparison-unicode.per)]
+
+#### String length
+
+The `.length` property is available on `ASCIIString` and `UTF16String`. For non-indexable strings like `UTF8String`, this information is not available.
+
+[!code-perlang[string-length](../../examples/the-language/string-length.per)]
+
+Like for `UTF8String`, the `.length` property is not available on `string`, so attempting to access it on such objects will result in compilation errors.
+
 ### Functions
 
 Top-level functions are currently defined using the `fun` keyword. Here's a simple example of how a function can be defined and called:

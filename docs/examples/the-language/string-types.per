@@ -1,0 +1,17 @@
+// string-types.per
+var s1 = "Hello, World";
+var s2 = "こんにちは、世界"; // "Hello World" in Japanese
+
+print s1;
+print s2;
+print;
+
+print s1.get_type();
+print s2.get_type();
+
+// Expected output:
+// Hello, World
+// こんにちは、世界
+//
+// perlang.ASCIIString
+// perlang.UTF8String

@@ -360,6 +360,10 @@ docs/examples/quickstart/pi
 docs/examples/the-language/defining-and-calling-a-function-with-parameters
 docs/examples/the-language/integer-literal-formats
 docs/examples/the-language/integer-types
+docs/examples/the-language/string-comparison
+docs/examples/the-language/string-comparison-unicode
+docs/examples/the-language/string-explicit-types
+docs/examples/the-language/string-types
 docs/examples/the-language/switch-statement
 docs/examples/the-language/switch-statement-char
 docs/examples/the-language/user-defined-class
