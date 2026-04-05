@@ -149,6 +149,33 @@ The `.length` property is available on `ASCIIString` and `UTF16String`. For non-
 
 Like for `UTF8String`, the `.length` property is not available on `string`, so attempting to access it on such objects will result in compilation errors.
 
+### The `char` type
+
+The `char` type represents a single character. Character literals are enclosed in single quotes:
+
+[!code-perlang[char-literal](../../examples/the-language/char-literal.per)]
+
+#### Unicode support
+
+`char` supports characters from the Unicode Basic Multilingual Plane (BMP), covering code points `U+0000` to `U+FFFF`. This includes most characters used in the world's writing systems.
+
+> The `char` type in Perlang is 16-bit wide — wider than C and C++ (8-bit `char`), but narrower than languages like Rust which use a 32-bit character type. This is the same width as C# and Java, and is a deliberate compromise: 16 bits is enough to represent the vast majority of the world's writing systems, without doubling the memory footprint of character data compared to a 32-bit type. The trade-off is that characters outside the BMP — most notably emoji — cannot be stored in a single `char`. They can still be used in Perlang via UTF8String and UTF16String; they just cannot be used as char literals.
+
+#### Escape sequences
+
+The following escape sequences are supported in `char` literals:
+
+* `'\n'` — LF (Line feed/newline)
+* `'\r'` — CR (Carriage return)
+* `'\t'` — TAB
+* `'\0'` — NUL character
+
+Hexadecimal (`'\x1B'`) and octal (`'\033'`) escape sequences are not supported. The `'\0'` null sequence is the only exception to the octal rule, included for convenience.
+
+#### Usage in `switch` statements
+
+`char` values can be used as the expression in `switch` statements, including with range conditions. See the [switch statements](#switch-statements) section for examples.
+
 ### Functions
 
 Top-level functions are currently defined using the `fun` keyword. Here's a simple example of how a function can be defined and called:
