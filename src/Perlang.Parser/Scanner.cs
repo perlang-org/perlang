@@ -499,15 +499,77 @@ public class Scanner : IDisposable
 
     private void String()
     {
-        // TODO: Add support for the same escape sequences we support for `char` literals
+        // TODO: Add support for the same escape sequences we support for `char` literals. For now, only \uXXXX
+        // sequences are supported. Eventually, it would be good to unify the handling here and in CharLiteral()
+        // completely.
+        using var sb = NativeStringBuilder.Create();
+
         while (perlangScanner.Peek != '"' && !perlangScanner.IsAtEnd)
         {
             if (perlangScanner.Peek == '\n')
             {
                 perlangScanner.AdvanceLine();
+                sb.Append(perlangScanner.Advance());
             }
+            else if (perlangScanner.Peek == '\\' && perlangScanner.PeekNext == 'u')
+            {
+                // Consume '\' and 'u' characters
+                perlangScanner.Advance();
+                perlangScanner.Advance();
 
-            perlangScanner.Advance();
+                char[] hexDigits = new char[4];
+                bool valid = true;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    if (!IsDigit(perlangScanner.Peek, NumericToken.Base.HEXADECIMAL))
+                    {
+                        valid = false;
+                        break;
+                    }
+
+                    hexDigits[i] = perlangScanner.Advance();
+                }
+
+                if (valid)
+                {
+                    int codepoint = Convert.ToInt32(new string(hexDigits), 16);
+                    sb.Append((char)codepoint);
+                }
+                else
+                {
+                    // TODO: Include more details about the escape sequence, like the column location
+                    // We deliberately don't return here, but try to continue to minimize the number of errors emitted.
+                    scanErrorHandler(new ScanError("Invalid \\u escape sequence encountered.", fileName, perlangScanner.Line));
+                }
+            }
+            else
+            {
+                // Normal character - append to our string builder. We just need to take surrogate pairs into special
+                // consideration, since NativeStringBuilder works with UTF-8 under the hood => encoding surrogate pair
+                // characters individually results in garbled UTF-8 content.
+                char c = perlangScanner.Advance();
+
+                if (System.Char.IsHighSurrogate(c) && !perlangScanner.IsAtEnd)
+                {
+                    char low = perlangScanner.Advance();
+
+                    if (!System.Char.IsLowSurrogate(low))
+                    {
+                        // The second character doesn't seem to be a "low surrogate" - report this, and consider the
+                        // processing failed
+                        scanErrorHandler(new ScanError("Invalid UTF-16 surrogate pair encountered.", fileName, perlangScanner.Line));
+                    }
+                    else
+                    {
+                        sb.Append(new string([c, low]));
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
         }
 
         // Unterminated string.
@@ -517,12 +579,10 @@ public class Scanner : IDisposable
             return;
         }
 
-        // The closing ".
+        // Consume the closing " character
         perlangScanner.Advance();
 
-        // Trim the surrounding quotes.
-        string value = source[(perlangScanner.Start + 1)..(perlangScanner.Current - 1)];
-        AddToken(STRING, value);
+        AddToken(STRING, sb.ToString());
     }
 
     // "Preprocessor directives" are a bad name here, but calling it this for lack of better wording. "Macros" would

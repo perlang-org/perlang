@@ -423,6 +423,43 @@ public class StringTests
     }
 
     [Fact]
+    public void nfc_and_nfd_strings_with_identical_visual_appearance_are_not_equal()
+    {
+        // Unicode normalization: "café" in NFC has é as a single precomposed codepoint (U+00E9), while in NFD it is
+        // represented as e + combining acute accent (U+0065 + U+0301). The strings look visually identical, but have
+        // different byte representations. The == operator does not take such normalization under consideration.
+
+        string source = """
+            var s1: string = "caf\u00e9";
+            var s2: string = "cafe\u0301";
+
+            print(s1 == s2);
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("false");
+    }
+
+    [Fact]
+    public void invalid_unicode_escape_sequence_throws_expected_error()
+    {
+        // Unicode escape sequences are expected to follow this form: \u1234
+        string source = """
+            var s: string = "\uinvalid";
+
+            print(s);
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Contain("Invalid \\u escape sequence encountered");
+    }
+
+    [Fact]
     public void implicitly_typed_ascii_string_variable_has_expected_type()
     {
         string source = """
