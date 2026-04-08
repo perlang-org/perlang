@@ -1,0 +1,14 @@
+// floating-point-types.per
+var d = 1.0;    // When no suffix is specified, floating-point literals will use
+                // 'double'
+var e = 1.0d;   // Explicit 'd' suffix can also be used
+var f = 1.0f;   // Explicit 'f' suffix forces single precision ('float')
+
+print d.get_type();
+print e.get_type();
+print f.get_type();
+
+// Expected output:
+// perlang.Double
+// perlang.Double
+// perlang.Float

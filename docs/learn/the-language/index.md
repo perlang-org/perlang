@@ -46,13 +46,11 @@ This is because once a variable is declared, the type of this variable (explicit
 
 Perlang currently supports the following integer types. Their usage is demonstrated below.
 
-| Type     | Width    | Signed | Range                                                    |
-|----------|----------|--------|----------------------------------------------------------|
-| `int`    | 32 bits  | Yes    | -2,147,483,648 to 2,147,483,647                          |
-| `uint`   | 32 bits  | No     | 0 to 4,294,967,295                                       |
-| `long`   | 64 bits  | Yes    | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807  |
-| `ulong`  | 64 bits  | No     | 0 to 18,446,744,073,709,551,615                          |
-| `bigint` | Arbitrary| Yes    | No limit                                                 |
+* `int` — 32-bit, signed (-2,147,483,648 to 2,147,483,647)
+* `uint` — 32-bit, unsigned (0 to 4,294,967,295)
+* `long` — 64-bit, signed (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
+* `ulong` — 64-bit, unsigned (0 to 18,446,744,073,709,551,615)
+* `bigint` — Dynamic number of bits, signed. No upper size limit.
 
 #### Automatic type inference
 
@@ -94,6 +92,40 @@ In many languages, the above behaviour can be overriden using explicit casts, li
 Integer literals can be written in decimal, hexadecimal, octal, or binary notation. When applicable, underscores can be used as digit separators for improved readability:
 
 [!code-perlang[integer-literal-formats](../../examples/the-language/integer-literal-formats.per)]
+
+### Floating-point types
+
+Perlang supports two floating-point types, based on the IEEE 754 standard:
+
+* `float` — 32-bit, single-precision (~7 significant decimal digits)
+* `double` — 64-bit, double-precision (~15–17 significant decimal digits)
+
+#### Automatic type inference
+
+Floating-point literals without a suffix default to `double`. To get a `float` instead, append the `f` suffix to the literal. The `d` suffix can also be used explicitly, to indicate `double` precision:
+
+[!code-perlang[floating-point-types](../../examples/the-language/floating-point-types.per)]
+
+#### Explicit type annotations
+
+You can also declare floating-point variables with an explicit type, like with integer types:
+
+[!code-perlang[floating-point-explicit-types](../../examples/the-language/floating-point-explicit-types.per)]
+
+#### Precision considerations
+
+Because of the way floating-point numbers are represented in memory, not all decimal values can be stored exactly. `double` offers higher precision than `float` and is typically preferred unless memory usage or interoperability with single-precision data is a concern.
+
+Assigning an integer to a `float` or `double` variable is permitted, but may lose precision for large values. For example, a 32-bit integer assigned to a `float` may not be represented exactly, since `float` can only represent integers without data loss in the range −2²⁴+1 to 2²⁴−1. Assigning a `long` (64-bit integer) to a `float` is not allowed and will produce a compile-time error; assigning it to a `double` is permitted, but may likewise lose precision for values outside the range −2⁵³ to 2⁵³.
+
+Floating-point values cannot be assigned to integer variables — the following will produce a compile-time error:
+
+```perlang
+var d: double = 3.14;
+var i: int = d; // Error: Cannot assign double to int variable
+```
+
+Like with integers, the above can be overridden using explicit casts in other languages, but in Perlang this is currently not supported.
 
 ### Strings
 

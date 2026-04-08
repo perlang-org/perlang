@@ -357,7 +357,10 @@ docs/examples/*/*.h
 # It's annoying to have to list all of these individually, but not much to do about it, given that
 # Linux binaries don't have a file extension that we can ignore more globally.
 docs/examples/quickstart/pi
+docs/examples/the-language/char-literal
 docs/examples/the-language/defining-and-calling-a-function-with-parameters
+docs/examples/the-language/floating-point-explicit-types
+docs/examples/the-language/floating-point-types
 docs/examples/the-language/integer-literal-formats
 docs/examples/the-language/integer-types
 docs/examples/the-language/string-comparison
