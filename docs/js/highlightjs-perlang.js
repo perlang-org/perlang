@@ -8,13 +8,13 @@ hljs.registerLanguage('perlang', function(hljs) {
 
             // Reserved keywords
             'class byte sbyte short ushort float decimal ' +
-            'char public private protected internal static volatile printf switch ' +
+            'public private protected internal static volatile printf switch ' +
             'break continue try catch finally async await lock synchronized new ' +
             'let const struct sizeof nameof typeof asm',
         literal:
             'true false null',
         built_in:
-            'bigint bool double int long string uint ulong void'
+            'bigint bool char double float int long object string uint ulong void'
     }
 
     return {
