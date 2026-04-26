@@ -182,6 +182,13 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitTryExpr(Expr.Try expr)
+    {
+        Visit(expr.Operand);
+
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitBlockStmt(Stmt.Block stmt)
     {
         Visit(stmt.Statements);
@@ -318,6 +325,8 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
             foreach (Expr condition in branch.Conditions) {
                 Visit(condition);
             }
+
+            Visit(branch.Statements);
         }
 
         return VoidObject.Void;

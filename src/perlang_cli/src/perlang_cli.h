@@ -86,6 +86,7 @@ namespace TokenType {
         PUBLIC,
         RETURN,
         STATIC,
+        TRY,
         SWITCH,
         SUPER,
         THIS,

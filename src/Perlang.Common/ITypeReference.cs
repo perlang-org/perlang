@@ -71,6 +71,18 @@ public interface ITypeReference
     bool ExplicitTypeSpecified => TypeSpecifier != null;
 
     /// <summary>
+    /// Gets a value indicating whether this type reference is a union type of the form <c>T | error</c>, which
+    /// compiles to <c>std::variant&lt;T, std::shared_ptr&lt;perlang::Error&gt;&gt;</c> in C++.
+    /// </summary>
+    bool IsUnionType => false;
+
+    /// <summary>
+    /// Gets the C++ success type for a union type (the <c>T</c> in <c>T | error</c>). <c>null</c> for
+    /// non-union types.
+    /// </summary>
+    CppType? UnionSuccessTypeCppType => null;
+
+    /// <summary>
     /// Gets a value indicating whether the type reference has been successfully resolved to a type (CLR or C++) or
     /// not.
     /// </summary>
@@ -143,6 +155,8 @@ public interface ITypeReference
     void SetCppTypeFromClrType(Type clrType);
 
     void SetPerlangType(IPerlangType? perlangType);
+
+    void SetUnionSuccessType(CppType successType);
 
     void MarkAsClassReference();
 }

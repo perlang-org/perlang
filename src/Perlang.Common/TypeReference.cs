@@ -62,8 +62,18 @@ public class TypeReference : ITypeReference
     }
 
     private readonly bool isArray;
+    private readonly IToken? unionErrorTypeSpecifier;
 
     public bool IsArray => CppType?.IsArray ?? isArray;
+
+    public bool IsUnionType => unionErrorTypeSpecifier != null || UnionSuccessTypeCppType != null;
+
+    public CppType? UnionSuccessTypeCppType { get; private set; }
+
+    public void SetUnionSuccessType(CppType successType)
+    {
+        UnionSuccessTypeCppType = successType;
+    }
 
     public bool IsEnum => CppType?.IsEnum ?? false;
 
@@ -98,6 +108,21 @@ public class TypeReference : ITypeReference
     public TypeReference(IToken? typeSpecifier, bool isArray = false)
     {
         TypeSpecifier = typeSpecifier;
+        this.isArray = isArray;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeReference"/> class, for a union type of the form
+    /// <c>T | error</c>. The <paramref name="unionErrorTypeSpecifier"/> token holds the error type (typically the
+    /// identifier <c>error</c>).
+    /// </summary>
+    /// <param name="typeSpecifier">The success type specifier token (e.g. <c>bool</c>).</param>
+    /// <param name="unionErrorTypeSpecifier">The error type specifier token (e.g. <c>error</c>).</param>
+    /// <param name="isArray">Whether the success type is an array or not.</param>
+    public TypeReference(IToken? typeSpecifier, IToken? unionErrorTypeSpecifier, bool isArray = false)
+    {
+        TypeSpecifier = typeSpecifier;
+        this.unionErrorTypeSpecifier = unionErrorTypeSpecifier;
         this.isArray = isArray;
     }
 

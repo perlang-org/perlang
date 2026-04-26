@@ -22,7 +22,7 @@ namespace perlang
 
         // Returns the backing byte array for this String. This method is generally to be avoided; it is safer to use
         // the String throughout the code and only call this when you really must. If you call it, you
-        // **MUST MUST MUST** not modify the data in any way, or use it after the lifetime of the String object.
+        // **MUST MUST MUST** not modify the data in any way, or use it beyond the lifetime of the String object.
         [[nodiscard]]
         virtual const char* bytes() const = 0;
 

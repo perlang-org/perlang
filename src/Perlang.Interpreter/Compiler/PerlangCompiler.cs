@@ -113,6 +113,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     private int indentationLevel = 1;
     private Stmt.Class? currentClass = null;
+    private ITypeReference? currentFunctionReturnTypeReference = null;
+    private int tryExprCounter = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PerlangCompiler"/> class.
@@ -812,7 +814,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     compileAndAssembleOnly ? "" : Path.Combine(stdlibPath, "lib/libstdlib.a"),
 
                     // Needed by the Perlang stdlib
-                    compileAndAssembleOnly ? "" : "-lm"
+                    compileAndAssembleOnly ? "" : "-lm",
+
+                    // Needed for backtrace_symbols() to produce readable function names in stack traces
+                    compileAndAssembleOnly ? "" : "-rdynamic"
                 },
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
@@ -2068,10 +2073,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         // Loop over the statements in the method body and visit them, recursively
+        var previousReturnTypeReference = currentFunctionReturnTypeReference;
+        currentFunctionReturnTypeReference = functionStmt.ReturnTypeReference;
+
         foreach (Stmt stmt in functionStmt.Body)
         {
             functionContent.Append(stmt.Accept(this));
         }
+
+        currentFunctionReturnTypeReference = previousReturnTypeReference;
 
         if (currentClass == null) {
             // Does not need to return the StringBuilder here, since it's been stored in the methods dictionary already.
@@ -2158,14 +2168,37 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             // void return
             result.AppendLine($"{Indent(indentationLevel)}return;");
         }
+        else if (currentFunctionReturnTypeReference?.IsUnionType == true)
+        {
+            string variantType = currentFunctionReturnTypeReference.CppType!.CppTypeName;
+            result.Append($"{Indent(indentationLevel)}return {variantType}{{");
+
+            if (stmt.Value is Expr.NewExpression newExpr) {
+                // return new ErrorType(args) → return variant{std::make_shared<perlang::ErrorType>(args)}
+                result.Append($"std::make_shared<perlang::{newExpr.TypeName.Lexeme}>(");
+
+                for (int i = 0; i < newExpr.Parameters.Count; i++) {
+                    result.Append(newExpr.Parameters[i].Accept(this));
+
+                    if (i < newExpr.Parameters.Count - 1) {
+                        result.Append(", ");
+                    }
+                }
+
+                result.Append(")");
+            }
+            else {
+                // return successValue → return variant{successValue}
+                result.Append(stmt.Value.Accept(this));
+            }
+
+            result.AppendLine("};");
+        }
         else
         {
             result.Append($"{Indent(indentationLevel)}return ");
 
             if (stmt.Value is Expr.Identifier identifier && identifier.FullName == "this") {
-                // We do a special trick when returning 'this' from a method in a wrapped class, to ensure that it's
-                // always the shared_ptr that gets passed around. Will likely have to do something similar for method
-                // arguments too, when passing 'this' to a method in another class.
                 result.Append("shared_from_this()");
             }
             else {
@@ -2176,6 +2209,59 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         return result.ToString();
+    }
+
+    public object VisitTryExpr(Expr.Try expr)
+    {
+        // try expr compiles to a GNU statement expression ({ ... })
+        // (https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html). This makes it possible to use constructs like
+        // `print try foo()`.
+        //
+        // The behaviour is context-sensitive:
+        //
+        //   - If inside a function returning T | error: early-return the error variant to the caller
+        //   - If at top level: print the error (with stack trace) and exit
+        //   - In a non-union function: rejected as a compile error elsewhere; should never get here.
+        string operandCode = (string?)expr.Operand.Accept(this) ?? throw new PerlangCompilerException("Generated code for operand unexpectedly null");
+        string tmpName = $"__perlang_try_{tryExprCounter++}";
+
+        if (currentFunctionReturnTypeReference?.IsUnionType == true) {
+            string outerVariantType = currentFunctionReturnTypeReference.CppType!.CppTypeName;
+            return $$"""
+            ({
+                auto {{tmpName}} = {{operandCode}};
+                if ({{tmpName}}.index() == 1) {
+                    return {{outerVariantType}}{std::get<1>({{tmpName}})};
+                }
+                std::get<0>({{tmpName}});
+            })
+            """;
+        }
+        else {
+            // Top-level: print error + stack trace to stderr, then exit with a non-zero return code to indicate error
+            // to the caller.
+            return $$"""
+            ({
+                auto {{tmpName}} = {{operandCode}};
+
+                if ({{tmpName}}.index() == 1) {
+                    auto __err = std::get<1>({{tmpName}});
+
+                    // TODO: Should not blindly use bytes() on the string here, but this will probably work as long as
+                    // the string is ASCII or UTF-8 and the terminal can handle that. Could be problematic on e.g.
+                    // Windows.
+                    fprintf(stderr, "Unhandled error: %s\n%s", __err->message()->bytes(), __err->stack_trace().c_str());
+                    fflush(stderr);
+
+                    // exit() does not work with Valgrind (it doesn't include the stderr content in the output); abort
+                    // does work.
+                    abort();
+                }
+
+                std::get<0>({{tmpName}});
+            })
+            """;
+        }
     }
 
     public object VisitVarStmt(Stmt.Var stmt)

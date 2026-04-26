@@ -128,4 +128,23 @@ public class Return
         action.Should().Throw<PerlangCompilerException>()
             .WithMessage("*cannot convert argument of incomplete type 'void' to*");
     }
+
+    [Fact]
+    public void return_of_unexpected_type_emits_expected_error()
+    {
+        string source = """
+                fun some_function(): int {
+                    return "some_string";
+                }
+
+                some_function();
+            """;
+
+        Action action = () => EvalReturningOutput(source);
+
+        // This is currently not caught on the Perlang side, but the C++ compiler has us covered. Eventually, we'll
+        // hopefully able to catch this in the Perlang compiler.
+        action.Should().Throw<PerlangCompilerException>()
+            .WithMessage("*no viable conversion from returned value*");
+    }
 }

@@ -6,6 +6,7 @@
 
 #include <memory> // std::shared_ptr
 #include <cstdint>
+#include <variant>
 
 #include "ascii_string.h"
 #include "bigint.h"
@@ -36,6 +37,8 @@
 #include "collections/mutable_string_hash_set.h"
 #include "collections/string_hash_set.h"
 
+#include "exceptions/error.h"
+#include "exceptions/argument_error.h"
 #include "exceptions/null_pointer_exception.h"
 #include "exceptions/illegal_state_exception.h"
 

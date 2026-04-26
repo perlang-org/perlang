@@ -52,6 +52,8 @@ set(collections_headers
 )
 
 set(exceptions_headers
+        src/exceptions/argument_error.h
+        src/exceptions/error.h
         src/exceptions/null_pointer_exception.h
         src/exceptions/illegal_state_exception.h
 )

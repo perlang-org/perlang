@@ -805,14 +805,15 @@ namespace Perlang
         PUBLIC = 62,
         RETURN = 63,
         STATIC = 64,
-        SWITCH = 65,
-        SUPER = 66,
-        THIS = 67,
-        TRUE = 68,
-        VAR = 69,
-        WHILE = 70,
-        RESERVED_WORD = 71,
-        PERLANG_EOF = 72
+        TRY = 65,
+        SWITCH = 66,
+        SUPER = 67,
+        THIS = 68,
+        TRUE = 69,
+        VAR = 70,
+        WHILE = 71,
+        RESERVED_WORD = 72,
+        PERLANG_EOF = 73
     }
 }
 
@@ -4395,6 +4396,14 @@ namespace Perlang
             }
         }
     }
+}
+
+namespace Perlang
+{
+}
+
+namespace Perlang
+{
 }
 
 namespace Perlang

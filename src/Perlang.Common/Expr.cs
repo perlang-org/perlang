@@ -38,6 +38,7 @@ public abstract class Expr
         TR VisitIdentifierExpr(Identifier expr);
         TR VisitGetExpr(Get expr);
         TR VisitNewExpression(NewExpression expr);
+        TR VisitTryExpr(Try expr);
     }
 
     //
@@ -527,6 +528,35 @@ public abstract class Expr
             {
                 return $"#<Get {Object}.{Name.Lexeme}>";
             }
+        }
+    }
+
+    /// <summary>
+    /// A <c>try</c> expression that propagates errors upward. The operand must be of a union type (<c>T | error</c>).
+    /// If the operand holds an error value, the calling method will perform an early return and return the error;
+    /// otherwise the success value is unwrapped and returned.
+    /// </summary>
+    public class Try : Expr, ITokenAware
+    {
+        public IToken Keyword { get; }
+        public Expr Operand { get; }
+
+        public Try(IToken keyword, Expr operand)
+        {
+            Keyword = keyword;
+            Operand = operand;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitTryExpr(this);
+        }
+
+        public IToken Token => Keyword;
+
+        public override string ToString()
+        {
+            return $"#<try {Operand}>";
         }
     }
 

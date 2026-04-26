@@ -1,5 +1,5 @@
---- src/Perlang.Common/PerlangCli.cs	2026-03-25 21:11:40.366764994 +0100
-+++ src/Perlang.Common/PerlangCli.cs-edited	2026-03-25 21:11:40.362765042 +0100
+--- src/Perlang.Common/PerlangCli.cs	2026-04-25 09:13:25.210342716 +0300
++++ src/Perlang.Common/PerlangCli.cs-edited	2026-04-25 09:13:25.202342888 +0300
 @@ -24,19 +24,19 @@
          internal int current;
          internal int line;
@@ -82,7 +82,7 @@
          internal static extern __IntPtr CreateCharToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, char literal, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
  
          [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z17create_null_tokenN9TokenType9TokenTypeEPKcS2_i", CallingConvention = __CallingConvention.Cdecl)]
-@@ -851,7 +851,7 @@
+@@ -852,7 +852,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IObject managed)
          {
@@ -91,7 +91,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -989,7 +989,7 @@
+@@ -990,7 +990,7 @@
              private static CppSharp.Runtime.VTables VTables;
              private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
                  SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
@@ -100,7 +100,7 @@
              static VTableLoader()
              {
                  _dtorDelegateInstance += _dtorDelegateHook;
-@@ -2011,7 +2011,7 @@
+@@ -2012,7 +2012,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IntArray managed)
          {
@@ -109,7 +109,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -2588,7 +2588,7 @@
+@@ -2589,7 +2589,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.ObjectArray managed)
          {
@@ -118,7 +118,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -2704,12 +2704,6 @@
+@@ -2705,12 +2705,6 @@
              [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4CharC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
              internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
  
@@ -131,7 +131,7 @@
              [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang4Char5valueEv", CallingConvention = __CallingConvention.Cdecl)]
              internal static extern char Value(__IntPtr __instance);
          }
-@@ -2803,18 +2797,6 @@
+@@ -2804,18 +2798,6 @@
              __Instance = IntPtr.Zero;
          }
  
@@ -150,7 +150,7 @@
          public char Value
          {
              get
-@@ -2844,7 +2826,7 @@
+@@ -2845,7 +2827,7 @@
              private static CppSharp.Runtime.VTables VTables;
              private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
                  SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
@@ -159,7 +159,7 @@
              static VTableLoader()
              {
                  _dtorDelegateInstance += _dtorDelegateHook;
-@@ -2935,7 +2917,7 @@
+@@ -2936,7 +2918,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.PerlangType managed)
          {
@@ -168,7 +168,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -3069,7 +3051,7 @@
+@@ -3070,7 +3052,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.StringArray managed)
          {
@@ -177,7 +177,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -3768,7 +3750,7 @@
+@@ -3769,7 +3751,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringHasher managed)
      {
@@ -186,7 +186,7 @@
          return NativeToManagedMap.TryGetValue(native, out managed);
      }
  
-@@ -3874,7 +3856,7 @@
+@@ -3875,7 +3857,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringComparer managed)
      {
@@ -195,7 +195,7 @@
          return NativeToManagedMap.TryGetValue(native, out managed);
      }
  
-@@ -3999,7 +3981,7 @@
+@@ -4000,7 +3982,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Collections.MutableStringHashSet managed)
              {
@@ -204,7 +204,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -4131,7 +4113,7 @@
+@@ -4132,7 +4114,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Collections.StringArray managed)
              {
@@ -213,7 +213,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -4219,7 +4201,7 @@
+@@ -4220,7 +4202,7 @@
              {
                  get
                  {
@@ -222,7 +222,7 @@
                  }
              }
  
-@@ -4279,7 +4261,7 @@
+@@ -4280,7 +4262,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Collections.StringHashSet managed)
              {
@@ -231,7 +231,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -4442,7 +4424,7 @@
+@@ -4451,7 +4433,7 @@
  
          internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.IllegalStateException managed)
          {
@@ -240,7 +240,7 @@
              return NativeToManagedMap.TryGetValue(native, out managed);
          }
  
-@@ -4549,7 +4531,7 @@
+@@ -4558,7 +4540,7 @@
              private static CppSharp.Runtime.VTables VTables;
              private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
                  SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
@@ -249,7 +249,7 @@
              static VTableLoader()
              {
                  _dtorDelegateInstance += _dtorDelegateHook;
-@@ -4635,7 +4617,7 @@
+@@ -4644,7 +4626,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Io.File managed)
              {
@@ -258,7 +258,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -4762,7 +4744,7 @@
+@@ -4771,7 +4753,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Text.StringBuilder managed)
              {
@@ -267,7 +267,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -4981,7 +4963,7 @@
+@@ -4990,7 +4972,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Stdlib.Base64 managed)
              {
@@ -276,7 +276,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -5104,7 +5086,7 @@
+@@ -5113,7 +5095,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringTokenTypeDictionary managed)
      {
@@ -285,7 +285,7 @@
          return NativeToManagedMap.TryGetValue(native, out managed);
      }
  
-@@ -5258,7 +5240,7 @@
+@@ -5267,7 +5249,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::MutableStringTokenTypeDictionary managed)
      {

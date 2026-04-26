@@ -15,4 +15,14 @@ public static class PerlangValueTypes
     public static readonly CppType Char = CppType.ValueType("char16_t", "perlang.Char", "char"); // Deliberately not char on the C++-side, since C++ char is 8-bit and we use UTF-16 chars in Perlang
     public static readonly CppType Enum = new CppType("PerlangEnum", "perlang.Enum");
     public static readonly CppType Void = CppType.ValueType("void", "perlang.Void", "void");
+
+    /// <summary>
+    /// Represents the <c>error</c> type in union return types (<c>T | error</c>).
+    /// </summary>
+    public static readonly CppType Error = new CppType("std::shared_ptr<perlang::Error>", "perlang.Error", "error", wrapInSharedPtr: false);
+
+    /// <summary>
+    /// Represents an <c>ArgumentError</c> — a concrete error subclass for invalid argument errors.
+    /// </summary>
+    public static readonly CppType ArgumentError = new CppType("std::shared_ptr<perlang::ArgumentError>", "perlang.ArgumentError", "ArgumentError", wrapInSharedPtr: false);
 }

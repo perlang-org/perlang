@@ -46,6 +46,7 @@ public class Scanner : IDisposable
             { "print", PRINT },
             { "return", RETURN },
             { "super", SUPER },
+            { "throw", RESERVED_WORD },
             { "switch", SWITCH },
             { "this", THIS },
             { "true", TRUE },
@@ -96,7 +97,7 @@ public class Scanner : IDisposable
             { "foreach", RESERVED_WORD },
 
             // Exception handling
-            { "try", RESERVED_WORD },
+            { "try", TRY },
             { "catch", RESERVED_WORD },
             { "finally", RESERVED_WORD },
 

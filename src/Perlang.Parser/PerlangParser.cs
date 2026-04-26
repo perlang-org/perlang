@@ -711,6 +711,7 @@ public class PerlangParser
         Consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
         IToken returnTypeSpecifier = null;
+        IToken unionErrorTypeSpecifier = null;
         bool isReturnTypeArray = false;
         TypeReference returnTypeReference;
 
@@ -732,12 +733,17 @@ public class PerlangParser
                 else {
                     returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
 
-                    if (IsAtArray())
+                    if (IsAtArray()) {
                         isReturnTypeArray = true;
+                    }
+                    else if (Match(PIPE)) {
+                        // Union type: T | error. Currently only the `error` keyword is supported as the second type.
+                        unionErrorTypeSpecifier = Consume(IDENTIFIER, "Expecting type name after '|'.");
+                    }
                 }
             }
 
-            returnTypeReference = new TypeReference(returnTypeSpecifier, isReturnTypeArray);
+            returnTypeReference = new TypeReference(returnTypeSpecifier, unionErrorTypeSpecifier, isReturnTypeArray);
         }
 
         if (isExtern) {
@@ -1271,6 +1277,13 @@ public class PerlangParser
 
                 return new Expr.NewExpression(typeName, isArray: true, size);
             }
+        }
+
+        if (Match(TRY))
+        {
+            IToken keyword = Previous();
+            Expr operand = Expression();
+            return new Expr.Try(keyword, operand);
         }
 
         if (Check(SEMICOLON))

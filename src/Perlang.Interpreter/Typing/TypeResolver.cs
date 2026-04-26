@@ -21,9 +21,17 @@ namespace Perlang.Interpreter.Typing;
 /// </summary>
 internal class TypeResolver : VisitorBase
 {
+    private static readonly ImmutableDictionary<string, CppType> KnownInstantiableCppTypes =
+        ImmutableDictionary.CreateRange(new[]
+        {
+            KeyValuePair.Create("Error", PerlangValueTypes.Error),
+            KeyValuePair.Create("ArgumentError", PerlangValueTypes.ArgumentError),
+        });
+
     private readonly IBindingRetriever bindingHandler;
     private readonly ITypeHandler typeHandler;
     private readonly Action<TypeValidationError> typeValidationErrorCallback;
+    private ITypeReference? currentFunctionReturnTypeReference = null;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TypeResolver"/> class.
@@ -450,6 +458,10 @@ internal class TypeResolver : VisitorBase
             else {
                 expr.TypeReference.SetCppType(typeReference.CppType);
                 expr.TypeReference.SetPerlangType(typeReference.PerlangType);
+
+                if (typeReference.IsUnionType && typeReference.UnionSuccessTypeCppType != null) {
+                    expr.TypeReference.SetUnionSuccessType(typeReference.UnionSuccessTypeCppType);
+                }
             }
         }
         else {
@@ -865,6 +877,13 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
+        // TODO: Ensure that constructor parameters have the expected types. For now, validation is deferred to the C++
+        // compiler.
+        if (KnownInstantiableCppTypes.TryGetValue(expr.TypeName.Lexeme, out var knownCppType)) {
+            expr.TypeReference.SetCppType(knownCppType);
+            return VoidObject.Void;
+        }
+
         if (binding == null) {
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Token,
@@ -904,7 +923,12 @@ internal class TypeResolver : VisitorBase
         }
 
         if (!stmt.ReturnTypeReference.IsResolved) {
-            ResolveExplicitTypes(stmt.ReturnTypeReference);
+            if (stmt.ReturnTypeReference.IsUnionType) {
+                ResolveUnionReturnType(stmt.ReturnTypeReference);
+            }
+            else {
+                ResolveExplicitTypes(stmt.ReturnTypeReference);
+            }
         }
 
         foreach (Parameter parameter in stmt.Parameters) {
@@ -928,7 +952,14 @@ internal class TypeResolver : VisitorBase
             }
         }
 
-        return base.VisitFunctionStmt(stmt);
+        var previousReturnTypeReference = currentFunctionReturnTypeReference;
+        currentFunctionReturnTypeReference = stmt.ReturnTypeReference;
+
+        base.VisitFunctionStmt(stmt);
+
+        currentFunctionReturnTypeReference = previousReturnTypeReference;
+
+        return VoidObject.Void;
     }
 
     public override VoidObject VisitFieldStmt(Stmt.Field stmt)
@@ -988,6 +1019,81 @@ internal class TypeResolver : VisitorBase
         }
 
         return VoidObject.Void;
+    }
+
+    public override VoidObject VisitTryExpr(Expr.Try expr)
+    {
+        Visit(expr.Operand);
+
+        if (!expr.Operand.TypeReference.IsUnionType) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Keyword,
+                "The 'try' operator can only be applied to expressions returning a 'T | error' union type")
+            );
+            return VoidObject.Void;
+        }
+
+        if (currentFunctionReturnTypeReference?.IsUnionType == false) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Keyword,
+                "The 'try' operator cannot be used in a function that does not return a 'T | error' union type")
+            );
+            return VoidObject.Void;
+        }
+
+        CppType? successType = expr.Operand.TypeReference.UnionSuccessTypeCppType;
+
+        if (successType == null) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Keyword,
+                "Internal compiler error: Union success type was unexpectedly null")
+            );
+            return VoidObject.Void;
+        }
+
+        expr.TypeReference.SetCppType(successType);
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitReturnStmt(Stmt.Return stmt)
+    {
+        base.VisitReturnStmt(stmt);
+
+        if (stmt.Value is Expr.NewExpression newExpr &&
+            KnownInstantiableCppTypes.ContainsKey(newExpr.TypeName.Lexeme) &&
+            currentFunctionReturnTypeReference?.IsUnionType != true) {
+            typeValidationErrorCallback(new TypeValidationError(
+                newExpr.Token,
+                $"Error types can only be returned from functions with a 'T | error' union return type"));
+        }
+
+        return VoidObject.Void;
+    }
+
+    /// <summary>
+    /// Resolves a union return type of the form <c>T | error</c>, producing a
+    /// <c>std::variant&lt;T_cpp, std::shared_ptr&lt;perlang::Error&gt;&gt;</c> CppType.
+    /// </summary>
+    private void ResolveUnionReturnType(ITypeReference typeReference)
+    {
+        // Resolve the success type (T) using the normal resolver.
+        var successRef = new TypeReference(typeReference.TypeSpecifier, isArray: typeReference.IsArray);
+        ResolveExplicitTypes(successRef);
+
+        if (!successRef.IsResolved) {
+            typeValidationErrorCallback(new TypeValidationError(
+                typeReference.TypeSpecifier!,
+                $"Type not found: {typeReference.TypeSpecifier!.Lexeme}")
+            );
+            return;
+        }
+
+        string successCppType = successRef.CppType!.PossiblyWrappedTypeName();
+        string variantTypeName = $"std::variant<{successCppType}, std::shared_ptr<perlang::Error>>";
+
+        typeReference.SetUnionSuccessType(successRef.CppType!);
+        typeReference.SetCppType(new CppType(variantTypeName, "perlang.Result", "result", wrapInSharedPtr: false));
     }
 
     private void ResolveExplicitTypes(ITypeReference typeReference)
