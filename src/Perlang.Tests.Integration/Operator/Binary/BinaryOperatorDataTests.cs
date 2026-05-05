@@ -277,13 +277,13 @@ public class BinaryOperatorDataTests
             if (!TypesForEvaluatedValues.ContainsKey(o1))
             {
                 //TypesForEvaluatedValues[o1] = EvalHelper.Eval(o1).GetType();
-                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+                throw new SkipException("Evaluating and returning a result is not supported in compiled mode");
             }
 
             if (!TypesForEvaluatedValues.ContainsKey(o2))
             {
                 //TypesForEvaluatedValues[o2] = EvalHelper.Eval(o2).GetType();
-                throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+                throw new SkipException("Evaluating and returning a result is not supported in compiled mode");
             }
 
             CppType leftType = TypesForEvaluatedValues[o1];

@@ -46,7 +46,7 @@ internal static class EvalHelper
     {
         if (PerlangMode.ExperimentalCompilation)
         {
-            throw new SkipException("Evaluating and returning a result is not supported in experimental compilation mode");
+            throw new SkipException("Evaluating and returning a result is not supported in compiled mode");
         }
         else
         {
