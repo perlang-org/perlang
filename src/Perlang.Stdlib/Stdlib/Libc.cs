@@ -17,7 +17,7 @@ namespace Perlang.Stdlib;
 /// <summary>
 /// Provides support for calling standard C library functions.
 ///
-/// This class supplements see <see cref="Posix"/> class by implementing support for functions available on all
+/// This class supplements the `Posix` class by implementing support for functions available on all
 /// supported platforms.
 /// </summary>
 /// <remarks>
@@ -195,7 +195,7 @@ public static partial class Libc
     /// <see cref="getpid">getpid()</see> conforms to ISO/IEC 9945-1:1990 (`POSIX.1`).
     /// </summary>
     /// <returns>The process ID of the calling process.</returns>
-    /// <seealso cref="Posix.getppid"/>
+    // <seealso cref="Posix.getppid"/>
     public static int getpid()
     {
         return Internal.getpid();

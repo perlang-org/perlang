@@ -51,6 +51,7 @@ public class NameResolverTest
 
         var resolver = new NameResolver(
             ImmutableDictionary<string, Type>.Empty,
+            ImmutableDictionary<string, IPerlangClass>.Empty,
             compiler.BindingHandler,
             new AssertFailAddTypeHandler(),
             AssertFailNameResolutionErrorHandler

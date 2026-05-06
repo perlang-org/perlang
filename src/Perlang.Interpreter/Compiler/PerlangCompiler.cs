@@ -101,6 +101,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     private readonly IDictionary<string, IPerlangType> globalTypes = new Dictionary<string, IPerlangType>();
 
     private readonly ImmutableDictionary<string, Type> nativeClasses;
+    private readonly ImmutableDictionary<string, IPerlangClass> stdlibClasses;
     private readonly IDictionary<string, Method> methods;
     private readonly IDictionary<string, string> enums;
     private readonly IDictionary<string, string> classDefinitions;
@@ -151,6 +152,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         nativeClassesBuilder["Base64"] = typeof(object);
         nativeClassesBuilder["Libc"] = typeof(object);
         nativeClasses = nativeClassesBuilder.ToImmutableDictionary();
+
+        var stdlibClassesBuilder = ImmutableDictionary.CreateBuilder<string, IPerlangClass>();
+        stdlibClassesBuilder["Posix"] = PosixStdlibClass.Instance;
+        stdlibClasses = stdlibClassesBuilder.ToImmutableDictionary();
     }
 
     public void Dispose()
@@ -430,6 +435,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         var nameResolver = new NameResolver(
             nativeClasses,
+            stdlibClasses,
             BindingHandler,
             this,
             nameResolutionError =>
@@ -1734,7 +1740,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                     }
                     else if (identifier.TypeReference.IsClassReference) {
                         // This is a field/property access or method call on a class itself, e.g. a static method call.
-                        result.Append($"{identifier.Name.Lexeme}::{expr.Name.Lexeme}");
+                        result.Append($"{identifier.TypeReference.CppType.CppTypeName}::{expr.Name.Lexeme}");
                     }
                     else
                     {

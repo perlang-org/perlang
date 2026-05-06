@@ -5,77 +5,72 @@ using static Perlang.Tests.Integration.EvalHelper;
 namespace Perlang.Tests.Integration.Stdlib;
 
 /// <summary>
-/// Integration test for the <see cref="Perlang.Stdlib.Posix"/> class.
+/// Integration test for the <see cref="PosixStdlibClass"/> class.
 /// </summary>
 public class PosixTests
 {
 #if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
+    [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-    [SkippableFact]
+    [Fact]
 #endif
     public void getegid_returns_positive_integer()
     {
-        var result = Eval("Posix.getegid()");
+        string output = EvalReturningOutputString("print Posix.getegid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 
 #if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
+    [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-    [SkippableFact]
+    [Fact]
 #endif
     public void geteuid_returns_positive_integer()
     {
-        var result = Eval("Posix.geteuid()");
+        string output = EvalReturningOutputString("print Posix.geteuid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 
 #if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
+    [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-    [SkippableFact]
+    [Fact]
 #endif
     public void getgid_returns_positive_integer()
     {
-        var result = Eval("Posix.getgid()");
+        string output = EvalReturningOutputString("print Posix.getgid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 
 #if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
+    [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-    [SkippableFact]
+    [Fact]
 #endif
     public void getppid_returns_positive_integer()
     {
-        var result = Eval("Posix.getppid()");
+        string output = EvalReturningOutputString("print Posix.getppid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 
 #if _WINDOWS
-        [Fact(Skip = "Only supported on POSIX platforms")]
+    [Fact(Skip = "Only supported on POSIX platforms")]
 #else
-    [SkippableFact]
+    [Fact]
 #endif
     public void getuid_returns_positive_integer()
     {
-        var result = Eval("Posix.getuid()");
+        string output = EvalReturningOutputString("print Posix.getuid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 }

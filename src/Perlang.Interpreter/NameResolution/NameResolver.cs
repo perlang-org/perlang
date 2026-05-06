@@ -46,12 +46,14 @@ internal class NameResolver : VisitorBase
     /// Initializes a new instance of the <see cref="NameResolver"/> class.
     /// </summary>
     /// <param name="globalClasses">A dictionary of global classes, with the class name as key.</param>
+    /// <param name="stdlibClasses">A dictionary of C++ stdlib classes available to Perlang programs.</param>
     /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
     /// <param name="typeHandler">A handler used for adding and retrieving global, top-level types.</param>
     /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
     /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
     internal NameResolver(
         IImmutableDictionary<string, Type> globalClasses,
+        IImmutableDictionary<string, IPerlangClass> stdlibClasses,
         IBindingHandler bindingHandler,
         ITypeHandler typeHandler,
         NameResolutionErrorHandler nameResolutionErrorHandler)
@@ -63,6 +65,15 @@ internal class NameResolver : VisitorBase
         foreach ((string key, Type value) in globalClasses)
         {
             globals[key] = new NativeClassBindingFactory(value);
+        }
+
+        foreach ((string name, IPerlangClass value) in stdlibClasses)
+        {
+            string cppTypeName = $"perlang::{name}";
+            string perlangTypeName = name;
+            var typeRef = new TypeReference(new CppType(cppTypeName, perlangTypeName, wrapInSharedPtr: true));
+            globals[perlangTypeName] = new ClassBindingFactory(value, typeRef);
+            typeHandler.AddClass(name, value);
         }
     }
 

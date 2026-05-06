@@ -149,6 +149,7 @@ public class TypeResolverTest
 
         var nameResolver = new NameResolver(
             ImmutableDictionary<string, Type>.Empty,
+            ImmutableDictionary<string, IPerlangClass>.Empty,
             compiler.BindingHandler,
             new AssertFailAddTypeHandler(),
             AssertFailNameResolutionErrorHandler

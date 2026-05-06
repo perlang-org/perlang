@@ -44,6 +44,8 @@
 
 #include "io/file.h"
 
+#include "posix.h"
+
 #include "text/string_builder.h"
 
 // TODO: Extract to separate header files instead of keeping it in a single file

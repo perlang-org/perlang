@@ -4715,6 +4715,230 @@ namespace Perlang
 
 namespace Perlang
 {
+    public unsafe partial class Posix : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 1)]
+        public partial struct __Internal
+        {
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5PosixC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix7getegidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern uint Getegid();
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix7geteuidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern uint Geteuid();
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix6getgidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern uint Getgid();
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix7getppidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern int Getppid();
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix6getuidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern uint Getuid();
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Posix> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Posix>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Posix managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Posix managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static Posix __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new Posix(native.ToPointer(), skipVTables);
+        }
+
+        internal static Posix __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (Posix)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static Posix __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new Posix(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private Posix(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected Posix(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public Posix()
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Posix.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        public Posix(global::Perlang.Posix _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Posix.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.Posix.__Internal*) __Instance) = *((global::Perlang.Posix.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// <para>The getgid() function returns the real group ID of the calling process; getegid() returns the</para>
+        /// <para>effective group ID of the calling process.</para>
+        /// </summary>
+        /// <remarks>
+        /// <para>The real group ID is specified at login time.</para>
+        /// <para>The real group ID is the group of the user who invoked the program. As the effective group ID gives the</para>
+        /// <para>process additional permissions during the execution of `set-group-ID` mode processes, getgid() is used to</para>
+        /// <para>determine the real-group-id of the calling process.</para>
+        /// <para>getgid() and getegid() conform to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The effective group ID of the calling process.</para>
+        /// <para>getuid()</para>
+        /// </remarks>
+        public static uint Getegid
+        {
+            get
+            {
+                var ___ret = __Internal.Getegid();
+                return ___ret;
+            }
+        }
+
+        /// <summary>
+        /// <para>The getuid() function returns the real user ID of the calling process. The geteuid() function returns</para>
+        /// <para>the effective user ID of the calling process.</para>
+        /// </summary>
+        /// <remarks>
+        /// <para>The real user ID is that of the user who has invoked the program. As the effective user ID gives the</para>
+        /// <para>process additional permissions during execution of `set-user-ID` mode processes, getuid() is used to</para>
+        /// <para>determine the real-user-id of the calling process.</para>
+        /// <para>The geteuid() and getuid() functions conform to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The effective user ID of the calling process.</para>
+        /// <para>getgid()</para>
+        /// </remarks>
+        public static uint Geteuid
+        {
+            get
+            {
+                var ___ret = __Internal.Geteuid();
+                return ___ret;
+            }
+        }
+
+        /// <summary>
+        /// <para>The getgid() function returns the real group ID of the calling process; getegid() returns the</para>
+        /// <para>effective group ID of the calling process.</para>
+        /// </summary>
+        /// <remarks>
+        /// <para>The real group ID is specified at login time.</para>
+        /// <para>The real group ID is the group of the user who invoked the program. As the effective group ID gives the</para>
+        /// <para>process additional permissions during the execution of `set-group-ID` mode processes, getgid() is used to</para>
+        /// <para>determine the real-group-id of the calling process.</para>
+        /// <para>getgid() and getegid() conform to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The real group ID of the calling process.</para>
+        /// </remarks>
+        public static uint Getgid
+        {
+            get
+            {
+                var ___ret = __Internal.Getgid();
+                return ___ret;
+            }
+        }
+
+        /// <summary>Returns the process ID of the parent of the calling process.</summary>
+        /// <remarks>
+        /// <para>getppid() conforms to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The parent process ID.</para>
+        /// <para>Libc::getpid()</para>
+        /// </remarks>
+        public static int Getppid
+        {
+            get
+            {
+                var ___ret = __Internal.Getppid();
+                return ___ret;
+            }
+        }
+
+        /// <summary>
+        /// <para>The getuid() function returns the real user ID of the calling process. The geteuid() function returns</para>
+        /// <para>the effective user ID of the calling process.</para>
+        /// </summary>
+        /// <remarks>
+        /// <para>The real user ID is that of the user who has invoked the program. As the effective user ID gives the</para>
+        /// <para>process additional permissions during execution of `set-user-ID` mode processes, getuid() is used to</para>
+        /// <para>determine the real-user-id of the calling process.</para>
+        /// <para>The geteuid() and getuid() functions conform to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The real user ID of the calling process.</para>
+        /// <para>getgid()</para>
+        /// </remarks>
+        public static uint Getuid
+        {
+            get
+            {
+                var ___ret = __Internal.Getuid();
+                return ___ret;
+            }
+        }
+    }
+}
+
+namespace Perlang
+{
     namespace Text
     {
         public unsafe partial class StringBuilder : IDisposable

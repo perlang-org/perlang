@@ -182,7 +182,7 @@ software](https://en.wikipedia.org/wiki/Free_software) license for your work).
 which is also licensed under the MIT license. Copyright (c) 2016 The Rust
 Project Developers.
 
-[src/Perlang.Stdlib/Stdlib/Posix.cs](src/Perlang.Stdlib/Stdlib/Posix.cs)
+[src/stdlib/src/posix.h](src/stdlib/src/posix.h)
 includes content from the NetBSD project, licensed under the 3-clause BSD
 license. Copyright (c) 1980, 1991, 1993 The Regents of the University of
 California.  All rights reserved.

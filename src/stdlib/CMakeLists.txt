@@ -37,6 +37,7 @@ set(headers
         src/perlang_string.h
         src/perlang_type.h
         src/perlang_value_types.h
+        src/posix.h
         src/string_array.h
         src/uint_array.h
         src/uint_range.h
