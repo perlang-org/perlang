@@ -373,6 +373,8 @@ docs/examples/the-language/user-defined-class
 docs/examples/the-language/user-defined-class-with-static-method
 lib/
 
+src/stdlib/docs/
+
 src/Perlang.Common/CommonConstants.Generated.cs
 src/Perlang.Common/PerlangCli.cs-orig
 src/perlang_cli/src/perlang_cli_preprocessed.cc

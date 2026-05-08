@@ -121,6 +121,10 @@ valgrind-docs-test-examples: perlang_cli_install_release
 docs-serve:
 	uv run --group docs mkdocs serve
 
+.PHONY: api-docs
+api-docs:
+	cd src/stdlib && doxygen
+
 install: auto-generated stdlib perlang_cli
 	./scripts/local_install_linux.sh
 

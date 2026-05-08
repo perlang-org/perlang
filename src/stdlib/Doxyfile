@@ -1,0 +1,20 @@
+PROJECT_NAME            = "Perlang stdlib"
+PROJECT_BRIEF           = "C++ standard library for the Perlang programming language"
+OUTPUT_DIRECTORY        = docs
+OUTPUT_LANGUAGE         = English
+
+INPUT                   = src
+RECURSIVE               = YES
+FILE_PATTERNS           = *.cc *.h
+
+# These are third party libraries that we include; we don't want them to be included in "our" API docs.
+EXCLUDE                 = src/fmt \
+                          src/tsl
+
+EXTRACT_ALL             = YES
+EXTRACT_STATIC          = YES
+BUILTIN_STL_SUPPORT     = YES
+
+GENERATE_LATEX          = NO
+
+QUIET                   = YES
