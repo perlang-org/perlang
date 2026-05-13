@@ -1,7 +1,7 @@
 #nullable enable
 using System.Collections.Immutable;
 
-namespace Perlang;
+namespace Perlang.Stdlib;
 
 /// <summary>
 /// Perlang class definition for the <c>perlang::Posix</c> class.
@@ -20,5 +20,5 @@ public class PosixStdlibClass : IPerlangClass
         new CppFunction("getuid",  ImmutableList<Parameter>.Empty, new TypeReference(PerlangValueTypes.UInt32))
     );
 
-    public ImmutableList<IPerlangField> Fields { get; } = ImmutableList<IPerlangField>.Empty;
+    public ImmutableList<IPerlangField> Fields => ImmutableList<IPerlangField>.Empty;
 }

@@ -15,6 +15,8 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_by_string()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         string source = $"""
             var env = Libc.environ();
             print env["{PathKey}"];
@@ -35,6 +37,8 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_can_be_indexed_multiple_times()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         string source = $"""
             var env = Libc.environ();
             print env["{PathKey}"][0];
@@ -54,7 +58,7 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_not_present_key()
     {
-        Skip.If(PerlangMode.ExperimentalCompilation, "Not supported in compiled mode");
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
 
         string source = """
             var env = Libc.environ();
@@ -73,6 +77,8 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_null()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         string source = """
             var env = Libc.environ();
             print env[null];
@@ -88,6 +94,8 @@ public class DictionaryIndexing
     [SkippableFact]
     public void dictionary_with_string_key_throws_expected_error_when_indexed_by_integer()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         string source = """
             var env = Libc.environ();
             print env[123];

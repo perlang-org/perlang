@@ -13,6 +13,8 @@ public class LibcTests
     [SkippableFact]
     public void environ_returns_dictionary()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         var result = Eval("Libc.environ()");
 
         result.Should()
@@ -23,6 +25,8 @@ public class LibcTests
     [SkippableFact]
     public void environ_contains_path()
     {
+        Skip.If(PerlangMode.ExperimentalCompilation, "Not yet supported in compiled mode");
+
         var result = Eval("Libc.environ()");
 
         result.Should()
@@ -47,33 +51,35 @@ public class LibcTests
             .NotBeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public void getcwd_returns_non_null_string()
     {
-        var result = Eval("Libc.getcwd()");
+        string output = EvalReturningOutputString("print Libc.getcwd();");
 
-        result.Should()
-            .BeOfType<string>().Which.Should()
-            .NotBeNull();
+        output.Should()
+            .NotBeEmpty();
+
+        // This will be true on all Unix-based systems, but will have to be adjusted for Windows
+        output.Should()
+            .Contain("/");
     }
 
-    [SkippableFact]
+    [Fact]
     public void getenv_path_returns_non_empty_string()
     {
-        var result = Eval("Libc.getenv(\"PATH\")");
+        // TODO: Will this work on Windows, despite the path variable being named 'Path'?
+        string output = EvalReturningOutputString("print Libc.getenv(\"PATH\");");
 
-        result.Should()
-            .BeOfType<string>().Which.Should()
+        output.Should()
             .NotBeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public void getpid_returns_positive_integer()
     {
-        var result = Eval("Libc.getpid()");
+        string output = EvalReturningOutputString("print Libc.getpid();");
 
-        result.Should()
-            .BeOfType<int>().Which.Should()
-            .BeGreaterThanOrEqualTo(0);
+        output.Should()
+            .MatchRegex(@"^\d+$");
     }
 }

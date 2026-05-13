@@ -28,6 +28,7 @@ set(headers
         src/int_array.h
         src/int_range.h
         src/integer.h
+        src/libc.h
         src/long_array.h
         src/long_range.h
         src/object.h

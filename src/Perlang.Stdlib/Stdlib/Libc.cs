@@ -43,13 +43,6 @@ public static partial class Libc
         internal const int STDERR_FILENO = 2;
 
 #if _WINDOWS
-            [DllImport("ucrtbase", EntryPoint = "_getpid")]
-#else // POSIX
-        [DllImport("libc")]
-#endif
-        public static extern int getpid();
-
-#if _WINDOWS
             [LibraryImport("ucrtbase")]
 #else // POSIX
         [LibraryImport("libc")]
@@ -62,22 +55,6 @@ public static partial class Libc
         [LibraryImport("libc")]
 #endif
         internal static partial int toupper(int c);
-    }
-
-    /// <summary>Gets the fully qualified path of the current working directory.</summary>
-    /// <value>The directory path.</value>
-    /// <remarks>
-    /// By definition, if this process starts in the root directory of a local or network drive, the value of this
-    /// property is the drive name followed by a trailing slash (for example, `/` or `C:\\`). If this process starts in a
-    /// subdirectory, the value of this property is the drive and subdirectory path, without a trailing slash (for
-    /// example, `/usr/bin` or `C:\mySubDirectory`).
-    /// </remarks>
-    /// <exception cref="T:System.IO.IOException">An I/O error occurred.</exception>
-    /// <exception cref="T:System.IO.DirectoryNotFoundException">A component of the pathname no longer exists.</exception>
-    /// <returns>The current working directory.</returns>
-    public static string getcwd()
-    {
-        return Environment.CurrentDirectory;
     }
 
     /// <summary>Retrieves all environment variable names and their values from the current process.</summary>
@@ -136,68 +113,5 @@ public static partial class Libc
         }
 
         return result.ToImmutableDictionary();
-    }
-
-    /// <summary>Retrieves the value of an environment variable from the current process.</summary>
-    /// <param name="name">The name of the environment variable.</param>
-    /// <returns>The value of the environment variable specified by <paramref name="name" />, or <see
-    /// langword="null" /> if the environment variable is not found.</returns>
-    /// <remarks>
-    /// The  <see cref="getenv(Lang.String)"/> method retrieves an environment
-    /// variable from the environment block of the current process.
-    ///
-    /// To retrieve all environment variables along with their values, call the <see cref="environ"/> method.
-    ///
-    /// Environment variable names are case-sensitive on Linux and macOS and case-insensitive on Windows.
-    ///
-    /// ### On Linux and macOS systems
-    ///
-    /// On Linux and macOS, the environment block of the current process includes the following environment
-    /// variables:
-    ///
-    /// - All environment variables that are provided to it by the parent process that created it. For .NET
-    ///   applications launched from a shell, this includes all environment variables defined in the shell.
-    ///
-    /// .NET on Linux and macOS does not support per-machine or per-user environment variables.
-    ///
-    /// ### On Windows systems
-    ///
-    /// On Windows systems, the environment block of the current process includes:
-    ///
-    /// - All environment variables that are provided to it by the parent process that created it. For example, a
-    ///   .NET application launched from a console window inherits all of the console window's environment
-    ///   variables.
-    ///
-    ///       If there is no parent process, per-machine and per-user environment variables are used instead. For
-    ///       example, a new console window has all per-machine and per-user environment variables defined at the
-    ///       time it was launched.
-    ///
-    /// ### Standard environment variables
-    ///
-    /// In addition to user-defined environment variables, ISO/IEC 9945-1:1990 (`POSIX.1`) defines a set of standard
-    /// environment variables. See <see cref="environ"/> for more details
-    /// on these.
-    /// </remarks>
-    /// <exception cref="T:System.ArgumentNullException">
-    /// <paramref name="name" /> is <see langword="null" />.</exception>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission to
-    /// perform this operation.</exception>
-    public static string? getenv(Lang.String name)
-    {
-        return Environment.GetEnvironmentVariable(name.ToString());
-    }
-
-    /// <summary>
-    /// Returns the process ID of the calling process.  The ID is guaranteed to be unique and it might be tempting
-    /// to use it for constructing temporary file names. However, this is _NOT_ recommended since it is not secure.
-    /// In C, `mkstemp` can be used for this purpose. `mkstemp` is not yet available to use from Perlang, though.
-    ///
-    /// <see cref="getpid">getpid()</see> conforms to ISO/IEC 9945-1:1990 (`POSIX.1`).
-    /// </summary>
-    /// <returns>The process ID of the calling process.</returns>
-    // <seealso cref="Posix.getppid"/>
-    public static int getpid()
-    {
-        return Internal.getpid();
     }
 }

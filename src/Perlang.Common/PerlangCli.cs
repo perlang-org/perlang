@@ -2263,6 +2263,147 @@ namespace Perlang
 
 namespace Perlang
 {
+    /// <summary>Provides support for calling standard C library functions.</summary>
+    /// <remarks>
+    /// <para>This class supplements the `Posix` class by implementing support for functions available on all</para>
+    /// <para>supported platforms.</para>
+    /// <para>The method descriptions are based on [the .NET source</para>
+    /// <para>code](https://github.com/dotnet/dotnet-api-docs/blob/main/xml/System/Environment.xml), licensed</para>
+    /// <para>under the MIT license. Copyright (c) .NET Foundation and Contributors. Some method descriptions are also based</para>
+    /// <para>on `man` pages in [the NetBSD source code](https://github.com/NetBSD/src). The full license of these man pages</para>
+    /// <para>can be found at https://gitlab.perlang.org/perlang/perlang/-/blob/master/NOTICE.md.</para>
+    /// <para>Portions may also be inspired by Donald Lewine's great book &quot;POSIX Programmer's Guide&quot; (O'Reilly 1991).</para>
+    /// </remarks>
+    public unsafe partial class Libc : IDisposable
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 1)]
+        public partial struct __Internal
+        {
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4LibcC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4Libc6getpidEv", CallingConvention = __CallingConvention.Cdecl)]
+            internal static extern int Getpid();
+        }
+
+        public __IntPtr __Instance { get; protected set; }
+
+        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Libc> NativeToManagedMap =
+            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Libc>();
+
+        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Libc managed)
+        {
+            NativeToManagedMap[native] = managed;
+        }
+
+        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Libc managed)
+        {
+    
+            return NativeToManagedMap.TryGetValue(native, out managed);
+        }
+
+        protected bool __ownsNativeInstance;
+
+        internal static Libc __CreateInstance(__IntPtr native, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            return new Libc(native.ToPointer(), skipVTables);
+        }
+
+        internal static Libc __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+        {
+            if (native == __IntPtr.Zero)
+                return null;
+            if (__TryGetNativeToManagedMapping(native, out var managed))
+                return (Libc)managed;
+            var result = __CreateInstance(native, skipVTables);
+            if (saveInstance)
+                __RecordNativeToManagedMapping(native, result);
+            return result;
+        }
+
+        internal static Libc __CreateInstance(__Internal native, bool skipVTables = false)
+        {
+            return new Libc(native, skipVTables);
+        }
+
+        private static void* __CopyValue(__Internal native)
+        {
+            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+            *(__Internal*) ret = native;
+            return ret.ToPointer();
+        }
+
+        private Libc(__Internal native, bool skipVTables = false)
+            : this(__CopyValue(native), skipVTables)
+        {
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        protected Libc(void* native, bool skipVTables = false)
+        {
+            if (native == null)
+                return;
+            __Instance = new __IntPtr(native);
+        }
+
+        public Libc()
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Libc.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+        }
+
+        public Libc(global::Perlang.Libc _0)
+        {
+            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Libc.__Internal));
+            __ownsNativeInstance = true;
+            __RecordNativeToManagedMapping(__Instance, this);
+            *((global::Perlang.Libc.__Internal*) __Instance) = *((global::Perlang.Libc.__Internal*) _0.__Instance);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        }
+
+        partial void DisposePartial(bool disposing);
+
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        {
+            if (__Instance == IntPtr.Zero)
+                return;
+            NativeToManagedMap.TryRemove(__Instance, out _);
+            DisposePartial(disposing);
+            if (__ownsNativeInstance)
+                Marshal.FreeHGlobal(__Instance);
+            __Instance = IntPtr.Zero;
+        }
+
+        /// <summary>Returns the process ID of the calling process.</summary>
+        /// <remarks>
+        /// <para>The ID is guaranteed to be unique and it might be tempting to use it for constructing temporary file names.</para>
+        /// <para>However, this is _NOT_ recommended since it is not secure. In C, `mkstemp` can be used for this purpose.</para>
+        /// <para>`mkstemp` is not yet available to use from Perlang, though.</para>
+        /// <para>getpid() conforms to ISO/IEC 9945-1:1990 (`POSIX.1`).</para>
+        /// <para>The process ID of the calling process.</para>
+        /// <para>Posix::getppid()</para>
+        /// </remarks>
+        public static int Getpid
+        {
+            get
+            {
+                var ___ret = __Internal.Getpid();
+                return ___ret;
+            }
+        }
+    }
+}
+
+namespace Perlang
+{
     public unsafe partial class LongArray : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]

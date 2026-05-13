@@ -23,6 +23,7 @@ using Perlang.Interpreter.Typing;
 using Perlang.Lang;
 using Perlang.Native;
 using Perlang.Parser;
+using Perlang.Stdlib;
 using static Perlang.TokenType;
 using String = System.String;
 
@@ -150,11 +151,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         // times.
         var nativeClassesBuilder = ImmutableDictionary.CreateBuilder<string, Type>();
         nativeClassesBuilder["Base64"] = typeof(object);
-        nativeClassesBuilder["Libc"] = typeof(object);
         nativeClasses = nativeClassesBuilder.ToImmutableDictionary();
 
         var stdlibClassesBuilder = ImmutableDictionary.CreateBuilder<string, IPerlangClass>();
-        stdlibClassesBuilder["Posix"] = PosixStdlibClass.Instance;
+        stdlibClassesBuilder[LibcStdlibClass.Instance.Name] = LibcStdlibClass.Instance;
+        stdlibClassesBuilder[PosixStdlibClass.Instance.Name] = PosixStdlibClass.Instance;
         stdlibClasses = stdlibClassesBuilder.ToImmutableDictionary();
     }
 

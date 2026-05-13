@@ -19,6 +19,7 @@
 #include "float_array.h"
 #include "int_array.h"
 #include "int_range.h"
+#include "libc.h"
 #include "long_array.h"
 #include "long_range.h"
 #include "object_array.h"

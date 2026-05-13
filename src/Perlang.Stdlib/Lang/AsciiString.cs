@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Perlang.Internal;
-using Perlang.Stdlib;
 
 namespace Perlang.Lang;
 
@@ -190,7 +189,7 @@ public class AsciiString : Lang.String
         {
             // TODO: casting from nuint to uint here means we will not properly support strings larger than 4G on 64-bit
             // TODO: architectures.
-            return Libc.Internal.memcmp(str.bytes, bytes, (uint)Length) == 0;
+            return Perlang.Stdlib.Libc.Internal.memcmp(str.bytes, bytes, (uint)Length) == 0;
         }
     }
 
@@ -237,7 +236,7 @@ public class AsciiString : Lang.String
 
         for (nuint i = 0; i < Length; i++)
         {
-            upperBytes[i] = (byte)Libc.Internal.toupper(bytes[i]);
+            upperBytes[i] = (byte)Perlang.Stdlib.Libc.Internal.toupper(bytes[i]);
         }
 
         // Add a trailing NUL character

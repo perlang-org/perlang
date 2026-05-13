@@ -42,6 +42,7 @@ internal static class EvalHelper
     /// <param name="source">A valid Perlang program.</param>
     /// <returns>The result of evaluating the provided expression, or `null` if provided a list of
     /// statements.</returns>
+    /// <remarks>This function is currently not supported; it only worked in interpreted mode.</remarks>
     internal static object Eval(string source)
     {
         if (PerlangMode.ExperimentalCompilation)
