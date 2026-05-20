@@ -154,6 +154,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         nativeClasses = nativeClassesBuilder.ToImmutableDictionary();
 
         var stdlibClassesBuilder = ImmutableDictionary.CreateBuilder<string, IPerlangClass>();
+        stdlibClassesBuilder[CharClass.Instance.Name] = CharClass.Instance;
         stdlibClassesBuilder[LibcStdlibClass.Instance.Name] = LibcStdlibClass.Instance;
         stdlibClassesBuilder[PosixStdlibClass.Instance.Name] = PosixStdlibClass.Instance;
         stdlibClasses = stdlibClassesBuilder.ToImmutableDictionary();

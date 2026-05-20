@@ -25,5 +25,5 @@ public class LibcStdlibClass : IPerlangClass
         new CppFunction("getpid", ImmutableList<Parameter>.Empty, new TypeReference(PerlangValueTypes.Int32)) // pid_t is defined to be signed
     );
 
-    public ImmutableList<IPerlangField> Fields => ImmutableList<IPerlangField>.Empty;
+    public ImmutableList<IPerlangField> Fields => [];
 }

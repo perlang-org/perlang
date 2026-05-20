@@ -1,4 +1,7 @@
 #nullable enable
+#pragma warning disable SA1010
+#pragma warning disable SA1115
+#pragma warning disable SA1117
 using System.Collections.Immutable;
 
 namespace Perlang.Stdlib;
@@ -20,5 +23,5 @@ public class PosixStdlibClass : IPerlangClass
         new CppFunction("getuid",  ImmutableList<Parameter>.Empty, new TypeReference(PerlangValueTypes.UInt32))
     );
 
-    public ImmutableList<IPerlangField> Fields => ImmutableList<IPerlangField>.Empty;
+    public ImmutableList<IPerlangField> Fields => [];
 }
