@@ -76,6 +76,8 @@ public class PerlangScanner
         return source[current + 1];
     }
 
+    // TODO: Many (all?) of these are public because of used from C#, but once the class has been rewritten in Perlang,
+    // these ought to be made private again.
     public static is_alpha(c: char): bool
     {
         return (c >= 'a' && c <= 'z') ||
@@ -85,6 +87,32 @@ public class PerlangScanner
     public static is_underscore(c: char): bool
     {
         return c == '_';
+    }
+
+    public static is_alpha_numeric(c: char): bool {
+        return is_alpha(c) || is_underscore(c) || is_digit(c, NumericTokenBase.DECIMAL);
+    }
+
+    public static is_digit(c: char, base: NumericTokenBase): bool | error {
+        // TODO: Could rewrite this to switch on 'int' instead, but we currently don't support casting/converting from
+        // enum to int
+        switch (base)
+        {
+            case NumericTokenBase.BINARY:
+                return c == '0' || c == '1';
+            case NumericTokenBase.OCTAL:
+                return c >= '0' && c <= '7';
+            case NumericTokenBase.DECIMAL:
+                return c >= '0' && c <= '9';
+            case NumericTokenBase.HEXADECIMAL:
+                // TODO: Think about whether enforcing parentheses here might be too strict. With reasonable order of
+                // precedence rules, it _might_ be that the Perlang approach takes things too far.
+                return (c >= '0' && c <= '9') || (Char.to_upper(c) >= 'A' && Char.to_upper(c) <= 'F');
+           default:
+                // TODO: Change to "new ArgumentError("Base " + base + " is not supported");" once the bug with
+                // NameResolver.VisitNewExpression not calling base.VisitNewExpression has been fixed.
+                return new ArgumentError("Unsupported base");
+        };
     }
 
     public is_at_end(): bool

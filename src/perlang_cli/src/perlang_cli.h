@@ -11,6 +11,15 @@
 //
 // Perlang enum definitions
 //
+namespace NumericTokenBase {
+    enum NumericTokenBase {
+        BINARY = 2,
+        OCTAL = 8,
+        DECIMAL = 10,
+        HEXADECIMAL = 16,
+    };
+};
+
 namespace Visibility {
     enum Visibility {
         Unspecified,
@@ -114,6 +123,8 @@ public:
     char16_t peek_next();
     static bool is_alpha(char16_t c);
     static bool is_underscore(char16_t c);
+    static bool is_alpha_numeric(char16_t c);
+    static bool is_digit(char16_t c, NumericTokenBase::NumericTokenBase base);
     bool is_at_end();
     char16_t advance();
     int32_t get_line();

@@ -36,6 +36,14 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsUnderscore(char c);
 
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner16is_alpha_numericEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsAlphaNumeric(char c);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8is_digitEDsN16NumericTokenBase16NumericTokenBaseE", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsDigit(char c, global::Perlang.NumericTokenBase @base);
+
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner7advanceEv", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         internal static extern char Advance(__IntPtr __instance);
 
@@ -195,6 +203,18 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
     public static bool IsUnderscore(char c)
     {
         var ___ret = __Internal.IsUnderscore(c);
+        return ___ret;
+    }
+
+    public static bool IsAlphaNumeric(char c)
+    {
+        var ___ret = __Internal.IsAlphaNumeric(c);
+        return ___ret;
+    }
+
+    public static bool IsDigit(char c, global::Perlang.NumericTokenBase @base)
+    {
+        var ___ret = __Internal.IsDigit(c, @base);
         return ___ret;
     }
 
@@ -723,6 +743,17 @@ public unsafe partial class perlang_cli
         var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
         var ___ret = __Internal.GetTokenFileName(__arg0);
         return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
+    }
+}
+
+namespace Perlang
+{
+    public enum NumericTokenBase : uint
+    {
+        BINARY = 2,
+        OCTAL = 8,
+        DECIMAL = 10,
+        HEXADECIMAL = 16
     }
 }
 

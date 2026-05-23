@@ -387,7 +387,7 @@ public class Scanner : IDisposable
             default:
                 // Even if a number is specified in a different base than 10 (e.g. binary, hexadecimal etc), it
                 // always starts with a "normal" (decimal) digit because of the prefix characters - e.g. 0x1234.
-                if (IsDigit(c, NumericToken.Base.DECIMAL))
+                if (PerlangScanner.IsDigit(c, NumericTokenBase.DECIMAL))
                 {
                     Number();
                 }
@@ -406,7 +406,7 @@ public class Scanner : IDisposable
 
     private void Identifier()
     {
-        while (IsAlphaNumeric(perlangScanner.Peek))
+        while (PerlangScanner.IsAlphaNumeric(perlangScanner.Peek))
         {
             perlangScanner.Advance();
         }
@@ -422,7 +422,7 @@ public class Scanner : IDisposable
     {
         bool isFractional = false;
         var numberStyles = NumberStyles.Any;
-        var numberBase = NumericToken.Base.DECIMAL;
+        var numberBase = NumericTokenBase.DECIMAL;
         int startOffset = 0;
 
         char currentChar = System.Char.ToLower(perlangScanner.Peek);
@@ -432,16 +432,16 @@ public class Scanner : IDisposable
             switch (currentChar)
             {
                 case 'b':
-                    numberBase = NumericToken.Base.BINARY;
+                    numberBase = NumericTokenBase.BINARY;
                     break;
 
                 case 'o':
-                    numberBase = NumericToken.Base.OCTAL;
+                    numberBase = NumericTokenBase.OCTAL;
                     break;
 
                 case 'x':
                     numberStyles = NumberStyles.HexNumber;
-                    numberBase = NumericToken.Base.HEXADECIMAL;
+                    numberBase = NumericTokenBase.HEXADECIMAL;
                     break;
             }
 
@@ -452,20 +452,20 @@ public class Scanner : IDisposable
             startOffset = 2;
         }
 
-        while (IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
+        while (PerlangScanner.IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
         {
             perlangScanner.Advance();
         }
 
         // Look for a fractional part.
-        if (perlangScanner.Peek == '.' && IsDigit(perlangScanner.PeekNext, numberBase))
+        if (perlangScanner.Peek == '.' && PerlangScanner.IsDigit(perlangScanner.PeekNext, numberBase))
         {
             isFractional = true;
 
             // Consume the "."
             perlangScanner.Advance();
 
-            while (IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
+            while (PerlangScanner.IsDigit(perlangScanner.Peek, numberBase) || perlangScanner.Peek == '_')
             {
                 perlangScanner.Advance();
             }
@@ -523,7 +523,7 @@ public class Scanner : IDisposable
 
                 for (int i = 0; i < 4; i++)
                 {
-                    if (!IsDigit(perlangScanner.Peek, NumericToken.Base.HEXADECIMAL))
+                    if (!PerlangScanner.IsDigit(perlangScanner.Peek, NumericTokenBase.HEXADECIMAL))
                     {
                         valid = false;
                         break;
@@ -778,19 +778,6 @@ public class Scanner : IDisposable
 
         AddToken(CHAR, c);
     }
-
-    private static bool IsAlphaNumeric(char c) =>
-        PerlangScanner.IsAlpha(c) || PerlangScanner.IsUnderscore(c) || IsDigit(c, NumericToken.Base.DECIMAL);
-
-    private static bool IsDigit(char c, NumericToken.Base @base) =>
-        (int)@base switch
-        {
-            2 => c is '0' or '1',
-            8 => c is >= '0' and <= '7',
-            10 => c is >= '0' and <= '9',
-            16 => c is >= '0' and <= '9' || (System.Char.ToUpper(c) >= 'A' && System.Char.ToUpper(c) <= 'F'),
-            _ => throw new ArgumentException($"Base {@base} is not supported")
-        };
 
     private void AddToken(TokenType type, object literal = null)
     {

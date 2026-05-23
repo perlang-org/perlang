@@ -59,16 +59,16 @@ internal static class NumberParser
 
             BigInteger value = numericToken.NumberBase switch
             {
-                NumericToken.Base.DECIMAL =>
+                NumericTokenBase.DECIMAL =>
                     BigInteger.Parse(numberCharacters, numericToken.NumberStyles),
 
-                NumericToken.Base.BINARY =>
+                NumericTokenBase.BINARY =>
                     Convert.ToUInt64(numberCharacters, 2),
 
-                NumericToken.Base.OCTAL =>
+                NumericTokenBase.OCTAL =>
                     Convert.ToUInt64(numberCharacters, 8),
 
-                NumericToken.Base.HEXADECIMAL =>
+                NumericTokenBase.HEXADECIMAL =>
 
                     // Quoting from
                     // https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger.parse?view=net-5.0#System_Numerics_BigInteger_Parse_System_ReadOnlySpan_System_Char__System_Globalization_NumberStyles_System_IFormatProvider_

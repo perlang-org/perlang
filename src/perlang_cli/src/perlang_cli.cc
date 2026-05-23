@@ -54,6 +54,40 @@ bool PerlangScanner::is_underscore(char16_t c) {
     return c == L'_';
 };
 
+bool PerlangScanner::is_alpha_numeric(char16_t c) {
+    return is_alpha(c) || is_underscore(c) || is_digit(c, NumericTokenBase::DECIMAL);
+};
+
+bool PerlangScanner::is_digit(char16_t c, NumericTokenBase::NumericTokenBase base) {
+    switch (base) {
+        case NumericTokenBase::BINARY:
+            {
+                return bool{c == L'0' || c == L'1'};
+            }
+            break;
+        case NumericTokenBase::OCTAL:
+            {
+                return bool{c >= L'0' && c <= L'7'};
+            }
+            break;
+        case NumericTokenBase::DECIMAL:
+            {
+                return bool{c >= L'0' && c <= L'9'};
+            }
+            break;
+        case NumericTokenBase::HEXADECIMAL:
+            {
+                return bool{(c >= L'0' && c <= L'9') || (perlang::Char::to_upper(c) >= L'A' && perlang::Char::to_upper(c) <= L'F')};
+            }
+            break;
+        default:
+            {
+                return bool{std::make_shared<perlang::ArgumentError>(perlang::ASCIIString::from_static_string("Unsupported base"))};
+            }
+            break;
+    }
+};
+
 bool PerlangScanner::is_at_end() {
     return current >= source->length();
 };

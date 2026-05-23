@@ -1159,15 +1159,15 @@ public class PerlangParser
             var numericToken = (NumericToken)Previous();
             string numberCharacters = (string)numericToken.Literal!;
 
-            if (string.IsNullOrEmpty(numberCharacters) && numericToken.NumberBase != NumericToken.Base.DECIMAL)
+            if (string.IsNullOrEmpty(numberCharacters) && numericToken.NumberBase != NumericTokenBase.DECIMAL)
             {
                 string message = numericToken.NumberBase switch
                 {
-                    NumericToken.Base.BINARY =>
+                    NumericTokenBase.BINARY =>
                         "Binary prefix must be followed by at one or more binary digits",
-                    NumericToken.Base.OCTAL =>
+                    NumericTokenBase.OCTAL =>
                         "Octal prefix must be followed by one or more octal digits",
-                    NumericToken.Base.HEXADECIMAL =>
+                    NumericTokenBase.HEXADECIMAL =>
                         "Hexadecimal prefix must be followed by one or more hexadecimal digits",
                     _ =>
                         throw new Perlang.Compiler.PerlangCompilerException(
