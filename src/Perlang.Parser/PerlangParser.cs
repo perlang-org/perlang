@@ -9,6 +9,7 @@
 #pragma warning disable SA1515
 #pragma warning disable S907
 #pragma warning disable S1117
+#pragma warning disable S3928
 
 using System;
 using System.Collections.Generic;
@@ -295,11 +296,13 @@ public class PerlangParser
                 if (Match(CONSTRUCTOR)) return Function("constructor", visibility, isExtern, isStatic);
                 if (Match(DESTRUCTOR)) return Function("destructor", visibility, isExtern, isStatic);
 
+                var functionOrFieldProperties = new FunctionOrFieldProperties("method", visibility, isMutable, isExtern, isStatic);
+
                 // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
                 // support instance and static fields here too, which will make things considerably more challenging
                 // (since we are leaning towards dropping the slightly obnoxious 'fun' keyword for functions.
                 // Obnoxious it is, but it does simplify the parsing of the code significantly).
-                return FunctionOrField("method", visibility, isMutable, isExtern, isStatic);
+                return FunctionOrField(functionOrFieldProperties);
             }
 
             // TODO: Support 'static fun' definitions for static functions too. I'm thinking about dropping the 'fun'
@@ -625,28 +628,29 @@ public class PerlangParser
         return @class;
     }
 
-    private Stmt FunctionOrField(string kind, Visibility visibility, bool isMutable, bool isExtern, bool isStatic)
+    private Stmt FunctionOrField(FunctionOrFieldProperties functionOrFieldProperties)
     {
-        return FunctionOrFieldHelper(kind, supportFields: true, visibility, isMutable, isExtern, isStatic);
+        return FunctionOrFieldHelper(supportFields: true, functionOrFieldProperties);
     }
 
     private Stmt Function(string kind, Visibility visibility, bool isExtern, bool isStatic)
     {
-        return FunctionOrFieldHelper(kind, supportFields: false, visibility, isMutable: null, isExtern, isStatic);
+        var functionOrFieldProperties = new FunctionOrFieldProperties(kind, visibility, IsMutable: null, isExtern, isStatic);
+        return FunctionOrFieldHelper(supportFields: false, functionOrFieldProperties);
     }
 
-    private Stmt FunctionOrFieldHelper(string kind, bool supportFields, Visibility visibility, bool? isMutable, bool isExtern, bool isStatic)
+    private Stmt FunctionOrFieldHelper(bool supportFields, FunctionOrFieldProperties functionOrFieldProperties)
     {
         IToken name;
 
-        bool isConstructor = kind == "constructor";
-        bool isDestructor = kind == "destructor";
+        bool isConstructor = functionOrFieldProperties.Kind == "constructor";
+        bool isDestructor = functionOrFieldProperties.Kind == "destructor";
 
         if (isConstructor || isDestructor) {
             name = Previous();
         }
         else {
-            name = Consume(IDENTIFIER, "Expect " + kind + " name.");
+            name = Consume(IDENTIFIER, "Expect " + functionOrFieldProperties.Kind + " name.");
         }
 
         if (supportFields) {
@@ -657,14 +661,14 @@ public class PerlangParser
                 BlockReservedIdentifiers(name);
 
                 // This is a 'field: type' declaration. Parse it as such.
-                return FieldDeclaration(name, visibility, isMutable ?? throw new ArgumentNullException(nameof(isMutable)), isExtern);
+                return FieldDeclaration(name, functionOrFieldProperties.Visibility, functionOrFieldProperties.IsMutable ?? throw new ArgumentNullException(nameof(functionOrFieldProperties.IsMutable)), functionOrFieldProperties.IsExtern);
             }
             else {
                 throw Error(Peek(), "Expect '(' or ':' to declare a method or a field");
             }
         }
         else {
-            Consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+            Consume(LEFT_PAREN, "Expect '(' after " + functionOrFieldProperties.Kind + " name.");
         }
 
         BlockReservedIdentifiers(name);
@@ -746,7 +750,7 @@ public class PerlangParser
             returnTypeReference = new TypeReference(returnTypeSpecifier, unionErrorTypeSpecifier, isReturnTypeArray);
         }
 
-        if (isExtern) {
+        if (functionOrFieldProperties.IsExtern) {
             if (Check(LEFT_BRACE)) {
                 throw Error(Previous(), "'extern' methods must not have a body.");
             }
@@ -754,15 +758,15 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after field definition.");
 
             return new Stmt.Function(
-                name, visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true, isStatic
+                name, functionOrFieldProperties.Visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true, functionOrFieldProperties.IsStatic
             );
         }
         else {
-            Consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+            Consume(LEFT_BRACE, "Expect '{' before " + functionOrFieldProperties.Kind + " body.");
             List<Stmt> body = Block();
 
             return new Stmt.Function(
-                name, visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false, isStatic
+                name, functionOrFieldProperties.Visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false, functionOrFieldProperties.IsStatic
             );
         }
     }
@@ -1479,4 +1483,6 @@ public class PerlangParser
             throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
         }
     }
+
+    private record FunctionOrFieldProperties(string Kind, Visibility Visibility, bool? IsMutable, bool IsExtern, bool IsStatic);
 }
