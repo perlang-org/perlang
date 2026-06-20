@@ -58,7 +58,7 @@ all: auto-generated auto-generated-bindings perlang_cli
 	dotnet build
 
 release:
-	dotnet publish src/Perlang.ConsoleApp/Perlang.ConsoleApp.csproj -c Release -r $(ARCH) --self-contained true /p:PublishReadyToRun=true /p:SolutionDir=$$(pwd)/
+	dotnet build -c Release
 
 .PHONY: auto-generated
 auto-generated: src/Perlang.Common/CommonConstants.Generated.cs

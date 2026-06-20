@@ -1,3 +1,5 @@
+#pragma warning disable SA1010
+
 using System.Collections.Generic;
 using CppSharp;
 using CppSharp.AST;
@@ -8,7 +10,7 @@ namespace Perlang.GenerateCppSharpBindings;
 
 internal class PerlangCliLibrary : ILibrary
 {
-    private List<(Class, Property)> removedProperties = [];
+    private readonly List<(Class Class, Property Property)> removedProperties = [];
 
     public void Preprocess(Driver driver, ASTContext ctx)
     {
@@ -88,7 +90,7 @@ internal class PerlangCliLibrary : ILibrary
     {
         private readonly List<(Class, Property)> removedProperties;
 
-        public RemoveAdvancePropertyPass(List<(Class, Property)> removedProperties)
+        public RemoveAdvancePropertyPass(List<(Class Class, Property Property)> removedProperties)
         {
             this.removedProperties = removedProperties;
         }
