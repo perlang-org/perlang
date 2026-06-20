@@ -87,7 +87,7 @@ public class SwitchTests
     }
 
     [Fact]
-    public void switch_statement_does_what_when_mixing_multiple_types_as_condition()
+    public void switch_statement_emits_expected_error_when_mixing_multiple_types_as_condition()
     {
         string source = """
             var i: int = 10;
