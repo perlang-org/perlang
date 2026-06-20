@@ -82,6 +82,9 @@ public record CppType : IPerlangType
 
     public static CppType ValueType(string cppTypeName, string perlangTypeName, string typeKeyword)
     {
+        // These are not registered in CppTypeRegistry. The calling class (e.g. PerlangValueTypes) will essentially
+        // function as the "registry" for these types. The downside is that user-defined types which clashes with the
+        // built-in types will not be as easily detected.
         return new CppType(cppTypeName, perlangTypeName, typeKeyword, wrapInSharedPtr: false);
     }
 

@@ -21,6 +21,7 @@ internal class NameResolver : VisitorBase
 {
     private readonly IBindingHandler bindingHandler;
     private readonly ITypeHandler typeHandler;
+    private readonly ICppTypeRegistry cppTypeRegistry;
     private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
@@ -49,6 +50,7 @@ internal class NameResolver : VisitorBase
     /// <param name="stdlibClasses">A dictionary of C++ stdlib classes available to Perlang programs.</param>
     /// <param name="bindingHandler">A handler used for adding local and global bindings.</param>
     /// <param name="typeHandler">A handler used for adding and retrieving global, top-level types.</param>
+    /// <param name="cppTypeRegistry">A registry for retrieving and registering <see cref="CppType"/> instances.</param>
     /// <param name="nameResolutionErrorHandler">A callback which will be called in case of name resolution errors.
     /// Note that multiple resolution errors will cause the provided callback to be called multiple times.</param>
     internal NameResolver(
@@ -56,10 +58,12 @@ internal class NameResolver : VisitorBase
         IImmutableDictionary<string, IPerlangClass> stdlibClasses,
         IBindingHandler bindingHandler,
         ITypeHandler typeHandler,
+        ICppTypeRegistry cppTypeRegistry,
         NameResolutionErrorHandler nameResolutionErrorHandler)
     {
         this.bindingHandler = bindingHandler;
         this.typeHandler = typeHandler;
+        this.cppTypeRegistry = cppTypeRegistry;
         this.nameResolutionErrorHandler = nameResolutionErrorHandler;
 
         foreach ((string key, Type value) in globalClasses)
@@ -71,7 +75,7 @@ internal class NameResolver : VisitorBase
         {
             string cppTypeName = $"perlang::{name}";
             string perlangTypeName = name;
-            var typeRef = new TypeReference(new CppType(cppTypeName, perlangTypeName, wrapInSharedPtr: true));
+            var typeRef = new TypeReference(cppTypeRegistry.Register(cppTypeName, perlangTypeName, wrapInSharedPtr: true));
             globals[perlangTypeName] = new ClassBindingFactory(value, typeRef);
             typeHandler.AddClass(name, value);
         }
@@ -234,12 +238,14 @@ internal class NameResolver : VisitorBase
 
         DefineField("this", thisField);
 
+        CppType? cppType = cppTypeRegistry.GetOrRegister(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
+
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
         // the introduction of ITypeHandler, we could likely fix this more properly now)
-        @class.TypeReference.SetCppType(new CppType(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true));
+        @class.TypeReference.SetCppType(cppType);
         @class.TypeReference.SetPerlangType(perlangClass);
-        thisTypeReference.SetCppType(new CppType(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true));
+        thisTypeReference.SetCppType(cppType);
         thisTypeReference.SetPerlangType(perlangClass);
     }
 

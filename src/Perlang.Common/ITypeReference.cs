@@ -152,6 +152,7 @@ public interface ITypeReference
     /// internally.</remarks>
     void SetCppType(CppType? value);
 
+    // TODO: Get rid of this method. We shouldn't use CLR Type instances for anything in the compiler.
     void SetCppTypeFromClrType(Type clrType);
 
     void SetPerlangType(IPerlangType? perlangType);

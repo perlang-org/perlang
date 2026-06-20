@@ -54,6 +54,7 @@ public class NameResolverTest
             ImmutableDictionary<string, IPerlangClass>.Empty,
             compiler.BindingHandler,
             new AssertFailAddTypeHandler(),
+            new CppTypeRegistry(),
             AssertFailNameResolutionErrorHandler
         );
 

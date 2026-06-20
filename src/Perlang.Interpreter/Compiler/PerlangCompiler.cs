@@ -113,6 +113,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     /// </summary>
     private readonly NativeStringBuilder mainMethodContent;
 
+    private readonly ICppTypeRegistry cppTypeRegistry;
+
     private int indentationLevel = 1;
     private Stmt.Class? currentClass = null;
     private ITypeReference? currentFunctionReturnTypeReference = null;
@@ -140,6 +142,8 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         this.enums = new Dictionary<string, string>();
         this.classDefinitions = new Dictionary<string, string>();
         this.classImplementations = new Dictionary<string, string>();
+
+        this.cppTypeRegistry = new CppTypeRegistry();
 
         methods["main"] = new Method("main", ImmutableList.Create<Parameter>(), "int", mainMethodContent);
 
@@ -440,6 +444,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             stdlibClasses,
             BindingHandler,
             this,
+            cppTypeRegistry,
             nameResolutionError =>
             {
                 hasNameResolutionErrors = true;
@@ -476,6 +481,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             },
             BindingHandler,
             this,
+            cppTypeRegistry,
             compilerWarning =>
             {
                 bool result = compilerWarningHandler(compilerWarning);

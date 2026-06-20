@@ -184,7 +184,7 @@ public class TypeReference : ITypeReference
             var t when t == typeof(char) => PerlangValueTypes.Char,
 
             // Arrays of value types
-            var t when t == typeof(Int32[]) => new CppType("perlang::IntArray", wrapInSharedPtr: true),
+            var t when t == typeof(Int32[]) => PerlangTypes.Int32Array,
 
             // Reference types
             var t when t.FullName == "Perlang.Lang.AsciiString" => PerlangTypes.AsciiString,
@@ -204,7 +204,7 @@ public class TypeReference : ITypeReference
             var t when t == typeof(string) => new CppType("string", isSupported: false),
             var t when t == typeof(Type) => new CppType("Type", isSupported: false),
             var t when t == typeof(PerlangEnum) => PerlangValueTypes.Enum,
-            var t when t == typeof(NullObject) => new CppType("NullObject", isSupported: false, isNullObject: true),
+            var t when t == typeof(NullObject) => PerlangTypes.NullObject,
 
             var t when t.FullName == "Perlang.Stdlib.Argv" => new CppType("perlang::Argv", isSupported: false),
             var t when t.FullName == "Perlang.Stdlib.Libc" => new CppType("perlang::Libc", isSupported: false),

@@ -28,6 +28,7 @@ internal static class TypeValidator
         Action<TypeValidationError> typeValidationErrorCallback,
         IBindingRetriever variableOrFunctionRetriever,
         ITypeHandler typeHandler,
+        ICppTypeRegistry cppTypeRegistry,
         Action<CompilerWarning> compilerWarningCallback)
     {
         bool typeResolvingFailed = false;
@@ -41,6 +42,7 @@ internal static class TypeValidator
         var typeResolver = new TypeResolver(
             variableOrFunctionRetriever,
             typeHandler,
+            cppTypeRegistry,
             validationError =>
             {
                 typeValidationErrorCallback(validationError);

@@ -30,7 +30,9 @@ internal class TypeResolver : VisitorBase
 
     private readonly IBindingRetriever bindingHandler;
     private readonly ITypeHandler typeHandler;
+    private readonly ICppTypeRegistry cppTypeRegistry;
     private readonly Action<TypeValidationError> typeValidationErrorCallback;
+
     private ITypeReference? currentFunctionReturnTypeReference = null;
 
     /// <summary>
@@ -38,12 +40,14 @@ internal class TypeResolver : VisitorBase
     /// </summary>
     /// <param name="bindingHandler">A handler used for retrieving a binding for a given expression.</param>
     /// <param name="typeHandler">A handler used for adding and retrieving global, top-level types.</param>
+    /// <param name="cppTypeRegistry">A registry for retrieving and registering <see cref="CppType"/> instances.</param>
     /// <param name="typeValidationErrorCallback">A callback which will receive type-validation errors, if they
     ///     occur.</param>
-    public TypeResolver(IBindingRetriever bindingHandler, ITypeHandler typeHandler, Action<TypeValidationError> typeValidationErrorCallback)
+    public TypeResolver(IBindingRetriever bindingHandler, ITypeHandler typeHandler, ICppTypeRegistry cppTypeRegistry, Action<TypeValidationError> typeValidationErrorCallback)
     {
         this.bindingHandler = bindingHandler;
         this.typeHandler = typeHandler;
+        this.cppTypeRegistry = cppTypeRegistry;
         this.typeValidationErrorCallback = typeValidationErrorCallback;
     }
 
@@ -86,19 +90,6 @@ internal class TypeResolver : VisitorBase
             // Something has caused implicit and explicit type resolving to fail. We ignore the expression for
             // now since previous or subsequent steps will catch these errors.
             return VoidObject.Void;
-        }
-
-        if (leftTypeReference.CppType!.IsNullObject) {
-            throw new TypeValidationError(
-                expr.Operator,
-                $"{leftTypeReference} cannot be used with the {expr.Operator} operator"
-            );
-        }
-        else if (rightTypeReference.CppType!.IsNullObject) {
-            throw new TypeValidationError(
-                expr.Operator,
-                $"{leftTypeReference} is cannot be used with the {expr.Operator} operator"
-            );
         }
 
         // Only a certain set of type combinations are supported with these operators. We validate the operands here
@@ -854,7 +845,7 @@ internal class TypeResolver : VisitorBase
                     // TODO: Would be cleaner to check if the type in question is assignable to perlang::Object. For
                     // now, this check will be good enough since it will match all custom classes.
                     if (classBinding != null) {
-                        var elementType = new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true);
+                        var elementType = cppTypeRegistry.GetOrRegister(classBinding.PerlangClass.Name, classBinding.PerlangClass.Name, wrapInSharedPtr: true);
                         expr.TypeReference.SetCppType(new CppType("perlang::ObjectArray", classBinding.PerlangClass!.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
                     }
                     else if (binding != null) {
@@ -902,7 +893,18 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        expr.TypeReference.SetCppType(new CppType(classBinding.PerlangClass!.Name, classBinding.PerlangClass!.Name, wrapInSharedPtr: true));
+        CppType? cppType = cppTypeRegistry.Get(classBinding.PerlangClass.Name);
+
+        if (cppType == null) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Token,
+                $"Internal compiler error: CppType named '{classBinding.PerlangClass.Name}' unexpectedly does not exist")
+            );
+
+            return VoidObject.Void;
+        }
+
+        expr.TypeReference.SetCppType(cppType);
         expr.TypeReference.SetPerlangType(classBinding.PerlangClass);
 
         return VoidObject.Void;
@@ -911,6 +913,21 @@ internal class TypeResolver : VisitorBase
     //
     // Stmt visitors
     //
+
+    public override VoidObject VisitClassStmt(Stmt.Class stmt)
+    {
+        if (stmt.TypeReference.CppType == null) {
+            typeValidationErrorCallback(new TypeValidationError(
+                stmt.NameToken,
+                $"Internal error: CppType for '{stmt.Name}' class was unexpectedly null")
+            );
+
+            return base.VisitClassStmt(stmt);
+        }
+
+        // Takes care of visiting fields and methods, in case any other part of this class needs it.
+        return base.VisitClassStmt(stmt);
+    }
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
     {
@@ -1093,7 +1110,7 @@ internal class TypeResolver : VisitorBase
         string variantTypeName = $"std::variant<{successCppType}, std::shared_ptr<perlang::Error>>";
 
         typeReference.SetUnionSuccessType(successRef.CppType!);
-        typeReference.SetCppType(new CppType(variantTypeName, "perlang.Result", "result", wrapInSharedPtr: false));
+        typeReference.SetCppType(cppTypeRegistry.Register(variantTypeName, "perlang.Result", "result", wrapInSharedPtr: false));
     }
 
     private void ResolveExplicitTypes(ITypeReference typeReference)
@@ -1212,14 +1229,17 @@ internal class TypeResolver : VisitorBase
                         // at the moment.
                         string cppTypeName = $"{perlangType.Name}::{perlangType.Name}";
 
-                        typeReference.SetCppType(new CppType(cppTypeName, perlangType.Name, isEnum: true));
+                        typeReference.SetCppType(cppTypeRegistry.GetOrRegister(cppTypeName, perlangType.Name, isEnum: true));
                         typeReference.SetPerlangType(perlangType);
                     }
                     else {
-                        // Note: this means that the CppType instances for a given type will not be shared. Can this
-                        // become a problem? Perhaps we would need some form of mechanism for deducing a CppType for a
-                        // given IPerlangType, which could then potentially cache the instantiated value as needed.
-                        typeReference.SetCppType(new CppType(perlangType.Name, perlangType.Name, wrapInSharedPtr: true));
+                        var cppType = cppTypeRegistry.Get(perlangType.Name);
+
+                        if (cppType == null) {
+                            cppType = cppTypeRegistry.Register(perlangType.Name, perlangType.Name, wrapInSharedPtr: true);
+                        }
+
+                        typeReference.SetCppType(cppType);
                         typeReference.SetPerlangType(perlangType);
                     }
                 }
