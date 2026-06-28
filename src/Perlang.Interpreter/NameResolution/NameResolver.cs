@@ -218,6 +218,9 @@ internal class NameResolver : VisitorBase
 
         globals[name.Lexeme] = new ClassBindingFactory(perlangClass, typeReference);
         typeHandler.AddClass(name.Lexeme, perlangClass);
+
+        // We register the type with partial info here, and let subsequent parts add more data to it.
+        cppTypeRegistry.Register(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
     }
 
     private void DefineThis(Stmt.Class @class, IPerlangClass perlangClass)
@@ -238,7 +241,7 @@ internal class NameResolver : VisitorBase
 
         DefineField("this", thisField);
 
-        CppType? cppType = cppTypeRegistry.GetOrRegister(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
+        CppType cppType = cppTypeRegistry.GetOrRegister(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
