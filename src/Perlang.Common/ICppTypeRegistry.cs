@@ -9,13 +9,10 @@ public interface ICppTypeRegistry
 {
     CppType? Get(string cppTypeName);
 
-    CppType Register(
-        string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false,
-        bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
-        IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null);
+    CppType? GetByPerlangTypeName(string perlangTypeName);
 
-    CppType GetOrRegister(
-        string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false,
+    CppType Register(
+        string cppTypeName, string perlangTypeName, string? typeKeyword = null, bool wrapInSharedPtr = false,
         bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
         IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null);
 }

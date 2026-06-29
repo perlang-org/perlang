@@ -845,7 +845,16 @@ internal class TypeResolver : VisitorBase
                     // TODO: Would be cleaner to check if the type in question is assignable to perlang::Object. For
                     // now, this check will be good enough since it will match all custom classes.
                     if (classBinding != null) {
-                        var elementType = cppTypeRegistry.GetOrRegister(classBinding.PerlangClass.Name, classBinding.PerlangClass.Name, wrapInSharedPtr: true);
+                        CppType? elementType = cppTypeRegistry.Get(classBinding.PerlangClass.Name);
+
+                        if (elementType == null) {
+                            typeValidationErrorCallback(
+                                new TypeValidationError(
+                                    expr.Token,
+                                    $"Internal compiler error: CppType '{classBinding.PerlangClass.Name}' not found")
+                            );
+                        }
+
                         expr.TypeReference.SetCppType(new CppType("perlang::ObjectArray", classBinding.PerlangClass!.Name, wrapInSharedPtr: true, isArray: true, elementType: elementType));
                     }
                     else if (binding != null) {
@@ -1221,22 +1230,19 @@ internal class TypeResolver : VisitorBase
                         typeReference.SetPerlangType(perlangType);
                     }
                     else if (perlangType.IsEnum) {
-                        // Enums are not wrapped in std::shared_ptr, but the isEnum parameter is important to set here
-                        // for the compiler to be able to generate the correct code for enum member accesses.
+                        CppType? cppType = cppTypeRegistry.GetByPerlangTypeName(perlangType.Name);
 
-                        // The C++ type name is a bit over-complicated for these because we use a hack inspired by
-                        // https://stackoverflow.com/a/46294875/227779 for the underlying C++ representation for enums
-                        // at the moment.
-                        string cppTypeName = $"{perlangType.Name}::{perlangType.Name}";
-
-                        typeReference.SetCppType(cppTypeRegistry.GetOrRegister(cppTypeName, perlangType.Name, isEnum: true));
+                        typeReference.SetCppType(cppType);
                         typeReference.SetPerlangType(perlangType);
                     }
                     else {
-                        var cppType = cppTypeRegistry.Get(perlangType.Name);
+                        CppType? cppType = cppTypeRegistry.Get(perlangType.Name);
 
                         if (cppType == null) {
-                            cppType = cppTypeRegistry.Register(perlangType.Name, perlangType.Name, wrapInSharedPtr: true);
+                            typeValidationErrorCallback(new TypeValidationError(
+                                typeReference.TypeSpecifier,
+                                $"Internal compiler error: CppType named '{perlangType.Name}' unexpectedly does not exist")
+                            );
                         }
 
                         typeReference.SetCppType(cppType);

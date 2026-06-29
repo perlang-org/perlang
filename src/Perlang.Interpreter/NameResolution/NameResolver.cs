@@ -241,7 +241,9 @@ internal class NameResolver : VisitorBase
 
         DefineField("this", thisField);
 
-        CppType cppType = cppTypeRegistry.GetOrRegister(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
+        // This can be 'null' e.g. if the class was attempted to be registered even though it existed. We let this fall
+        // here and presume such errors are handled elsewhere.
+        CppType? cppType = cppTypeRegistry.Get(perlangClass.Name);
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
@@ -275,6 +277,8 @@ internal class NameResolver : VisitorBase
     // TODO: Should preferably receive a Dictionary<string, object> here with enum members pre-evaluated, since they are expected to be compile-time constants
     private void DefineEnum(IToken name, Dictionary<string, Expr?> enumMembers)
     {
+        string typeName = name.Lexeme;
+
         if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
             if (!firstPass) {
@@ -289,6 +293,15 @@ internal class NameResolver : VisitorBase
         var perlangEnum = new PerlangEnum(name, enumMembers);
         globals[name.Lexeme] = new EnumBindingFactory(perlangEnum);
         typeHandler.AddEnum(name.Lexeme, perlangEnum);
+
+        // The C++ type name is a bit over-complicated for these because we use a hack inspired by
+        // https://stackoverflow.com/a/46294875/227779 for the underlying C++ representation for enums
+        // at the moment.
+        string cppTypeName = $"{typeName}::{typeName}";
+
+        // Enums are not wrapped in std::shared_ptr, but the isEnum parameter is important to set here
+        // for the compiler to be able to generate the correct code for enum member accesses.
+        cppTypeRegistry.Register(cppTypeName, typeName, isEnum: true);
     }
 
     private void ResolveLocalOrGlobal(Expr referringExpr, IToken name)
