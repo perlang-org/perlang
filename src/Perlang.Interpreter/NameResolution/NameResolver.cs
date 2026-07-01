@@ -25,11 +25,9 @@ internal class NameResolver : VisitorBase
     private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
-    /// An instance-local list of global symbols (variables, functions etc.)
+    /// Gets an instance-local list of global symbols (variables, functions etc.)
     /// </summary>
-    private readonly IDictionary<string, IBindingFactory> globals = new Dictionary<string, IBindingFactory>();
-
-    internal IDictionary<string, IBindingFactory> Globals => globals;
+    internal IDictionary<string, IBindingFactory> Globals { get; } = new Dictionary<string, IBindingFactory>();
 
     /// <summary>
     /// An instance-local list of scopes (for local symbols). The innermost scope is always the last entry in this list.
@@ -68,7 +66,7 @@ internal class NameResolver : VisitorBase
 
         foreach ((string key, Type value) in globalClasses)
         {
-            globals[key] = new NativeClassBindingFactory(value);
+            Globals[key] = new NativeClassBindingFactory(value);
         }
 
         foreach ((string name, IPerlangClass value) in stdlibClasses)
@@ -76,7 +74,7 @@ internal class NameResolver : VisitorBase
             string cppTypeName = $"perlang::{name}";
             string perlangTypeName = name;
             var typeRef = new TypeReference(cppTypeRegistry.Register(cppTypeName, perlangTypeName, wrapInSharedPtr: true));
-            globals[perlangTypeName] = new ClassBindingFactory(value, typeRef);
+            Globals[perlangTypeName] = new ClassBindingFactory(value, typeRef);
             typeHandler.AddClass(name, value);
         }
     }
@@ -170,7 +168,7 @@ internal class NameResolver : VisitorBase
 
         if (IsEmpty(scopes))
         {
-            globals[name] = new VariableBindingFactory(typeReference);
+            Globals[name] = new VariableBindingFactory(typeReference);
             return;
         }
 
@@ -194,7 +192,7 @@ internal class NameResolver : VisitorBase
 
         if (IsEmpty(scopes))
         {
-            globals[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
+            Globals[name.Lexeme] = new FunctionBindingFactory(typeReference, function);
             return;
         }
 
@@ -205,7 +203,7 @@ internal class NameResolver : VisitorBase
 
     private void DefineClass(IToken name, IPerlangClass perlangClass, TypeReference typeReference)
     {
-        if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
+        if (Globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
             if (!firstPass) {
                 // This is expected on the second pass.
@@ -216,7 +214,7 @@ internal class NameResolver : VisitorBase
             return;
         }
 
-        globals[name.Lexeme] = new ClassBindingFactory(perlangClass, typeReference);
+        Globals[name.Lexeme] = new ClassBindingFactory(perlangClass, typeReference);
         typeHandler.AddClass(name.Lexeme, perlangClass);
 
         // We register the type with partial info here, and let subsequent parts add more data to it.
@@ -261,7 +259,7 @@ internal class NameResolver : VisitorBase
 
         if (IsEmpty(scopes))
         {
-            globals[name] = new FieldBindingFactory(currentClass, field);
+            Globals[name] = new FieldBindingFactory(currentClass, field);
             return;
         }
 
@@ -279,7 +277,7 @@ internal class NameResolver : VisitorBase
     {
         string typeName = name.Lexeme;
 
-        if (globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
+        if (Globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
         {
             if (!firstPass) {
                 // This is expected on the second pass.
@@ -291,7 +289,7 @@ internal class NameResolver : VisitorBase
         }
 
         var perlangEnum = new PerlangEnum(name, enumMembers);
-        globals[name.Lexeme] = new EnumBindingFactory(perlangEnum);
+        Globals[name.Lexeme] = new EnumBindingFactory(perlangEnum);
         typeHandler.AddEnum(name.Lexeme, perlangEnum);
 
         // The C++ type name is a bit over-complicated for these because we use a hack inspired by
@@ -329,7 +327,7 @@ internal class NameResolver : VisitorBase
 
         // The identifier was not found in any of the local scopes. If it cannot be found in the globals, we can
         // safely assume it is non-existent.
-        if (!globals.ContainsKey(name.Lexeme))
+        if (!Globals.ContainsKey(name.Lexeme))
         {
             return;
         }
@@ -337,7 +335,7 @@ internal class NameResolver : VisitorBase
         // Note: the extra block here is actually not just "for fun". We get a conflict with the bindingFactory
         // in the for-loop above if we skip it.
         {
-            IBindingFactory bindingFactory = globals[name.Lexeme];
+            IBindingFactory bindingFactory = Globals[name.Lexeme];
             bindingHandler.AddGlobalExpr(bindingFactory.CreateBinding(referringExpr));
         }
     }
@@ -372,8 +370,8 @@ internal class NameResolver : VisitorBase
             }
         }
 
-        if (bindingFactory == null && globals.ContainsKey(firstNamePart)) {
-            bindingFactory = globals[firstNamePart];
+        if (bindingFactory == null && Globals.ContainsKey(firstNamePart)) {
+            bindingFactory = Globals[firstNamePart];
             isGlobal = true;
         }
 
