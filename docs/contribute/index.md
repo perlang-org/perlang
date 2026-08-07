@@ -23,9 +23,12 @@ in e.g. the following ways:
     * Stay on topic.
     * If possible with your mail client, [use plain text email](https://useplaintext.email/).
 
-In the future, we hope to also provide a way to help fund the Perlang development financially. For
-those of you interested in this, it will provide a very direct way to contribute to and benefit the
-project. Stay tuned; we'll update this page whenever we are ready for this.
+## Help funding the project
+
+You are also welcome to support the project financially, by [purchasing a
+license](https://xorway.com/perlang) from our partner [Xorway
+Solutions](https://xorway.com). Note that the project remains free software and
+purchasing a license is completely voluntary.
 
 ## GitLab repository structure & Perlang resources
 
