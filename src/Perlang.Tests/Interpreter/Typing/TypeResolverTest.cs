@@ -18,11 +18,11 @@ namespace Perlang.Tests.Interpreter.Typing;
 public class TypeResolverTest
 {
     [Fact]
-    public void Resolve_var_with_long_type_defines_variable_with_expected_ClrType()
+    public void Resolve_var_with_long_type_defines_variable_with_expected_CppType()
     {
         // Act
         (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
-            nameof(Resolve_var_with_long_type_defines_variable_with_expected_ClrType) + ".per",
+            nameof(Resolve_var_with_long_type_defines_variable_with_expected_CppType) + ".per",
             @"
                     var l: long = 123456;
                 ");
@@ -34,10 +34,10 @@ public class TypeResolverTest
     }
 
     [Fact]
-    public void Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_ClrType()
+    public void Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_CppType()
     {
         (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
-            nameof(Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_ClrType) + ".per",
+            nameof(Resolve_implicitly_typed_var_initialized_from_binary_literal_has_expected_CppType) + ".per",
             @"
                     var v = 0b00101010;
                 ");
@@ -49,10 +49,10 @@ public class TypeResolverTest
     }
 
     [Fact]
-    public void Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_ClrType()
+    public void Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_CppType()
     {
         (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
-            nameof(Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_ClrType) + ".per",
+            nameof(Resolve_implicitly_typed_var_initialized_from_octal_literal_has_expected_CppType) + ".per",
             @"
                     var v = 0o755;
                 ");
@@ -64,10 +64,10 @@ public class TypeResolverTest
     }
 
     [Fact]
-    public void Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_ClrType()
+    public void Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_CppType()
     {
         (Stmt singleStatement, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
-            nameof(Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_ClrType) + ".per",
+            nameof(Resolve_implicitly_typed_var_initialized_from_hexadecimal_literal_has_expected_CppType) + ".per",
             @"
                     var v = 0xC0CAC01A;
                 ");
@@ -79,11 +79,11 @@ public class TypeResolverTest
     }
 
     [Fact]
-    public void Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_ClrType()
+    public void Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_CppType()
     {
         // Act
         (List<Stmt> statements, NameResolver resolver) = ScanParseResolveAndTypeResolveStatements(
-            nameof(Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_ClrType) + ".per",
+            nameof(Resolve_implicitly_typed_var_initialized_from_long_var_has_expected_CppType) + ".per",
             @"
                     var l: long = 123456;
                     var m = l;
