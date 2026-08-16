@@ -757,16 +757,25 @@ public class PerlangParser
 
             Consume(SEMICOLON, "Expect ';' after field definition.");
 
+            var functionModifiers = FunctionModifiers.None;
+
+            functionModifiers |= functionOrFieldProperties.IsStatic ? FunctionModifiers.Static : FunctionModifiers.None;
+            functionModifiers |= FunctionModifiers.Extern;
+
             return new Stmt.Function(
-                name, functionOrFieldProperties.Visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, isExtern: true, functionOrFieldProperties.IsStatic
+                name, functionOrFieldProperties.Visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, functionModifiers
             );
         }
         else {
             Consume(LEFT_BRACE, "Expect '{' before " + functionOrFieldProperties.Kind + " body.");
             List<Stmt> body = Block();
 
+            var functionModifiers = FunctionModifiers.None;
+
+            functionModifiers |= functionOrFieldProperties.IsStatic ? FunctionModifiers.Static : FunctionModifiers.None;
+
             return new Stmt.Function(
-                name, functionOrFieldProperties.Visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, isExtern: false, functionOrFieldProperties.IsStatic
+                name, functionOrFieldProperties.Visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, functionModifiers
             );
         }
     }

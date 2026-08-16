@@ -10,4 +10,5 @@ public interface IPerlangFunction
     public string Name { get; }
     public ImmutableList<Parameter> Parameters { get; }
     public ITypeReference ReturnTypeReference { get; }
+    public FunctionModifiers FunctionModifiers { get; }
 }

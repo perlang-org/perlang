@@ -2,6 +2,7 @@
 #pragma warning disable SA1010
 #pragma warning disable SA1117
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -122,22 +123,22 @@ public abstract class Stmt
         public ITypeReference ReturnTypeReference { get; }
         public bool IsConstructor { get; set; }
         public bool IsDestructor { get; set; }
-        public bool IsExtern { get; }
-        public bool IsStatic { get; }
+        public FunctionModifiers FunctionModifiers { get; }
+        public bool IsExtern => FunctionModifiers.HasFlag(FunctionModifiers.Extern);
+        public bool IsStatic => FunctionModifiers.HasFlag(FunctionModifiers.Static);
 
         public Function(
             IToken name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body,
-            TypeReference returnTypeReference, bool isConstructor, bool isDestructor, bool isExtern, bool isStatic)
+            TypeReference returnTypeReference, bool isConstructor, bool isDestructor, FunctionModifiers functionModifiers)
         {
-            NameToken = name ?? throw new System.ArgumentNullException(nameof(name));
+            NameToken = name ?? throw new ArgumentNullException(nameof(name));
             Visibility = visibility;
             Parameters = parameters.ToImmutableList();
             Body = body.ToImmutableList();
             ReturnTypeReference = returnTypeReference;
             IsConstructor = isConstructor;
             IsDestructor = isDestructor;
-            IsExtern = isExtern;
-            IsStatic = isStatic;
+            FunctionModifiers = functionModifiers;
             Class = Stmt.Class.None;
         }
 
