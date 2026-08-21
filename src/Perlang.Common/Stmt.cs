@@ -15,6 +15,7 @@ public abstract class Stmt
     {
         TR VisitBlockStmt(Block stmt);
         TR VisitClassStmt(Class stmt);
+        TR VisitInterfaceStmt(Interface stmt);
         TR VisitEnumStmt(Enum stmt);
         TR VisitExpressionStmt(ExpressionStmt stmt);
         TR VisitFunctionStmt(Function stmt);
@@ -49,11 +50,12 @@ public abstract class Stmt
         public string Name { get; }
         public IToken NameToken { get; }
         public Visibility Visibility { get; }
-        public ImmutableList<IPerlangFunction> Methods { get; }
-        public ImmutableList<Function> StmtMethods { get; }
+        public List<IToken> SuperClassesAndInterfaces { get; }
 
         // TODO: Should use some form of dictionary type here for faster lookups, but preferably with something like
         // TODO: Guava's ImmutableMap in Java (which preserves insertion order).
+        public ImmutableList<IPerlangFunction> Methods { get; }
+        public ImmutableList<Function> StmtMethods { get; }
         public ImmutableList<IPerlangField> Fields { get; }
         public ImmutableList<Field> StmtFields { get; }
 
@@ -63,6 +65,7 @@ public abstract class Stmt
         {
             Name = string.Empty;
             NameToken = null!;
+            SuperClassesAndInterfaces = [];
             StmtMethods = [];
             Methods = [];
             StmtFields = [];
@@ -70,11 +73,12 @@ public abstract class Stmt
             TypeReference = null!;
         }
 
-        public Class(IToken name, Visibility visibility, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
+        public Class(IToken name, Visibility visibility, List<IToken> superClassesAndInterfaces, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
         {
             Name = name.Lexeme;
             NameToken = name;
             Visibility = visibility;
+            SuperClassesAndInterfaces = superClassesAndInterfaces;
             StmtMethods = methods.ToImmutableList();
             Methods = StmtMethods.Cast<IPerlangFunction>().ToImmutableList();
             StmtFields = fields.ToImmutableList();
@@ -85,6 +89,47 @@ public abstract class Stmt
         public override TR Accept<TR>(IVisitor<TR> visitor)
         {
             return visitor.VisitClassStmt(this);
+        }
+
+        public override string ToString() =>
+            Name;
+    }
+
+    public class Interface : Stmt, IPerlangType
+    {
+        public static readonly Interface None = new Interface();
+
+        public string Name { get; }
+        public IToken NameToken { get; }
+        public Visibility Visibility { get; }
+        public ImmutableList<IPerlangFunction> Methods { get; }
+        public ImmutableList<IPerlangField> Fields { get; } = [];
+        public ImmutableList<Function> StmtMethods { get; }
+
+        public TypeReference TypeReference { get; }
+
+        private Interface()
+        {
+            Name = string.Empty;
+            NameToken = null!;
+            StmtMethods = [];
+            Methods = [];
+            TypeReference = null!;
+        }
+
+        public Interface(IToken name, Visibility visibility, IList<Function> methods, IList<Field> fields, TypeReference typeReference)
+        {
+            Name = name.Lexeme;
+            NameToken = name;
+            Visibility = visibility;
+            StmtMethods = methods.ToImmutableList();
+            Methods = StmtMethods.Cast<IPerlangFunction>().ToImmutableList();
+            TypeReference = typeReference;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitInterfaceStmt(this);
         }
 
         public override string ToString() =>
@@ -126,6 +171,7 @@ public abstract class Stmt
         public FunctionModifiers FunctionModifiers { get; }
         public bool IsExtern => FunctionModifiers.HasFlag(FunctionModifiers.Extern);
         public bool IsStatic => FunctionModifiers.HasFlag(FunctionModifiers.Static);
+        public bool ImplementsInterfaceMethod => FunctionModifiers.HasFlag(FunctionModifiers.Implement);
 
         public Function(
             IToken name, Visibility visibility, IEnumerable<Parameter> parameters, IEnumerable<Stmt> body,

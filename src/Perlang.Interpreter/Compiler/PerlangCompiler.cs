@@ -116,7 +116,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     private readonly ICppTypeRegistry cppTypeRegistry;
 
     private int indentationLevel = 1;
-    private Stmt.Class? currentClass = null;
+    private IPerlangType? currentClass = null;
     private ITypeReference? currentFunctionReturnTypeReference = null;
     private int tryExprCounter = 0;
 
@@ -897,9 +897,9 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         return (string)stmt.Accept(this);
     }
 
-    public void AddClass(string name, IPerlangClass perlangClass)
+    public void AddType(string name, IPerlangType perlangType)
     {
-        globalTypes[name] = perlangClass;
+        globalTypes[name] = perlangType;
     }
 
     public void AddEnum(string name, PerlangEnum perlangEnum)
@@ -1896,7 +1896,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         var previousClass = currentClass;
         currentClass = stmt;
 
-        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} : public std::enable_shared_from_this<{{stmt.Name}}>, public perlang::Object {""");
+        // enable_shared_from_this is used to support "return this" statements
+        classDefinitionBuilder.Append($$"""class {{stmt.Name}} : public std::enable_shared_from_this<{{stmt.Name}}>""");
+
+        foreach (IToken baseTypeName in stmt.SuperClassesAndInterfaces) {
+            classDefinitionBuilder.Append($", public {baseTypeName.Lexeme}");
+        }
+
+        // All user-defined classes implicitly inherit from perlang::Object
+        classDefinitionBuilder.AppendLine(", public perlang::Object {");
 
         classDefinitionBuilder.AppendLine("private:");
 
@@ -1987,6 +1995,80 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
                     classImplementationBuilder.AppendLine();
                 }
+            }
+        }
+
+        classDefinitionBuilder.AppendLine("};");
+
+        classDefinitions[stmt.Name] = classDefinitionBuilder.ToString();
+        classImplementations[stmt.Name] = classImplementationBuilder.ToString();
+
+        currentClass = previousClass;
+
+        // Does not need to return the StringBuilder here, since it's been stored in the enums dictionary already.
+        return VoidObject.Void;
+    }
+
+    public object VisitInterfaceStmt(Stmt.Interface stmt)
+    {
+        using var classDefinitionBuilder = NativeStringBuilder.Create();
+        using var classImplementationBuilder = NativeStringBuilder.Create();
+
+        var previousClass = currentClass;
+        currentClass = stmt;
+
+        classDefinitionBuilder.AppendLine($$"""class {{stmt.Name}} {""");
+
+        // Ensure that we don't have any methods defined with an unsupported visibility
+        var invalidMethod = stmt.StmtMethods.FirstOrDefault(m => m.Visibility != Visibility.Public);
+
+        if (invalidMethod != null) {
+            throw new PerlangCompilerException($"Method {invalidMethod.NameToken.Lexeme} is of {invalidMethod.Visibility} visibility, which is not currently supported");
+        }
+
+        classDefinitionBuilder.AppendLine("public:");
+
+        // Virtual destructor to prevent UB when destroying your derived object through a base class pointer (thanks,
+        // https://stackoverflow.com/a/54351594/227779).
+        classDefinitionBuilder.Append(Indent(1));
+        classDefinitionBuilder.AppendLine($"virtual ~{stmt.Name}() = default;");
+
+        foreach (Stmt.Function method in stmt.StmtMethods.Where(m => m.Visibility == Visibility.Public)) {
+            // Definition
+            classDefinitionBuilder.Append(Indent(1));
+
+            if (method.IsStatic) {
+                throw new PerlangCompilerException($"Method {method.NameToken.Lexeme} is specified as 'static', which is not supported in interfaces");
+            }
+
+            if (method.IsConstructor) {
+                classDefinitionBuilder.Append($"{stmt.Name}(");
+            }
+            else if (method.IsDestructor) {
+                classDefinitionBuilder.Append($"~{stmt.Name}(");
+            }
+            else {
+                classDefinitionBuilder.Append($"virtual {method.ReturnTypeReference.PossiblyWrappedCppType} {method.NameToken.Lexeme}(");
+            }
+
+            for (int i = 0; i < method.Parameters.Count; i++) {
+                Parameter parameter = method.Parameters[i];
+                classDefinitionBuilder.Append($"{parameter.TypeReference.PossiblyWrappedCppType} {parameter.Name.Lexeme}");
+
+                if (i < method.Parameters.Count - 1) {
+                    classDefinitionBuilder.Append(", ");
+                }
+            }
+
+            // '= 0' is important to provide an implementation, to avoid 'Undefined reference to vtable' errors. See
+            // // https://stackoverflow.com/a/57504289/227779
+            classDefinitionBuilder.AppendLine(") = 0;");
+
+            // Implementation
+
+            if (!method.IsExtern) {
+                // TODO: If/when we want to support 'default' methods a la Java/C#, copy the code for this from VisitClassStmt
+                throw new PerlangCompilerException($"Interface method {method.NameToken.Lexeme} seems to have an implementation, which is currently not supported in interfaces");
             }
         }
 

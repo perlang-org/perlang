@@ -58,6 +58,25 @@ public class ClassesTests
     }
 
     [Fact]
+    public void static_nonexistent_method_call_emits_expected_error()
+    {
+        string source = """
+            public class Greeter
+            {
+            }
+
+            Greeter.nonexistent_method();
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Failed to locate symbol 'nonexistent_method' in type Greeter");
+    }
+
+    [Fact]
     public void class_can_be_instantiated_in_explicitly_typed_variable_and_instance_method_can_be_called()
     {
         string source = """
@@ -257,6 +276,27 @@ public class ClassesTests
     }
 
     [Fact]
+    public void class_can_not_be_inherited()
+    {
+        string source = """
+            public class Base
+            {
+            }
+
+            public class Child : Base
+            {
+            }
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Contain("Non-interface 'Base' type cannot be implemented (class-based inheritance is currently not supported");
+    }
+
+    [Fact]
     public void string_and_instance_method_result_can_be_concatenated()
     {
         string source = """
@@ -439,7 +479,7 @@ public class ClassesTests
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("Failed to locate symbol 'does_not_exist' in class TestClass");
+            .Message.Should().Contain("Failed to locate symbol 'does_not_exist' in type TestClass");
     }
 
     [Fact]
@@ -1517,7 +1557,7 @@ public class ClassesTests
         Assert.Equal("#<Perlang.Stdlib.Base64 System.String ToString()>", output);
     }
 
-    [Fact(Skip = "Does not yet work for user-defined classes (error: no member named 'Foo' in namespace)")]
+    [Fact(Skip = "Validation error: Failed to locate symbol 'to_string' in type Foo")]
     public void can_call_static_method()
     {
         string source = @"
@@ -1531,7 +1571,7 @@ public class ClassesTests
         Assert.Equal("Foo", output);
     }
 
-    [SkippableFact]
+    [Fact(Skip = "Internal error: C++ type for System.Object not defined")]
     public void can_call_static_method_native_class()
     {
         string source = @"

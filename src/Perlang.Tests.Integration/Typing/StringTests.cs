@@ -41,7 +41,7 @@ public class StringTests
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("Failed to locate symbol 'length' in class perlang::String");
+            .Message.Should().Contain("Failed to locate symbol 'length' in type perlang::String");
     }
 
     [Fact]

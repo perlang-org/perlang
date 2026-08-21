@@ -174,7 +174,7 @@ public class PerlangParser
 
         while (!IsAtEnd)
         {
-            statements.Add(Declaration(isExternDeclaration: false));
+            statements.Add(Declaration(isExternDeclaration: false, isInterface: false));
         }
 
         return statements;
@@ -211,7 +211,7 @@ public class PerlangParser
 
         while (!IsAtEnd)
         {
-            statements.Add(Declaration(isExternDeclaration: false));
+            statements.Add(Declaration(isExternDeclaration: false, isInterface: false));
 
             if (foundExpression)
             {
@@ -234,7 +234,7 @@ public class PerlangParser
         return Assignment();
     }
 
-    private Stmt Declaration(bool isExternDeclaration)
+    private Stmt Declaration(bool isExternDeclaration, bool isInterface)
     {
         try
         {
@@ -242,6 +242,10 @@ public class PerlangParser
             // for fields, methods etc. In the future, we could aim for relaxing this a bit.
             if (Match(EXTERN)) {
                 throw Error(Previous(), "'extern' keyword must come after visibility");
+            }
+
+            if (Match(IMPLEMENT)) {
+                throw Error(Previous(), "'implement' keyword must come after visibility");
             }
 
             // TODO: We should handle all the modifiers more uniformly here (but possibly enforce a certain order of
@@ -253,6 +257,7 @@ public class PerlangParser
                 IToken visibilityToken = Advance();
 
                 var isExtern = isExternDeclaration;
+                var implementsInterfaceMethod = false;
                 var isMutable = false;
                 var isStatic = false;
 
@@ -262,6 +267,14 @@ public class PerlangParser
                     { Type: PRIVATE } => Visibility.Private,
                     _ => throw new Perlang.Exceptions.IllegalStateException($"Unexpected token type {visibilityToken.Type}")
                 };
+
+                if (Match(IMPLEMENT)) {
+                    if (isInterface) {
+                        throw Error(Peek(), "'implement' modifier cannot be used in interfaces (only classes)");
+                    }
+
+                    implementsInterfaceMethod = true;
+                }
 
                 if (Match(STATIC)) {
                     isStatic = true;
@@ -290,13 +303,48 @@ public class PerlangParser
                     return Class(visibility, isExtern);
                 }
 
+                if (Match(INTERFACE)) {
+                    if (visibility != Visibility.Public) {
+                        throw Error(Peek(), $"'{visibility}' modifier is not valid for interfaces");
+                    }
+
+                    if (isExtern) {
+                        throw Error(Peek(), "'extern' modifier is not valid for interfaces");
+                    }
+
+                    return Interface(visibility);
+                }
+
                 // TODO: These should also check that isMutable is not set. 'static' constructors should be supported;
                 // 'static' _destructors_ feels odd but could perhaps be used for something like atexit() hooks? Could
                 // be useful, I guess.
-                if (Match(CONSTRUCTOR)) return Function("constructor", visibility, isExtern, isStatic);
-                if (Match(DESTRUCTOR)) return Function("destructor", visibility, isExtern, isStatic);
+                if (Match(CONSTRUCTOR)) {
+                    if (implementsInterfaceMethod) {
+                        throw Error(Peek(), "'implement' modifier is not valid for constructors");
+                    }
 
-                var functionOrFieldProperties = new FunctionOrFieldProperties("method", visibility, isMutable, isExtern, isStatic);
+                    return Function("constructor", visibility, isExtern, isStatic, implementsInterfaceMethod: false);
+                }
+
+                if (Match(DESTRUCTOR)) {
+                    if (implementsInterfaceMethod) {
+                        throw Error(Peek(), "'implement' modifier is not valid for destructors");
+                    }
+
+                    return Function("destructor", visibility, isExtern, isStatic, implementsInterfaceMethod: false);
+                }
+
+                var functionOrFieldProperties = new FunctionOrFieldProperties("method", visibility, isMutable, isExtern, isInterface, isStatic, implementsInterfaceMethod);
+
+                if (Match(FUN)) {
+                    if (implementsInterfaceMethod) {
+                        throw Error(Peek(), "'implement' modifier is not valid for functions");
+                    }
+                    else {
+                        // TODO: Add test for this
+                        throw Error(Peek(), "'fun' keyword is not valid for methods in classes");
+                    }
+                }
 
                 // If it's not a class, it might as well be a method definition. In the future, we'll likely need to
                 // support instance and static fields here too, which will make things considerably more challenging
@@ -307,13 +355,19 @@ public class PerlangParser
 
             // TODO: Support 'static fun' definitions for static functions too. I'm thinking about dropping the 'fun'
             // syntax anyway, so we could perhaps take both of these changes at a similar time.
-            if (Match(FUN)) return Function("function", Visibility.Unspecified, isExtern: false, isStatic: false);
+            if (Match(FUN)) {
+                return Function("function", Visibility.Unspecified, isExtern: false, isStatic: false, implementsInterfaceMethod: false);
+            }
 
             if (Match(VAR)) return VarDeclaration();
             if (Match(ENUM)) return Enum();
 
             if (Match(CLASS)) {
                 throw Error(Previous(), "Class declaration without visibility encountered. You must explicitly mark the class as 'public'.");
+            }
+
+            if (Match(INTERFACE)) {
+                throw Error(Previous(), "Interface declaration without visibility encountered. You must explicitly mark the interface as 'public'.");
             }
 
             return Statement();
@@ -539,7 +593,7 @@ public class PerlangParser
 
                 while (!Check(CASE) && !Check(DEFAULT) && !Check(RIGHT_BRACE) && !IsAtEnd)
                 {
-                    statements.Add(Declaration(isExternDeclaration: false));
+                    statements.Add(Declaration(isExternDeclaration: false, isInterface: false));
                 }
 
                 branches.Add(new SwitchBranch(conditions, new Stmt.Block(statements)));
@@ -558,7 +612,7 @@ public class PerlangParser
 
             while (!Check(RIGHT_BRACE) && !IsAtEnd)
             {
-                statements.Add(Declaration(isExternDeclaration: false));
+                statements.Add(Declaration(isExternDeclaration: false, isInterface: false));
             }
 
             branches.Add(new SwitchBranch([Stmt.Switch.DefaultExpr], new Stmt.Block(statements)));
@@ -588,13 +642,24 @@ public class PerlangParser
     private Stmt.Class Class(Visibility visibility, bool isExtern)
     {
         IToken name = Consume(IDENTIFIER, "Expecting class name.");
+        List<IToken> superClassesAndInterfaces = new List<IToken>();
+
+        if (Match(COLON)) {
+            do {
+                // What follows is a list of interfaces and/or base classes for the current class
+                IToken identifier = Consume(IDENTIFIER, "Expecting names of one or more interfaces to implement");
+
+                superClassesAndInterfaces.Add(identifier);
+            } while (Match(COMMA));
+        }
+
         Consume(LEFT_BRACE, "Expecting '{' before class body.");
 
         List<Stmt.Function> methods = [];
         List<Stmt.Field> fields = [];
 
         while (!Check(RIGHT_BRACE) && !IsAtEnd) {
-            Stmt stmt = Declaration(isExtern);
+            Stmt stmt = Declaration(isExtern, isInterface: false);
 
             if (stmt is Stmt.Function method) {
                 methods.Add(method);
@@ -619,7 +684,7 @@ public class PerlangParser
         Consume(RIGHT_BRACE, "Expect '}' after class body.");
 
         var typeReference = new TypeReference(name, isArray: false);
-        var @class = new Stmt.Class(name, visibility, methods, fields, typeReference);
+        var @class = new Stmt.Class(name, visibility, superClassesAndInterfaces, methods, fields, typeReference);
 
         foreach (Stmt.Function function in methods) {
             function.SetClass(@class);
@@ -628,14 +693,58 @@ public class PerlangParser
         return @class;
     }
 
+    private Stmt.Interface Interface(Visibility visibility)
+    {
+        IToken name = Consume(IDENTIFIER, "Expecting interface name.");
+        Consume(LEFT_BRACE, "Expecting '{' before interface body.");
+
+        List<Stmt.Function> methods = [];
+        List<Stmt.Field> fields = [];
+
+        while (!Check(RIGHT_BRACE) && !IsAtEnd) {
+            Stmt stmt = Declaration(isExternDeclaration: false, isInterface: true);
+
+            if (stmt is Stmt.Function method) {
+                methods.Add(method);
+            }
+            else if (stmt is Stmt.Field) {
+                throw Error(Peek(), "Fields are not supported in interfaces");
+            }
+            else if (stmt == null) {
+                // This will happen when we run into an error and the Synchronize() method tries to advance the stream
+                // to the end of the current statement. We try to handle this as gracefully as we can here.
+            }
+            else if (stmt is Stmt.ExpressionStmt expressionStmt && expressionStmt.Expression is Expr.Empty) {
+                // This can happen e.g. if a semicolon is forgotten at the end of a interface. Do our best to recover in
+                // this case, to try to minimize the number of errors reported to the user.
+                return Stmt.Interface.None;
+            }
+            else {
+                Error(Peek(), $"Internal error: Unexpected statement encountered: {stmt}.");
+            }
+        }
+
+        Consume(RIGHT_BRACE, "Expect '}' after interface body.");
+
+        var typeReference = new TypeReference(name, isArray: false);
+        var @interface = new Stmt.Interface(name, visibility, methods, fields, typeReference);
+
+        // TODO: Is this needed?
+        // foreach (Stmt.Function function in methods) {
+        //     function.SetClass(@interface);
+        // }
+
+        return @interface;
+    }
+
     private Stmt FunctionOrField(FunctionOrFieldProperties functionOrFieldProperties)
     {
         return FunctionOrFieldHelper(supportFields: true, functionOrFieldProperties);
     }
 
-    private Stmt Function(string kind, Visibility visibility, bool isExtern, bool isStatic)
+    private Stmt Function(string kind, Visibility visibility, bool isExtern, bool isStatic, bool implementsInterfaceMethod)
     {
-        var functionOrFieldProperties = new FunctionOrFieldProperties(kind, visibility, IsMutable: null, isExtern, isStatic);
+        var functionOrFieldProperties = new FunctionOrFieldProperties(kind, visibility, IsMutable: null, isExtern, IsInterface: false, isStatic, implementsInterfaceMethod);
         return FunctionOrFieldHelper(supportFields: false, functionOrFieldProperties);
     }
 
@@ -755,11 +864,33 @@ public class PerlangParser
                 throw Error(Previous(), "'extern' methods must not have a body.");
             }
 
-            Consume(SEMICOLON, "Expect ';' after field definition.");
+            Consume(SEMICOLON, "Expect ';' after method definition.");
 
             var functionModifiers = FunctionModifiers.None;
 
             functionModifiers |= functionOrFieldProperties.IsStatic ? FunctionModifiers.Static : FunctionModifiers.None;
+            functionModifiers |= FunctionModifiers.Extern;
+
+            return new Stmt.Function(
+                name, functionOrFieldProperties.Visibility, parameters, [], returnTypeReference, isConstructor, isDestructor, functionModifiers
+            );
+        }
+        else if (functionOrFieldProperties.IsInterface) {
+            // For now, interface methods does not support a body (i.e. no C#/Java-style 'default' interface methods are
+            // supported)
+
+            if (Check(LEFT_BRACE)) {
+                throw Error(Previous(), "Interface methods must not have a body.");
+            }
+
+            Consume(SEMICOLON, "Expect ';' after method definition.");
+
+            var functionModifiers = FunctionModifiers.None;
+
+            functionModifiers |= functionOrFieldProperties.IsStatic ? FunctionModifiers.Static : FunctionModifiers.None;
+
+            // Technically not (explicitly) specified for an interface method, but similar in nature in that no method
+            // definition is provided (only a declaration).
             functionModifiers |= FunctionModifiers.Extern;
 
             return new Stmt.Function(
@@ -773,6 +904,7 @@ public class PerlangParser
             var functionModifiers = FunctionModifiers.None;
 
             functionModifiers |= functionOrFieldProperties.IsStatic ? FunctionModifiers.Static : FunctionModifiers.None;
+            functionModifiers |= functionOrFieldProperties.ImplementsInterfaceMethod ? FunctionModifiers.Implement : FunctionModifiers.None;
 
             return new Stmt.Function(
                 name, functionOrFieldProperties.Visibility, parameters, body, returnTypeReference, isConstructor, isDestructor, functionModifiers
@@ -849,7 +981,7 @@ public class PerlangParser
 
         while (!Check(RIGHT_BRACE) && !IsAtEnd)
         {
-            statements.Add(Declaration(isExternDeclaration: false));
+            statements.Add(Declaration(isExternDeclaration: false, isInterface: false));
         }
 
         Consume(RIGHT_BRACE, "Expect '}' after block.");
@@ -1493,5 +1625,5 @@ public class PerlangParser
         }
     }
 
-    private record FunctionOrFieldProperties(string Kind, Visibility Visibility, bool? IsMutable, bool IsExtern, bool IsStatic);
+    private record FunctionOrFieldProperties(string Kind, Visibility Visibility, bool? IsMutable, bool IsExtern, bool IsInterface, bool IsStatic, bool ImplementsInterfaceMethod);
 }

@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable S907
 #pragma warning disable S1871
 #pragma warning disable SA1505
 using System;
@@ -671,6 +672,10 @@ internal class TypeResolver : VisitorBase
     {
         base.VisitRangeExpr(range);
 
+        if (range.End.TypeReference.CppType == null) {
+            throw new PerlangCompilerException("Internal compiler error: Range end value has unknown C++ type");
+        }
+
         if (!range.Begin.TypeReference.CppType!.IsAssignableTo(range.End.TypeReference.CppType)) {
             typeValidationErrorCallback(new TypeValidationError(
                 range.Token!,
@@ -785,7 +790,7 @@ internal class TypeResolver : VisitorBase
             if (methods.IsEmpty) {
                 typeValidationErrorCallback(new TypeValidationError(
                     expr.Name,
-                    $"Failed to locate symbol '{expr.Name.Lexeme}' in class {perlangType.Name}")
+                    $"Failed to locate symbol '{expr.Name.Lexeme}' in type {perlangType.Name}")
                 );
 
                 return VoidObject.Void;
@@ -845,7 +850,7 @@ internal class TypeResolver : VisitorBase
                     // TODO: Would be cleaner to check if the type in question is assignable to perlang::Object. For
                     // now, this check will be good enough since it will match all custom classes.
                     if (classBinding != null) {
-                        CppType? elementType = cppTypeRegistry.Get(classBinding.PerlangClass.Name);
+                        CppType? elementType = cppTypeRegistry.GetByPerlangTypeName(classBinding.PerlangClass.Name);
 
                         if (elementType == null) {
                             typeValidationErrorCallback(
@@ -902,7 +907,7 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
-        CppType? cppType = cppTypeRegistry.Get(classBinding.PerlangClass.Name);
+        CppType? cppType = cppTypeRegistry.GetByPerlangTypeName(classBinding.PerlangClass.Name);
 
         if (cppType == null) {
             typeValidationErrorCallback(new TypeValidationError(
@@ -934,8 +939,116 @@ internal class TypeResolver : VisitorBase
             return base.VisitClassStmt(stmt);
         }
 
-        // Takes care of visiting fields and methods, in case any other part of this class needs it.
-        return base.VisitClassStmt(stmt);
+        // Takes care of visiting fields and methods, which is needed for method.ReturnTypeReference.CppType to be
+        // non-null below.
+        base.VisitClassStmt(stmt);
+
+        foreach (IToken superClassToken in stmt.SuperClassesAndInterfaces) {
+            IPerlangType? perlangType = typeHandler.GetType(superClassToken.Lexeme);
+
+            if (perlangType != null) {
+                CppType? baseType = cppTypeRegistry.GetByPerlangTypeName(perlangType.Name);
+
+                // We need to take this strict approach rather than using GetOrRegister() since we'll need the method
+                // list below (and performing a registration here would register the type without any method signatures).
+                if (baseType == null) {
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.NameToken,
+                        $"Internal error: CppType for '{perlangType.Name}' base class or interface was unexpectedly null")
+                    );
+
+                    // Abort the processing of this statement and proceed with the next.
+                    return base.VisitClassStmt(stmt);
+                }
+
+                if (!baseType.IsInterface) {
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.NameToken,
+                        $"Non-interface '{baseType.Name}' type cannot be implemented (class-based inheritance is currently not supported)")
+                    );
+
+                    // Abort the processing of this statement and proceed with the next.
+                    return base.VisitClassStmt(stmt);
+                }
+
+                stmt.TypeReference.CppType.BaseTypes.Add(baseType);
+
+                foreach (IPerlangFunction baseTypeMethod in baseType.Methods) {
+                    bool matchingMethodFound = false;
+
+                    foreach (IPerlangFunction method in stmt.Methods) {
+                        if (method.Name == baseTypeMethod.Name &&
+                            method.Parameters == baseTypeMethod.Parameters &&
+                            method.ReturnTypeReference.CppType == baseTypeMethod.ReturnTypeReference.CppType) {
+
+                            if (method.FunctionModifiers.HasFlag(FunctionModifiers.Implement)) {
+                                matchingMethodFound = true;
+                            }
+                            else {
+                                typeValidationErrorCallback(new TypeValidationError(
+                                    stmt.NameToken,
+                                    $"Method '{baseTypeMethod.Name}' defined in interface '{baseType.PerlangTypeName}' is implemented in '{stmt.Name}', but lacks the 'implement' method modifier.")
+                                );
+
+                                // We set this to 'true' here, despite the error condition above. The idea is to avoid
+                                // emitting 'matching method not found' errors too; the error above is enough.
+                                matchingMethodFound = true;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (!matchingMethodFound) {
+                        typeValidationErrorCallback(new TypeValidationError(
+                            stmt.NameToken,
+                            $"Method '{baseTypeMethod.Name}' defined in interface '{baseType.PerlangTypeName}' is not implemented in '{stmt.Name}'.")
+                        );
+                    }
+                }
+            }
+            else {
+                throw new PerlangCompilerException($"Type '{superClassToken.Lexeme}' unexpectedly not found");
+            }
+        }
+
+        foreach (Stmt.Function method in stmt.StmtMethods) {
+            if (method.ImplementsInterfaceMethod) {
+                bool interfaceOrSuperClassMethodFound = false;
+
+                foreach (IToken superClassToken in stmt.SuperClassesAndInterfaces) {
+                    // Both of these should be non-null here, since we already performed null checks above
+                    IPerlangType perlangType = typeHandler.GetType(superClassToken.Lexeme)!;
+                    CppType baseType = cppTypeRegistry.GetByPerlangTypeName(perlangType.Name)!;
+
+                    if (!baseType.IsInterface) {
+                        continue;
+                    }
+
+                    foreach (IPerlangFunction baseTypeMethod in baseType.Methods) {
+                        if (method.Name == baseTypeMethod.Name &&
+                            method.Parameters == baseTypeMethod.Parameters &&
+                            method.ReturnTypeReference.CppType == baseTypeMethod.ReturnTypeReference.CppType &&
+                            method.FunctionModifiers.HasFlag(FunctionModifiers.Implement)) {
+
+                            interfaceOrSuperClassMethodFound = true;
+                            goto done;
+                        }
+                    }
+                }
+
+                done:
+
+                if (!interfaceOrSuperClassMethodFound) {
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.NameToken,
+                        $"Method '{method.Name}' defined in class '{stmt.Name}' is marked with 'implement' modifier but not present in any of the interfaces the class implements'.")
+                    );
+                }
+            }
+        }
+
+        return VoidObject.Void;
     }
 
     public override VoidObject VisitFunctionStmt(Stmt.Function stmt)
@@ -1236,7 +1349,7 @@ internal class TypeResolver : VisitorBase
                         typeReference.SetPerlangType(perlangType);
                     }
                     else {
-                        CppType? cppType = cppTypeRegistry.Get(perlangType.Name);
+                        CppType? cppType = cppTypeRegistry.GetByPerlangTypeName(perlangType.Name);
 
                         if (cppType == null) {
                             typeValidationErrorCallback(new TypeValidationError(

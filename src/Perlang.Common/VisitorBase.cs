@@ -211,6 +211,16 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitInterfaceStmt(Stmt.Interface stmt)
+    {
+        foreach (Stmt.Function method in stmt.StmtMethods)
+        {
+            Visit(method);
+        }
+
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitEnumStmt(Stmt.Enum stmt)
     {
         foreach ((string _, Expr value) in stmt.Members) {

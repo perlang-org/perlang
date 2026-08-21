@@ -5,9 +5,9 @@ namespace Perlang.Tests.TestHelpers;
 
 internal class AssertFailAddTypeHandler : ITypeHandler
 {
-    public void AddClass(string name, IPerlangClass perlangClass)
+    public void AddType(string name, IPerlangType perlangType)
     {
-        throw new Exception($"Unexpected global class {name} attempted to be added. Global class: {perlangClass}");
+        throw new Exception($"Unexpected type {name} attempted to be added. Type: {perlangType}");
     }
 
     public void AddEnum(string name, PerlangEnum perlangEnum)

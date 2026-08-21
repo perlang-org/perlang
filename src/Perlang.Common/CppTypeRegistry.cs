@@ -9,35 +9,30 @@ namespace Perlang;
 
 public class CppTypeRegistry : ICppTypeRegistry
 {
-    private readonly Dictionary<string, CppType> registeredCppTypes = [];
-    private readonly Dictionary<string, CppType> registeredCppTypesByPerlangTypeNmae = [];
-
-    public CppType? Get(string cppTypeName)
-    {
-        return registeredCppTypes.GetValueOrDefault(cppTypeName);
-    }
+    private readonly Dictionary<string, CppType> registeredCppTypesByPerlangTypeName = [];
 
     public CppType? GetByPerlangTypeName(string perlangTypeName)
     {
-        return registeredCppTypesByPerlangTypeNmae.GetValueOrDefault(perlangTypeName);
+        return registeredCppTypesByPerlangTypeName.GetValueOrDefault(perlangTypeName);
     }
 
+    /// <inheritdoc/>
     public CppType Register(
-        string cppTypeName, string perlangTypeName, string? typeKeyword = null, bool wrapInSharedPtr = false,
-        bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
-        IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
+        string cppTypeName, string perlangTypeName, string? typeKeyword = null, IEnumerable<CppType>? baseTypes = null,
+        bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false,
+        bool isEnum = false, bool isInterface = false, CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
+        IEnumerable<IPerlangField>? extraFields = null)
     {
-        if (registeredCppTypes.ContainsKey(cppTypeName)) {
-            throw new PerlangCompilerException($"Attempted to register type '{cppTypeName}' which has already been registered");
+        if (registeredCppTypesByPerlangTypeName.ContainsKey(perlangTypeName)) {
+            throw new PerlangCompilerException($"Attempted to register type '{perlangTypeName}' which has already been registered");
         }
 
         var cppType = new CppType(
-            cppTypeName, perlangTypeName, typeKeyword, wrapInSharedPtr, isSupported, isNullObject, isArray, isEnum,
-            elementType, extraMethods, extraFields
+            cppTypeName, perlangTypeName, typeKeyword, baseTypes, wrapInSharedPtr, isSupported, isNullObject, isArray,
+            isEnum, isInterface, elementType, extraMethods, extraFields
         );
 
-        registeredCppTypes[cppTypeName] = cppType;
-        registeredCppTypesByPerlangTypeNmae[perlangTypeName] = cppType;
+        registeredCppTypesByPerlangTypeName[perlangTypeName] = cppType;
 
         return cppType;
     }

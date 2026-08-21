@@ -19,15 +19,17 @@ namespace Perlang.Interpreter.NameResolution;
 /// </summary>
 internal class NameResolver : VisitorBase
 {
-    private readonly IBindingHandler bindingHandler;
-    private readonly ITypeHandler typeHandler;
-    private readonly ICppTypeRegistry cppTypeRegistry;
-    private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
+    internal ICppTypeRegistry CppTypeRegistry { get; }
 
     /// <summary>
     /// Gets an instance-local list of global symbols (variables, functions etc.)
     /// </summary>
     internal IDictionary<string, IBindingFactory> Globals { get; } = new Dictionary<string, IBindingFactory>();
+
+    private readonly IBindingHandler bindingHandler;
+    private readonly ITypeHandler typeHandler;
+
+    private readonly NameResolutionErrorHandler nameResolutionErrorHandler;
 
     /// <summary>
     /// An instance-local list of scopes (for local symbols). The innermost scope is always the last entry in this list.
@@ -61,7 +63,7 @@ internal class NameResolver : VisitorBase
     {
         this.bindingHandler = bindingHandler;
         this.typeHandler = typeHandler;
-        this.cppTypeRegistry = cppTypeRegistry;
+        this.CppTypeRegistry = cppTypeRegistry;
         this.nameResolutionErrorHandler = nameResolutionErrorHandler;
 
         foreach ((string key, Type value) in globalClasses)
@@ -75,7 +77,7 @@ internal class NameResolver : VisitorBase
             string perlangTypeName = name;
             var typeRef = new TypeReference(cppTypeRegistry.Register(cppTypeName, perlangTypeName, wrapInSharedPtr: true));
             Globals[perlangTypeName] = new ClassBindingFactory(value, typeRef);
-            typeHandler.AddClass(name, value);
+            typeHandler.AddType(name, value);
         }
     }
 
@@ -215,10 +217,30 @@ internal class NameResolver : VisitorBase
         }
 
         Globals[name.Lexeme] = new ClassBindingFactory(perlangClass, typeReference);
-        typeHandler.AddClass(name.Lexeme, perlangClass);
+        typeHandler.AddType(name.Lexeme, perlangClass);
 
         // We register the type with partial info here, and let subsequent parts add more data to it.
-        cppTypeRegistry.Register(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
+        CppTypeRegistry.Register(perlangClass.Name, perlangClass.Name, wrapInSharedPtr: true);
+    }
+
+    private void DefineInterface(IToken name, Stmt.Interface perlangInterface, TypeReference typeReference)
+    {
+        if (Globals.TryGetValue(name.Lexeme, out IBindingFactory? bindingFactory))
+        {
+            if (!firstPass) {
+                // This is expected on the second pass.
+                return;
+            }
+
+            nameResolutionErrorHandler(new NameResolutionError($"{bindingFactory.ObjectTypeTitleized} {name.Lexeme} already defined; cannot redefine", name));
+            return;
+        }
+
+        Globals[name.Lexeme] = new InterfaceBindingFactory(perlangInterface, typeReference);
+        typeHandler.AddType(name.Lexeme, perlangInterface);
+
+        // We register the type with partial info here, and let subsequent parts add more data to it.
+        CppTypeRegistry.Register(perlangInterface.Name, perlangInterface.Name, wrapInSharedPtr: true, isInterface: true, extraMethods: perlangInterface.Methods);
     }
 
     private void DefineThis(Stmt.Class @class, IPerlangClass perlangClass)
@@ -241,7 +263,7 @@ internal class NameResolver : VisitorBase
 
         // This can be 'null' e.g. if the class was attempted to be registered even though it existed. We let this fall
         // here and presume such errors are handled elsewhere.
-        CppType? cppType = cppTypeRegistry.Get(perlangClass.Name);
+        CppType? cppType = CppTypeRegistry.GetByPerlangTypeName(perlangClass.Name);
 
         // These technically don't belong in the name resolving phase, but we need them for the type inference to work, and
         // we didn't use to have the PerlangClass instance available in the TypeResolver class previously. (Note: given
@@ -299,7 +321,7 @@ internal class NameResolver : VisitorBase
 
         // Enums are not wrapped in std::shared_ptr, but the isEnum parameter is important to set here
         // for the compiler to be able to generate the correct code for enum member accesses.
-        cppTypeRegistry.Register(cppTypeName, typeName, isEnum: true);
+        CppTypeRegistry.Register(cppTypeName, typeName, isEnum: true);
     }
 
     private void ResolveLocalOrGlobal(Expr referringExpr, IToken name)
@@ -586,6 +608,19 @@ internal class NameResolver : VisitorBase
         EndScope();
 
         currentClass = enclosingClass;
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitInterfaceStmt(Stmt.Interface stmt)
+    {
+        Declare(stmt.NameToken);
+
+        DefineInterface(stmt.NameToken, stmt, stmt.TypeReference);
+
+        foreach (Stmt.Function method in stmt.StmtMethods) {
+            VisitFunctionStmt(method);
+        }
 
         return VoidObject.Void;
     }

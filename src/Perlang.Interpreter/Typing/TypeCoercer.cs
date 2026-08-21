@@ -129,7 +129,7 @@ public static class TypeCoercer
             return true;
         }
 
-        if (sourceType?.IsAssignableTo(targetType) == true)
+        if (sourceType.IsAssignableTo(targetType))
         {
             return true;
         }
@@ -168,7 +168,7 @@ public static class TypeCoercer
             // One or both of the values involved are non-numeric. The coercion is normally unsupported in this
             // case, but let's check for assignability first: The target type can be a supertype of sourceType
             // (inheritance or interfaces), in which case the coercion is fine.
-            if (sourceType?.IsAssignableTo(targetType) ?? false)
+            if (sourceType.IsAssignableTo(targetType))
             {
                 return true;
             }

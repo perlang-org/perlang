@@ -126,6 +126,6 @@ public class StringArrayTests
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should().Contain("Failed to locate symbol 'non_existent_property' in class perlang::StringArray");
+            .Message.Should().Contain("Failed to locate symbol 'non_existent_property' in type perlang::StringArray");
     }
 }

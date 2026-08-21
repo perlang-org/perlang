@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using FluentAssertions;
 using Perlang.Interpreter;
 using Perlang.Interpreter.Compiler;
 using Perlang.Interpreter.NameResolution;
 using Perlang.Interpreter.Typing;
 using Perlang.Parser;
 using Perlang.Tests.Extensions;
-using Perlang.Tests.TestHelpers;
 using Xunit;
 
 namespace Perlang.Tests.Interpreter.Typing;
@@ -123,6 +123,33 @@ public class TypeResolverTest
         Assert.Equal(PerlangValueTypes.BigInt, expr.TypeReference.CppType);
     }
 
+    // This test rightfully does not belong in this test class, but it needs access to the CppTypeRegistry for
+    // performing its assertions.
+    [Fact]
+    public void CppType_for_custom_interface_has_expected_number_of_methods()
+    {
+        // Act
+        (_, NameResolver resolver) = ScanParseResolveAndTypeResolveSingleStatement(
+            nameof(CppType_for_custom_interface_has_expected_number_of_methods) + ".per",
+            """
+            public interface ISomeInterface
+            {
+                public do_something(): void;
+            }
+            """);
+
+        // Assert
+        resolver.CppTypeRegistry.Should().NotBeNull();
+
+        CppType? someInterfaceCppType = resolver.CppTypeRegistry.GetByPerlangTypeName("ISomeInterface");
+        someInterfaceCppType.Should().NotBeNull();
+
+        someInterfaceCppType!.Methods
+            .Select(m => m.Name)
+            .Should()
+            .BeEquivalentTo("do_something");
+    }
+
     private static (Stmt Stmt, NameResolver Resolver) ScanParseResolveAndTypeResolveSingleStatement(string fileName, string program)
     {
         (IList<Stmt> stmts, NameResolver nameResolver) = ScanParseResolveAndTypeResolveStatements(fileName, program);
@@ -151,7 +178,7 @@ public class TypeResolverTest
             ImmutableDictionary<string, Type>.Empty,
             ImmutableDictionary<string, IPerlangClass>.Empty,
             compiler.BindingHandler,
-            new AssertFailAddTypeHandler(),
+            compiler,
             new CppTypeRegistry(),
             AssertFailNameResolutionErrorHandler
         );

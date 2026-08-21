@@ -27,32 +27,44 @@ public record CppType : IPerlangType
     public string? PerlangTypeName { get; }
 
     public string? TypeKeyword { get; }
+    public List<CppType> BaseTypes { get; }
     public bool WrapInSharedPtr { get; }
     public bool IsSupported { get; }
     public bool IsNullObject { get; }
     public bool IsArray { get; }
     public bool IsEnum { get; }
+    public bool IsInterface { get; }
     public CppType? ElementType { get; }
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
 
-    public CppType(
-        string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null, bool wrapInSharedPtr = false,
-        bool isSupported = true, bool isNullObject = false, bool isArray = false, bool isEnum = false, CppType? elementType = null,
-        IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
+    public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null,
+        IEnumerable<CppType>? baseTypes = null, bool wrapInSharedPtr = false, bool isSupported = true,
+        bool isNullObject = false, bool isArray = false, bool isEnum = false, bool isInterface = false,
+        CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
+        IEnumerable<IPerlangField>? extraFields = null)
     {
 #pragma warning disable CA2000
-        this.Methods = new List<CppFunction>
-        {
-            // Deallocation of this gets handled by cleanup code in PerlangCompiler, by utilizing the TokenCleaner
-            // IDisposable helper class.
-            new CppFunction("get_type", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "perlang::Type", file_name: "", line: 0), isArray: false))
-        }.Concat(extraMethods ?? []).ToImmutableList();
+        if (isInterface) {
+            this.Methods = (extraMethods ?? []).ToImmutableList();
+            this.IsInterface = true;
+        }
+        else {
+            this.Methods = new List<CppFunction>
+            {
+                // Deallocation of this gets handled by cleanup code in PerlangCompiler, by utilizing the TokenCleaner
+                // IDisposable helper class.
+                new CppFunction("get_type", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "perlang::Type", file_name: "", line: 0), isArray: false))
+            }.Concat(extraMethods ?? []).ToImmutableList();
+
+            this.IsInterface = false;
+        }
 #pragma warning restore CA2000
 
         this.CppTypeName = cppTypeName;
         this.PerlangTypeName = perlangTypeName;
         this.TypeKeyword = typeKeyword;
+        this.BaseTypes = (baseTypes ?? []).ToList();
         this.WrapInSharedPtr = wrapInSharedPtr;
         this.IsSupported = isSupported;
         this.IsNullObject = isNullObject;
@@ -105,21 +117,43 @@ public record CppType : IPerlangType
 
     // TODO: Should probably be made private. Outside callers should almost always call CanBeCoercedInto() instead,
     // which supports 'int' being assignable to 'long' and so forth.
-    public bool IsAssignableTo(CppType? targetType)
+    public bool IsAssignableTo(CppType targetType)
     {
-        if (targetType == PerlangTypes.String && (this == PerlangTypes.AsciiString || this == PerlangTypes.UTF8String)) {
-            return true;
-        }
-
         // Anything that is not `null` can be implicitly converted to `object`. The actual assignment might require some
         // conversion though, which is handled elsewhere.
         if (targetType == PerlangTypes.PerlangObject && this != PerlangTypes.NullObject) {
             return true;
         }
 
-        // Let's do a super-simple implementation of this for starters. To be able to check subclassing/interfaces etc,
-        // we'll need more type/reflection metadata I think.
-        return this == targetType;
+        // Assignment to the same type is always possible
+        if (this == targetType) {
+            return true;
+        }
+
+        return IsAssignableToHelper(this, targetType);
+    }
+
+    private bool IsAssignableToHelper(CppType obj, CppType targetType)
+    {
+        // Descend upwards in the type hierarchy, all the way to the root type(s), trying to find a common base type.
+        if (obj.BaseTypes.Count != 0) {
+            // We want to avoid a strict equality conversion here, since CppType instances can be created in multiple
+            // places. Checking the (fully qualified) type name will have to do for now.
+            if (obj.BaseTypes.Any(t => t.Name == targetType.Name)) {
+                return true;
+            }
+
+            foreach (CppType baseType in this.BaseTypes) {
+                bool result = IsAssignableToHelper(baseType, targetType);
+
+                // As soon as we find a positive result, return to the caller, potentially breaking the recursion.
+                if (result) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public CppType MakeArrayType()
@@ -172,6 +206,8 @@ public record CppType : IPerlangType
                IsSupported == other.IsSupported &&
                IsNullObject == other.IsNullObject &&
                IsArray == other.IsArray &&
+               IsEnum == other.IsEnum &&
+               IsInterface == other.IsInterface &&
                Equals(ElementType, other.ElementType);
     }
 
@@ -186,6 +222,8 @@ public record CppType : IPerlangType
         hashCode.Add(IsSupported);
         hashCode.Add(IsNullObject);
         hashCode.Add(IsArray);
+        hashCode.Add(IsEnum);
+        hashCode.Add(IsInterface);
         hashCode.Add(ElementType);
 
         return hashCode.ToHashCode();
