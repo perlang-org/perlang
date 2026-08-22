@@ -4,12 +4,13 @@ hljs.registerLanguage('perlang', function(hljs) {
     var KEYWORDS = {
         keyword:
             // Currently implemented
-            'case constructor default destructor else enum extern for fun if in mutable print return super this var while ' +
+            'case class constructor default destructor else enum extern for fun if in interface ' +
+            'mutable new print private public return switch super this try var while ' +
 
             // Reserved keywords
-            'class byte sbyte short ushort float decimal ' +
-            'public private protected internal static volatile printf switch ' +
-            'break continue try catch finally async await lock synchronized new ' +
+            'byte sbyte short ushort float decimal ' +
+            'protected internal static volatile printf ' +
+            'break continue catch finally async await lock synchronized ' +
             'let const struct sizeof nameof typeof asm',
         literal:
             'true false null',
