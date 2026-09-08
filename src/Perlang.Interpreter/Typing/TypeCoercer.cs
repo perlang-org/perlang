@@ -134,6 +134,13 @@ public static class TypeCoercer
             return true;
         }
 
+        if (targetType.IsNullableUnion)
+        {
+            // `T | null` accepts `null`, as well as anything coercible into the wrapped type `T`.
+            return sourceType == PerlangTypes.NullObject ||
+                   CanBeCoercedInto(targetType.GetElementType(), sourceType, numericLiteral);
+        }
+
         // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric
         // TODO: types. The check below lacks many value types.
 

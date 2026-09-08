@@ -1,6 +1,7 @@
 #nullable enable
 #pragma warning disable S907
 #pragma warning disable S1871
+#pragma warning disable SA1118
 #pragma warning disable SA1505
 using System;
 using System.Collections.Generic;
@@ -1062,7 +1063,10 @@ internal class TypeResolver : VisitorBase
         }
 
         if (!stmt.ReturnTypeReference.IsResolved) {
-            if (stmt.ReturnTypeReference.IsUnionType) {
+            if (stmt.ReturnTypeReference.UnionTypeType == UnionTypeType.Null) {
+                ResolveNullableUnionType(stmt.ReturnTypeReference);
+            }
+            else if (stmt.ReturnTypeReference.IsUnionType) {
                 ResolveUnionReturnType(stmt.ReturnTypeReference);
             }
             else {
@@ -1115,7 +1119,18 @@ internal class TypeResolver : VisitorBase
         base.VisitVarStmt(stmt);
 
         if (!stmt.TypeReference.IsResolved) {
-            ResolveExplicitTypes(stmt.TypeReference);
+            if (stmt.TypeReference.UnionTypeType == UnionTypeType.Null) {
+                ResolveNullableUnionType(stmt.TypeReference);
+            }
+            else if (stmt.TypeReference.UnionTypeType == UnionTypeType.Error) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    stmt.Name,
+                    "'T | error' union types are not supported for variables; only as function return types")
+                );
+            }
+            else {
+                ResolveExplicitTypes(stmt.TypeReference);
+            }
         }
 
         if (!stmt.TypeReference.IsResolved &&
@@ -1195,6 +1210,51 @@ internal class TypeResolver : VisitorBase
         return VoidObject.Void;
     }
 
+    public override VoidObject VisitIsExpr(Expr.Is expr)
+    {
+        Visit(expr.Operand);
+
+        // The `is` expression is a type check, so it evaluates to a bool regardless of whether the checks below
+        // succeed or not. Setting this unconditionally avoids propagating "type not resolved" errors further upstream.
+        expr.TypeReference.SetCppType(PerlangValueTypes.Bool);
+
+        if (!expr.CheckedTypeReference.IsResolved) {
+            ResolveExplicitTypes(expr.CheckedTypeReference);
+        }
+
+        if (!expr.CheckedTypeReference.IsResolved) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.CheckedTypeReference.TypeSpecifier!,
+                $"Type not found: {expr.CheckedTypeReference.TypeSpecifier!.Lexeme}"
+            ));
+
+            return VoidObject.Void;
+        }
+
+        if (!expr.Operand.TypeReference.IsNullableUnion) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Keyword,
+                $"The 'is' operator can only be applied to expressions of a 'T | null' union type, " +
+                $"but {expr.Operand.TypeReference.ToQuotedTypeKeyword()} was encountered"
+            ));
+
+            return VoidObject.Void;
+        }
+
+        CppType checkedType = expr.CheckedTypeReference.CppType!;
+        CppType valueType = expr.Operand.TypeReference.CppType!.GetElementType();
+
+        if (!checkedType.Equals(valueType)) {
+            typeValidationErrorCallback(new TypeValidationError(
+                expr.Keyword,
+                $"'{expr.Operand.TypeReference.TypeKeywordOrPerlangType}' can never be " +
+                $"'{expr.CheckedTypeReference.TypeKeywordOrPerlangType}'"
+            ));
+        }
+
+        return VoidObject.Void;
+    }
+
     public override VoidObject VisitReturnStmt(Stmt.Return stmt)
     {
         base.VisitReturnStmt(stmt);
@@ -1208,6 +1268,26 @@ internal class TypeResolver : VisitorBase
         }
 
         return VoidObject.Void;
+    }
+
+    /// <summary>
+    /// Resolves a union type of the form <c>T | null</c>, by resolving <c>T</c> using the normal resolver and then
+    /// wrapping the result.
+    /// </summary>
+    private void ResolveNullableUnionType(ITypeReference typeReference)
+    {
+        var valueTypeReference = new TypeReference(typeReference.TypeSpecifier, isArray: typeReference.IsArray);
+        ResolveExplicitTypes(valueTypeReference);
+
+        if (!valueTypeReference.IsResolved) {
+            typeValidationErrorCallback(new TypeValidationError(
+                typeReference.TypeSpecifier!,
+                $"Type not found: {typeReference.TypeSpecifier!.Lexeme}")
+            );
+            return;
+        }
+
+        typeReference.SetCppType(valueTypeReference.CppType!.MakeNullableUnionType());
     }
 
     /// <summary>

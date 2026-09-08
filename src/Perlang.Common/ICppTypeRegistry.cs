@@ -21,6 +21,6 @@ public interface ICppTypeRegistry
     CppType Register(
         string cppTypeName, string perlangTypeName, string? typeKeyword = null, IEnumerable<CppType>? baseTypes = null,
         bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false,
-        bool isEnum = false, bool isInterface = false, CppType? elementType = null,
+        bool isEnum = false, bool isInterface = false, bool isNullableUnion = false, CppType? elementType = null,
         IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null);
 }

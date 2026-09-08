@@ -681,13 +681,45 @@ internal class NameResolver : VisitorBase
 
     public override VoidObject VisitIfStmt(Stmt.If stmt)
     {
-        Resolve(stmt.Condition);
-        Resolve(stmt.ThenBranch);
+        if (stmt.Condition is Expr.Is isExpr)
+        {
+            // Only the operand is resolved here; the `is` expression itself is deliberately never visited. VisitIsExpr
+            // detects if `is` anywhere else than as a whole `if` condition, without having to implement a separate
+            // validation pass.
+            Resolve(isExpr.Operand);
+
+            if (isExpr.Binding != null)
+            {
+                BeginScope(stmt);
+                Declare(isExpr.Binding);
+                DefineVariable(isExpr.Binding.Lexeme, isExpr.CheckedTypeReference);
+                Resolve(stmt.ThenBranch);
+                EndScope();
+            }
+            else
+            {
+                Resolve(stmt.ThenBranch);
+            }
+        }
+        else
+        {
+            Resolve(stmt.Condition);
+            Resolve(stmt.ThenBranch);
+        }
 
         if (stmt.ElseBranch != null)
         {
             Resolve(stmt.ElseBranch);
         }
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitIsExpr(Expr.Is expr)
+    {
+        nameResolutionErrorHandler(new NameResolutionError(
+            "The 'is' operator is only supported as the sole condition of an 'if' statement", expr.Keyword)
+        );
 
         return VoidObject.Void;
     }

@@ -189,6 +189,13 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitIsExpr(Expr.Is expr)
+    {
+        Visit(expr.Operand);
+
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitBlockStmt(Stmt.Block stmt)
     {
         Visit(stmt.Statements);

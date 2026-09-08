@@ -40,7 +40,9 @@ internal class TypesResolvedValidator : Validator
     {
         base.VisitAssignExpr(expr);
 
-        if (expr.Value.TypeReference.IsNullObject)
+        ITypeReference? targetTypeReference = VariableOrFunctionRetriever.GetVariableOrFunctionBinding(expr)?.TypeReference;
+
+        if (expr.Value.TypeReference.IsNullObject && targetTypeReference?.IsNullableUnion != true)
         {
             // TODO: Use expr.Value.Token here instead of expr.name, #189
             compilerWarningCallback(new CompilerWarning("Null assignment detected", expr.TargetName, WarningType.NULL_USAGE));
@@ -386,8 +388,11 @@ internal class TypesResolvedValidator : Validator
                         $"Cannot assign {stmt.Initializer.TypeReference.TypeKeywordOrPerlangType} to {stmt.TypeReference.TypeKeywordOrPerlangType} variable"
                     ));
                 }
-                else if (stmt.Initializer.TypeReference.IsNullObject)
+                else if (stmt.Initializer.TypeReference.IsNullObject && !stmt.TypeReference.IsNullableUnion)
                 {
+                    // The warning is only relevant for types which are implicitly nullable; a 'T | null' variable
+                    // declares its nullability, so initializing one to null is fine in this case.
+                    //
                     // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                     compilerWarningCallback(new CompilerWarning("Initializing variable to null detected", stmt.Name, WarningType.NULL_USAGE));
                 }

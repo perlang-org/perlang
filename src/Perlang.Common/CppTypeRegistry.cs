@@ -20,8 +20,8 @@ public class CppTypeRegistry : ICppTypeRegistry
     public CppType Register(
         string cppTypeName, string perlangTypeName, string? typeKeyword = null, IEnumerable<CppType>? baseTypes = null,
         bool wrapInSharedPtr = false, bool isSupported = true, bool isNullObject = false, bool isArray = false,
-        bool isEnum = false, bool isInterface = false, CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
-        IEnumerable<IPerlangField>? extraFields = null)
+        bool isEnum = false, bool isInterface = false, bool isNullableUnion = false, CppType? elementType = null,
+        IEnumerable<IPerlangFunction>? extraMethods = null, IEnumerable<IPerlangField>? extraFields = null)
     {
         if (registeredCppTypesByPerlangTypeName.ContainsKey(perlangTypeName)) {
             throw new PerlangCompilerException($"Attempted to register type '{perlangTypeName}' which has already been registered");
@@ -29,7 +29,7 @@ public class CppTypeRegistry : ICppTypeRegistry
 
         var cppType = new CppType(
             cppTypeName, perlangTypeName, typeKeyword, baseTypes, wrapInSharedPtr, isSupported, isNullObject, isArray,
-            isEnum, isInterface, elementType, extraMethods, extraFields
+            isEnum, isInterface, isNullableUnion, elementType, extraMethods, extraFields
         );
 
         registeredCppTypesByPerlangTypeName[perlangTypeName] = cppType;

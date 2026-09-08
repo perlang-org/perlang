@@ -4,6 +4,7 @@
 #pragma once
 
 #include <memory> // std::shared_ptr
+#include <optional> // std::optional
 #include <stdint.h>
 
 #include "perlang_stdlib.h"
@@ -89,6 +90,7 @@ namespace TokenType {
         IMPLEMENT,
         IN,
         INTERFACE,
+        IS,
         MUTABLE,
         NEW,
         PERLANG_NULL,

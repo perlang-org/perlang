@@ -34,6 +34,7 @@ public record CppType : IPerlangType
     public bool IsArray { get; }
     public bool IsEnum { get; }
     public bool IsInterface { get; }
+    public bool IsNullableUnion { get; }
     public CppType? ElementType { get; }
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
@@ -41,7 +42,7 @@ public record CppType : IPerlangType
     public CppType(string cppTypeName, string? perlangTypeName = null, string? typeKeyword = null,
         IEnumerable<CppType>? baseTypes = null, bool wrapInSharedPtr = false, bool isSupported = true,
         bool isNullObject = false, bool isArray = false, bool isEnum = false, bool isInterface = false,
-        CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
+        bool isNullableUnion = false, CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
         IEnumerable<IPerlangField>? extraFields = null)
     {
 #pragma warning disable CA2000
@@ -70,8 +71,20 @@ public record CppType : IPerlangType
         this.IsNullObject = isNullObject;
         this.IsArray = isArray;
         this.IsEnum = isEnum;
+        this.IsNullableUnion = isNullableUnion;
 
-        if (isArray) {
+        if (isArray && isNullableUnion) {
+            throw new ArgumentException("A type cannot be both an array type and a nullable union type", nameof(isNullableUnion));
+        }
+
+        if (isNullableUnion) {
+            this.ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType), "Element type must be provided for nullable union types");
+
+            this.Fields = new List<PerlangField>()
+                .Concat(extraFields ?? [])
+                .ToImmutableList();
+        }
+        else if (isArray) {
             this.ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType), "Element type must be provided for array types");
 
             this.Fields = new List<PerlangField>
@@ -179,10 +192,26 @@ public record CppType : IPerlangType
         };
     }
 
+    public CppType MakeNullableUnionType()
+    {
+        if (IsNullableUnion) {
+            throw new InvalidOperationException($"{CppTypeName} is already a nullable union type");
+        }
+
+        return new CppType(
+            $"std::optional<{PossiblyWrappedTypeName()}>",
+            perlangTypeName: PerlangTypeName != null ? $"{PerlangTypeName} | null" : null,
+            typeKeyword: TypeKeyword != null ? $"{TypeKeyword} | null" : null,
+            wrapInSharedPtr: false,
+            isNullableUnion: true,
+            elementType: this
+        );
+    }
+
     public CppType GetElementType()
     {
-        if (!IsArray) {
-            throw new InvalidOperationException("Only array types have an element type");
+        if (!IsArray && !IsNullableUnion) {
+            throw new InvalidOperationException("Only array types and nullable union types have an element type");
         }
 
         return ElementType ?? throw new InvalidOperationException("Element type unexpectedly null");
@@ -208,6 +237,7 @@ public record CppType : IPerlangType
                IsArray == other.IsArray &&
                IsEnum == other.IsEnum &&
                IsInterface == other.IsInterface &&
+               IsNullableUnion == other.IsNullableUnion &&
                Equals(ElementType, other.ElementType);
     }
 
@@ -224,6 +254,7 @@ public record CppType : IPerlangType
         hashCode.Add(IsArray);
         hashCode.Add(IsEnum);
         hashCode.Add(IsInterface);
+        hashCode.Add(IsNullableUnion);
         hashCode.Add(ElementType);
 
         return hashCode.ToHashCode();

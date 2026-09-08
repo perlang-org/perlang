@@ -39,6 +39,7 @@ public abstract class Expr
         TR VisitGetExpr(Get expr);
         TR VisitNewExpression(NewExpression expr);
         TR VisitTryExpr(Try expr);
+        TR VisitIsExpr(Is expr);
     }
 
     //
@@ -557,6 +558,53 @@ public abstract class Expr
         public override string ToString()
         {
             return $"#<try {Operand}>";
+        }
+    }
+
+    /// <summary>
+    /// An <c>is</c> expression, which checks whether the operand holds a value of the given type, and optionally
+    /// binds that value to a new variable. The operand must be of a union type of the form <c>T | null</c>.
+    ///
+    /// The expression itself is of type <c>bool</c>. When a binding is present, it is only in scope in the
+    /// <c>then</c> branch of the enclosing <c>if</c> statement; see <see cref="CheckedTypeReference"/> for its type.
+    /// </summary>
+    public class Is : Expr, ITokenAware
+    {
+        public IToken Keyword { get; }
+        public Expr Operand { get; }
+
+        /// <summary>
+        /// Gets the type being checked for (the <c>char</c> in <c>v is char c</c>). This is also the type of
+        /// <see cref="Binding"/>, when one is present.
+        /// </summary>
+        public ITypeReference CheckedTypeReference { get; }
+
+        /// <summary>
+        /// Gets the token naming the variable that the unwrapped value is bound to (the <c>c</c> in
+        /// <c>v is char c</c>), or <c>null</c> if the expression performs a type check only.
+        /// </summary>
+        public IToken? Binding { get; }
+
+        public Is(IToken keyword, Expr operand, ITypeReference checkedTypeReference, IToken? binding)
+        {
+            Keyword = keyword;
+            Operand = operand;
+            CheckedTypeReference = checkedTypeReference;
+            Binding = binding;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitIsExpr(this);
+        }
+
+        public IToken Token => Keyword;
+
+        public override string ToString()
+        {
+            return Binding == null ?
+                $"#<is {Operand} {CheckedTypeReference}>" :
+                $"#<is {Operand} {CheckedTypeReference} {Binding.Lexeme}>";
         }
     }
 

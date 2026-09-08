@@ -4,7 +4,7 @@ hljs.registerLanguage('perlang', function(hljs) {
     var KEYWORDS = {
         keyword:
             // Currently implemented
-            'case class constructor default destructor else enum extern for fun if in interface ' +
+            'case class constructor default destructor else enum extern for fun if in interface is ' +
             'mutable new print private public return switch super this try var while ' +
 
             // Reserved keywords

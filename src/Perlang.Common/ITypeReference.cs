@@ -77,6 +77,17 @@ public interface ITypeReference
     bool IsUnionType => false;
 
     /// <summary>
+    /// Gets the kind of union type this type reference was declared as. Note that this reflects the declaration
+    /// only; for type references whose type was inferred, use <see cref="IsNullableUnion"/> instead.
+    /// </summary>
+    UnionTypeType UnionTypeType => UnionTypeType.None;
+
+    /// <summary>
+    /// Gets a value indicating whether this type reference is a union type of the form <c>T | null</c>.
+    /// </summary>
+    bool IsNullableUnion => UnionTypeType == UnionTypeType.Null || CppType?.IsNullableUnion == true;
+
+    /// <summary>
     /// Gets the C++ success type for a union type (the <c>T</c> in <c>T | error</c>). <c>null</c> for
     /// non-union types.
     /// </summary>

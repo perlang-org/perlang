@@ -509,6 +509,8 @@ public class PerlangParser
         return new Stmt.Return(keyword, value);
     }
 
+#nullable enable
+
     private Stmt VarDeclaration()
     {
         if (Check(RESERVED_WORD))
@@ -523,18 +525,15 @@ public class PerlangParser
 
         // Support optional typing on this form:
         // var s: String;
-        IToken typeSpecifier = null;
+        IToken? typeSpecifier = null;
+        IToken? unionTypeSpecifier = null;
         bool isArray = false;
 
-        if (Match(COLON))
-        {
-            typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
-
-            if (IsAtArray())
-                isArray = true;
+        if (Match(COLON)) {
+            (typeSpecifier, unionTypeSpecifier, isArray) = ParseTypeSpecifier();
         }
 
-        Expr initializer = null;
+        Expr? initializer = null;
 
         if (Match(EQUAL))
         {
@@ -546,8 +545,18 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after variable declaration.");
         }
 
-        return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, isArray));
+        if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
+            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isArray));
+        }
+        else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
+            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isArray));
+        }
+        else {
+            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, isArray));
+        }
     }
+
+#nullable restore
 
     private Stmt WhileStatement()
     {
@@ -748,6 +757,8 @@ public class PerlangParser
         return FunctionOrFieldHelper(supportFields: false, functionOrFieldProperties);
     }
 
+#nullable enable
+
     private Stmt FunctionOrFieldHelper(bool supportFields, FunctionOrFieldProperties functionOrFieldProperties)
     {
         IToken name;
@@ -804,7 +815,7 @@ public class PerlangParser
 
                 BlockReservedIdentifiers(parameterName);
 
-                IToken parameterTypeSpecifier = null;
+                IToken? parameterTypeSpecifier = null;
                 bool isArray = false;
 
                 // Parameters can optionally use a specific type. If the type is not provided, the compiler will
@@ -823,8 +834,8 @@ public class PerlangParser
 
         Consume(RIGHT_PAREN, "Expect ')' after parameters.");
 
-        IToken returnTypeSpecifier = null;
-        IToken unionErrorTypeSpecifier = null;
+        IToken? returnTypeSpecifier = null;
+        IToken? unionTypeSpecifier = null;
         bool isReturnTypeArray = false;
         TypeReference returnTypeReference;
 
@@ -844,19 +855,19 @@ public class PerlangParser
                     parseErrorHandler(new ParseError("Expecting type name", returnTypeSpecifier, ParseErrorType.RESERVED_WORD_ENCOUNTERED));
                 }
                 else {
-                    returnTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
-
-                    if (IsAtArray()) {
-                        isReturnTypeArray = true;
-                    }
-                    else if (Match(PIPE)) {
-                        // Union type: T | error. Currently only the `error` keyword is supported as the second type.
-                        unionErrorTypeSpecifier = Consume(IDENTIFIER, "Expecting type name after '|'.");
-                    }
+                    (returnTypeSpecifier, unionTypeSpecifier, isReturnTypeArray) = ParseTypeSpecifier();
                 }
             }
 
-            returnTypeReference = new TypeReference(returnTypeSpecifier, unionErrorTypeSpecifier, isReturnTypeArray);
+            if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
+                returnTypeReference = new TypeReference(returnTypeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isReturnTypeArray);
+            }
+            else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
+                returnTypeReference = new TypeReference(returnTypeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isReturnTypeArray);
+            }
+            else {
+                returnTypeReference = new TypeReference(returnTypeSpecifier, isReturnTypeArray);
+            }
         }
 
         if (functionOrFieldProperties.IsExtern) {
@@ -911,6 +922,8 @@ public class PerlangParser
             );
         }
     }
+
+#nullable restore
 
     private Stmt.Field FieldDeclaration(IToken name, Visibility visibility, bool isMutable, bool isExtern)
     {
@@ -1105,13 +1118,37 @@ public class PerlangParser
 
     private Expr In()
     {
-        Expr expr = Equality();
+        Expr expr = Is();
 
         while (Match(IN))
         {
             IToken @operator = Previous();
-            Expr right = Equality();
+            Expr right = Is();
             expr = new Expr.In(expr, @operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr Is()
+    {
+        Expr expr = Equality();
+
+        // Deliberately not a loop; `is` is non-associative, so chaining it makes no sense.
+        if (Match(IS))
+        {
+            IToken keyword = Previous();
+            IToken typeSpecifier = Consume(IDENTIFIER, "Expecting type name after 'is'.");
+            bool isArray = IsAtArray();
+
+            // The binding to a variable is optional, to allow `is` to be used as a plain type check.
+            IToken binding = Check(IDENTIFIER) ? Advance() : null;
+
+            if (binding != null) {
+                BlockReservedIdentifiers(binding);
+            }
+
+            expr = new Expr.Is(keyword, expr, new TypeReference(typeSpecifier, isArray), binding);
         }
 
         return expr;
@@ -1624,6 +1661,37 @@ public class PerlangParser
             throw Error(token, "Reserved keyword encountered", ParseErrorType.RESERVED_WORD_ENCOUNTERED);
         }
     }
+
+#nullable enable
+
+    private (IToken ReturnType, IToken? UnionTypeSpecifier, bool IsAtArray) ParseTypeSpecifier()
+    {
+        bool isAtArray = false;
+        IToken? unionTypeSpecifier = null;
+
+        IToken returnType = Consume(IDENTIFIER, "Expecting type name.");
+
+        if (IsAtArray()) {
+            isAtArray = true;
+        }
+        else if (Match(PIPE)) {
+            if (Check(IDENTIFIER)) {
+                // Union type: T | error
+                unionTypeSpecifier = Consume(IDENTIFIER, "Internal error: Expecting type name after '|'.");
+            }
+            else if (Check(PERLANG_NULL)) {
+                // Union type: T | null
+                unionTypeSpecifier = Consume(PERLANG_NULL, "Internal error: Expecting null after '|'.");
+            }
+            else {
+                throw Error(Peek(), "Expecting type name or 'null' after '|'.");
+            }
+        }
+
+        return (returnType, unionTypeSpecifier, isAtArray);
+    }
+
+#nullable  restore
 
     private record FunctionOrFieldProperties(string Kind, Visibility Visibility, bool? IsMutable, bool IsExtern, bool IsInterface, bool IsStatic, bool ImplementsInterfaceMethod);
 }

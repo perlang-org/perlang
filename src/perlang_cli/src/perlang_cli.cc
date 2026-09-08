@@ -4,6 +4,7 @@
 #include <locale.h> // setlocale()
 #include <math.h> // fmod()
 #include <memory> // std::shared_ptr
+#include <optional> // std::optional
 #include <stdint.h>
 
 #include "perlang_stdlib.h"

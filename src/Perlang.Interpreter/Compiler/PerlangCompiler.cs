@@ -119,6 +119,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
     private IPerlangType? currentClass = null;
     private ITypeReference? currentFunctionReturnTypeReference = null;
     private int tryExprCounter = 0;
+    private int isExprCounter = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PerlangCompiler"/> class.
@@ -580,6 +581,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 #pragma once
 
 #include <memory> // std::shared_ptr
+#include <optional> // std::optional
 #include <stdint.h>
 
 #include "perlang_stdlib.h"
@@ -652,6 +654,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 #include <locale.h> // setlocale()
 #include <math.h> // fmod()
 #include <memory> // std::shared_ptr
+#include <optional> // std::optional
 #include <stdint.h>
 
 #include "perlang_stdlib.h"
@@ -925,8 +928,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public object VisitAssignExpr(Expr.Assign expr)
     {
+        // VisitorBase.VisitAssignExpr deliberately does not visit the assignment target, so its type reference is
+        // normally unresolved here. However, the binding can be used to figure out the declared type of the target.
+        CppType? targetCppType = expr.Target.TypeReference.CppType ??
+                                 BindingHandler.GetVariableOrFunctionBinding(expr)?.TypeReference?.CppType;
+
         string? assignmentSource = GetValueMatchingTargetType(
-            expr.Target.TypeReference.CppType,
+            targetCppType,
             expr.Value.TypeReference.CppType ?? throw new PerlangCompilerException("Value CppType unexpectedly null"),
             expr.Value
         );
@@ -995,7 +1003,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 break;
 
             case BANG_EQUAL:
-                if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                if (NullableUnionOperandComparedToNull(expr) is Expr nonNullOperand)
+                {
+                    result.Append($"{nonNullOperand.Accept(this)}.has_value()");
+                }
+                else if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
                     expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 != *s2
@@ -1009,7 +1021,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                 break;
 
             case EQUAL_EQUAL:
-                if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
+                if (NullableUnionOperandComparedToNull(expr) is Expr nullCheckedOperand)
+                {
+                    result.Append($"!{nullCheckedOperand.Accept(this)}.has_value()");
+                }
+                else if (expr.Left.TypeReference.IsStringType && expr.Left.TypeReference.CppWrapInSharedPtr &&
                     expr.Right.TypeReference.IsStringType && expr.Right.TypeReference.CppWrapInSharedPtr)
                 {
                     // Example generated code: *s1 == *s2
@@ -2208,6 +2224,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     public object VisitIfStmt(Stmt.If stmt)
     {
+        if (stmt.Condition is Expr.Is isExpr)
+        {
+            return VisitIsIfStmt(stmt, isExpr);
+        }
+
         using var result = NativeStringBuilder.Create();
 
         result.Append(Indent(indentationLevel));
@@ -2241,6 +2262,79 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
             result.AppendLine();
 
+            result.Append(stmt.ElseBranch.Accept(this));
+
+            if (!(stmt.ElseBranch is Stmt.Block))
+            {
+                indentationLevel--;
+            }
+        }
+
+        return result.ToString();
+    }
+
+    /// <summary>
+    /// Emits an <c>if</c> statement whose condition is an <c>is</c> expression. The <c>then</c> branch always gets
+    /// braces in the emitted code, even when the Perlang source had none, since the binding needs a scope of its own
+    /// to live in.
+    /// </summary>
+    /// <param name="stmt">The `if` statement.</param>
+    /// <param name="isExpr">The `is` expression which makes up the condition of the `if` statement.</param>
+    /// <returns>The emitted C++ code.</returns>
+    private object VisitIsIfStmt(Stmt.If stmt, Expr.Is isExpr)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        // The operand is evaluated once, into a temporary, since it is needed both for the type check and for the
+        // binding. `auto&&` avoids copying it, and the init-statement keeps it from leaking into the enclosing scope.
+        string tmpName = $"__perlang_is_{isExprCounter++}";
+
+        result.Append(Indent(indentationLevel));
+        result.AppendLine($"if (auto&& {tmpName} = {isExpr.Operand.Accept(this)}; {tmpName}.has_value()) {{");
+
+        indentationLevel++;
+
+        if (isExpr.Binding != null)
+        {
+            // Note the dereference rather than value(); the latter throws std::bad_optional_access, and has_value()
+            // has already been checked at this point.
+            //
+            // [[maybe_unused]] is needed because the Perlang code is free to ignore the binding, which could otherwise
+            // trigger the -Wunused-variable compiler check.
+            result.Append(Indent(indentationLevel));
+            result.AppendLine($"[[maybe_unused]] {isExpr.CheckedTypeReference.PossiblyWrappedCppType} {isExpr.Binding.Lexeme} = *{tmpName};");
+        }
+
+        if (stmt.ThenBranch is Stmt.Block thenBlock)
+        {
+            // Emit the statements directly instead of visiting the block, to avoid an extra set of braces inside the
+            // ones emitted above.
+            foreach (Stmt thenStmt in thenBlock.Statements)
+            {
+                result.Append(thenStmt.Accept(this));
+            }
+        }
+        else
+        {
+            result.Append(stmt.ThenBranch.Accept(this));
+        }
+
+        indentationLevel--;
+        result.Append(Indent(indentationLevel));
+        result.AppendLine("}");
+
+        if (stmt.ElseBranch != null)
+        {
+            result.Append(Indent(indentationLevel));
+            result.Append("else");
+
+            if (!(stmt.ElseBranch is Stmt.Block))
+            {
+                result.Append(" ");
+                indentationLevel++;
+            }
+
+            result.AppendLine();
             result.Append(stmt.ElseBranch.Accept(this));
 
             if (!(stmt.ElseBranch is Stmt.Block))
@@ -2290,6 +2384,10 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
             result.AppendLine("};");
         }
+        else if (currentFunctionReturnTypeReference?.IsNullableUnion == true && stmt.Value.TypeReference.IsNullObject)
+        {
+            result.AppendLine($"{Indent(indentationLevel)}return std::nullopt;");
+        }
         else
         {
             result.Append($"{Indent(indentationLevel)}return ");
@@ -2305,6 +2403,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         return result.ToString();
+    }
+
+    public object VisitIsExpr(Expr.Is expr)
+    {
+        // `is` is handled as part of the enclosing `if` statement, by VisitIsIfStmt. Reaching this method means that
+        // `is` was used somewhere else, which NameResolver is expected to have rejected already.
+        throw new PerlangCompilerException(
+            $"Internal compiler error: {expr} was not handled by the enclosing 'if' statement"
+        );
     }
 
     public object VisitTryExpr(Expr.Try expr)
@@ -2655,6 +2762,28 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     private static string Indent(int level) => String.Empty.PadLeft(level * 4);
 
+    /// <summary>
+    /// Determines whether the given expression compares a <c>T | null</c> operand against the <c>null</c> literal.
+    /// <c>std::optional</c> cannot be compared against <c>nullptr</c>, so such comparisons are emitted as an
+    /// <c>has_value()</c> call on the non-null operand instead.
+    /// </summary>
+    /// <param name="expr">The binary expression.</param>
+    /// <returns>The <c>T | null</c> operand, or <c>null</c> if this is not such a comparison.</returns>
+    private static Expr? NullableUnionOperandComparedToNull(Expr.Binary expr)
+    {
+        if (expr.Left.TypeReference.IsNullableUnion && expr.Right.TypeReference.CppType == PerlangTypes.NullObject)
+        {
+            return expr.Left;
+        }
+
+        if (expr.Right.TypeReference.IsNullableUnion && expr.Left.TypeReference.CppType == PerlangTypes.NullObject)
+        {
+            return expr.Right;
+        }
+
+        return null;
+    }
+
     private string? GetValueMatchingTargetType(CppType? targetCppType, CppType sourceCppType, Expr sourceExpr)
     {
         // Right now, we have custom logic here for assigning "any value type" to perlang::Object. In the future, we
@@ -2663,6 +2792,12 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         if (targetCppType == PerlangTypes.PerlangObject && sourceCppType != PerlangTypes.PerlangObject)
         {
             return $"perlang::Object::convert_from({sourceExpr.Accept(this)})";
+        }
+        else if (targetCppType?.IsNullableUnion == true && sourceCppType == PerlangTypes.NullObject)
+        {
+            // Assigning `null` to a `T | null` target. Expr.Literal would otherwise emit `nullptr`, which
+            // std::optional does not accept.
+            return "std::nullopt";
         }
         else
         {

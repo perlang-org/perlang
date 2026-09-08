@@ -43,6 +43,7 @@ public class Scanner : IDisposable
             { "implement", IMPLEMENT },
             { "in", IN },
             { "interface", INTERFACE },
+            { "is", IS },
             { "new", NEW },
             { "null", PERLANG_NULL },
             { "print", PRINT },
