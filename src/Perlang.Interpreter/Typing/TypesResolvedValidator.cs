@@ -314,7 +314,7 @@ internal class TypesResolvedValidator : Validator
                     $"Cannot assign {stmt.Initializer.TypeReference.TypeKeywordOrPerlangType} to {stmt.TypeReference.TypeKeywordOrPerlangType} field"
                 ));
             }
-            else if (stmt.Initializer.TypeReference.IsNullObject)
+            else if (stmt.Initializer.TypeReference.IsNullObject && !stmt.TypeReference.IsNullableUnion)
             {
                 // TODO: Use stmt.Initializer.Token here instead of stmt.name, #189
                 compilerWarningCallback(new CompilerWarning("Initializing field to null detected", stmt.NameToken, WarningType.NULL_USAGE));

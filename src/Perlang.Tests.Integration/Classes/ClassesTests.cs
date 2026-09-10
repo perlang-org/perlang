@@ -1040,6 +1040,34 @@ public class ClassesTests
     }
 
     [Fact]
+    public void class_can_define_private_nullable_field_with_default_value()
+    {
+        string source = """
+            public class Greeter
+            {
+                private mutable age: int | null = 42;
+
+                public say_hello(): void
+                {
+                    if (this.age is int age) {
+                        print("Hello from say_hello. Your age is: " + age);
+                    }
+                }
+            }
+
+            var greeter = new Greeter();
+            greeter.say_hello();
+            """;
+
+        var output = EvalReturningOutput(source);
+
+        output.Should()
+            .Equal(
+                "Hello from say_hello. Your age is: 42"
+            );
+    }
+
+    [Fact]
     public void class_defining_field_of_unknown_type_throws_expected_error()
     {
         string source = """

@@ -2212,7 +2212,13 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         if (stmt.Initializer != null)
         {
-            result.AppendLine($" = {stmt.Initializer.Accept(this)};");
+            string? value = GetValueMatchingTargetType(
+                stmt.TypeReference.CppType,
+                stmt.Initializer.TypeReference.CppType ?? throw new PerlangCompilerException("Initializer CppType unexpectedly null"),
+                stmt.Initializer
+            );
+
+            result.AppendLine($" = {value};");
         }
         else
         {

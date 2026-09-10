@@ -670,7 +670,7 @@ internal class NameResolver : VisitorBase
         foreach (Parameter param in function.Parameters)
         {
             Declare(param.Name);
-            DefineVariable(param.Name.Lexeme, new TypeReference(param.TypeSpecifier, param.IsArray));
+            DefineVariable(param.Name.Lexeme, param.TypeReference);
         }
 
         Resolve(function.Body);

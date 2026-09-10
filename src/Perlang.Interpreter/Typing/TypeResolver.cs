@@ -1084,7 +1084,20 @@ internal class TypeResolver : VisitorBase
             }
 
             if (!parameter.TypeReference.IsResolved) {
-                ResolveExplicitTypes(parameter.TypeReference);
+                if (parameter.TypeReference.UnionTypeType == UnionTypeType.Null) {
+                    ResolveNullableUnionType(parameter.TypeReference);
+                }
+                else if (parameter.TypeReference.UnionTypeType == UnionTypeType.Error) {
+                    typeValidationErrorCallback(new TypeValidationError(
+                        stmt.NameToken,
+                        $"'T | error' union types are not supported for function parameter '{parameter}'; only as function return types")
+                    );
+
+                    continue;
+                }
+                else {
+                    ResolveExplicitTypes(parameter.TypeReference);
+                }
             }
 
             if (!parameter.TypeReference.IsResolved) {
@@ -1108,7 +1121,18 @@ internal class TypeResolver : VisitorBase
     public override VoidObject VisitFieldStmt(Stmt.Field stmt)
     {
         if (!stmt.TypeReference.IsResolved) {
-            ResolveExplicitTypes(stmt.TypeReference);
+            if (stmt.TypeReference.UnionTypeType == UnionTypeType.Null) {
+                ResolveNullableUnionType(stmt.TypeReference);
+            }
+            else if (stmt.TypeReference.UnionTypeType == UnionTypeType.Error) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    stmt.NameToken,
+                    "'T | error' union types are not supported for fields; only as function return types")
+                );
+            }
+            else {
+                ResolveExplicitTypes(stmt.TypeReference);
+            }
         }
 
         return base.VisitFieldStmt(stmt);

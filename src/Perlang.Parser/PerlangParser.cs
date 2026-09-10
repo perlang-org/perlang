@@ -545,15 +545,7 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after variable declaration.");
         }
 
-        if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
-            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isArray));
-        }
-        else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
-            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isArray));
-        }
-        else {
-            return new Stmt.Var(name, initializer, new TypeReference(typeSpecifier, isArray));
-        }
+        return new Stmt.Var(name, initializer, MakeTypeReference(typeSpecifier, unionTypeSpecifier, isArray));
     }
 
 #nullable restore
@@ -816,18 +808,16 @@ public class PerlangParser
                 BlockReservedIdentifiers(parameterName);
 
                 IToken? parameterTypeSpecifier = null;
+                IToken? parameterUnionTypeSpecifier = null;
                 bool isArray = false;
 
                 // Parameters can optionally use a specific type. If the type is not provided, the compiler will
                 // try to infer the type based on the usage.
                 if (Match(COLON)) {
-                    parameterTypeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
-
-                    if (IsAtArray())
-                        isArray = true;
+                    (parameterTypeSpecifier, parameterUnionTypeSpecifier, isArray) = ParseTypeSpecifier();
                 }
 
-                parameters.Add(new Parameter(parameterName, new TypeReference(parameterTypeSpecifier, isArray)));
+                parameters.Add(new Parameter(parameterName, MakeTypeReference(parameterTypeSpecifier, parameterUnionTypeSpecifier, isArray)));
             }
             while (Match(COMMA));
         }
@@ -859,15 +849,7 @@ public class PerlangParser
                 }
             }
 
-            if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
-                returnTypeReference = new TypeReference(returnTypeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isReturnTypeArray);
-            }
-            else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
-                returnTypeReference = new TypeReference(returnTypeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isReturnTypeArray);
-            }
-            else {
-                returnTypeReference = new TypeReference(returnTypeSpecifier, isReturnTypeArray);
-            }
+            returnTypeReference = MakeTypeReference(returnTypeSpecifier, unionTypeSpecifier, isReturnTypeArray);
         }
 
         if (functionOrFieldProperties.IsExtern) {
@@ -935,11 +917,7 @@ public class PerlangParser
             throw Error(name, "Fields must be declared as private.");
         }
 
-        bool isArray = false;
-        IToken typeSpecifier = Consume(IDENTIFIER, "Expecting type name.");
-
-        if (IsAtArray())
-            isArray = true;
+        var (typeSpecifier, unionTypeSpecifier, isArray) = ParseTypeSpecifier();
 
         Expr initializer = null;
 
@@ -957,7 +935,7 @@ public class PerlangParser
             Consume(SEMICOLON, "Expect ';' after field definition.");
         }
 
-        return new Stmt.Field(name, visibility, isMutable, initializer, new TypeReference(typeSpecifier, isArray: isArray));
+        return new Stmt.Field(name, visibility, isMutable, initializer, MakeTypeReference(typeSpecifier, unionTypeSpecifier, isArray));
     }
 
     private Stmt.Enum Enum()
@@ -1689,6 +1667,19 @@ public class PerlangParser
         }
 
         return (returnType, unionTypeSpecifier, isAtArray);
+    }
+
+    private static TypeReference MakeTypeReference(IToken? typeSpecifier, IToken? unionTypeSpecifier, bool isArray)
+    {
+        if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
+            return new TypeReference(typeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isArray);
+        }
+        else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
+            return new TypeReference(typeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isArray);
+        }
+        else {
+            return new TypeReference(typeSpecifier, isArray);
+        }
     }
 
 #nullable  restore

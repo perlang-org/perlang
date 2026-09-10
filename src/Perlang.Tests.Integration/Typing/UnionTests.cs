@@ -203,6 +203,26 @@ public class UnionTests
     }
 
     [Fact]
+    public void function_with_nullable_union_parameter_can_receive_non_null_parameter()
+    {
+        string source = """
+            fun f(c: char | null): void
+            {
+                if (c is char d) {
+                    print(d);
+                }
+            }
+
+            f('x');
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("x");
+    }
+
+    [Fact]
     public void setting_non_union_variable_to_null_emits_expected_error()
     {
         string source = """
