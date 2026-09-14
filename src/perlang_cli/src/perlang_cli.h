@@ -114,6 +114,41 @@ namespace TokenType {
 //
 // Perlang class definitions
 //
+class IToken {
+public:
+    virtual ~IToken() = default;
+    virtual TokenType::TokenType type() = 0;
+    virtual std::shared_ptr<perlang::String> lexeme() = 0;
+    virtual std::shared_ptr<perlang::Object> literal() = 0;
+    virtual std::shared_ptr<perlang::String> file_name() = 0;
+    virtual int32_t line() = 0;
+};
+
+class NumericToken : public std::enable_shared_from_this<NumericToken>, public IToken, public perlang::Object {
+private:
+    std::shared_ptr<perlang::String> lexeme_;
+    std::shared_ptr<perlang::Object> literal_;
+    std::shared_ptr<perlang::String> file_name_;
+    int32_t line_;
+    bool is_fractional_;
+    std::optional<char16_t> suffix_;
+    NumericTokenBase::NumericTokenBase number_base_;
+    int32_t number_styles_;
+public:
+    TokenType::TokenType type();
+    std::shared_ptr<perlang::String> lexeme();
+    std::shared_ptr<perlang::Object> literal();
+    std::shared_ptr<perlang::String> file_name();
+    int32_t line();
+    bool is_fractional();
+    std::optional<char16_t> suffix();
+    NumericTokenBase::NumericTokenBase number_base();
+    int32_t number_styles();
+    bool has_suffix();
+    NumericToken(std::shared_ptr<perlang::String> lexeme, std::shared_ptr<perlang::String> file_name, int32_t line, std::shared_ptr<perlang::String> number_characters, std::optional<char16_t> suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int32_t number_styles);
+private:
+};
+
 class PerlangScanner : public std::enable_shared_from_this<PerlangScanner>, public perlang::Object {
 private:
     std::shared_ptr<perlang::UTF16String> source;
@@ -139,7 +174,7 @@ public:
 private:
 };
 
-class Token : public std::enable_shared_from_this<Token>, public perlang::Object {
+class Token : public std::enable_shared_from_this<Token>, public IToken, public perlang::Object {
 private:
     TokenType::TokenType token_type_;
     std::shared_ptr<perlang::String> lexeme_;
@@ -174,18 +209,25 @@ void perlang_detailed_version();
 #include <getopt.h>
 
 extern "C" void native_main(int argc, char* const* argv);
+IToken* create_numeric_token(const char* lexeme, const char* file_name, int line, const char* number_characters, char16_t suffix, bool has_suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int number_styles);
+
+NumericToken* as_numeric_token(IToken* token);
+const char* get_numeric_token_literal_string(IToken* token);
+char16_t get_numeric_token_suffix(IToken* token);
 PerlangScanner* create_perlang_scanner(const char* source);
 void delete_perlang_scanner(PerlangScanner* scanner);
-Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
-Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
-Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);
-void delete_token(Token* token);
+IToken* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
+IToken* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
+IToken* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);
+void delete_token(IToken* token);
 
-bool is_string_token(Token* token);
-bool is_char_token(Token* token);
-bool is_null_token(Token* token);
+bool is_string_token(IToken* token);
+bool is_char_token(IToken* token);
+bool is_null_token(IToken* token);
 
-const char* get_token_lexeme(Token* token);
-const char* get_token_string_literal(Token* token);
-uint16_t get_token_char_literal(Token* token);
-const char* get_token_file_name(Token* token);
+TokenType::TokenType get_token_type(IToken* token);
+const char* get_token_lexeme(IToken* token);
+const char* get_token_string_literal(IToken* token);
+uint16_t get_token_char_literal(IToken* token);
+const char* get_token_file_name(IToken* token);
+int get_token_line(IToken* token);

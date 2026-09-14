@@ -2,7 +2,7 @@ namespace Perlang;
 
 public interface IEnvironment
 {
-    void Define(Token name, object value);
+    void Define(IToken name, object value);
     object GetAt(int distance, string name);
-    void AssignAt(int distance, Token name, object value);
+    void AssignAt(int distance, IToken name, object value);
 }

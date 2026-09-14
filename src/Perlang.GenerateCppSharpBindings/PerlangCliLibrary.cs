@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 using CppSharp;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
+using CppSharp.Parser;
 using CppSharp.Passes;
 
 namespace Perlang.GenerateCppSharpBindings;
@@ -39,6 +41,12 @@ internal class PerlangCliLibrary : ILibrary
         ctx.IgnoreClassWithName("Error");
         ctx.IgnoreClassWithName("ArgumentError");
 
+        // CppSharp caches the vtable of the first IToken instance it sees, so calling these through the generated
+        // bindings dispatches to the wrong implementation for other token types. get_token_type() and get_token_line()
+        // are used instead.
+        ctx.IgnoreClassMethodWithName("IToken", "type");
+        ctx.IgnoreClassMethodWithName("IToken", "line");
+
         ctx.IgnoreFunctionWithPattern("mp_*");
         ctx.IgnoreFunctionWithPattern("Mp*");
     }
@@ -55,6 +63,9 @@ internal class PerlangCliLibrary : ILibrary
         var options = driver.Options;
         options.GeneratorKind = GeneratorKind.CSharp;
         options.OutputDir = "src/Perlang.Common";
+
+        // Defaults to CPP14_GNU, where std::optional is not available
+        driver.ParserOptions.LanguageVersion = LanguageVersion.CPP17_GNU;
 
         // Useful when debugging, but generates loads of output.
         //options.Verbose = true;
@@ -75,6 +86,37 @@ internal class PerlangCliLibrary : ILibrary
         driver.Context.TranslationUnitPasses.RemovePass(symbolsPass);
 
         driver.AddTranslationUnitPass(new FixEnumsNamespace());
+        driver.AddTranslationUnitPass(new IgnoreOptionalFields());
+    }
+
+    // The layout structs CppSharp generates for std::optional refer to a _Storage union which it never emits, so we
+    // leave out fields of a 'T | null' type from the generated bindings. We access them using manual C++ wrappers
+    // instead.
+    private class IgnoreOptionalFields : TranslationUnitPass
+    {
+        public override bool VisitClassDecl(Class @class)
+        {
+            if (@class.Name is "optional" or "_Optional_payload" or "_Optional_payload_base") {
+                @class.ExplicitlyIgnore();
+            }
+
+            // Removes the layout field for ignored classes.
+            @class.Layout?.Fields.RemoveAll(f => IsOptional(f.QualifiedType.Type));
+
+            return base.VisitClassDecl(@class);
+        }
+
+        public override bool VisitFieldDecl(Field field)
+        {
+            if (IsOptional(field.Type)) {
+                field.ExplicitlyIgnore();
+            }
+
+            return base.VisitFieldDecl(field);
+        }
+
+        private static bool IsOptional(CppSharp.AST.Type type) =>
+            type.Desugar().TryGetClass(out Class @class) && @class.Name == "optional";
     }
 
     private class FixEnumsNamespace : TranslationUnitPass

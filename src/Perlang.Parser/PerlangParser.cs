@@ -1316,8 +1316,8 @@ public class PerlangParser
             // Numbers are retained as strings in the scanning phase, to properly be able to parse negative numbers
             // in the parsing stage (where we can more easily join the MINUS and NUMBER token together). See #302
             // for details.
-            var numericToken = (NumericToken)Previous();
-            string numberCharacters = (string)numericToken.Literal!;
+            var numericToken = perlang_cli.AsNumericToken(Previous());
+            string numberCharacters = perlang_cli.GetNumericTokenLiteralString(numericToken);
 
             if (string.IsNullOrEmpty(numberCharacters) && numericToken.NumberBase != NumericTokenBase.DECIMAL)
             {
@@ -1334,7 +1334,7 @@ public class PerlangParser
                             $"Internal compiler error: Base {(int)numericToken.NumberBase} is not supported")
                 };
 
-                parseErrorHandler(new ParseError(message, numericToken, null));
+                parseErrorHandler(new ParseError(message, Previous(), null));
                 return new Expr.Literal(null);
             }
 

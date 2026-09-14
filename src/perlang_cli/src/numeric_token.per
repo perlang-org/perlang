@@ -1,3 +1,11 @@
+#c++-prototypes
+IToken* create_numeric_token(const char* lexeme, const char* file_name, int line, const char* number_characters, char16_t suffix, bool has_suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int number_styles);
+
+NumericToken* as_numeric_token(IToken* token);
+const char* get_numeric_token_literal_string(IToken* token);
+char16_t get_numeric_token_suffix(IToken* token);
+#/c++-prototypes
+
 // TODO: This could be a nested enum once we resolve #524
 enum NumericTokenBase
 {
@@ -6,3 +14,135 @@ enum NumericTokenBase
     DECIMAL = 10,
     HEXADECIMAL = 16
 }
+
+public class NumericToken : IToken
+{
+    private lexeme_: string;
+    private literal_: object;
+    private file_name_: string;
+    private line_: int;
+
+    private is_fractional_: bool;
+    private suffix_: char | null;
+    private number_base_: NumericTokenBase;
+    private number_styles_: int;
+
+    public implement type(): TokenType
+    {
+        return TokenType.NUMBER;
+    }
+
+    public implement lexeme(): string
+    {
+        return lexeme_;
+    }
+
+    public implement literal(): object
+    {
+        return literal_;
+    }
+
+    public implement file_name(): string
+    {
+        return file_name_;
+    }
+
+    public implement line(): int
+    {
+        return line_;
+    }
+
+    public is_fractional(): bool
+    {
+        return is_fractional_;
+    }
+
+    public suffix(): char | null
+    {
+        return suffix_;
+    }
+
+    public number_base(): NumericTokenBase
+    {
+        return number_base_;
+    }
+
+    public number_styles(): int
+    {
+        return number_styles_;
+    }
+
+    public has_suffix(): bool
+    {
+        return suffix_ != null;
+    }
+
+    public constructor(lexeme: string, file_name: string, line: int, number_characters: string, suffix: char | null, is_fractional: bool, number_base: NumericTokenBase, number_styles: int)
+    {
+        lexeme_ = lexeme;
+        literal_ = number_characters;
+        file_name_ = file_name;
+        line_ = line;
+
+        is_fractional_ = is_fractional;
+        suffix_ = suffix;
+        number_base_ = number_base;
+        number_styles_ = number_styles;
+    }
+}
+
+#c++-methods
+IToken* create_numeric_token(const char* lexeme, const char* file_name, int line, const char* number_characters, char16_t suffix, bool has_suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int number_styles)
+{
+    std::optional<char16_t> suffix_value;
+
+    if (has_suffix) {
+        suffix_value = suffix;
+    }
+
+    return new NumericToken(
+        perlang::UTF8String::from_copied_string(lexeme),
+        perlang::UTF8String::from_copied_string(file_name),
+        line,
+        perlang::UTF8String::from_copied_string(number_characters),
+        suffix_value,
+        is_fractional,
+        number_base,
+        number_styles
+    );
+}
+
+NumericToken* as_numeric_token(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    return (NumericToken*)token;
+}
+
+const char* get_numeric_token_literal_string(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    return ((perlang::String*)token->literal().get())->bytes();
+}
+
+char16_t get_numeric_token_suffix(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    auto suffix = ((NumericToken*)token)->suffix();
+
+    if (!suffix.has_value()) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Numeric token has no suffix"));
+    }
+
+    return suffix.value();
+}
+
+#/c++-methods

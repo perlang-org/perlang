@@ -18,7 +18,7 @@ internal class PerlangEnvironment : IEnvironment
         this.enclosing = (PerlangEnvironment)enclosing;
     }
 
-    public void Define(Token name, object value)
+    public void Define(IToken name, object value)
     {
         if (values.ContainsKey(name.Lexeme))
         {
@@ -35,7 +35,7 @@ internal class PerlangEnvironment : IEnvironment
         return Ancestor(distance).values.TryGetObjectValue(name);
     }
 
-    public void AssignAt(int distance, Token name, object value)
+    public void AssignAt(int distance, IToken name, object value)
     {
         Ancestor(distance).values[name.Lexeme] = value;
     }
@@ -52,7 +52,7 @@ internal class PerlangEnvironment : IEnvironment
         return environment;
     }
 
-    internal object Get(Token name)
+    internal object Get(IToken name)
     {
         return Get(name.Lexeme);
     }
@@ -68,7 +68,7 @@ internal class PerlangEnvironment : IEnvironment
         return enclosing?.Get(name);
     }
 
-    internal void Assign(Token name, object value)
+    internal void Assign(IToken name, object value)
     {
         if (values.ContainsKey(name.Lexeme))
         {

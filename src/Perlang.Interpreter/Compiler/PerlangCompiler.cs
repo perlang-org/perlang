@@ -430,8 +430,6 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         }
 
         // Ensure that tokens allocated get properly cleaned up when the process exits
-        ManagedResourceCleaner.DisposeTokensOnShutdown(cppPrototypes);
-        ManagedResourceCleaner.DisposeTokensOnShutdown(cppMethods);
         ManagedResourceCleaner.DisposeTokensOnShutdown(result.Tokens);
 
         //

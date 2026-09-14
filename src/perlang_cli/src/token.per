@@ -1,21 +1,23 @@
 #c++-prototypes
-Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
-Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
-Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);
-void delete_token(Token* token);
+IToken* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line);
+IToken* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line);
+IToken* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line);
+void delete_token(IToken* token);
 
-bool is_string_token(Token* token);
-bool is_char_token(Token* token);
-bool is_null_token(Token* token);
+bool is_string_token(IToken* token);
+bool is_char_token(IToken* token);
+bool is_null_token(IToken* token);
 
-const char* get_token_lexeme(Token* token);
-const char* get_token_string_literal(Token* token);
-uint16_t get_token_char_literal(Token* token);
-const char* get_token_file_name(Token* token);
+TokenType::TokenType get_token_type(IToken* token);
+const char* get_token_lexeme(IToken* token);
+const char* get_token_string_literal(IToken* token);
+uint16_t get_token_char_literal(IToken* token);
+const char* get_token_file_name(IToken* token);
+int get_token_line(IToken* token);
 
 #/c++-prototypes
 
-public class Token
+public class Token : IToken
 {
     private token_type_: TokenType;
     private lexeme_: string;
@@ -33,34 +35,34 @@ public class Token
     }
 
     // TODO: Could be called token_type but requires renaming on the C# as well
-    public type(): TokenType
+    public implement type(): TokenType
     {
         return token_type_;
     }
 
-    public lexeme(): string
+    public implement lexeme(): string
     {
         return lexeme_;
     }
 
-    public literal(): object
+    public implement literal(): object
     {
         return literal_;
     }
 
-    public file_name(): string
+    public implement file_name(): string
     {
         return file_name_;
     }
 
-    public line(): int
+    public implement line(): int
     {
         return line_;
     }
 }
 
 #c++-methods
-Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
+IToken* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
 {
     if (literal == nullptr) {
         throw std::invalid_argument("literal argument cannot be null");
@@ -69,23 +71,23 @@ Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, 
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::UTF8String::from_copied_string(literal), perlang::UTF8String::from_copied_string(file_name), line);
 }
 
-Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line)
+IToken* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line)
 {
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::Char::from(literal), perlang::UTF8String::from_copied_string(file_name), line);
 }
 
-Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line)
+IToken* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line)
 {
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), nullptr, perlang::UTF8String::from_copied_string(file_name), line);
 }
 
 // Must be called explicitly from the C# side, since CppSharp doesn't give us an easy way to pass ownership over to C#.
-void delete_token(Token* token)
+void delete_token(IToken* token)
 {
     delete token;
 }
 
-bool is_string_token(Token* token)
+bool is_string_token(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -105,7 +107,7 @@ bool is_string_token(Token* token)
     }
 }
 
-bool is_char_token(Token* token)
+bool is_char_token(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -117,13 +119,18 @@ bool is_char_token(Token* token)
     return (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.Char"));
 }
 
-bool is_null_token(Token* token)
+bool is_null_token(IToken* token)
 {
     auto literal = token->literal().get();
     return literal == nullptr;
 }
 
-const char* get_token_lexeme(Token* token)
+TokenType::TokenType get_token_type(IToken* token)
+{
+    return token->type();
+}
+
+const char* get_token_lexeme(IToken* token)
 {
     // TODO: This (and the other similar methods) work, under the crude assumption that the underlying string is
     // actually UTF-8 encoded (i.e. no UTF16String). When the 'as_utf8()' method exists in the String class, we should
@@ -131,7 +138,7 @@ const char* get_token_lexeme(Token* token)
     return token->lexeme()->bytes();
 }
 
-const char* get_token_string_literal(Token* token)
+const char* get_token_string_literal(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -145,7 +152,7 @@ const char* get_token_string_literal(Token* token)
     }
 }
 
-uint16_t get_token_char_literal(Token* token)
+uint16_t get_token_char_literal(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -157,9 +164,14 @@ uint16_t get_token_char_literal(Token* token)
     }
 }
 
-const char* get_token_file_name(Token* token)
+const char* get_token_file_name(IToken* token)
 {
     return token->file_name()->bytes();
+}
+
+int get_token_line(IToken* token)
+{
+    return token->line();
 }
 
 #/c++-methods

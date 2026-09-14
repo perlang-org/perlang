@@ -10,7 +10,7 @@ public static class ManagedResourceCleaner
     {
         AppDomain.CurrentDomain.ProcessExit += (_, _) => {
             foreach (IToken token in tokens) {
-                if (token is Token t) {
+                if (token is ITokenInternal t) {
                     // t.Dispose() wouldn't be enough since __ownsNativeInstance is false for the instances returned by
                     // perlang_cli.CreateNullToken() etc, because CppSharp doesn't know that ownership for this class could
                     // be handled on the C# side. We work around this by calling a delete method manually here.

@@ -10,13 +10,15 @@ internal static class NumberParser
 {
     public static INumericLiteral Parse(NumericToken numericToken)
     {
-        string numberCharacters = (string)numericToken.Literal!;
+        string numberCharacters = perlang_cli.GetNumericTokenLiteralString(numericToken);
 
         if (numericToken.IsFractional)
         {
             if (numericToken.HasSuffix)
             {
-                switch (numericToken.Suffix)
+                char suffix = perlang_cli.GetNumericTokenSuffix(numericToken);
+
+                switch (suffix)
                 {
                     case 'f':
                     {
@@ -40,7 +42,7 @@ internal static class NumberParser
                     }
 
                     default:
-                        throw new InvalidOperationException($"Numeric literal suffix {numericToken.Suffix} is not supported");
+                        throw new InvalidOperationException($"Numeric literal suffix {suffix} is not supported");
                 }
             }
             else
@@ -60,7 +62,7 @@ internal static class NumberParser
             BigInteger value = numericToken.NumberBase switch
             {
                 NumericTokenBase.DECIMAL =>
-                    BigInteger.Parse(numberCharacters, numericToken.NumberStyles),
+                    BigInteger.Parse(numberCharacters, (NumberStyles)numericToken.NumberStyles),
 
                 NumericTokenBase.BINARY =>
                     Convert.ToUInt64(numberCharacters, 2),
@@ -80,7 +82,7 @@ internal static class NumberParser
                     // correctly interpreted as a positive number, the first digit in value must have a value of zero.
                     //
                     // We presume that all hexadecimals should be treated as positive numbers for now.
-                    BigInteger.Parse('0' + numberCharacters, numericToken.NumberStyles),
+                    BigInteger.Parse('0' + numberCharacters, (NumberStyles)numericToken.NumberStyles),
 
                 _ =>
                     throw new InvalidOperationException($"Base {(int)numericToken.NumberBase} not supported")

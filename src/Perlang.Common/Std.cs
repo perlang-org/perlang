@@ -201,6 +201,10 @@ namespace Std
 
 namespace Std
 {
+}
+
+namespace Std
+{
     namespace CharTraits
     {
         [StructLayout(LayoutKind.Sequential, Size = 1)]

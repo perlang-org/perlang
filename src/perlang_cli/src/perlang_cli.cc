@@ -14,6 +14,59 @@
 //
 // Perlang class implementations
 //
+
+TokenType::TokenType NumericToken::type() {
+    return TokenType::NUMBER;
+};
+
+std::shared_ptr<perlang::String> NumericToken::lexeme() {
+    return lexeme_;
+};
+
+std::shared_ptr<perlang::Object> NumericToken::literal() {
+    return literal_;
+};
+
+std::shared_ptr<perlang::String> NumericToken::file_name() {
+    return file_name_;
+};
+
+int32_t NumericToken::line() {
+    return line_;
+};
+
+bool NumericToken::is_fractional() {
+    return is_fractional_;
+};
+
+std::optional<char16_t> NumericToken::suffix() {
+    return suffix_;
+};
+
+NumericTokenBase::NumericTokenBase NumericToken::number_base() {
+    return number_base_;
+};
+
+int32_t NumericToken::number_styles() {
+    return number_styles_;
+};
+
+bool NumericToken::has_suffix() {
+    return suffix_.has_value();
+};
+
+NumericToken::NumericToken(std::shared_ptr<perlang::String> lexeme, std::shared_ptr<perlang::String> file_name, int32_t line, std::shared_ptr<perlang::String> number_characters, std::optional<char16_t> suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int32_t number_styles) {
+    lexeme_ = lexeme;
+    literal_ = perlang::Object::convert_from(number_characters);
+    file_name_ = file_name;
+    line_ = line;
+    is_fractional_ = is_fractional;
+    suffix_ = suffix;
+    number_base_ = number_base;
+    number_styles_ = number_styles;
+};
+
+
 PerlangScanner::PerlangScanner(std::shared_ptr<perlang::UTF8String> source) {
     this->source = source->as_utf16();
 };
@@ -227,6 +280,58 @@ extern "C" void native_main([[maybe_unused]] int argc, char* const* argv)
 
     // Pass control back to the C# code
 }
+IToken* create_numeric_token(const char* lexeme, const char* file_name, int line, const char* number_characters, char16_t suffix, bool has_suffix, bool is_fractional, NumericTokenBase::NumericTokenBase number_base, int number_styles)
+{
+    std::optional<char16_t> suffix_value;
+
+    if (has_suffix) {
+        suffix_value = suffix;
+    }
+
+    return new NumericToken(
+        perlang::UTF8String::from_copied_string(lexeme),
+        perlang::UTF8String::from_copied_string(file_name),
+        line,
+        perlang::UTF8String::from_copied_string(number_characters),
+        suffix_value,
+        is_fractional,
+        number_base,
+        number_styles
+    );
+}
+
+NumericToken* as_numeric_token(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    return (NumericToken*)token;
+}
+
+const char* get_numeric_token_literal_string(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    return ((perlang::String*)token->literal().get())->bytes();
+}
+
+char16_t get_numeric_token_suffix(IToken* token)
+{
+    if (token->type() != TokenType::NUMBER) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Token expected to be a numeric token"));
+    }
+
+    auto suffix = ((NumericToken*)token)->suffix();
+
+    if (!suffix.has_value()) {
+        throw perlang::IllegalStateException(perlang::ASCIIString::from_static_string("Numeric token has no suffix"));
+    }
+
+    return suffix.value();
+}
 // Create a Perlang scanner instance. Because Perlang strings aren't directly usable from C#, we add this C++-based
 // wrapper method which is easier to P/Invoke using CppSharp.
 PerlangScanner* create_perlang_scanner(const char* source)
@@ -239,7 +344,7 @@ void delete_perlang_scanner(PerlangScanner* scanner)
 {
     delete scanner;
 }
-Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
+IToken* create_string_token(TokenType::TokenType token_type, const char* lexeme, const char* literal, const char* file_name, int line)
 {
     if (literal == nullptr) {
         throw std::invalid_argument("literal argument cannot be null");
@@ -248,23 +353,23 @@ Token* create_string_token(TokenType::TokenType token_type, const char* lexeme, 
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::UTF8String::from_copied_string(literal), perlang::UTF8String::from_copied_string(file_name), line);
 }
 
-Token* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line)
+IToken* create_char_token(TokenType::TokenType token_type, const char* lexeme, char16_t literal, const char* file_name, int line)
 {
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), perlang::Char::from(literal), perlang::UTF8String::from_copied_string(file_name), line);
 }
 
-Token* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line)
+IToken* create_null_token(TokenType::TokenType token_type, const char* lexeme, const char* file_name, int line)
 {
     return new Token(token_type, perlang::UTF8String::from_copied_string(lexeme), nullptr, perlang::UTF8String::from_copied_string(file_name), line);
 }
 
 // Must be called explicitly from the C# side, since CppSharp doesn't give us an easy way to pass ownership over to C#.
-void delete_token(Token* token)
+void delete_token(IToken* token)
 {
     delete token;
 }
 
-bool is_string_token(Token* token)
+bool is_string_token(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -284,7 +389,7 @@ bool is_string_token(Token* token)
     }
 }
 
-bool is_char_token(Token* token)
+bool is_char_token(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -296,13 +401,18 @@ bool is_char_token(Token* token)
     return (*literal->get_type() == *perlang::ASCIIString::from_static_string("perlang.Char"));
 }
 
-bool is_null_token(Token* token)
+bool is_null_token(IToken* token)
 {
     auto literal = token->literal().get();
     return literal == nullptr;
 }
 
-const char* get_token_lexeme(Token* token)
+TokenType::TokenType get_token_type(IToken* token)
+{
+    return token->type();
+}
+
+const char* get_token_lexeme(IToken* token)
 {
     // TODO: This (and the other similar methods) work, under the crude assumption that the underlying string is
     // actually UTF-8 encoded (i.e. no UTF16String). When the 'as_utf8()' method exists in the String class, we should
@@ -310,7 +420,7 @@ const char* get_token_lexeme(Token* token)
     return token->lexeme()->bytes();
 }
 
-const char* get_token_string_literal(Token* token)
+const char* get_token_string_literal(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -324,7 +434,7 @@ const char* get_token_string_literal(Token* token)
     }
 }
 
-uint16_t get_token_char_literal(Token* token)
+uint16_t get_token_char_literal(IToken* token)
 {
     auto literal = token->literal().get();
 
@@ -336,7 +446,12 @@ uint16_t get_token_char_literal(Token* token)
     }
 }
 
-const char* get_token_file_name(Token* token)
+const char* get_token_file_name(IToken* token)
 {
     return token->file_name()->bytes();
+}
+
+int get_token_line(IToken* token)
+{
+    return token->line();
 }

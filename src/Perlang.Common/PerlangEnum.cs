@@ -8,7 +8,7 @@ namespace Perlang;
 
 public class PerlangEnum : IPerlangType
 {
-    public Token NameToken { get; }
+    public IToken NameToken { get; }
     public string Name => perlang_cli.GetTokenLexeme(NameToken);
     public bool IsEnum => true;
     public ImmutableList<IPerlangFunction> Methods { get; } = [];
@@ -17,7 +17,7 @@ public class PerlangEnum : IPerlangType
 
     public PerlangEnum(IToken name, Dictionary<string, Expr> enumMembers)
     {
-        NameToken = name as Token ?? throw new ArgumentException($"Internal error: only Token names are supported, not {name.GetType()}");
+        NameToken = name;
         EnumMembers = enumMembers;
     }
 }

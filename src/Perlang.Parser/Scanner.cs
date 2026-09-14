@@ -486,7 +486,7 @@ public class Scanner : IDisposable
         // able to conjoin MINUS and NUMBER tokens together for negative numbers. The previous approach (inherited
         // from Lox) worked poorly with our idea of "narrowing down" constants to the smallest possible integer. See
         // #302 for some more details.
-        AddToken(new NumericToken(source[perlangScanner.Start..perlangScanner.Current], fileName, perlangScanner.Line, numberCharacters, suffix, isFractional, numberBase, numberStyles));
+        AddToken(perlang_cli.CreateNumericToken(source[perlangScanner.Start..perlangScanner.Current], fileName, perlangScanner.Line, numberCharacters, suffix ?? '\0', suffix != null, isFractional, numberBase, (int)numberStyles));
     }
 
     private static string RemoveUnderscores(string s)

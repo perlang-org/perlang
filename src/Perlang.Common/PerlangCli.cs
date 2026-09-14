@@ -12,6 +12,523 @@ using __IntPtr = global::System.IntPtr;
 
 #pragma warning disable CS0109 // Member does not hide an inherited member; new keyword is not required
 
+public unsafe partial interface IIToken : IDisposable
+{
+    __IntPtr __Instance { get; }
+
+    __IntPtr __PointerToIToken { get; }
+}
+
+public unsafe abstract partial class IToken : global::IIToken, IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 8)]
+    public partial struct __Internal
+    {
+        internal __IntPtr vptr_IToken;
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN6ITokenC2ERKS_", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN6ITokenC2Ev", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern void ctor(__IntPtr __instance);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::IIToken> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::IIToken>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::IIToken managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::IIToken managed)
+    {
+    
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::IToken __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::ITokenInternal(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::IToken __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::IToken)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::IToken __GetInstance(__IntPtr native)
+    {
+        if (!__TryGetNativeToManagedMapping(native, out var managed))
+            throw new global::System.Exception("No managed instance was found");
+        var result = (global::IToken)managed;
+        if (result.__ownsNativeInstance)
+            result.SetupVTables();
+        return result;
+    }
+
+    internal static global::IToken __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::ITokenInternal(native, skipVTables);
+    }
+
+    protected IToken(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+        if (!skipVTables)
+            SetupVTables(true);
+    }
+
+    protected IToken(global::IIToken _0)
+        : this((void*) null)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::IToken.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        if (ReferenceEquals(_0, null))
+            throw new global::System.ArgumentNullException("_0", "Cannot be null because it is a C++ reference (&).");
+        var __arg0 = _0.__PointerToIToken;
+        __Internal.cctor(__Instance, __arg0);
+        SetupVTables(GetType().FullName == "IToken");
+    }
+
+    protected IToken()
+        : this((void*) null)
+    {
+        __Instance = Marshal.AllocHGlobal(sizeof(global::IToken.__Internal));
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+        __Internal.ctor(__Instance);
+        SetupVTables(GetType().FullName == "IToken");
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        *(IntPtr*)(__Instance + 0) = __VTables.Tables[0];
+        DisposePartial(disposing);
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+
+    public __IntPtr __PointerToIToken
+    {
+        get
+        {
+            return __Instance + 0;
+        }
+    }
+
+    #region Virtual table interop
+
+    // virtual ~IToken() = default
+    private static global::Delegates.Action___IntPtr _dtorDelegateInstance;
+
+    private static void _dtorDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::IToken.__GetInstance(__instance);
+        __target.Dispose(disposing: true, callNativeDtor: true);
+    }
+
+    internal static class VTableLoader
+    {
+        private static volatile bool initialized;
+        private static readonly IntPtr*[] ManagedVTables = new IntPtr*[1];
+        private static readonly IntPtr*[] ManagedVTablesDtorOnly = new IntPtr*[1];
+        private static readonly IntPtr[] Thunks = new IntPtr[1];
+        private static CppSharp.Runtime.VTables VTables;
+        private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
+            SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
+                
+        static VTableLoader()
+        {
+            _dtorDelegateInstance += _dtorDelegateHook;
+            Thunks[0] = Marshal.GetFunctionPointerForDelegate(_dtorDelegateInstance);
+        }
+
+        public static CppSharp.Runtime.VTables SetupVTables(IntPtr instance, bool destructorOnly = false)
+        {
+            if (!initialized)
+            {
+                lock (ManagedVTables)
+                {
+                    if (!initialized)
+                    {
+                        initialized = true;
+                        VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
+                        VTables.Methods = new Delegate[1][];
+                        ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 9, 2);
+                        ManagedVTablesDtorOnly[0][1] = Thunks[0];
+                        ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 9, 2);
+                        ManagedVTables[0][1] = Thunks[0];
+                        VTables.Methods[0] = new Delegate[9];
+                    }
+                }
+            }
+
+            if (destructorOnly)
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTablesDtorOnly[0];
+            }
+            else
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTables[0];
+            }
+            return VTables;
+        }
+    }
+
+    protected CppSharp.Runtime.VTables __vtables;
+    internal virtual CppSharp.Runtime.VTables __VTables
+    {
+        get {
+            if (__vtables.IsEmpty)
+                __vtables.Tables = new IntPtr[] { *(IntPtr*)(__Instance + 0) };
+            return __vtables;
+        }
+
+        set {
+            __vtables = value;
+        }
+    }
+    internal virtual void SetupVTables(bool destructorOnly = false)
+    {
+        if (__VTables.IsTransient)
+            __VTables = VTableLoader.SetupVTables(__Instance, destructorOnly);
+    }
+    #endregion
+}
+
+public unsafe partial class NumericToken : global::IIToken, global::Perlang.IObject, IDisposable
+{
+    [StructLayout(LayoutKind.Sequential, Size = 104)]
+    public partial struct __Internal
+    {
+        internal __IntPtr vptr_IToken;
+        internal global::Std.WeakPtr.__Internal _M_weak_this;
+        internal __IntPtr vptr_Object;
+        internal global::Std.SharedPtr.__Internal lexeme_;
+        internal global::Std.SharedPtr.__Internal literal_;
+        internal global::Std.SharedPtr.__Internal file_name_;
+        internal int line_;
+        internal byte is_fractional_;
+        internal fixed byte number_base_Padding[4];
+        internal global::Perlang.NumericTokenBase number_base_;
+        internal int number_styles_;
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN12NumericToken13is_fractionalEv", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsFractional(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN12NumericToken11number_baseEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern global::Perlang.NumericTokenBase NumberBase(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN12NumericToken13number_stylesEv", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern int NumberStyles(__IntPtr __instance);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN12NumericToken10has_suffixEv", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool HasSuffix(__IntPtr __instance);
+    }
+
+    public __IntPtr __Instance { get; protected set; }
+
+    internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::NumericToken> NativeToManagedMap =
+        new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::NumericToken>();
+
+    internal static void __RecordNativeToManagedMapping(IntPtr native, global::NumericToken managed)
+    {
+        NativeToManagedMap[native] = managed;
+    }
+
+    internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::NumericToken managed)
+    {
+    
+        return NativeToManagedMap.TryGetValue(native, out managed);
+    }
+
+    protected bool __ownsNativeInstance;
+
+    internal static global::NumericToken __CreateInstance(__IntPtr native, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        return new global::NumericToken(native.ToPointer(), skipVTables);
+    }
+
+    internal static global::NumericToken __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+    {
+        if (native == __IntPtr.Zero)
+            return null;
+        if (__TryGetNativeToManagedMapping(native, out var managed))
+            return (global::NumericToken)managed;
+        var result = __CreateInstance(native, skipVTables);
+        if (saveInstance)
+            __RecordNativeToManagedMapping(native, result);
+        return result;
+    }
+
+    internal static global::NumericToken __GetInstance(__IntPtr native)
+    {
+        if (!__TryGetNativeToManagedMapping(native, out var managed))
+            throw new global::System.Exception("No managed instance was found");
+        var result = (global::NumericToken)managed;
+        if (result.__ownsNativeInstance)
+            result.SetupVTables();
+        return result;
+    }
+
+    internal static global::NumericToken __CreateInstance(__Internal native, bool skipVTables = false)
+    {
+        return new global::NumericToken(native, skipVTables);
+    }
+
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        *(__Internal*) ret = native;
+        return ret.ToPointer();
+    }
+
+    private NumericToken(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    protected NumericToken(void* native, bool skipVTables = false)
+    {
+        if (native == null)
+            return;
+        __Instance = new __IntPtr(native);
+        if (!skipVTables)
+            SetupVTables(true);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+    }
+
+    partial void DisposePartial(bool disposing);
+
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    {
+        if (__Instance == IntPtr.Zero)
+            return;
+        NativeToManagedMap.TryRemove(__Instance, out _);
+        *(IntPtr*)(__Instance + 0) = __VTables.Tables[0];
+        DisposePartial(disposing);
+        if (callNativeDtor)
+        {
+            var ___dtorDelegate = __VTables.GetMethodDelegate<global::Delegates.Action___IntPtr>(0, 0);
+            ___dtorDelegate(__Instance);
+        }
+        if (__ownsNativeInstance)
+            Marshal.FreeHGlobal(__Instance);
+        __Instance = IntPtr.Zero;
+    }
+
+    public virtual global::Perlang.TokenType Type()
+    {
+        var ___TypeDelegate = __VTables.GetMethodDelegate<global::Delegates.Func_Perlang_TokenType___IntPtr>(0, 2);
+        var ___ret = ___TypeDelegate(__Instance);
+        return ___ret;
+    }
+
+    public virtual int Line()
+    {
+        var ___LineDelegate = __VTables.GetMethodDelegate<global::Delegates.Func_int___IntPtr>(0, 6);
+        var ___ret = ___LineDelegate(__Instance);
+        return ___ret;
+    }
+
+    public __IntPtr __PointerToIToken
+    {
+        get
+        {
+            return __Instance + 0;
+        }
+    }
+
+    public __IntPtr __PointerToObject
+    {
+        get
+        {
+            return __Instance + 24;
+        }
+    }
+
+    public bool IsFractional
+    {
+        get
+        {
+            var ___ret = __Internal.IsFractional(__Instance);
+            return ___ret;
+        }
+    }
+
+    public global::Perlang.NumericTokenBase NumberBase
+    {
+        get
+        {
+            var ___ret = __Internal.NumberBase(__Instance);
+            return ___ret;
+        }
+    }
+
+    public int NumberStyles
+    {
+        get
+        {
+            var ___ret = __Internal.NumberStyles(__Instance);
+            return ___ret;
+        }
+    }
+
+    public bool HasSuffix
+    {
+        get
+        {
+            var ___ret = __Internal.HasSuffix(__Instance);
+            return ___ret;
+        }
+    }
+
+    #region Virtual table interop
+
+    // NumericToken
+    private static global::Delegates.Action___IntPtr _dtorDelegateInstance;
+
+    private static void _dtorDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::NumericToken.__GetInstance(__instance);
+        __target.Dispose(disposing: true, callNativeDtor: true);
+    }
+
+    // TokenType::TokenType type()
+    private static global::Delegates.Func_Perlang_TokenType___IntPtr _TypeDelegateInstance;
+
+    private static global::Perlang.TokenType _TypeDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::NumericToken.__GetInstance(__instance);
+        var ___ret = __target.Type();
+        return ___ret;
+    }
+
+    // int32_t line()
+    private static global::Delegates.Func_int___IntPtr _LineDelegateInstance;
+
+    private static int _LineDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::NumericToken.__GetInstance(__instance);
+        var ___ret = __target.Line();
+        return ___ret;
+    }
+
+    internal static class VTableLoader
+    {
+        private static volatile bool initialized;
+        private static readonly IntPtr*[] ManagedVTables = new IntPtr*[1];
+        private static readonly IntPtr*[] ManagedVTablesDtorOnly = new IntPtr*[1];
+        private static readonly IntPtr[] Thunks = new IntPtr[3];
+        private static CppSharp.Runtime.VTables VTables;
+        private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
+            SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
+                
+        static VTableLoader()
+        {
+            _dtorDelegateInstance += _dtorDelegateHook;
+            _TypeDelegateInstance += _TypeDelegateHook;
+            _LineDelegateInstance += _LineDelegateHook;
+            Thunks[0] = Marshal.GetFunctionPointerForDelegate(_dtorDelegateInstance);
+            Thunks[1] = Marshal.GetFunctionPointerForDelegate(_TypeDelegateInstance);
+            Thunks[2] = Marshal.GetFunctionPointerForDelegate(_LineDelegateInstance);
+        }
+
+        public static CppSharp.Runtime.VTables SetupVTables(IntPtr instance, bool destructorOnly = false)
+        {
+            if (!initialized)
+            {
+                lock (ManagedVTables)
+                {
+                    if (!initialized)
+                    {
+                        initialized = true;
+                        VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
+                        VTables.Methods = new Delegate[1][];
+                        ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 15, 2);
+                        ManagedVTablesDtorOnly[0][1] = Thunks[0];
+                        ManagedVTablesDtorOnly[0][10] = Thunks[0];
+                        ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 15, 2);
+                        ManagedVTables[0][1] = Thunks[0];
+                        ManagedVTables[0][2] = Thunks[1];
+                        ManagedVTables[0][6] = Thunks[2];
+                        ManagedVTables[0][10] = Thunks[0];
+                        VTables.Methods[0] = new Delegate[15];
+                    }
+                }
+            }
+
+            if (destructorOnly)
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTablesDtorOnly[0];
+            }
+            else
+            {
+                *(IntPtr**)(instance + 0) = ManagedVTables[0];
+            }
+            return VTables;
+        }
+    }
+
+    protected CppSharp.Runtime.VTables __vtables;
+    internal virtual CppSharp.Runtime.VTables __VTables
+    {
+        get {
+            if (__vtables.IsEmpty)
+                __vtables.Tables = new IntPtr[] { *(IntPtr*)(__Instance + 0) };
+            return __vtables;
+        }
+
+        set {
+            __vtables = value;
+        }
+    }
+    internal virtual void SetupVTables(bool destructorOnly = false)
+    {
+        if (__VTables.IsTransient)
+            __VTables = VTableLoader.SetupVTables(__Instance, destructorOnly);
+    }
+    #endregion
+}
+
 public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposable
 {
     [StructLayout(LayoutKind.Sequential, Size = 56)]
@@ -360,24 +877,19 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
     #endregion
 }
 
-public unsafe partial class Token : global::Perlang.IObject, IDisposable
+public unsafe partial class Token : global::IIToken, global::Perlang.IObject, IDisposable
 {
-    [StructLayout(LayoutKind.Sequential, Size = 88)]
+    [StructLayout(LayoutKind.Sequential, Size = 96)]
     public partial struct __Internal
     {
-        internal __IntPtr vptr_Object;
+        internal __IntPtr vptr_IToken;
         internal global::Std.WeakPtr.__Internal _M_weak_this;
+        internal __IntPtr vptr_Object;
         internal global::Perlang.TokenType token_type_;
         internal global::Std.SharedPtr.__Internal lexeme_;
         internal global::Std.SharedPtr.__Internal literal_;
         internal global::Std.SharedPtr.__Internal file_name_;
         internal int line_;
-
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN5Token4typeEv", CallingConvention = __CallingConvention.Cdecl)]
-        internal static extern global::Perlang.TokenType Type(__IntPtr __instance);
-
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN5Token4lineEv", CallingConvention = __CallingConvention.Cdecl)]
-        internal static extern int Line(__IntPtr __instance);
     }
 
     public __IntPtr __Instance { get; protected set; }
@@ -479,7 +991,21 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
         __Instance = IntPtr.Zero;
     }
 
-    public __IntPtr __PointerToObject
+    public virtual global::Perlang.TokenType Type()
+    {
+        var ___TypeDelegate = __VTables.GetMethodDelegate<global::Delegates.Func_Perlang_TokenType___IntPtr>(0, 2);
+        var ___ret = ___TypeDelegate(__Instance);
+        return ___ret;
+    }
+
+    public virtual int Line()
+    {
+        var ___LineDelegate = __VTables.GetMethodDelegate<global::Delegates.Func_int___IntPtr>(0, 6);
+        var ___ret = ___LineDelegate(__Instance);
+        return ___ret;
+    }
+
+    public __IntPtr __PointerToIToken
     {
         get
         {
@@ -487,21 +1013,11 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
         }
     }
 
-    public global::Perlang.TokenType Type
+    public __IntPtr __PointerToObject
     {
         get
         {
-            var ___ret = __Internal.Type(__Instance);
-            return ___ret;
-        }
-    }
-
-    public int Line
-    {
-        get
-        {
-            var ___ret = __Internal.Line(__Instance);
-            return ___ret;
+            return __Instance + 24;
         }
     }
 
@@ -516,12 +1032,32 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
         __target.Dispose(disposing: true, callNativeDtor: true);
     }
 
+    // TokenType::TokenType type()
+    private static global::Delegates.Func_Perlang_TokenType___IntPtr _TypeDelegateInstance;
+
+    private static global::Perlang.TokenType _TypeDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::Token.__GetInstance(__instance);
+        var ___ret = __target.Type();
+        return ___ret;
+    }
+
+    // int32_t line()
+    private static global::Delegates.Func_int___IntPtr _LineDelegateInstance;
+
+    private static int _LineDelegateHook(__IntPtr __instance)
+    {
+        var __target = global::Token.__GetInstance(__instance);
+        var ___ret = __target.Line();
+        return ___ret;
+    }
+
     internal static class VTableLoader
     {
         private static volatile bool initialized;
         private static readonly IntPtr*[] ManagedVTables = new IntPtr*[1];
         private static readonly IntPtr*[] ManagedVTablesDtorOnly = new IntPtr*[1];
-        private static readonly IntPtr[] Thunks = new IntPtr[1];
+        private static readonly IntPtr[] Thunks = new IntPtr[3];
         private static CppSharp.Runtime.VTables VTables;
         private static readonly global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>
             SafeHandles = new global::System.Collections.Generic.List<CppSharp.Runtime.SafeUnmanagedMemoryHandle>();
@@ -529,7 +1065,11 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
         static VTableLoader()
         {
             _dtorDelegateInstance += _dtorDelegateHook;
+            _TypeDelegateInstance += _TypeDelegateHook;
+            _LineDelegateInstance += _LineDelegateHook;
             Thunks[0] = Marshal.GetFunctionPointerForDelegate(_dtorDelegateInstance);
+            Thunks[1] = Marshal.GetFunctionPointerForDelegate(_TypeDelegateInstance);
+            Thunks[2] = Marshal.GetFunctionPointerForDelegate(_LineDelegateInstance);
         }
 
         public static CppSharp.Runtime.VTables SetupVTables(IntPtr instance, bool destructorOnly = false)
@@ -543,11 +1083,15 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
                         initialized = true;
                         VTables.Tables = new IntPtr[] { *(IntPtr*)(instance + 0) };
                         VTables.Methods = new Delegate[1][];
-                        ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 6, 2);
+                        ManagedVTablesDtorOnly[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 15, 2);
                         ManagedVTablesDtorOnly[0][1] = Thunks[0];
-                        ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 6, 2);
+                        ManagedVTablesDtorOnly[0][10] = Thunks[0];
+                        ManagedVTables[0] = CppSharp.Runtime.VTables.CloneTable(SafeHandles, instance, 0, 15, 2);
                         ManagedVTables[0][1] = Thunks[0];
-                        VTables.Methods[0] = new Delegate[6];
+                        ManagedVTables[0][2] = Thunks[1];
+                        ManagedVTables[0][6] = Thunks[2];
+                        ManagedVTables[0][10] = Thunks[0];
+                        VTables.Methods[0] = new Delegate[15];
                     }
                 }
             }
@@ -585,6 +1129,28 @@ public unsafe partial class Token : global::Perlang.IObject, IDisposable
     #endregion
 }
 
+public unsafe partial class ITokenInternal : global::IToken, IDisposable
+{
+    private static void* __CopyValue(__Internal native)
+    {
+        var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+        *(__Internal*) ret = native;
+        return ret.ToPointer();
+    }
+
+    internal ITokenInternal(__Internal native, bool skipVTables = false)
+        : this(__CopyValue(native), skipVTables)
+    {
+        __ownsNativeInstance = true;
+        __RecordNativeToManagedMapping(__Instance, this);
+    }
+
+    internal ITokenInternal(void* native, bool skipVTables = false)
+        : base((void*) native)
+    {
+    }
+}
+
 public unsafe partial class perlang_cli
 {
     public partial struct __Internal
@@ -597,6 +1163,18 @@ public unsafe partial class perlang_cli
 
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "native_main", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void NativeMain(int argc, sbyte** argv);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z20create_numeric_tokenPKcS0_iS0_DsbbN16NumericTokenBase16NumericTokenBaseEi", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern __IntPtr CreateNumericToken([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string number_characters, char suffix, bool has_suffix, bool is_fractional, global::Perlang.NumericTokenBase number_base, int number_styles);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z16as_numeric_tokenP6IToken", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern __IntPtr AsNumericToken(__IntPtr token);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z32get_numeric_token_literal_stringP6IToken", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern __IntPtr GetNumericTokenLiteralString(__IntPtr token);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24get_numeric_token_suffixP6IToken", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern char GetNumericTokenSuffix(__IntPtr token);
 
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22create_perlang_scannerPKc", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr CreatePerlangScanner([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string source);
@@ -613,32 +1191,38 @@ public unsafe partial class perlang_cli
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z17create_null_tokenN9TokenType9TokenTypeEPKcS2_i", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr CreateNullToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z12delete_tokenP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z12delete_tokenP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void DeleteToken(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z15is_string_tokenP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z15is_string_tokenP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsStringToken(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z13is_char_tokenP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z13is_char_tokenP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsCharToken(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z13is_null_tokenP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z13is_null_tokenP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsNullToken(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z16get_token_lexemeP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z14get_token_typeP6IToken", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern global::Perlang.TokenType GetTokenType(__IntPtr token);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z16get_token_lexemeP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr GetTokenLexeme(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24get_token_string_literalP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24get_token_string_literalP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr GetTokenStringLiteral(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22get_token_char_literalP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22get_token_char_literalP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern ushort GetTokenCharLiteral(__IntPtr token);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z19get_token_file_nameP5Token", CallingConvention = __CallingConvention.Cdecl)]
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z19get_token_file_nameP6IToken", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr GetTokenFileName(__IntPtr token);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z14get_token_lineP6IToken", CallingConvention = __CallingConvention.Cdecl)]
+        internal static extern int GetTokenLine(__IntPtr token);
     }
 
     public static void PrintPerlangVersion()
@@ -656,6 +1240,35 @@ public unsafe partial class perlang_cli
         __Internal.NativeMain(argc, argv);
     }
 
+    public static global::IToken CreateNumericToken(string lexeme, string file_name, int line, string number_characters, char suffix, bool has_suffix, bool is_fractional, global::Perlang.NumericTokenBase number_base, int number_styles)
+    {
+        var ___ret = __Internal.CreateNumericToken(lexeme, file_name, line, number_characters, suffix, has_suffix, is_fractional, number_base, number_styles);
+        var __result0 = global::IToken.__GetOrCreateInstance(___ret, true);
+        return __result0;
+    }
+
+    public static global::NumericToken AsNumericToken(global::IIToken token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
+        var ___ret = __Internal.AsNumericToken(__arg0);
+        var __result0 = global::NumericToken.__GetOrCreateInstance(___ret, true);
+        return __result0;
+    }
+
+    public static string GetNumericTokenLiteralString(global::IIToken token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
+        var ___ret = __Internal.GetNumericTokenLiteralString(__arg0);
+        return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
+    }
+
+    public static char GetNumericTokenSuffix(global::IIToken token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
+        var ___ret = __Internal.GetNumericTokenSuffix(__arg0);
+        return ___ret;
+    }
+
     public static global::PerlangScanner CreatePerlangScanner(string source)
     {
         var ___ret = __Internal.CreatePerlangScanner(source);
@@ -669,80 +1282,94 @@ public unsafe partial class perlang_cli
         __Internal.DeletePerlangScanner(__arg0);
     }
 
-    public static global::Token CreateStringToken(global::Perlang.TokenType token_type, string lexeme, string literal, string file_name, int line)
+    public static global::IToken CreateStringToken(global::Perlang.TokenType token_type, string lexeme, string literal, string file_name, int line)
     {
         var ___ret = __Internal.CreateStringToken(token_type, lexeme, literal, file_name, line);
-        var __result0 = global::Token.__GetOrCreateInstance(___ret, true);
+        var __result0 = global::IToken.__GetOrCreateInstance(___ret, true);
         return __result0;
     }
 
-    public static global::Token CreateCharToken(global::Perlang.TokenType token_type, string lexeme, char literal, string file_name, int line)
+    public static global::IToken CreateCharToken(global::Perlang.TokenType token_type, string lexeme, char literal, string file_name, int line)
     {
         var ___ret = __Internal.CreateCharToken(token_type, lexeme, literal, file_name, line);
-        var __result0 = global::Token.__GetOrCreateInstance(___ret, true);
+        var __result0 = global::IToken.__GetOrCreateInstance(___ret, true);
         return __result0;
     }
 
-    public static global::Token CreateNullToken(global::Perlang.TokenType token_type, string lexeme, string file_name, int line)
+    public static global::IToken CreateNullToken(global::Perlang.TokenType token_type, string lexeme, string file_name, int line)
     {
         var ___ret = __Internal.CreateNullToken(token_type, lexeme, file_name, line);
-        var __result0 = global::Token.__GetOrCreateInstance(___ret, true);
+        var __result0 = global::IToken.__GetOrCreateInstance(___ret, true);
         return __result0;
     }
 
-    public static void DeleteToken(global::Token token)
+    public static void DeleteToken(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         __Internal.DeleteToken(__arg0);
     }
 
-    public static bool IsStringToken(global::Token token)
+    public static bool IsStringToken(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.IsStringToken(__arg0);
         return ___ret;
     }
 
-    public static bool IsCharToken(global::Token token)
+    public static bool IsCharToken(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.IsCharToken(__arg0);
         return ___ret;
     }
 
-    public static bool IsNullToken(global::Token token)
+    public static bool IsNullToken(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.IsNullToken(__arg0);
         return ___ret;
     }
 
-    public static string GetTokenLexeme(global::Token token)
+    public static global::Perlang.TokenType GetTokenType(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
+        var ___ret = __Internal.GetTokenType(__arg0);
+        return ___ret;
+    }
+
+    public static string GetTokenLexeme(global::IIToken token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.GetTokenLexeme(__arg0);
         return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
     }
 
-    public static string GetTokenStringLiteral(global::Token token)
+    public static string GetTokenStringLiteral(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.GetTokenStringLiteral(__arg0);
         return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
     }
 
-    public static ushort GetTokenCharLiteral(global::Token token)
+    public static ushort GetTokenCharLiteral(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.GetTokenCharLiteral(__arg0);
         return ___ret;
     }
 
-    public static string GetTokenFileName(global::Token token)
+    public static string GetTokenFileName(global::IIToken token)
     {
-        var __arg0 = token is null ? __IntPtr.Zero : token.__Instance;
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
         var ___ret = __Internal.GetTokenFileName(__arg0);
         return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, ___ret);
+    }
+
+    public static int GetTokenLine(global::IIToken token)
+    {
+        var __arg0 = token is null ? __IntPtr.Zero : token.__PointerToIToken;
+        var ___ret = __Internal.GetTokenLine(__arg0);
+        return ___ret;
     }
 }
 
@@ -5760,6 +6387,12 @@ namespace Delegates
 {
     [SuppressUnmanagedCodeSecurity, UnmanagedFunctionPointer(__CallingConvention.Cdecl)]
     internal unsafe delegate void Action___IntPtr(__IntPtr __instance);
+
+    [SuppressUnmanagedCodeSecurity, UnmanagedFunctionPointer(__CallingConvention.Cdecl)]
+    internal unsafe delegate global::Perlang.TokenType Func_Perlang_TokenType___IntPtr(__IntPtr __instance);
+
+    [SuppressUnmanagedCodeSecurity, UnmanagedFunctionPointer(__CallingConvention.Cdecl)]
+    internal unsafe delegate int Func_int___IntPtr(__IntPtr __instance);
 }
 
 namespace Std
@@ -5787,6 +6420,12 @@ namespace Std
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
         public unsafe partial struct __Internalc__N_std_S_enable_shared_from_this____S_PerlangScanner
+        {
+            internal global::Std.WeakPtr.__Internal _M_weak_this;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public unsafe partial struct __Internalc__N_std_S_enable_shared_from_this____S_NumericToken
         {
             internal global::Std.WeakPtr.__Internal _M_weak_this;
         }
