@@ -19,8 +19,8 @@ add_library(
         src/string_token_type_dictionary.cc
 )
 
-# Enable C++ 17 support. This is required on e.g. AppleClang 13
-set_property(TARGET perlang_cli PROPERTY CXX_STANDARD 17)
+# Enable C++ 17 support. This is required on e.g. AppleClang 13 and NetBSD g++ 10.5.
+target_compile_features(perlang_cli PUBLIC cxx_std_17)
 
 # Remove the lib prefix from the output file (libperlang_cli.so -> perlang_cli.so)
 set_property(TARGET perlang_cli PROPERTY PREFIX "")
@@ -67,6 +67,8 @@ target_include_directories(
         tests
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
+
+target_compile_options(tests PRIVATE -Werror)
 
 target_link_directories(
         tests

@@ -168,9 +168,9 @@ add_library(
         src/perlang_value_types.h
 )
 
-# Enable C++ 17 support. This is required on e.g. AppleClang 13
+# Enable C++ 17 support. This is required on e.g. AppleClang 13 and NetBSD g++ 10.5.
 # TODO: Upgrade this to C++ 20, so we could use things like std::format
-set_property(TARGET stdlib PROPERTY CXX_STANDARD 17)
+target_compile_features(stdlib PUBLIC cxx_std_17)
 
 target_include_directories(
         stdlib PUBLIC
@@ -257,6 +257,8 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             tests
             PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     )
+
+    target_compile_options(tests PRIVATE -Werror)
 
     target_link_libraries(tests PRIVATE stdlib)
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
