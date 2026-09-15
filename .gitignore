@@ -380,3 +380,5 @@ src/Perlang.Common/PerlangCli.cs-orig
 src/perlang_cli/src/perlang_cli_preprocessed.cc
 src/*/cmake-build-debug/
 src/*/out/
+
+tools/langstats/output/

@@ -263,3 +263,7 @@ upload-release:
 .PHONY: create-gitlab-release
 create-gitlab-release:
 	scripts/ci/create-gitlab-release.sh
+
+.PHONY: langstats
+langstats:
+	make -C tools/langstats
