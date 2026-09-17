@@ -420,12 +420,22 @@ internal class TypeResolver : VisitorBase
                 // All is fine, we have a type.
                 expr.TypeReference.SetCppType(get.TypeReference.CppType);
                 expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
+
+                if (get.TypeReference.IsUnionType && get.TypeReference.UnionSuccessTypeCppType != null) {
+                    expr.TypeReference.SetUnionSuccessType(get.TypeReference.UnionSuccessTypeCppType);
+                }
+
                 return VoidObject.Void;
             }
             else if (get.PerlangMethods.Any() && get.TypeReference.IsResolved) {
                 // All is fine, we have a type.
                 expr.TypeReference.SetCppType(get.TypeReference.CppType);
                 expr.TypeReference.SetPerlangType(get.TypeReference.PerlangType);
+
+                if (get.TypeReference.IsUnionType && get.TypeReference.UnionSuccessTypeCppType != null) {
+                    expr.TypeReference.SetUnionSuccessType(get.TypeReference.UnionSuccessTypeCppType);
+                }
+
                 return VoidObject.Void;
             }
             else if (!get.TypeReference.IsResolved) {
@@ -813,6 +823,10 @@ internal class TypeResolver : VisitorBase
 
             // This being null is a valid case, since we might not be returning a Perlang-defined type.
             expr.TypeReference.SetPerlangType(firstMatchingMethod.ReturnTypeReference.PerlangType);
+
+            if (firstMatchingMethod.ReturnTypeReference.IsUnionType && firstMatchingMethod.ReturnTypeReference.UnionSuccessTypeCppType != null) {
+                expr.TypeReference.SetUnionSuccessType(firstMatchingMethod.ReturnTypeReference.UnionSuccessTypeCppType);
+            }
         }
         else if (binding is EnumBinding enumBinding) {
             PerlangEnum perlangEnum = enumBinding.PerlangEnum;
