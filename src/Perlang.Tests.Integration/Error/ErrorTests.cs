@@ -90,7 +90,49 @@ public class ErrorTests
     }
 
     [Fact]
-    public void function_not_returning_error_emits_expected_compiler_error()
+    public void multiple_functions_can_return_same_error_union_type()
+    {
+        string source = """
+            public function_one(): bool | error {
+                return false;
+            }
+
+            public function_two(): bool | error {
+                return true;
+            }
+
+            print try function_one();
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("false");
+    }
+
+    [Fact]
+    public void multiple_functions_can_return_different_error_union_types()
+    {
+        string source = """
+            fun function_one(): bool | error {
+                return false;
+            }
+
+            fun function_two(): int | error {
+                return 123;
+            }
+
+            print try function_one();
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("false");
+    }
+
+    [Fact]
+    public void returning_error_in_function_not_returning_error_union_type_emits_expected_compiler_error()
     {
         string source = """
             private static is_even(i: int): bool {

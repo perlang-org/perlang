@@ -1349,8 +1349,14 @@ internal class TypeResolver : VisitorBase
         string successCppType = successRef.CppType!.PossiblyWrappedTypeName();
         string variantTypeName = $"std::variant<{successCppType}, std::shared_ptr<perlang::Error>>";
 
+        string perlangTypeName = $"{successRef.CppType!.Name} | error";
+
         typeReference.SetUnionSuccessType(successRef.CppType!);
-        typeReference.SetCppType(cppTypeRegistry.Register(variantTypeName, "perlang.Result", "result", wrapInSharedPtr: false));
+
+        typeReference.SetCppType(
+            cppTypeRegistry.GetByPerlangTypeName(perlangTypeName) ??
+            cppTypeRegistry.Register(variantTypeName, perlangTypeName, "result", wrapInSharedPtr: false)
+        );
     }
 
     private void ResolveExplicitTypes(ITypeReference typeReference)
