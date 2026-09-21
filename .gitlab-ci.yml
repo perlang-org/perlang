@@ -23,14 +23,14 @@ build-perlang-cli:
   image: docker.perlang.org/perlang/docker-images/ci/dotnet:10.0
 
   script:
-    # First, install the latest 'nightly' snapshot and build Perlang CLI one time. This ensures that the latest nightly
-    # "works" at least as far as producing some output is concerned.
-    - scripts/perlang-install
-    - make -j$(scripts/num_cpus) perlang_cli_clean perlang_cli
-
-    # Then, build the rest of the Perlang compiler and install it in-place of the existing 'nightly' snapshot. Once this
-    # is done, rebuild the Perlang CLI one more time. This ensures that the current commit can produce some output.
+    # First, build Perlang CLI and the rest of the tooling based on committed C++ sources. Note that we deliberately do
+    # *not* run perlang_cli_clean at this stage; we don't yet have a Perlang toolchain available, and it's not certain
+    # that the latest snapshot has all features we need. (In other words, the current commit might depend on features
+    # from the current commit to build)
+    - make -j$(scripts/num_cpus) perlang_cli
     - make install
+
+    # Then, rebuild the Perlang CLI one more time. This ensures that the current commit can produce some output.
     - make -j$(scripts/num_cpus) perlang_cli_clean perlang_cli
 
     # Finally, ensure that the generated C++ is identical to the file(s) in the repo. These should never diff; if they
