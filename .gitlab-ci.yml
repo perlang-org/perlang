@@ -53,8 +53,8 @@ build-freebsd:
     - freebsd
 
   script:
-    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
-    # have a more recent timestamp.
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
+    # files have a more recent timestamp.
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
@@ -81,8 +81,8 @@ build-netbsd:
     - netbsd
 
   script:
-    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per files
-    # have a more recent timestamp.
+    # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
+    # files have a more recent timestamp.
     - mkdir -p ~/.perlang/nightly/bin
     - cp $(which true) ~/.perlang/nightly/bin/perlang
 
