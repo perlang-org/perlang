@@ -42,8 +42,15 @@ jobs:
       #
       # Build releases
       #
-      - name: Build host-compatible release
+      - name: Build a host-compatible release
         run: dotnet build
+
+      # "Fake it till you make it". This is necessary to avoid failures trying to regenerate our .cc file if the .per
+      # files have a more recent timestamp.
+      - name: Create a dummy perlang binary
+        run: |
+          mkdir -p ~/.perlang/nightly/bin
+          cp $(which true) ~/.perlang/nightly/bin/perlang
 
       # First, build Perlang CLI and the rest of the tooling based on committed C++ sources. Note that we deliberately do
       # *not* run perlang_cli_clean at this stage; we don't yet have a Perlang toolchain available, and it's not certain
