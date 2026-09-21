@@ -108,35 +108,41 @@ bool PerlangScanner::is_underscore(char16_t c) {
     return c == L'_';
 };
 
-bool PerlangScanner::is_alpha_numeric(char16_t c) {
-    return is_alpha(c) || is_underscore(c) || is_digit(c, NumericTokenBase::DECIMAL);
+std::variant<bool, std::shared_ptr<perlang::Error>> PerlangScanner::is_alpha_numeric(char16_t c) {
+    return std::variant<bool, std::shared_ptr<perlang::Error>>{is_alpha(c) || is_underscore(c) || ({
+    auto __perlang_try_0 = is_digit(c, NumericTokenBase::DECIMAL);
+    if (__perlang_try_0.index() == 1) {
+        return std::variant<bool, std::shared_ptr<perlang::Error>>{std::get<1>(__perlang_try_0)};
+    }
+    std::get<0>(__perlang_try_0);
+})};
 };
 
-bool PerlangScanner::is_digit(char16_t c, NumericTokenBase::NumericTokenBase base) {
+std::variant<bool, std::shared_ptr<perlang::Error>> PerlangScanner::is_digit(char16_t c, NumericTokenBase::NumericTokenBase base) {
     switch (base) {
         case NumericTokenBase::BINARY:
             {
-                return bool{c == L'0' || c == L'1'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c == L'0' || c == L'1'};
             }
             break;
         case NumericTokenBase::OCTAL:
             {
-                return bool{c >= L'0' && c <= L'7'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= L'0' && c <= L'7'};
             }
             break;
         case NumericTokenBase::DECIMAL:
             {
-                return bool{c >= L'0' && c <= L'9'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= L'0' && c <= L'9'};
             }
             break;
         case NumericTokenBase::HEXADECIMAL:
             {
-                return bool{(c >= L'0' && c <= L'9') || (perlang::Char::to_upper(c) >= L'A' && perlang::Char::to_upper(c) <= L'F')};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{(c >= L'0' && c <= L'9') || (perlang::Char::to_upper(c) >= L'A' && perlang::Char::to_upper(c) <= L'F')};
             }
             break;
         default:
             {
-                return bool{std::make_shared<perlang::ArgumentError>(perlang::ASCIIString::from_static_string("Unsupported base"))};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{std::make_shared<perlang::ArgumentError>(perlang::ASCIIString::from_static_string("Unsupported base"))};
             }
             break;
     }
@@ -332,6 +338,27 @@ char16_t get_numeric_token_suffix(IToken* token)
 
     return suffix.value();
 }
+static bool unwrap_or_throw_invalid_argument(std::variant<bool, std::shared_ptr<perlang::Error>> result)
+{
+    if (std::holds_alternative<std::shared_ptr<perlang::Error>>(result)) {
+        throw std::invalid_argument(std::get<std::shared_ptr<perlang::Error>>(result)->message()->bytes());
+    }
+
+    // Note: will throw std::bad_variant_access() if result does not hold a bool. Should never happen because of the
+    // check above.
+    return std::get<bool>(result);
+}
+
+bool is_alpha_numeric_wrapper(char16_t c)
+{
+    return unwrap_or_throw_invalid_argument(PerlangScanner::is_alpha_numeric(c));
+}
+
+bool is_digit_wrapper(char16_t c, NumericTokenBase::NumericTokenBase base)
+{
+    return unwrap_or_throw_invalid_argument(PerlangScanner::is_digit(c, base));
+}
+
 // Create a Perlang scanner instance. Because Perlang strings aren't directly usable from C#, we add this C++-based
 // wrapper method which is easier to P/Invoke using CppSharp.
 PerlangScanner* create_perlang_scanner(const char* source)

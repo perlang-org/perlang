@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+// TODO: Move to CppSharpGlue
 namespace Perlang
 {
     namespace Collections

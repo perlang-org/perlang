@@ -203,6 +203,30 @@ public class UnionTests
     }
 
     [Fact]
+    public void function_with_nullable_union_return_type_can_be_called_before_defined()
+    {
+        string source = """
+            // This (calling the 'f' method before it's defined) is a forward reference. The type is expected to be
+            // resolved correctly for this scenario as well.
+            var c = f();
+
+            if (c is char v) {
+                print(v);
+            }
+
+            fun f(): char | null
+            {
+                return 'x';
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("x");
+    }
+
+    [Fact]
     public void function_with_nullable_union_parameter_can_receive_non_null_parameter()
     {
         string source = """

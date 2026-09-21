@@ -736,7 +736,12 @@ internal class TypeResolver : VisitorBase
             ITypeReference typeReference = binding.TypeReference ?? throw new PerlangCompilerException($"Internal compiler error: Type reference unexpectedly null for binding for '{expr.Name.Lexeme}'");
 
             if (typeReference.ExplicitTypeSpecified && !typeReference.IsResolved) {
-                ResolveExplicitTypes(typeReference);
+                if (binding is FunctionBinding) {
+                    ResolveReturnType(typeReference);
+                }
+                else {
+                    ResolveExplicitTypes(typeReference);
+                }
             }
 
             expr.TypeReference.SetCppType(typeReference.CppType);
@@ -816,7 +821,7 @@ internal class TypeResolver : VisitorBase
             // Duplicating this logic here since for forward references (methods defined later in the class),
             // types resolving will not have taken place at this point.
             if (!firstMatchingMethod.ReturnTypeReference.IsResolved) {
-                ResolveExplicitTypes(firstMatchingMethod.ReturnTypeReference);
+                ResolveReturnType(firstMatchingMethod.ReturnTypeReference);
             }
 
             expr.TypeReference.SetCppType(firstMatchingMethod.ReturnTypeReference.CppType ?? throw new PerlangCompilerException($"Internal compiler error: C++ type was null for return type of method '{expr.Name.Lexeme}' in class '{perlangType.Name}'"));
@@ -1077,15 +1082,7 @@ internal class TypeResolver : VisitorBase
         }
 
         if (!stmt.ReturnTypeReference.IsResolved) {
-            if (stmt.ReturnTypeReference.UnionTypeType == UnionTypeType.Null) {
-                ResolveNullableUnionType(stmt.ReturnTypeReference);
-            }
-            else if (stmt.ReturnTypeReference.IsUnionType) {
-                ResolveUnionReturnType(stmt.ReturnTypeReference);
-            }
-            else {
-                ResolveExplicitTypes(stmt.ReturnTypeReference);
-            }
+            ResolveReturnType(stmt.ReturnTypeReference);
         }
 
         foreach (Parameter parameter in stmt.Parameters) {
@@ -1326,6 +1323,19 @@ internal class TypeResolver : VisitorBase
         }
 
         typeReference.SetCppType(valueTypeReference.CppType!.MakeNullableUnionType());
+    }
+
+    private void ResolveReturnType(ITypeReference typeReference)
+    {
+        if (typeReference.UnionTypeType == UnionTypeType.Null) {
+            ResolveNullableUnionType(typeReference);
+        }
+        else if (typeReference.IsUnionType) {
+            ResolveUnionReturnType(typeReference);
+        }
+        else {
+            ResolveExplicitTypes(typeReference);
+        }
     }
 
     /// <summary>

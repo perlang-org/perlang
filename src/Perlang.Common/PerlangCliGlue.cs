@@ -4,6 +4,7 @@
 
 namespace Std;
 
+// TODO: Move to CppSharpGlue
 internal struct DequeIterator
 {
     // TODO: Ugly quirks to workaround compilation error in generated C# bindings. CppSharp generates references to

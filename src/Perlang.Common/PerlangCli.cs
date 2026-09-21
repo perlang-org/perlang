@@ -553,14 +553,6 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool IsUnderscore(char c);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner16is_alpha_numericEDs", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        internal static extern bool IsAlphaNumeric(char c);
-
-        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner8is_digitEDsN16NumericTokenBase16NumericTokenBaseE", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        internal static extern bool IsDigit(char c, global::Perlang.NumericTokenBase @base);
-
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN14PerlangScanner7advanceEv", CallingConvention = __CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         internal static extern char Advance(__IntPtr __instance);
 
@@ -720,18 +712,6 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
     public static bool IsUnderscore(char c)
     {
         var ___ret = __Internal.IsUnderscore(c);
-        return ___ret;
-    }
-
-    public static bool IsAlphaNumeric(char c)
-    {
-        var ___ret = __Internal.IsAlphaNumeric(c);
-        return ___ret;
-    }
-
-    public static bool IsDigit(char c, global::Perlang.NumericTokenBase @base)
-    {
-        var ___ret = __Internal.IsDigit(c, @base);
         return ___ret;
     }
 
@@ -1182,6 +1162,14 @@ public unsafe partial class perlang_cli
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z22delete_perlang_scannerP14PerlangScanner", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern void DeletePerlangScanner(__IntPtr scanner);
 
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z24is_alpha_numeric_wrapperDs", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsAlphaNumericWrapper(char c);
+
+        [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z16is_digit_wrapperDsN16NumericTokenBase16NumericTokenBaseE", CallingConvention = __CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool IsDigitWrapper(char c, global::Perlang.NumericTokenBase @base);
+
         [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_Z19create_string_tokenN9TokenType9TokenTypeEPKcS2_S2_i", CallingConvention = __CallingConvention.Cdecl)]
         internal static extern __IntPtr CreateStringToken(global::Perlang.TokenType token_type, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string lexeme, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string literal, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string file_name, int line);
 
@@ -1280,6 +1268,18 @@ public unsafe partial class perlang_cli
     {
         var __arg0 = scanner is null ? __IntPtr.Zero : scanner.__Instance;
         __Internal.DeletePerlangScanner(__arg0);
+    }
+
+    public static bool IsAlphaNumericWrapper(char c)
+    {
+        var ___ret = __Internal.IsAlphaNumericWrapper(c);
+        return ___ret;
+    }
+
+    public static bool IsDigitWrapper(char c, global::Perlang.NumericTokenBase @base)
+    {
+        var ___ret = __Internal.IsDigitWrapper(c, @base);
+        return ___ret;
     }
 
     public static global::IToken CreateStringToken(global::Perlang.TokenType token_type, string lexeme, string literal, string file_name, int line)

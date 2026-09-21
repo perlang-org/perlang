@@ -155,6 +155,10 @@ namespace Std
 {
 }
 
+namespace GnuCxx
+{
+}
+
 namespace Std
 {
     namespace SharedCount
@@ -201,6 +205,16 @@ namespace Std
 
 namespace Std
 {
+}
+
+namespace Std
+{
+    namespace Detail
+    {
+        namespace Variant
+        {
+        }
+    }
 }
 
 namespace Std
