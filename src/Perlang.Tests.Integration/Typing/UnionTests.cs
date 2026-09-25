@@ -203,6 +203,28 @@ public class UnionTests
     }
 
     [Fact]
+    public void function_with_nullable_union_return_type_can_return_char_literal()
+    {
+        string source = """
+            fun f(): char | null
+            {
+                return 'x';
+            }
+
+            // TODO: 'print' currently does not support std::optional values
+            var c = f();
+            if (c is char) {
+                print "char";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("char");
+    }
+
+    [Fact]
     public void function_with_nullable_union_return_type_can_be_called_before_defined()
     {
         string source = """

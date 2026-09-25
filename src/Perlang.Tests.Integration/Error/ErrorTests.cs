@@ -7,7 +7,7 @@ namespace Perlang.Tests.Integration.Error;
 public class ErrorTests
 {
     [Fact]
-    public void function_with_error_union_type_can_return_error()
+    public void function_with_error_union_return_type_can_return_error()
     {
         string source = """
             private static is_digit(c: char, base: int): bool | error {
@@ -47,7 +47,46 @@ public class ErrorTests
     }
 
     [Fact]
-    public void static_method_with_error_union_type_can_return_error()
+    public void function_with_error_union_return_type_can_return_char_literal()
+    {
+        string source = """
+            fun f(): char | error
+            {
+                // We used to have a bug where this would lead to a compilation error on the C++ side
+                return 'x';
+            }
+
+            var c = try f();
+            print c;
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("x");
+    }
+
+    [Fact]
+    public void function_with_error_union_return_type_can_return_tab_char_literal()
+    {
+        string source = """
+            fun f(): char | error
+            {
+                return '\t';
+            }
+
+            var c = try f();
+            print c;
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("\t");
+    }
+
+    [Fact]
+    public void static_method_with_error_union_return_type_can_return_error()
     {
         string source = """
             public class SomeClass

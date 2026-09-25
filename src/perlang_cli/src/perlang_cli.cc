@@ -87,7 +87,7 @@ bool PerlangScanner::match(char16_t expected) {
 char16_t PerlangScanner::peek() {
     if (is_at_end())
     {
-        return '\0';
+        return u'\0';
     }
     return (*source)[current];
 };
@@ -95,17 +95,17 @@ char16_t PerlangScanner::peek() {
 char16_t PerlangScanner::peek_next() {
     if (current + 1 >= source->length())
     {
-        return '\0';
+        return u'\0';
     }
     return (*source)[current + 1];
 };
 
 bool PerlangScanner::is_alpha(char16_t c) {
-    return (c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z');
+    return (c >= u'a' && c <= u'z') || (c >= u'A' && c <= u'Z');
 };
 
 bool PerlangScanner::is_underscore(char16_t c) {
-    return c == L'_';
+    return c == u'_';
 };
 
 std::variant<bool, std::shared_ptr<perlang::Error>> PerlangScanner::is_alpha_numeric(char16_t c) {
@@ -122,22 +122,22 @@ std::variant<bool, std::shared_ptr<perlang::Error>> PerlangScanner::is_digit(cha
     switch (base) {
         case NumericTokenBase::BINARY:
             {
-                return std::variant<bool, std::shared_ptr<perlang::Error>>{c == L'0' || c == L'1'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c == u'0' || c == u'1'};
             }
             break;
         case NumericTokenBase::OCTAL:
             {
-                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= L'0' && c <= L'7'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= u'0' && c <= u'7'};
             }
             break;
         case NumericTokenBase::DECIMAL:
             {
-                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= L'0' && c <= L'9'};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{c >= u'0' && c <= u'9'};
             }
             break;
         case NumericTokenBase::HEXADECIMAL:
             {
-                return std::variant<bool, std::shared_ptr<perlang::Error>>{(c >= L'0' && c <= L'9') || (perlang::Char::to_upper(c) >= L'A' && perlang::Char::to_upper(c) <= L'F')};
+                return std::variant<bool, std::shared_ptr<perlang::Error>>{(c >= u'0' && c <= u'9') || (perlang::Char::to_upper(c) >= u'A' && perlang::Char::to_upper(c) <= u'F')};
             }
             break;
         default:

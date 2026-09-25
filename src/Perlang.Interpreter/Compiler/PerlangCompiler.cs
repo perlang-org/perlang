@@ -1481,28 +1481,28 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         {
             switch (c) {
                 case '\'':
-                    result.Append("'\\\''");
+                    result.Append("u'\\\''");
                     break;
                 case '\\':
-                    result.Append("'\\\\'");
+                    result.Append("u'\\\\'");
                     break;
                 case '\0':
-                    result.Append("'\\0'");
+                    result.Append("u'\\0'");
                     break;
                 case '\x1B':
-                    result.Append("'\\x1B'");
+                    result.Append("u'\\x1B'");
                     break;
                 case '\n':
-                    result.Append("'\\n'");
+                    result.Append("u'\\n'");
                     break;
                 case '\r':
-                    result.Append("'\\r'");
+                    result.Append("u'\\r'");
                     break;
                 case '\t':
-                    result.Append("'\\t'");
+                    result.Append("u'\\t'");
                     break;
                 default:
-                    result.Append($"L'{c}'");
+                    result.Append($"u'{c}'");
                     break;
             }
         }
@@ -2649,7 +2649,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
                                 '\n' => "'\\n'",
                                 '\r' => "'\\r'",
                                 '\t' => "'\\t'",
-                                _ => $"L'{value}'"
+                                _ => $"u'{value}'"
                             };
 
                             result.Append(Indent(indentationLevel));
