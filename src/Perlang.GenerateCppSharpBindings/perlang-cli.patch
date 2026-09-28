@@ -1,5 +1,5 @@
---- src/Perlang.Common/PerlangCli.cs	2026-09-20 08:51:15.235883884 +0300
-+++ src/Perlang.Common/PerlangCli.cs-edited	2026-09-20 08:51:15.227884054 +0300
+--- src/Perlang.Common/PerlangCli.cs	2026-09-28 22:53:32.449478485 +0300
++++ src/Perlang.Common/PerlangCli.cs-edited	2026-09-28 22:53:32.445478571 +0300
 @@ -541,19 +541,19 @@
          internal int current;
          internal int line;
@@ -319,7 +319,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -6016,7 +5998,7 @@
+@@ -6162,7 +6144,7 @@
  
              internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Stdlib.Base64 managed)
              {
@@ -328,7 +328,7 @@
                  return NativeToManagedMap.TryGetValue(native, out managed);
              }
  
-@@ -6139,7 +6121,7 @@
+@@ -6285,7 +6267,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::StringTokenTypeDictionary managed)
      {
@@ -337,7 +337,7 @@
          return NativeToManagedMap.TryGetValue(native, out managed);
      }
  
-@@ -6293,7 +6275,7 @@
+@@ -6439,7 +6421,7 @@
  
      internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::MutableStringTokenTypeDictionary managed)
      {

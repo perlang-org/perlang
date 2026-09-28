@@ -71,6 +71,7 @@ set(libtommath_headers
 set(text_headers
         src/text/string_builder.h
         src/text/string_hashing.h
+        src/text/utf16_string_builder.h
 )
 
 set(tsl_headers
@@ -165,6 +166,7 @@ add_library(
         src/libtommath/bn_s_mp_toom_sqr.c
 
         src/text/string_builder.cc
+        src/text/utf16_string_builder.cc
         src/perlang_value_types.h
 )
 

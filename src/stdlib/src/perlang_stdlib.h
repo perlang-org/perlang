@@ -48,6 +48,7 @@
 #include "posix.h"
 
 #include "text/string_builder.h"
+#include "text/utf16_string_builder.h"
 
 // TODO: Extract to separate header files instead of keeping it in a single file
 

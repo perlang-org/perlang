@@ -5880,6 +5880,152 @@ namespace Perlang
 
 namespace Perlang
 {
+    namespace Text
+    {
+        public unsafe partial class UTF16StringBuilder : IDisposable
+        {
+            [StructLayout(LayoutKind.Sequential, Size = 24)]
+            public partial struct __Internal
+            {
+                internal global::Std.Vector.__Internal buffer_;
+
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text18UTF16StringBuilderC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
+
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text18UTF16StringBuilderC2Ev", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern void ctor(__IntPtr __instance);
+
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text18UTF16StringBuilderD2Ev", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern void dtor(__IntPtr __instance);
+
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4text18UTF16StringBuilder6appendEDs", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern void Append(__IntPtr __instance, char c);
+
+                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZNK7perlang4text18UTF16StringBuilder6lengthEv", CallingConvention = __CallingConvention.Cdecl)]
+                internal static extern ulong Length(__IntPtr __instance);
+            }
+
+            public __IntPtr __Instance { get; protected set; }
+
+            internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Text.UTF16StringBuilder> NativeToManagedMap =
+                new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Text.UTF16StringBuilder>();
+
+            internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Text.UTF16StringBuilder managed)
+            {
+                NativeToManagedMap[native] = managed;
+            }
+
+            internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Text.UTF16StringBuilder managed)
+            {
+    
+                return NativeToManagedMap.TryGetValue(native, out managed);
+            }
+
+            protected bool __ownsNativeInstance;
+
+            internal static UTF16StringBuilder __CreateInstance(__IntPtr native, bool skipVTables = false)
+            {
+                if (native == __IntPtr.Zero)
+                    return null;
+                return new UTF16StringBuilder(native.ToPointer(), skipVTables);
+            }
+
+            internal static UTF16StringBuilder __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
+            {
+                if (native == __IntPtr.Zero)
+                    return null;
+                if (__TryGetNativeToManagedMapping(native, out var managed))
+                    return (UTF16StringBuilder)managed;
+                var result = __CreateInstance(native, skipVTables);
+                if (saveInstance)
+                    __RecordNativeToManagedMapping(native, result);
+                return result;
+            }
+
+            internal static UTF16StringBuilder __CreateInstance(__Internal native, bool skipVTables = false)
+            {
+                return new UTF16StringBuilder(native, skipVTables);
+            }
+
+            private static void* __CopyValue(__Internal native)
+            {
+                var ret = Marshal.AllocHGlobal(sizeof(__Internal));
+                global::Perlang.Text.UTF16StringBuilder.__Internal.cctor(ret, new __IntPtr(&native));
+                return ret.ToPointer();
+            }
+
+            private UTF16StringBuilder(__Internal native, bool skipVTables = false)
+                : this(__CopyValue(native), skipVTables)
+            {
+                __ownsNativeInstance = true;
+                __RecordNativeToManagedMapping(__Instance, this);
+            }
+
+            protected UTF16StringBuilder(void* native, bool skipVTables = false)
+            {
+                if (native == null)
+                    return;
+                __Instance = new __IntPtr(native);
+            }
+
+            public UTF16StringBuilder(global::Perlang.Text.UTF16StringBuilder _0)
+            {
+                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Text.UTF16StringBuilder.__Internal));
+                __ownsNativeInstance = true;
+                __RecordNativeToManagedMapping(__Instance, this);
+                if (ReferenceEquals(_0, null))
+                    throw new global::System.ArgumentNullException("_0", "Cannot be null because it is a C++ reference (&).");
+                var __arg0 = _0.__Instance;
+                __Internal.cctor(__Instance, __arg0);
+            }
+
+            public UTF16StringBuilder()
+            {
+                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Text.UTF16StringBuilder.__Internal));
+                __ownsNativeInstance = true;
+                __RecordNativeToManagedMapping(__Instance, this);
+                __Internal.ctor(__Instance);
+            }
+
+            public void Dispose()
+            {
+                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            }
+
+            partial void DisposePartial(bool disposing);
+
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            {
+                if (__Instance == IntPtr.Zero)
+                    return;
+                NativeToManagedMap.TryRemove(__Instance, out _);
+                DisposePartial(disposing);
+                if (callNativeDtor)
+                    __Internal.dtor(__Instance);
+                if (__ownsNativeInstance)
+                    Marshal.FreeHGlobal(__Instance);
+                __Instance = IntPtr.Zero;
+            }
+
+            public void Append(char c)
+            {
+                __Internal.Append(__Instance, c);
+            }
+
+            public ulong Length
+            {
+                get
+                {
+                    var ___ret = __Internal.Length(__Instance);
+                    return ___ret;
+                }
+            }
+        }
+    }
+}
+
+namespace Perlang
+{
     public unsafe partial class perlang_stdlib
     {
         public partial struct __Internal

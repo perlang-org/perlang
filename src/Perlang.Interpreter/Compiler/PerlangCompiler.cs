@@ -162,6 +162,16 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         stdlibClassesBuilder[CharClass.Instance.Name] = CharClass.Instance;
         stdlibClassesBuilder[LibcStdlibClass.Instance.Name] = LibcStdlibClass.Instance;
         stdlibClassesBuilder[PosixStdlibClass.Instance.Name] = PosixStdlibClass.Instance;
+
+        // The UTF16StringBuilder class is deliberately made available as StringBuilder, to serve as the "default"
+        // StringBuilder class to use. If/when we have a UTF8StringBuilder in place, it might be useful for certain
+        // programs to be able to explicitly say "here I'm using a UTF-8 StringBuilder and here I'm using a UTF-16
+        // StringBuilder". We don't technically need to expose the class as UTF16StringBuilder right now, from a
+        // language POV, but the compiler will emit errors about "CppType named 'UTF16StringBuilder' unexpectedly does
+        // not exist" if we leave it.
+        stdlibClassesBuilder["StringBuilder"] = UTF16StringBuilderClass.Instance;
+        stdlibClassesBuilder[UTF16StringBuilderClass.Instance.Name] = UTF16StringBuilderClass.Instance;
+
         stdlibClasses = stdlibClassesBuilder.ToImmutableDictionary();
     }
 
