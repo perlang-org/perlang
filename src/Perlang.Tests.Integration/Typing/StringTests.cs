@@ -423,6 +423,21 @@ public class StringTests
     }
 
     [Fact]
+    public void comparing_incorrectly_terminated_strings_emits_expected_error()
+    {
+        string source = """
+            // Note that the second string literal is terminated by \" rather than a single " character.
+            print "caf\u00e9" == "cafe\u0301\";
+            """;
+
+        var result = EvalWithScanErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Match("Unterminated string.");
+    }
+
+    [Fact]
     public void nfc_and_nfd_strings_with_identical_visual_appearance_are_not_equal()
     {
         // Unicode normalization: "café" in NFC has é as a single precomposed codepoint (U+00E9), while in NFD it is

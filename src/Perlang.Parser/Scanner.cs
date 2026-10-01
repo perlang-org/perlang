@@ -515,6 +515,16 @@ public class Scanner : IDisposable
                 perlangScanner.AdvanceLine();
                 sb.Append(perlangScanner.Advance());
             }
+            else if (perlangScanner.Peek == '\\' && perlangScanner.PeekNext == '"')
+            {
+                // \" in the input should be treated as "an escaped double quote". We scan over both tokens and append
+                // a single double quote to the output.
+
+                perlangScanner.Advance();
+                perlangScanner.Advance();
+
+                sb.Append('"');
+            }
             else if (perlangScanner.Peek == '\\' && perlangScanner.PeekNext == 'u')
             {
                 // Consume '\' and 'u' characters
