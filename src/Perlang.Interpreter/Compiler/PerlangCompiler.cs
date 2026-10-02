@@ -1474,7 +1474,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
             result.Append("perlang::ASCIIString::from_static_string(\"");
-            result.Append(expr);
+            result.Append(EscapeStringForCpp(expr.Value.ToString()!));
             result.Append("\")");
         }
         else if (expr.Value is Utf8String)
@@ -1484,7 +1484,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             // can assume "shared" ownership of it and assume that it will never be deallocated for the whole lifetime of
             // the program.)
             result.Append("perlang::UTF8String::from_static_string(\"");
-            result.Append(expr);
+            result.Append(EscapeStringForCpp(expr.Value.ToString()!));
             result.Append("\")");
         }
         else if (expr.Value is char c)
@@ -1571,6 +1571,58 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         else
         {
             throw new PerlangCompilerException($"Internal compiler error: unsupported type {expr.Value.GetType().ToTypeKeyword()} encountered");
+        }
+
+        return result.ToString();
+    }
+
+    // Escapes a string to be able to be embedded in a generated C++ string literal.
+    private static string EscapeStringForCpp(string s)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            char c = s[i];
+
+            // UTF-16 surrogate pairs need special treatment here, since result.Append() inside the switch statement
+            // below will cause UTF-8 conversion of individual characters in a surrogate pair, leading to garbled text.
+            if (System.Char.IsHighSurrogate(c) && i + 1 < s.Length)
+            {
+                char d = s[i + 1];
+                i++;
+
+                result.Append(new string([c, d]));
+                continue;
+            }
+
+            switch (c)
+            {
+                case '\\':
+                    result.Append("\\\\");
+                    break;
+                case '"':
+                    result.Append("\\\"");
+                    break;
+                case '\n':
+                    result.Append("\\n");
+                    break;
+                case '\r':
+                    result.Append("\\r");
+                    break;
+                case '\t':
+                    result.Append("\\t");
+                    break;
+                case '\0':
+                    result.Append("\\0");
+                    break;
+                case '\x1B':
+                    result.Append("\\x1B");
+                    break;
+                default:
+                    result.Append(c);
+                    break;
+            }
         }
 
         return result.ToString();

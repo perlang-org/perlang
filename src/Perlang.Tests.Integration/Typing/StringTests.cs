@@ -438,6 +438,19 @@ public class StringTests
     }
 
     [Fact]
+    public void string_literal_can_contain_escaped_quote_character()
+    {
+        string source = """
+            print "This is a literal quote: \"Hello, World\"";
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("This is a literal quote: \"Hello, World\"");
+    }
+
+    [Fact]
     public void nfc_and_nfd_strings_with_identical_visual_appearance_are_not_equal()
     {
         // Unicode normalization: "café" in NFC has é as a single precomposed codepoint (U+00E9), while in NFD it is
