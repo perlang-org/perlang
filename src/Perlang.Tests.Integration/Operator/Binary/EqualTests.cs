@@ -1,5 +1,5 @@
 #pragma warning disable S4144 // Methods should not have identical implementations
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 

@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;

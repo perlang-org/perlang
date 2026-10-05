@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 

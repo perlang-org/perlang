@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Perlang.Lang;
 using Xunit;
 

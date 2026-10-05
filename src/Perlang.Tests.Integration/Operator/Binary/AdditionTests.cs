@@ -4,7 +4,7 @@
 
 using System.Globalization;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 

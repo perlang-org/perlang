@@ -1,5 +1,5 @@
 using System;
-using FluentAssertions;
+using AwesomeAssertions;
 using Perlang.Compiler;
 using Perlang.Interpreter;
 using Xunit;

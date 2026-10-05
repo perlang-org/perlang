@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Perlang.Tests.Integration.Typing;
