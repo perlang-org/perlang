@@ -1,6 +1,4 @@
 #pragma warning disable SA1601
-#pragma warning disable S2372
-#pragma warning disable S3903
 #nullable enable
 
 using Perlang.Compiler;

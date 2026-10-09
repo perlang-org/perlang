@@ -7,9 +7,6 @@
 #pragma warning disable SA1117
 #pragma warning disable SA1503
 #pragma warning disable SA1515
-#pragma warning disable S907
-#pragma warning disable S1117
-#pragma warning disable S3928
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +36,6 @@ public class PerlangParser
     private bool allowExpression;
     private bool foundExpression = false;
 
-    [SuppressMessage("SonarAnalyzer.CSharp", "S3871", Justification = "Exception is not propagated outside class")]
     private class InternalParseError : Exception
     {
         public ParseErrorType? ParseErrorType { get; }

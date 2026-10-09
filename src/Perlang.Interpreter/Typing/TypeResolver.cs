@@ -1,6 +1,4 @@
 #nullable enable
-#pragma warning disable S907
-#pragma warning disable S1871
 #pragma warning disable SA1118
 #pragma warning disable SA1505
 using System;

@@ -1,7 +1,5 @@
 #pragma warning disable SA1300
 #pragma warning disable SA1601
-#pragma warning disable S1117
-#pragma warning disable S3877
 #nullable enable
 
 using System;

@@ -1,5 +1,5 @@
 #nullable enable
-#pragma warning disable S1104
+
 namespace Perlang;
 
 public static class PerlangValueTypes

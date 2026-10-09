@@ -1,6 +1,6 @@
 #nullable enable
-#pragma warning disable S112
 #pragma warning disable SA1300
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

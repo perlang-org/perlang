@@ -1,5 +1,5 @@
 #nullable enable
-#pragma warning disable S3440
+
 using System;
 using System.Collections.Immutable;
 using System.Numerics;
@@ -153,7 +153,6 @@ public class TypeReference : ITypeReference
         this.CppType = ClrTypeToCppType(clrType);
     }
 
-#pragma warning disable S3358
     public override string ToString()
     {
         var typeReference = (ITypeReference)this;
@@ -167,7 +166,6 @@ public class TypeReference : ITypeReference
             return typeReference.IsResolved ? $"Inferred: {CppType!.CppTypeName}" : "Inferred, not yet resolved";
         }
     }
-#pragma warning restore S3358
 
     private static CppType? ClrTypeToCppType(Type clrType)
     {

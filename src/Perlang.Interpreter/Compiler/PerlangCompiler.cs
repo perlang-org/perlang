@@ -1,5 +1,4 @@
 ﻿#nullable enable
-#pragma warning disable S112
 #pragma warning disable SA1010
 #pragma warning disable SA1118
 

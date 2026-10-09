@@ -1,6 +1,6 @@
 #nullable enable
 #pragma warning disable SA1300
-#pragma warning disable S4200
+
 using System.Runtime.InteropServices;
 
 namespace Perlang.ConsoleApp;

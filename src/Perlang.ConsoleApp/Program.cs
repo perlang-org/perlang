@@ -1,5 +1,5 @@
 #nullable enable
-#pragma warning disable S112
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

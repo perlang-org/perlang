@@ -1,5 +1,3 @@
-#pragma warning disable S4016
-
 namespace Perlang.Parser;
 
 public enum ParseErrorType

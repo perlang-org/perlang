@@ -3,7 +3,7 @@
 #pragma warning disable SA1115
 #pragma warning disable SA1117
 #pragma warning disable SA1118
-#pragma warning disable S101
+
 using System.Collections.Immutable;
 
 namespace Perlang.Stdlib;

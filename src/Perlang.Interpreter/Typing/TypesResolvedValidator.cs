@@ -1,5 +1,4 @@
 #nullable enable
-#pragma warning disable S3218
 #pragma warning disable SA1118
 
 using System;

@@ -1,6 +1,5 @@
 #pragma warning disable SA1300
 #pragma warning disable SA1649
-#pragma warning disable S101
 
 namespace Std;
 

@@ -1,4 +1,3 @@
-#pragma warning disable S3963
 using System;
 using System.Collections.Generic;
 using System.IO;

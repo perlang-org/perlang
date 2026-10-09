@@ -1,6 +1,4 @@
 #nullable enable
-#pragma warning disable S1199
-#pragma warning disable S4136
 
 using System;
 using System.Collections;

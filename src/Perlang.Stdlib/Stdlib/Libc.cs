@@ -2,7 +2,7 @@
 #pragma warning disable SA1601
 #pragma warning disable SA1300
 #pragma warning disable SA1310
-#pragma warning disable S3218
+
 using System;
 using System.Collections;
 using System.Collections.Generic;

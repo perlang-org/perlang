@@ -1,4 +1,3 @@
-#pragma warning disable S2344
 using System;
 
 namespace Perlang.Compiler;

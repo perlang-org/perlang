@@ -1,6 +1,5 @@
 #nullable enable
 #pragma warning disable SA1010
-#pragma warning disable S2365
 
 using System;
 using System.Collections.Generic;

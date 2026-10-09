@@ -1,7 +1,6 @@
 // Poor-man's replacement for Java-style enums (which are much more like regular classes) in C#. Because we are doing it
 // like this, we allow ourselves to override the rules for this particular file.
 #pragma warning disable SA1310
-#pragma warning disable S3453
 
 using System.Collections.Generic;
 using System.Collections.Immutable;

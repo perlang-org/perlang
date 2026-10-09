@@ -1,6 +1,5 @@
 // Manual definitions of methods which CppSharp cannot generate interop signatures for automatically
 
-#pragma warning disable S101
 #pragma warning disable SA1300
 #pragma warning disable SA1307
 #pragma warning disable SA1313
