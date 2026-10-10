@@ -1,5 +1,4 @@
 #pragma warning disable SA1402
-#pragma warning disable SA1515
 
 using System.Collections.Generic;
 using System.Linq;

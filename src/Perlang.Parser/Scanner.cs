@@ -1,7 +1,3 @@
-// TODO: Remove once https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3392 has been resolved
-
-#pragma warning disable SA1515 // SingleLineCommentMustBePrecededByBlankLine
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
