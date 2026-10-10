@@ -1,9 +1,8 @@
 using AwesomeAssertions;
 using Xunit;
+using static Perlang.Tests.Integration.EvalHelper;
 
 namespace Perlang.Tests.Integration.Print;
-
-using static EvalHelper;
 
 public class PrintTests
 {
