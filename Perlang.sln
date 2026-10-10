@@ -97,6 +97,79 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stdlib", "stdlib", "{1012F0
 		src\stdlib\generate-array-classes.sh = src\stdlib\generate-array-classes.sh
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{427BB3E8-68BF-411B-BC9C-80BA8CD31729}"
+	ProjectSection(SolutionItems) = preProject
+		docs\index.md = docs\index.md
+		docs\syntax-grammar.md = docs\syntax-grammar.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "about", "about", "{229FBA93-7E2A-4AD6-87DA-AB7C5C4337DE}"
+	ProjectSection(SolutionItems) = preProject
+		docs\about\index.md = docs\about\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "history", "history", "{FB3F8898-295A-4C61-9E2C-C4C9FC9623C5}"
+	ProjectSection(SolutionItems) = preProject
+		docs\about\history\index.md = docs\about\history\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "contribute", "contribute", "{1E3B30B8-5550-4152-B161-86EC16127466}"
+	ProjectSection(SolutionItems) = preProject
+		docs\contribute\index.md = docs\contribute\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "download", "download", "{A881920E-C969-4EC5-B492-3ABA5E474FB4}"
+	ProjectSection(SolutionItems) = preProject
+		docs\download\index.md = docs\download\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "learn", "learn", "{9D0D0316-BADF-4DC5-87EC-C58B56D738EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quickstart", "quickstart", "{6D5529E6-8A2E-416E-A448-873084C7975B}"
+	ProjectSection(SolutionItems) = preProject
+		docs\learn\quickstart\index.md = docs\learn\quickstart\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "the-language", "the-language", "{E499B635-CB55-4FB2-8089-A976EE92AD38}"
+	ProjectSection(SolutionItems) = preProject
+		docs\learn\the-language\index.md = docs\learn\the-language\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{0AA3955B-8D3A-4CE5-AB14-1A56E461E47A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quickstart", "quickstart", "{F7037527-9C79-46EA-9D55-7917E747FB28}"
+	ProjectSection(SolutionItems) = preProject
+		docs\examples\quickstart\hello_world.per = docs\examples\quickstart\hello_world.per
+		docs\examples\quickstart\pi.per = docs\examples\quickstart\pi.per
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "the-language", "the-language", "{4BFAD1B9-54A1-46C5-AB84-ACAAF9AD8B2B}"
+	ProjectSection(SolutionItems) = preProject
+		docs\examples\the-language\calling-base64-encode.per = docs\examples\the-language\calling-base64-encode.per
+		docs\examples\the-language\char-literal.per = docs\examples\the-language\char-literal.per
+		docs\examples\the-language\defining-a-variable.per = docs\examples\the-language\defining-a-variable.per
+		docs\examples\the-language\defining-and-calling-a-function-with-parameters.per = docs\examples\the-language\defining-and-calling-a-function-with-parameters.per
+		docs\examples\the-language\defining-and-calling-a-function.per = docs\examples\the-language\defining-and-calling-a-function.per
+		docs\examples\the-language\floating-point-explicit-types.per = docs\examples\the-language\floating-point-explicit-types.per
+		docs\examples\the-language\floating-point-types.per = docs\examples\the-language\floating-point-types.per
+		docs\examples\the-language\integer-literal-formats.per = docs\examples\the-language\integer-literal-formats.per
+		docs\examples\the-language\integer-types.per = docs\examples\the-language\integer-types.per
+		docs\examples\the-language\printing-from-the-top-level-scope.per = docs\examples\the-language\printing-from-the-top-level-scope.per
+		docs\examples\the-language\string-comparison-unicode.per = docs\examples\the-language\string-comparison-unicode.per
+		docs\examples\the-language\string-comparison.per = docs\examples\the-language\string-comparison.per
+		docs\examples\the-language\string-concatenation.per = docs\examples\the-language\string-concatenation.per
+		docs\examples\the-language\string-explicit-types.per = docs\examples\the-language\string-explicit-types.per
+		docs\examples\the-language\string-length.per = docs\examples\the-language\string-length.per
+		docs\examples\the-language\string-type-agnostic.per = docs\examples\the-language\string-type-agnostic.per
+		docs\examples\the-language\string-types.per = docs\examples\the-language\string-types.per
+		docs\examples\the-language\switch-statement-char.per = docs\examples\the-language\switch-statement-char.per
+		docs\examples\the-language\switch-statement.per = docs\examples\the-language\switch-statement.per
+		docs\examples\the-language\two-types-of-variables.per = docs\examples\the-language\two-types-of-variables.per
+		docs\examples\the-language\user-defined-class-with-destructor.per = docs\examples\the-language\user-defined-class-with-destructor.per
+		docs\examples\the-language\user-defined-class-with-static-method.per = docs\examples\the-language\user-defined-class-with-static-method.per
+		docs\examples\the-language\user-defined-class.per = docs\examples\the-language\user-defined-class.per
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,5 +232,16 @@ Global
 		{39211519-CCE2-46EF-BBA6-2FE6094E5079} = {3BDBB33E-AB96-4C30-96EF-1BF2D295E969}
 		{2095D47A-42D5-411E-8352-78B9FE201D7F} = {39211519-CCE2-46EF-BBA6-2FE6094E5079}
 		{1012F0D3-639D-4311-A84D-8D33274DAEB0} = {3BDBB33E-AB96-4C30-96EF-1BF2D295E969}
+		{427BB3E8-68BF-411B-BC9C-80BA8CD31729} = {47B4A37F-6999-4510-9815-418E03D7B39E}
+		{229FBA93-7E2A-4AD6-87DA-AB7C5C4337DE} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
+		{FB3F8898-295A-4C61-9E2C-C4C9FC9623C5} = {229FBA93-7E2A-4AD6-87DA-AB7C5C4337DE}
+		{1E3B30B8-5550-4152-B161-86EC16127466} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
+		{A881920E-C969-4EC5-B492-3ABA5E474FB4} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
+		{9D0D0316-BADF-4DC5-87EC-C58B56D738EC} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
+		{6D5529E6-8A2E-416E-A448-873084C7975B} = {9D0D0316-BADF-4DC5-87EC-C58B56D738EC}
+		{E499B635-CB55-4FB2-8089-A976EE92AD38} = {9D0D0316-BADF-4DC5-87EC-C58B56D738EC}
+		{0AA3955B-8D3A-4CE5-AB14-1A56E461E47A} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
+		{F7037527-9C79-46EA-9D55-7917E747FB28} = {0AA3955B-8D3A-4CE5-AB14-1A56E461E47A}
+		{4BFAD1B9-54A1-46C5-AB84-ACAAF9AD8B2B} = {0AA3955B-8D3A-4CE5-AB14-1A56E461E47A}
 	EndGlobalSection
 EndGlobal
