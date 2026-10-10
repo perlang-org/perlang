@@ -280,13 +280,13 @@ fun greet(name: string, age: int): void {
   print "Hello " + name + ". Your age is " + age;
 }
 
-// Expected error: [line 2] Error at 'name': Null parameter detected
+// This line is expected to fail
 greet(null, 42);
 ```
 
 Running this program gives you an error like this:
 
-`[line 7] Error at 'greet': Null parameter detected for 'name'`
+`[defining-and-calling-a-function-with-null-parameter.per:7] Error at 'greet': Null parameter detected for 'name'`
 
 The path we have chosen here is to let  `null` exist as a concept in Perlang, mainly for interoperability with C, C++ and other languages that uses `null` references extensively. Making it impossible to use `null` would significantly limit the ability to e.g. use existing C libraries. Hence, we have decided to include `null` in the language.
 
@@ -297,12 +297,10 @@ Now, including `null` in the language but making it impossible to use would be k
 ```
 $ perlang -Wno-error=null-usage defining-and-calling-a-function-with-null-parameter.per
 [line 7] Warning at 'greet': Null parameter detected for 'name'
-[line 3] Operands must be numbers, not string and null
+[line unknown] Process defining-and-calling-a-function-with-null-parameter exited with exit code 139
 ```
 
-As can be seen, the previous `Error at 'name'` has now turned into a slightly more friendly `Warning at 'greet'`. However, we then get a runtime error (the "line 3" output) because `"Hello " + name` is not a valid operation in cases where `name` is `null`. `string + null` will produce a runtime error as above.
-
-> The reason for why these errors seem to come in the "wrong order" in terms of the line numbers is because the compilation and analysis phase of the program happens first, as a separate stage, before the actual execution of the program beings. In other words, all compilation warnings for a program would appear before any runtime errors would be emitted.
+As can be seen, the previous `Error at 'name'` has now turned into a slightly more friendly `Warning at 'greet'`. However, we then get a "Process ... exited with exit code 139" because the program tries to dereference a `null` pointer (concatenating `"Hello "` and `null`).
 
 ### The standard library
 
