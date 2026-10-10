@@ -11,6 +11,7 @@ using __CallingConvention = global::System.Runtime.InteropServices.CallingConven
 using __IntPtr = global::System.IntPtr;
 
 #pragma warning disable CS0109 // Member does not hide an inherited member; new keyword is not required
+#pragma warning disable CS9084 // Struct member returns 'this' or other instance members by reference
 
 public unsafe partial interface IIToken : IDisposable
 {
@@ -119,12 +120,12 @@ public unsafe abstract partial class IToken : global::IIToken, IDisposable
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -333,12 +334,12 @@ public unsafe partial class NumericToken : global::IIToken, global::Perlang.IObj
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -659,12 +660,12 @@ public unsafe partial class PerlangScanner : global::Perlang.IObject, IDisposabl
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -949,12 +950,12 @@ public unsafe partial class Token : global::IIToken, global::Perlang.IObject, ID
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -1601,12 +1602,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -1837,12 +1838,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -1979,12 +1980,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2136,12 +2137,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2286,12 +2287,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2428,12 +2429,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2585,12 +2586,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2742,12 +2743,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2892,12 +2893,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -2935,112 +2936,13 @@ namespace Perlang
     /// <para>can be found at https://gitlab.perlang.org/perlang/perlang/-/blob/master/NOTICE.md.</para>
     /// <para>Portions may also be inspired by Donald Lewine's great book &quot;POSIX Programmer's Guide&quot; (O'Reilly 1991).</para>
     /// </remarks>
-    public unsafe partial class Libc : IDisposable
+    public unsafe static partial class Libc
     {
         [StructLayout(LayoutKind.Sequential, Size = 1)]
         public partial struct __Internal
         {
-            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4LibcC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
-
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang4Libc6getpidEv", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern int Getpid();
-        }
-
-        public __IntPtr __Instance { get; protected set; }
-
-        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Libc> NativeToManagedMap =
-            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Libc>();
-
-        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Libc managed)
-        {
-            NativeToManagedMap[native] = managed;
-        }
-
-        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Libc managed)
-        {
-    
-            return NativeToManagedMap.TryGetValue(native, out managed);
-        }
-
-        protected bool __ownsNativeInstance;
-
-        internal static Libc __CreateInstance(__IntPtr native, bool skipVTables = false)
-        {
-            if (native == __IntPtr.Zero)
-                return null;
-            return new Libc(native.ToPointer(), skipVTables);
-        }
-
-        internal static Libc __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
-        {
-            if (native == __IntPtr.Zero)
-                return null;
-            if (__TryGetNativeToManagedMapping(native, out var managed))
-                return (Libc)managed;
-            var result = __CreateInstance(native, skipVTables);
-            if (saveInstance)
-                __RecordNativeToManagedMapping(native, result);
-            return result;
-        }
-
-        internal static Libc __CreateInstance(__Internal native, bool skipVTables = false)
-        {
-            return new Libc(native, skipVTables);
-        }
-
-        private static void* __CopyValue(__Internal native)
-        {
-            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
-            *(__Internal*) ret = native;
-            return ret.ToPointer();
-        }
-
-        private Libc(__Internal native, bool skipVTables = false)
-            : this(__CopyValue(native), skipVTables)
-        {
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-        }
-
-        protected Libc(void* native, bool skipVTables = false)
-        {
-            if (native == null)
-                return;
-            __Instance = new __IntPtr(native);
-        }
-
-        public Libc()
-        {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Libc.__Internal));
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-        }
-
-        public Libc(global::Perlang.Libc _0)
-        {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Libc.__Internal));
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-            *((global::Perlang.Libc.__Internal*) __Instance) = *((global::Perlang.Libc.__Internal*) _0.__Instance);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
-        }
-
-        partial void DisposePartial(bool disposing);
-
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
-        {
-            if (__Instance == IntPtr.Zero)
-                return;
-            NativeToManagedMap.TryRemove(__Instance, out _);
-            DisposePartial(disposing);
-            if (__ownsNativeInstance)
-                Marshal.FreeHGlobal(__Instance);
-            __Instance = IntPtr.Zero;
         }
 
         /// <summary>Returns the process ID of the calling process.</summary>
@@ -3175,12 +3077,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -3325,12 +3227,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -3460,12 +3362,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -3583,7 +3485,7 @@ namespace Perlang
 
         partial void DisposePartial(bool disposing);
 
-        internal protected override void Dispose(bool disposing, bool callNativeDtor )
+        internal protected override void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -3792,12 +3694,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -3915,12 +3817,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -4056,12 +3958,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -4206,12 +4108,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -4348,12 +4250,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -4498,12 +4400,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -4621,12 +4523,12 @@ public unsafe partial class StringHasher : IDisposable
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -4727,12 +4629,12 @@ public unsafe partial class StringComparer : IDisposable
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -4856,12 +4758,12 @@ namespace Perlang
 
             public void Dispose()
             {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+                Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
             }
 
             partial void DisposePartial(bool disposing);
 
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
             {
                 if (__Instance == IntPtr.Zero)
                     return;
@@ -4984,12 +4886,12 @@ namespace Perlang
 
             public void Dispose()
             {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+                Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
             }
 
             partial void DisposePartial(bool disposing);
 
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
             {
                 if (__Instance == IntPtr.Zero)
                     return;
@@ -5139,12 +5041,12 @@ namespace Perlang
 
             public void Dispose()
             {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+                Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
             }
 
             partial void DisposePartial(bool disposing);
 
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
             {
                 if (__Instance == IntPtr.Zero)
                     return;
@@ -5300,12 +5202,12 @@ namespace Perlang
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -5407,109 +5309,11 @@ namespace Perlang
 {
     namespace Io
     {
-        public unsafe partial class File : IDisposable
+        public unsafe static partial class File
         {
             [StructLayout(LayoutKind.Sequential, Size = 1)]
             public partial struct __Internal
             {
-                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang2io4FileC2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
-                internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
-            }
-
-            public __IntPtr __Instance { get; protected set; }
-
-            internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Io.File> NativeToManagedMap =
-                new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Io.File>();
-
-            internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Io.File managed)
-            {
-                NativeToManagedMap[native] = managed;
-            }
-
-            internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Io.File managed)
-            {
-
-                return NativeToManagedMap.TryGetValue(native, out managed);
-            }
-
-            protected bool __ownsNativeInstance;
-
-            internal static File __CreateInstance(__IntPtr native, bool skipVTables = false)
-            {
-                if (native == __IntPtr.Zero)
-                    return null;
-                return new File(native.ToPointer(), skipVTables);
-            }
-
-            internal static File __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
-            {
-                if (native == __IntPtr.Zero)
-                    return null;
-                if (__TryGetNativeToManagedMapping(native, out var managed))
-                    return (File)managed;
-                var result = __CreateInstance(native, skipVTables);
-                if (saveInstance)
-                    __RecordNativeToManagedMapping(native, result);
-                return result;
-            }
-
-            internal static File __CreateInstance(__Internal native, bool skipVTables = false)
-            {
-                return new File(native, skipVTables);
-            }
-
-            private static void* __CopyValue(__Internal native)
-            {
-                var ret = Marshal.AllocHGlobal(sizeof(__Internal));
-                *(__Internal*) ret = native;
-                return ret.ToPointer();
-            }
-
-            private File(__Internal native, bool skipVTables = false)
-                : this(__CopyValue(native), skipVTables)
-            {
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-            }
-
-            protected File(void* native, bool skipVTables = false)
-            {
-                if (native == null)
-                    return;
-                __Instance = new __IntPtr(native);
-            }
-
-            public File()
-            {
-                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Io.File.__Internal));
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-            }
-
-            public File(global::Perlang.Io.File _0)
-            {
-                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Io.File.__Internal));
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-                *((global::Perlang.Io.File.__Internal*) __Instance) = *((global::Perlang.Io.File.__Internal*) _0.__Instance);
-            }
-
-            public void Dispose()
-            {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
-            }
-
-            partial void DisposePartial(bool disposing);
-
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
-            {
-                if (__Instance == IntPtr.Zero)
-                    return;
-                NativeToManagedMap.TryRemove(__Instance, out _);
-                DisposePartial(disposing);
-                if (__ownsNativeInstance)
-                    Marshal.FreeHGlobal(__Instance);
-                __Instance = IntPtr.Zero;
             }
         }
     }
@@ -5517,14 +5321,11 @@ namespace Perlang
 
 namespace Perlang
 {
-    public unsafe partial class Posix : IDisposable
+    public unsafe static partial class Posix
     {
         [StructLayout(LayoutKind.Sequential, Size = 1)]
         public partial struct __Internal
         {
-            [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5PosixC2ERKS0_", CallingConvention = __CallingConvention.Cdecl)]
-            internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
-
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix7getegidEv", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern uint Getegid();
 
@@ -5539,102 +5340,6 @@ namespace Perlang
 
             [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang5Posix6getuidEv", CallingConvention = __CallingConvention.Cdecl)]
             internal static extern uint Getuid();
-        }
-
-        public __IntPtr __Instance { get; protected set; }
-
-        internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Posix> NativeToManagedMap =
-            new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Posix>();
-
-        internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Posix managed)
-        {
-            NativeToManagedMap[native] = managed;
-        }
-
-        internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Posix managed)
-        {
-    
-            return NativeToManagedMap.TryGetValue(native, out managed);
-        }
-
-        protected bool __ownsNativeInstance;
-
-        internal static Posix __CreateInstance(__IntPtr native, bool skipVTables = false)
-        {
-            if (native == __IntPtr.Zero)
-                return null;
-            return new Posix(native.ToPointer(), skipVTables);
-        }
-
-        internal static Posix __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
-        {
-            if (native == __IntPtr.Zero)
-                return null;
-            if (__TryGetNativeToManagedMapping(native, out var managed))
-                return (Posix)managed;
-            var result = __CreateInstance(native, skipVTables);
-            if (saveInstance)
-                __RecordNativeToManagedMapping(native, result);
-            return result;
-        }
-
-        internal static Posix __CreateInstance(__Internal native, bool skipVTables = false)
-        {
-            return new Posix(native, skipVTables);
-        }
-
-        private static void* __CopyValue(__Internal native)
-        {
-            var ret = Marshal.AllocHGlobal(sizeof(__Internal));
-            *(__Internal*) ret = native;
-            return ret.ToPointer();
-        }
-
-        private Posix(__Internal native, bool skipVTables = false)
-            : this(__CopyValue(native), skipVTables)
-        {
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-        }
-
-        protected Posix(void* native, bool skipVTables = false)
-        {
-            if (native == null)
-                return;
-            __Instance = new __IntPtr(native);
-        }
-
-        public Posix()
-        {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Posix.__Internal));
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-        }
-
-        public Posix(global::Perlang.Posix _0)
-        {
-            __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Posix.__Internal));
-            __ownsNativeInstance = true;
-            __RecordNativeToManagedMapping(__Instance, this);
-            *((global::Perlang.Posix.__Internal*) __Instance) = *((global::Perlang.Posix.__Internal*) _0.__Instance);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
-        }
-
-        partial void DisposePartial(bool disposing);
-
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
-        {
-            if (__Instance == IntPtr.Zero)
-                return;
-            NativeToManagedMap.TryRemove(__Instance, out _);
-            DisposePartial(disposing);
-            if (__ownsNativeInstance)
-                Marshal.FreeHGlobal(__Instance);
-            __Instance = IntPtr.Zero;
         }
 
         /// <summary>
@@ -5848,12 +5553,12 @@ namespace Perlang
 
             public void Dispose()
             {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+                Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
             }
 
             partial void DisposePartial(bool disposing);
 
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
             {
                 if (__Instance == IntPtr.Zero)
                     return;
@@ -5917,7 +5622,7 @@ namespace Perlang
 
             internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Text.UTF16StringBuilder managed)
             {
-    
+
                 return NativeToManagedMap.TryGetValue(native, out managed);
             }
 
@@ -5989,12 +5694,12 @@ namespace Perlang
 
             public void Dispose()
             {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+                Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
             }
 
             partial void DisposePartial(bool disposing);
 
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+            internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
             {
                 if (__Instance == IntPtr.Zero)
                     return;
@@ -6123,109 +5828,11 @@ namespace Perlang
 
     namespace Stdlib
     {
-        public unsafe partial class Base64 : IDisposable
+        public unsafe static partial class Base64
         {
             [StructLayout(LayoutKind.Sequential, Size = 1)]
             public partial struct __Internal
             {
-                [SuppressUnmanagedCodeSecurity, DllImport("perlang_cli", EntryPoint = "_ZN7perlang6stdlib6Base64C2ERKS1_", CallingConvention = __CallingConvention.Cdecl)]
-                internal static extern void cctor(__IntPtr __instance, __IntPtr _0);
-            }
-
-            public __IntPtr __Instance { get; protected set; }
-
-            internal static readonly new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Stdlib.Base64> NativeToManagedMap =
-                new global::System.Collections.Concurrent.ConcurrentDictionary<IntPtr, global::Perlang.Stdlib.Base64>();
-
-            internal static void __RecordNativeToManagedMapping(IntPtr native, global::Perlang.Stdlib.Base64 managed)
-            {
-                NativeToManagedMap[native] = managed;
-            }
-
-            internal static bool __TryGetNativeToManagedMapping(IntPtr native, out global::Perlang.Stdlib.Base64 managed)
-            {
-
-                return NativeToManagedMap.TryGetValue(native, out managed);
-            }
-
-            protected bool __ownsNativeInstance;
-
-            internal static Base64 __CreateInstance(__IntPtr native, bool skipVTables = false)
-            {
-                if (native == __IntPtr.Zero)
-                    return null;
-                return new Base64(native.ToPointer(), skipVTables);
-            }
-
-            internal static Base64 __GetOrCreateInstance(__IntPtr native, bool saveInstance = false, bool skipVTables = false)
-            {
-                if (native == __IntPtr.Zero)
-                    return null;
-                if (__TryGetNativeToManagedMapping(native, out var managed))
-                    return (Base64)managed;
-                var result = __CreateInstance(native, skipVTables);
-                if (saveInstance)
-                    __RecordNativeToManagedMapping(native, result);
-                return result;
-            }
-
-            internal static Base64 __CreateInstance(__Internal native, bool skipVTables = false)
-            {
-                return new Base64(native, skipVTables);
-            }
-
-            private static void* __CopyValue(__Internal native)
-            {
-                var ret = Marshal.AllocHGlobal(sizeof(__Internal));
-                *(__Internal*) ret = native;
-                return ret.ToPointer();
-            }
-
-            private Base64(__Internal native, bool skipVTables = false)
-                : this(__CopyValue(native), skipVTables)
-            {
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-            }
-
-            protected Base64(void* native, bool skipVTables = false)
-            {
-                if (native == null)
-                    return;
-                __Instance = new __IntPtr(native);
-            }
-
-            public Base64()
-            {
-                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Stdlib.Base64.__Internal));
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-            }
-
-            public Base64(global::Perlang.Stdlib.Base64 _0)
-            {
-                __Instance = Marshal.AllocHGlobal(sizeof(global::Perlang.Stdlib.Base64.__Internal));
-                __ownsNativeInstance = true;
-                __RecordNativeToManagedMapping(__Instance, this);
-                *((global::Perlang.Stdlib.Base64.__Internal*) __Instance) = *((global::Perlang.Stdlib.Base64.__Internal*) _0.__Instance);
-            }
-
-            public void Dispose()
-            {
-                Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
-            }
-
-            partial void DisposePartial(bool disposing);
-
-            internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
-            {
-                if (__Instance == IntPtr.Zero)
-                    return;
-                NativeToManagedMap.TryRemove(__Instance, out _);
-                DisposePartial(disposing);
-                if (__ownsNativeInstance)
-                    Marshal.FreeHGlobal(__Instance);
-                __Instance = IntPtr.Zero;
             }
         }
     }
@@ -6342,12 +5949,12 @@ public unsafe partial class StringTokenTypeDictionary : IDisposable
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;
@@ -6493,12 +6100,12 @@ public unsafe partial class MutableStringTokenTypeDictionary : IDisposable
 
     public void Dispose()
     {
-        Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+        Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
     }
 
     partial void DisposePartial(bool disposing);
 
-    internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+    internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
     {
         if (__Instance == IntPtr.Zero)
             return;

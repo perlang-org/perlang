@@ -14,6 +14,7 @@ using __IntPtr = global::System.IntPtr;
 [assembly:InternalsVisibleTo("PerlangCli")]
 
 #pragma warning disable CS0109 // Member does not hide an inherited member; new keyword is not required
+#pragma warning disable CS9084 // Struct member returns 'this' or other instance members by reference
 
 namespace Std
 {
@@ -111,12 +112,12 @@ namespace Std
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -294,12 +295,12 @@ namespace Std
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
@@ -446,12 +447,12 @@ namespace Std
 
         public void Dispose()
         {
-            Dispose(disposing: true, callNativeDtor : __ownsNativeInstance );
+            Dispose(disposing: true, callNativeDtor: __ownsNativeInstance);
         }
 
         partial void DisposePartial(bool disposing);
 
-        internal protected virtual void Dispose(bool disposing, bool callNativeDtor )
+        internal protected virtual void Dispose(bool disposing, bool callNativeDtor)
         {
             if (__Instance == IntPtr.Zero)
                 return;
