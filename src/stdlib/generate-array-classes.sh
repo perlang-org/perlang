@@ -7,6 +7,20 @@
 # Note that the StringArray class is not generated from this because it's not exactly identical to the others.
 #
 
+# Only touch the target file if the content has changed, to avoid needless recompilation
+write_if_changed() {
+    local _target=$1
+    local _tmp
+    _tmp=$(mktemp)
+    cat > "$_tmp"
+
+    if ! cmp -s "$_tmp" "$_target"; then
+        cat "$_tmp" > "$_target"
+    fi
+
+    rm "$_tmp"
+}
+
 create_file() {
     local _prefix=$1
     local _class_name=$2
@@ -17,7 +31,7 @@ create_file() {
     local _header_file=${_prefix}_array.h
     local _implementation_file=${_prefix}_array.cc
 
-    cat <<EOF > src/${_header_file}
+    write_if_changed src/${_header_file} <<EOF
 #include <initializer_list>
 
 #include "bigint.h"
@@ -59,7 +73,7 @@ namespace perlang
 }
 EOF
 
-    cat <<EOF > src/${_implementation_file}
+    write_if_changed src/${_implementation_file} <<EOF
 #include <memory.h>
 #include <stdexcept>
 #include <string>

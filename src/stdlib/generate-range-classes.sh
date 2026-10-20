@@ -5,6 +5,20 @@
 # generate these classes from a shell script to keep them in sync.
 #
 
+# Only touch the target file if the content has changed, to avoid needless recompilation
+write_if_changed() {
+    local _target=$1
+    local _tmp
+    _tmp=$(mktemp)
+    cat > "$_tmp"
+
+    if ! cmp -s "$_tmp" "$_target"; then
+        cat "$_tmp" > "$_target"
+    fi
+
+    rm "$_tmp"
+}
+
 create_file() {
     local _prefix=$1
     local _class_name=$2
@@ -12,7 +26,7 @@ create_file() {
 
     local _header_file=${_prefix}_range.h
 
-    cat <<EOF > src/${_header_file}
+    write_if_changed src/${_header_file} <<EOF
 #include <cstdint>
 
 #pragma once
