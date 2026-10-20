@@ -75,6 +75,7 @@ namespace TokenType {
         NUMBER,
         PREPROCESSOR_DIRECTIVE_CPP_PROTOTYPES,
         PREPROCESSOR_DIRECTIVE_CPP_METHODS,
+        BREAK,
         CASE,
         CLASS,
         CONSTRUCTOR,

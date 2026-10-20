@@ -348,4 +348,100 @@ public class SwitchTests
             .Which
             .Message.Should().Contain("must be a string literal");
     }
+
+    [Fact]
+    public void switch_statement_can_use_break_for_early_exit_in_regular_arm_with_int_value()
+    {
+        string source = """
+            var i: int = 123;
+            var b = true;
+
+            switch (i) {
+                case 123:
+                    if (b) {
+                        print "early exit";
+                        break;
+                    }
+
+                    print "did not early exit";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("early exit");
+    }
+
+    [Fact]
+    public void switch_statement_can_use_break_for_early_exit_in_default_arm_with_int_value()
+    {
+        string source = """
+            var i: int = 123;
+            var b = true;
+
+            switch (i) {
+                default:
+                    if (b) {
+                        print "early exit";
+                        break;
+                    }
+
+                    print "did not early exit";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("early exit");
+    }
+
+    [Fact]
+    public void switch_statement_can_use_break_for_early_exit_in_regular_arm_with_string_value()
+    {
+        string source = """
+            var s: string = "alpha";
+            var b = true;
+
+            switch (s) {
+                case "alpha":
+                    if (b) {
+                        print "early exit";
+                        break;
+                    }
+
+                    print "did not early exit";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("early exit");
+    }
+
+    [Fact]
+    public void switch_statement_can_use_break_for_early_exit_in_default_arm_with_string_value()
+    {
+        string source = """
+            var s: string = "delta";
+            var b = true;
+
+            switch (s) {
+                default:
+                    if (b) {
+                        print "early exit";
+                        break;
+                    }
+
+                    print "did not early exit";
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("early exit");
+    }
 }

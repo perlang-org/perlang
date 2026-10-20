@@ -14,6 +14,7 @@ public abstract class Stmt
     public interface IVisitor<out TR>
     {
         TR VisitBlockStmt(Block stmt);
+        TR VisitBreakStmt(Break stmt);
         TR VisitClassStmt(Class stmt);
         TR VisitInterfaceStmt(Interface stmt);
         TR VisitEnumStmt(Enum stmt);
@@ -40,6 +41,21 @@ public abstract class Stmt
         public override TR Accept<TR>(IVisitor<TR> visitor)
         {
             return visitor.VisitBlockStmt(this);
+        }
+    }
+
+    public class Break : Stmt
+    {
+        public IToken Keyword { get; }
+
+        public Break(IToken keyword)
+        {
+            Keyword = keyword;
+        }
+
+        public override TR Accept<TR>(IVisitor<TR> visitor)
+        {
+            return visitor.VisitBreakStmt(this);
         }
     }
 

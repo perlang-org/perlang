@@ -377,6 +377,7 @@ public class PerlangParser
 
     private Stmt Statement()
     {
+        if (Match(BREAK)) return BreakStatement();
         if (Match(FOR)) return ForStatement();
         if (Match(IF)) return IfStatement();
         if (Match(PRINT)) return PrintStatement();
@@ -396,6 +397,18 @@ public class PerlangParser
         }
 
         return ExpressionStatement();
+    }
+
+    private Stmt BreakStatement()
+    {
+        IToken keyword = Previous();
+
+        if (!IsAtEnd || !allowSemicolonElision)
+        {
+            Consume(SEMICOLON, "Expect ';' after 'break'.");
+        }
+
+        return new Stmt.Break(keyword);
     }
 
     private Stmt ForStatement()

@@ -38,6 +38,7 @@ internal class NameResolver : VisitorBase
     private readonly Dictionary<Stmt, Dictionary<string, IBindingFactory>> stmtScopes = new Dictionary<Stmt, Dictionary<string, IBindingFactory>>();
 
     private FunctionType currentFunction = FunctionType.NONE;
+    private int breakTargetDepth = 0;
     private Stmt.Class? currentClass = null;
     private bool firstPass = true;
 
@@ -663,6 +664,9 @@ internal class NameResolver : VisitorBase
         FunctionType enclosingFunction = currentFunction;
         currentFunction = type;
 
+        int enclosingBreakTargetDepth = breakTargetDepth;
+        breakTargetDepth = 0;
+
         BeginScope(function);
 
         foreach (Parameter param in function.Parameters)
@@ -674,7 +678,18 @@ internal class NameResolver : VisitorBase
         Resolve(function.Body);
         EndScope();
 
+        breakTargetDepth = enclosingBreakTargetDepth;
         currentFunction = enclosingFunction;
+    }
+
+    public override VoidObject VisitBreakStmt(Stmt.Break stmt)
+    {
+        if (breakTargetDepth == 0)
+        {
+            nameResolutionErrorHandler(new NameResolutionError("'break' can only be used inside a 'for', 'switch' or 'while' statement.", stmt.Keyword));
+        }
+
+        return VoidObject.Void;
     }
 
     public override VoidObject VisitIfStmt(Stmt.If stmt)
@@ -760,7 +775,19 @@ internal class NameResolver : VisitorBase
     public override VoidObject VisitWhileStmt(Stmt.While stmt)
     {
         Resolve(stmt.Condition);
+
+        breakTargetDepth++;
         Resolve(stmt.Body);
+        breakTargetDepth--;
+
+        return VoidObject.Void;
+    }
+
+    public override VoidObject VisitSwitchStmt(Stmt.Switch stmt)
+    {
+        breakTargetDepth++;
+        base.VisitSwitchStmt(stmt);
+        breakTargetDepth--;
 
         return VoidObject.Void;
     }

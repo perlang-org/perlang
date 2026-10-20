@@ -25,6 +25,7 @@ public class Scanner : IDisposable
         new Dictionary<string, TokenType>
         {
             // Currently supported keywords
+            { "break", BREAK },
             { "case", CASE },
             { "class", CLASS },
             { "constructor", CONSTRUCTOR },
@@ -91,7 +92,6 @@ public class Scanner : IDisposable
             { "printf", RESERVED_WORD },
 
             // Flow control
-            { "break", RESERVED_WORD },
             { "continue", RESERVED_WORD },
             { "foreach", RESERVED_WORD },
 

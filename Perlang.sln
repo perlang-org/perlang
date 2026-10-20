@@ -168,6 +168,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "the-language", "the-languag
 		docs\examples\the-language\user-defined-class.per = docs\examples\the-language\user-defined-class.per
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js", "js", "{297D76B2-89C3-4538-8682-BBAA31A7F7BB}"
+	ProjectSection(SolutionItems) = preProject
+		docs\js\highlightjs-perlang.js = docs\js\highlightjs-perlang.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -236,5 +241,6 @@ Global
 		{0AA3955B-8D3A-4CE5-AB14-1A56E461E47A} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
 		{F7037527-9C79-46EA-9D55-7917E747FB28} = {0AA3955B-8D3A-4CE5-AB14-1A56E461E47A}
 		{4BFAD1B9-54A1-46C5-AB84-ACAAF9AD8B2B} = {0AA3955B-8D3A-4CE5-AB14-1A56E461E47A}
+		{297D76B2-89C3-4538-8682-BBAA31A7F7BB} = {427BB3E8-68BF-411B-BC9C-80BA8CD31729}
 	EndGlobalSection
 EndGlobal

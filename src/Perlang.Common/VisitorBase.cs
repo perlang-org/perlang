@@ -203,6 +203,11 @@ public abstract class VisitorBase : Expr.IVisitor<VoidObject>, Stmt.IVisitor<Voi
         return VoidObject.Void;
     }
 
+    public virtual VoidObject VisitBreakStmt(Stmt.Break stmt)
+    {
+        return VoidObject.Void;
+    }
+
     public virtual VoidObject VisitClassStmt(Stmt.Class stmt)
     {
         foreach (Stmt.Field field in stmt.StmtFields)

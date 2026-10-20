@@ -114,11 +114,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     private readonly ICppTypeRegistry cppTypeRegistry;
 
+    private readonly Stack<string?> breakTargets = new();
+    private readonly HashSet<string> usedBreakLabels = new();
+
     private int indentationLevel = 1;
     private IPerlangType? currentClass = null;
     private ITypeReference? currentFunctionReturnTypeReference = null;
     private int tryExprCounter = 0;
     private int isExprCounter = 0;
+    private int switchEndLabelCounter = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PerlangCompiler"/> class.
@@ -1963,6 +1967,25 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         return result.ToString();
     }
 
+    public object VisitBreakStmt(Stmt.Break stmt)
+    {
+        using var result = NativeStringBuilder.Create();
+
+        result.Append(Indent(indentationLevel));
+
+        // Some form of switch statements do not compile to 'switch' on the C++ side. For those scenarios, we emulate
+        // 'break' by means of 'goto'. :)
+        if (breakTargets.TryPeek(out string? label) && label != null) {
+            usedBreakLabels.Add(label);
+            result.AppendLine($"goto {label};");
+        }
+        else {
+            result.AppendLine("break;");
+        }
+
+        return result.ToString();
+    }
+
     public object VisitClassStmt(Stmt.Class stmt)
     {
         using var classDefinitionBuilder = NativeStringBuilder.Create();
@@ -2564,7 +2587,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
         result.Append(Indent(indentationLevel));
         result.Append($"while ({whileStmt.Condition.Accept(this)}) ");
+
+        breakTargets.Push(null);
         result.Append(whileStmt.Body.Accept(this));
+        breakTargets.Pop();
+
         result.AppendLine(";");
 
         return result.ToString();
@@ -2586,6 +2613,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         result.AppendLine($"switch ({stmt.Value.Accept(this)}) {{");
 
         indentationLevel++;
+        breakTargets.Push(null);
 
         foreach (SwitchBranch switchBranch in stmt.Branches) {
             foreach (Expr condition in switchBranch.Conditions) {
@@ -2742,6 +2770,7 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
             indentationLevel--;
         }
 
+        breakTargets.Pop();
         indentationLevel--;
 
         result.Append(Indent(indentationLevel));
@@ -2752,10 +2781,17 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
 
     private object VisitStringSwitchStmt(Stmt.Switch stmt, ref int switchValueVariableCounter)
     {
+        // 'switch' statements on string values use a completely different implementation than other types of switch
+        // statements, because 'switch' in C++ does not support switching on strings. We emulate this by generating a
+        // set of 'if'/'if else' statements instead.
+
         using var result = NativeStringBuilder.Create();
 
         string switchValueVariableName = $"__perlang_internal_switch_value_{switchValueVariableCounter++}";
         bool switchValueInitialized = false;
+        string switchEndLabel = $"__perlang_internal_switch_end_{switchEndLabelCounter++}";
+
+        breakTargets.Push(switchEndLabel);
 
         result.Append(Indent(indentationLevel));
         foreach (SwitchBranch switchBranch in stmt.Branches) {
@@ -2820,6 +2856,15 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         if (!switchValueInitialized) {
             result.Append(Indent(indentationLevel));
             result.AppendLine($"if (auto&& {switchValueVariableName} = {stmt.Value.Accept(this)}; false) {{}}");
+        }
+
+        breakTargets.Pop();
+
+        // The 'goto' label is only emitted when 'break' is actually used, since -Wunused-label would otherwise lead to
+        // compilation errors on the C++ side.
+        if (usedBreakLabels.Remove(switchEndLabel)) {
+            result.Append(Indent(indentationLevel));
+            result.AppendLine($"{switchEndLabel}:;");
         }
 
         return result.ToString();
