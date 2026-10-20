@@ -16,6 +16,3 @@
 ### Tests
 
 ### Docs, website and installer
-
-<!-- Kept as an example; remove this comment the first time you reference a merge request -->
-[yyy]: https://gitlab.perlang.org/perlang/perlang/merge_requests/yyy

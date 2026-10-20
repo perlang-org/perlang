@@ -246,9 +246,14 @@ prepare-new-dev-version:
 	git push
 	git tag dev/$(NEXT_RELEASE_VERSION) && git push origin dev/$(NEXT_RELEASE_VERSION)
 
-publish-release:
+publish-release: update-release-notes-links
+	git diff --quiet release-notes || git commit -m '(release-notes) Add MR links' release-notes
 	echo $(NEXT_RELEASE_TAG) > .metadata/latest-release.txt
 	git release $(NEXT_RELEASE_TAG)
+
+.PHONY: update-release-notes-links
+update-release-notes-links:
+	scripts/add_release_notes_mr_links.py release-notes/$(NEXT_RELEASE_TAG).md
 
 # Can be used when commits are made without an associated MR. Note that the actual release notes entry must be added
 # manually.
