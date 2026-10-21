@@ -15,12 +15,12 @@ public static class PerlangTypes
     public static readonly CppType? PerlangObject = new CppType("perlang::Object", null, "object", wrapInSharedPtr: true);
 
     public static readonly CppType String = new CppType("perlang::String", null, "string", wrapInSharedPtr: true, extraMethods: [
-        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0)))
+        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0), UnionTypeType.Error, perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "error", file_name: "", line: 0)))
     ]);
 
     public static readonly CppType AsciiString = new CppType("perlang::ASCIIString", "ASCIIString", baseTypes: [String], wrapInSharedPtr: true,
         extraMethods: [
-            new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0))),
+            new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0), UnionTypeType.Error, perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "error", file_name: "", line: 0))),
             new CppFunction("as_utf16", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "UTF16String", file_name: "", line: 0)))
         ], extraFields: [
             new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")
@@ -28,12 +28,12 @@ public static class PerlangTypes
 
     // TODO: Dispose of Token created here (CreateNullToken)
     public static readonly CppType UTF8String = new CppType("perlang::UTF8String", "UTF8String", baseTypes: [String], wrapInSharedPtr: true, extraMethods: [
-        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0))),
+        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0), UnionTypeType.Error, perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "error", file_name: "", line: 0))),
         new CppFunction("as_utf16", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "UTF16String", file_name: "", line: 0)))
     ]);
 
     public static readonly CppType UTF16String = new CppType("perlang::UTF16String", "UTF16String", baseTypes: [String], wrapInSharedPtr: true, extraMethods: [
-        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0)))
+        new CppFunction("as_ascii", parameters: [], new TypeReference(perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "ASCIIString", file_name: "", line: 0), UnionTypeType.Error, perlang_cli.CreateNullToken(TokenType.IDENTIFIER, "error", file_name: "", line: 0)))
     ], extraFields: [
         // TODO: Support as_utf16() here too
         new CppPropertyGetter("length", new TypeReference(PerlangValueTypes.Int64), methodName: "length")

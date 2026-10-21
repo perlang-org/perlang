@@ -4,6 +4,8 @@
 #include "bigint.h"
 #include "utf8_string.h"
 #include "utf16_string.h"
+
+#include "exceptions/argument_error.h"
 #include "exceptions/null_pointer_exception.h"
 #include "internal/string_utils.h"
 
@@ -78,7 +80,7 @@ namespace perlang
         return *is_ascii_;
     }
 
-    std::unique_ptr<ASCIIString> UTF16String::as_ascii() const
+    std::variant<std::shared_ptr<ASCIIString>, std::shared_ptr<Error>> UTF16String::as_ascii() const
     {
         size_t len = length();
         char* buf = new char[len + 1];
@@ -86,7 +88,10 @@ namespace perlang
         for (size_t i = 0; i < len; i++) {
             if (data_[i] > 127) {
                 delete[] buf;
-                throw std::invalid_argument("Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString.");
+
+                return std::make_shared<ArgumentError>(
+                    "Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString."
+                );
             }
 
             buf[i] = static_cast<char>(data_[i]);

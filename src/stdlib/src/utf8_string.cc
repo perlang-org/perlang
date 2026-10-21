@@ -6,6 +6,8 @@
 #include "internal/string_utils.h"
 #include "utf8_string.h"
 
+#include "exceptions/argument_error.h"
+
 #define TWO_BYTE_UTF8(c)   (((c) & 0b11100000) == 0b11000000)
 #define THREE_BYTE_UTF8(c) (((c) & 0b11110000) == 0b11100000)
 #define FOUR_BYTE_UTF8(c)  (((c) & 0b11111000) == 0b11110000)
@@ -123,11 +125,13 @@ namespace perlang
         return *is_ascii_;
     }
 
-    std::unique_ptr<ASCIIString> UTF8String::as_ascii() const
+    std::variant<std::shared_ptr<ASCIIString>, std::shared_ptr<Error>> UTF8String::as_ascii() const
     {
         for (size_t i = 0; i < length_; i++) {
             if ((uint8_t)bytes_[i] > 127) {
-                throw std::invalid_argument("Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString.");
+                return std::make_shared<ArgumentError>(
+                    "Non-ASCII character encountered at index " + std::to_string(i) + ". This string cannot be converted to ASCIIString."
+                );
             }
         }
 

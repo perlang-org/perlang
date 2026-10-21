@@ -566,7 +566,7 @@ public class StringTests
     public void ascii_string_can_be_converted_to_ascii_string()
     {
         string source = """
-            var s: ASCIIString = "hello".as_ascii();
+            var s: ASCIIString = try "hello".as_ascii();
 
             print(s);
             """;
@@ -578,11 +578,11 @@ public class StringTests
     }
 
     [Fact]
-    public void utf8_string_with_non_ascii_content_throws_expected_error_on_as_ascii()
+    public void utf8_string_with_non_ascii_content_returns_expected_error_on_as_ascii()
     {
         string source = """
             var s: UTF8String = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-            var a: ASCIIString = s.as_ascii();
+            var a: ASCIIString = try s.as_ascii();
 
             print(a);
             """;
@@ -595,14 +595,14 @@ public class StringTests
             .Message.Should().Contain("exited with exit code 134");
 
         result.OutputAsString.Should()
-            .Contain("Non-ASCII character encountered");
+            .Contain("Unhandled error: Non-ASCII character encountered");
     }
 
     [Fact]
     public void utf16_string_with_ascii_content_can_be_converted_to_ascii_string()
     {
         string source = """
-            var s: ASCIIString = "hello".as_utf16().as_ascii();
+            var s: ASCIIString = try "hello".as_utf16().as_ascii();
 
             print(s);
             """;
@@ -614,11 +614,11 @@ public class StringTests
     }
 
     [Fact]
-    public void utf16_string_with_non_ascii_content_throws_expected_error_on_as_ascii()
+    public void utf16_string_with_non_ascii_content_returns_expected_error_on_as_ascii()
     {
         string source = """
             var s: UTF16String = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし".as_utf16();
-            var a: ASCIIString = s.as_ascii();
+            var a: ASCIIString = try s.as_ascii();
 
             print(a);
             """;
@@ -631,7 +631,7 @@ public class StringTests
             .Message.Should().Contain("exited with exit code 134");
 
         result.OutputAsString.Should()
-            .Contain("Non-ASCII character encountered");
+            .Contain("Unhandled error: Non-ASCII character encountered");
     }
 
     [Fact]
@@ -639,7 +639,7 @@ public class StringTests
     {
         string source = """
             var s: string = "hello";
-            var a: ASCIIString = s.as_ascii();
+            var a: ASCIIString = try s.as_ascii();
 
             print(a);
             """;
@@ -651,11 +651,11 @@ public class StringTests
     }
 
     [Fact]
-    public void string_variable_with_non_ascii_content_throws_expected_error_on_as_ascii()
+    public void string_variable_with_non_ascii_content_returns_expected_error_on_as_ascii()
     {
         string source = """
             var s: string = "this is a string with non-ASCII characters: åäöÅÄÖéèüÜÿŸïÏすし";
-            var a: ASCIIString = s.as_ascii();
+            var a: ASCIIString = try s.as_ascii();
 
             print(a);
             """;
@@ -668,6 +668,6 @@ public class StringTests
             .Message.Should().Contain("exited with exit code 134");
 
         result.OutputAsString.Should()
-            .Contain("Non-ASCII character encountered");
+            .Contain("Unhandled error: Non-ASCII character encountered");
     }
 }

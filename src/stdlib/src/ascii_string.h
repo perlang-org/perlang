@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <variant>
 
 #include "perlang_string.h"
 
@@ -77,7 +78,7 @@ namespace perlang
         }
 
         [[nodiscard]]
-        std::unique_ptr<ASCIIString> as_ascii() const override;
+        std::variant<std::shared_ptr<ASCIIString>, std::shared_ptr<Error>> as_ascii() const override;
 
         [[nodiscard]]
         std::unique_ptr<UTF16String> as_utf16() const override;

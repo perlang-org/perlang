@@ -95,11 +95,9 @@ namespace perlang
         return length_;
     }
 
-    std::unique_ptr<ASCIIString> ASCIIString::as_ascii() const
+    std::variant<std::shared_ptr<ASCIIString>, std::shared_ptr<Error>> ASCIIString::as_ascii() const
     {
-        // Making a copy here is incredibly inefficient, but there's really no way to return a _unique_ pointer here
-        // without making a new copy. Future improvements in this area could be to elaborate on if std::shared_ptr()
-        // could be an option; it might not be trivial.
+        // TODO: Making a copy here is incredibly inefficient. Could we return a shared pointer to ourselves?
         return from_copied_string(bytes_.get());
     }
 

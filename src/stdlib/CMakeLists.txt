@@ -265,6 +265,12 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(tests PRIVATE stdlib)
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 
+    # error.h depends on backtrace(), which is included in glibc on GNU/Linux, but is in an external library on BSD
+    # systems.
+    if (CMAKE_SYSTEM_NAME MATCHES "FreeBSD|NetBSD|OpenBSD")
+        target_link_libraries(tests PRIVATE execinfo)
+    endif()
+
     # We enable wrapping for fwrite(), to be able to capture its output in tests.
     target_link_options(tests PRIVATE -Wl,--wrap=fwrite)
 endif()

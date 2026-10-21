@@ -1739,6 +1739,10 @@ namespace Perlang
 
 namespace Perlang
 {
+}
+
+namespace Perlang
+{
     public unsafe partial class BigIntArray : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -5101,10 +5105,6 @@ namespace Perlang
             }
         }
     }
-}
-
-namespace Perlang
-{
 }
 
 namespace Perlang

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <memory>
@@ -7,10 +8,11 @@
 #include <string>
 #include <vector>
 
-#include "perlang_string.h"
-
 namespace perlang
 {
+    // Forward declaration because of circular dependency
+    class String;
+
     /// <summary>
     /// Base class for all Perlang errors. Captures a stack trace at the point of construction, making it
     /// possible to display a meaningful backtrace when an error is handled.

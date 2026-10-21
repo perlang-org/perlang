@@ -506,6 +506,31 @@ namespace Std
 
 namespace Std
 {
+    public unsafe partial class CowString
+    {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public partial struct __Internal
+        {
+            internal global::Std.CowString._0.__Internal _0;
+        }
+
+        public unsafe partial struct _0
+        {
+            [StructLayout(LayoutKind.Explicit, Size = 8)]
+            public partial struct __Internal
+            {
+                [FieldOffset(0)]
+                internal __IntPtr _M_p;
+
+                [FieldOffset(0)]
+                internal fixed sbyte _M_bytes[8];
+            }
+        }
+    }
+}
+
+namespace Std
+{
     namespace Vector
     {
         [StructLayout(LayoutKind.Sequential, Size = 24)]
@@ -551,29 +576,4 @@ namespace Std
 
 namespace Std
 {
-}
-
-namespace Std
-{
-    public unsafe partial class CowString
-    {
-        [StructLayout(LayoutKind.Sequential, Size = 8)]
-        public partial struct __Internal
-        {
-            internal global::Std.CowString._0.__Internal _0;
-        }
-
-        public unsafe partial struct _0
-        {
-            [StructLayout(LayoutKind.Explicit, Size = 8)]
-            public partial struct __Internal
-            {
-                [FieldOffset(0)]
-                internal __IntPtr _M_p;
-
-                [FieldOffset(0)]
-                internal fixed sbyte _M_bytes[8];
-            }
-        }
-    }
 }
