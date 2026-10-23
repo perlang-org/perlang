@@ -1337,6 +1337,11 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         // TODO: binding at an earlier stage and e.g. validate the number and type of arguments with the method
         // TODO: definition. Right now, we'll leave this to the C++ compiler to deal with...
 
+        if (expr.Callee is Expr.Get { Name.Lexeme: "to_int" } get && get.Object.TypeReference.CppType == PerlangValueTypes.Char) {
+            // char16_t does not have a to_int() method on the C++ side, so we emulate this by an '(int)c'-style cast.
+            return $"(({PerlangValueTypes.Int32.CppTypeName}){get.Object.Accept(this)})";
+        }
+
         using var result = NativeStringBuilder.Create();
 
         result.Append(expr.Callee.Accept(this));

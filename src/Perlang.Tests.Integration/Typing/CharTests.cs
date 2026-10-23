@@ -156,4 +156,109 @@ public class CharTests
             .ContainSingle().Which
             .Message.Should().Be("Unsupported escape sequence: \\x1B.");
     }
+
+    [Fact]
+    public void char_to_int_returns_code_unit_value()
+    {
+        string source = """
+            var c: char = 'A';
+
+            print(c.to_int());
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        Assert.Equal("65", output);
+    }
+
+    [Fact]
+    public void char_to_int_returns_code_unit_value_for_non_ascii_character()
+    {
+        string source = """
+            var c: char = '€';
+
+            print(c.to_int());
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        Assert.Equal("8364", output);
+    }
+
+    [Fact]
+    public void char_to_int_returns_int()
+    {
+        string source = """
+            var c: char = 'A';
+            var i = c.to_int();
+
+            print(i.get_type());
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        Assert.Equal("perlang.Int32", output);
+    }
+
+    [Fact]
+    public void char_to_int_can_be_called_on_char_literal()
+    {
+        string source = """
+            print('A'.to_int());
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        Assert.Equal("65", output);
+    }
+
+    [Fact]
+    public void char_to_int_result_can_be_compared_with_int()
+    {
+        string source = """
+            var c: char = 'A';
+
+            if (c.to_int() >= 0x41 && c.to_int() <= 0x5A) {
+                print("uppercase ASCII letter");
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        Assert.Equal("uppercase ASCII letter", output);
+    }
+
+    [Fact]
+    public void char_greater_than_compared_with_int_emits_expected_error()
+    {
+        string source = """
+            var c: char = 'A';
+
+            // This is expected to fail, since 'char' and 'int' cannot be directly compared like this
+            print(c > 0x40);
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Be("Unsupported > operand types: 'char' and 'int'");
+    }
+
+    [Fact(Skip = "Does not currently generate any errors")]
+    public void char_compared_with_int_emits_expected_error()
+    {
+        string source = """
+            var c: char = 'A';
+
+            // This is expected to fail, since 'char' and 'int' cannot be directly compared like this
+            print(c == 0x40);
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle().Which
+            .Message.Should().Be("Unsupported == operand types: 'char' and 'int'");
+    }
 }

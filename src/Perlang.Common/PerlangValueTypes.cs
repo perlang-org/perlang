@@ -12,7 +12,12 @@ public static class PerlangValueTypes
     public static readonly CppType Float = CppType.ValueType("float", "perlang.Float", "float");
     public static readonly CppType Double = CppType.ValueType("double", "perlang.Double", "double");
     public static readonly CppType Bool = CppType.ValueType("bool", "perlang.Bool", "bool");
-    public static readonly CppType Char = CppType.ValueType("char16_t", "perlang.Char", "char"); // Deliberately not char on the C++-side, since C++ char is 8-bit and we use UTF-16 chars in Perlang
+
+    // Deliberately not char on the C++-side, since C++ char is 8-bit and we use UTF-16 chars in Perlang
+    public static readonly CppType Char = CppType.ValueType("char16_t", "perlang.Char", "char", extraMethods: [
+        new CppFunction("to_int", parameters: [], new TypeReference(Int32))
+    ]);
+
     public static readonly CppType Enum = CppType.ValueType("PerlangEnum", "perlang.Enum", "enum");
     public static readonly CppType Void = CppType.ValueType("void", "perlang.Void", "void");
 
