@@ -83,6 +83,11 @@ public interface ITypeReference
     UnionTypeType UnionTypeType => UnionTypeType.None;
 
     /// <summary>
+    /// Gets the type specifier after the <c>|</c> in a <c>T | error</c> or <c>T | U</c> union type.
+    /// </summary>
+    IToken? UnionTypeSpecifier => null;
+
+    /// <summary>
     /// Gets a value indicating whether this type reference is a union type of the form <c>T | null</c>.
     /// </summary>
     bool IsNullableUnion => UnionTypeType == UnionTypeType.Null || CppType?.IsNullableUnion == true;

@@ -141,6 +141,12 @@ public static class TypeCoercer
                    CanBeCoercedInto(targetType.GetElementType(), sourceType, numericLiteral);
         }
 
+        if (targetType.IsMultipleTypesUnion)
+        {
+            return sourceType != PerlangTypes.NullObject &&
+                   targetType.UnionMemberTypes.Any(t => CanBeCoercedInto(t, sourceType, numericLiteral));
+        }
+
         // TODO: Ensure we have checks that validate that `var i: int = null` etc fails for all supported numeric
         // TODO: types. The check below lacks many value types.
 

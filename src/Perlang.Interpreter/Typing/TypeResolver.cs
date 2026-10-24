@@ -1104,6 +1104,9 @@ internal class TypeResolver : VisitorBase
 
                     continue;
                 }
+                else if (parameter.TypeReference.UnionTypeType == UnionTypeType.MultipleTypes) {
+                    ResolveMultipleTypesUnionType(parameter.TypeReference);
+                }
                 else {
                     ResolveExplicitTypes(parameter.TypeReference);
                 }
@@ -1139,6 +1142,9 @@ internal class TypeResolver : VisitorBase
                     "'T | error' union types are not supported for fields; only as function return types")
                 );
             }
+            else if (stmt.TypeReference.UnionTypeType == UnionTypeType.MultipleTypes) {
+                ResolveMultipleTypesUnionType(stmt.TypeReference);
+            }
             else {
                 ResolveExplicitTypes(stmt.TypeReference);
             }
@@ -1160,6 +1166,9 @@ internal class TypeResolver : VisitorBase
                     stmt.Name,
                     "'T | error' union types are not supported for variables; only as function return types")
                 );
+            }
+            else if (stmt.TypeReference.UnionTypeType == UnionTypeType.MultipleTypes) {
+                ResolveMultipleTypesUnionType(stmt.TypeReference);
             }
             else {
                 ResolveExplicitTypes(stmt.TypeReference);
@@ -1264,17 +1273,30 @@ internal class TypeResolver : VisitorBase
             return VoidObject.Void;
         }
 
+        CppType checkedType = expr.CheckedTypeReference.CppType!;
+
+        if (expr.Operand.TypeReference.CppType?.IsMultipleTypesUnion == true) {
+            if (!expr.Operand.TypeReference.CppType.UnionMemberTypes.Contains(checkedType)) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    expr.Keyword,
+                    $"'{expr.Operand.TypeReference.TypeKeywordOrPerlangType}' can never be " +
+                    $"'{expr.CheckedTypeReference.TypeKeywordOrPerlangType}'"
+                ));
+            }
+
+            return VoidObject.Void;
+        }
+
         if (!expr.Operand.TypeReference.IsNullableUnion) {
             typeValidationErrorCallback(new TypeValidationError(
                 expr.Keyword,
-                $"The 'is' operator can only be applied to expressions of a 'T | null' union type, " +
-                $"but {expr.Operand.TypeReference.ToQuotedTypeKeyword()} was encountered"
+                $"The 'is' operator can only be applied to union type expressions, but " +
+                $"{expr.Operand.TypeReference.ToQuotedTypeKeyword()} was encountered"
             ));
 
             return VoidObject.Void;
         }
 
-        CppType checkedType = expr.CheckedTypeReference.CppType!;
         CppType valueType = expr.Operand.TypeReference.CppType!.GetElementType();
 
         if (!checkedType.Equals(valueType)) {
@@ -1297,7 +1319,18 @@ internal class TypeResolver : VisitorBase
             currentFunctionReturnTypeReference?.IsUnionType != true) {
             typeValidationErrorCallback(new TypeValidationError(
                 newExpr.Token,
-                $"Error types can only be returned from functions with a 'T | error' union return type"));
+                "Error types can only be returned from functions with a 'T | error' union return type"));
+        }
+
+        if (stmt.Value is { TypeReference.IsResolved: true } &&
+            currentFunctionReturnTypeReference?.CppType?.IsMultipleTypesUnion == true &&
+            !TypeCoercer.CanBeCoercedInto(currentFunctionReturnTypeReference.CppType, stmt.Value.TypeReference.CppType, (stmt.Value as Expr.Literal)?.Value as INumericLiteral)) {
+
+            typeValidationErrorCallback(new TypeValidationError(
+                stmt.Keyword,
+                $"Function returning '{currentFunctionReturnTypeReference.TypeKeywordOrPerlangType}' " +
+                $"cannot return {stmt.Value.TypeReference.ToQuotedTypeKeyword()}"
+            ));
         }
 
         return VoidObject.Void;
@@ -1328,12 +1361,35 @@ internal class TypeResolver : VisitorBase
         if (typeReference.UnionTypeType == UnionTypeType.Null) {
             ResolveNullableUnionType(typeReference);
         }
+        else if (typeReference.UnionTypeType == UnionTypeType.MultipleTypes) {
+            ResolveMultipleTypesUnionType(typeReference);
+        }
         else if (typeReference.IsUnionType) {
             ResolveUnionReturnType(typeReference);
         }
         else {
             ResolveExplicitTypes(typeReference);
         }
+    }
+
+    private void ResolveMultipleTypesUnionType(ITypeReference typeReference)
+    {
+        var firstRef = new TypeReference(typeReference.TypeSpecifier, isArray: typeReference.IsArray);
+        var secondRef = new TypeReference(typeReference.UnionTypeSpecifier);
+        ResolveExplicitTypes(firstRef);
+        ResolveExplicitTypes(secondRef);
+
+        foreach (var memberRef in new[] { firstRef, secondRef }) {
+            if (!memberRef.IsResolved) {
+                typeValidationErrorCallback(new TypeValidationError(
+                    memberRef.TypeSpecifier!,
+                    $"Type not found: {memberRef.TypeSpecifier!.Lexeme}")
+                );
+                return;
+            }
+        }
+
+        typeReference.SetCppType(firstRef.CppType!.MakeMultipleTypesUnionType(secondRef.CppType!));
     }
 
     /// <summary>

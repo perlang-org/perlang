@@ -36,6 +36,8 @@ public record CppType : IPerlangType
     public bool IsInterface { get; }
     public bool IsNullableUnion { get; }
     public CppType? ElementType { get; }
+    public ImmutableList<CppType> UnionMemberTypes { get; }
+    public bool IsMultipleTypesUnion => !UnionMemberTypes.IsEmpty;
 
     public string TypeMethodNameSuffix => PerlangTypeName!.Replace(".", "_");
 
@@ -43,7 +45,7 @@ public record CppType : IPerlangType
         IEnumerable<CppType>? baseTypes = null, bool wrapInSharedPtr = false, bool isSupported = true,
         bool isNullObject = false, bool isArray = false, bool isEnum = false, bool isInterface = false,
         bool isNullableUnion = false, CppType? elementType = null, IEnumerable<IPerlangFunction>? extraMethods = null,
-        IEnumerable<IPerlangField>? extraFields = null)
+        IEnumerable<IPerlangField>? extraFields = null, IEnumerable<CppType>? unionMemberTypes = null)
     {
 #pragma warning disable CA2000
         if (isInterface) {
@@ -72,6 +74,7 @@ public record CppType : IPerlangType
         this.IsArray = isArray;
         this.IsEnum = isEnum;
         this.IsNullableUnion = isNullableUnion;
+        this.UnionMemberTypes = (unionMemberTypes ?? []).ToImmutableList();
 
         if (isArray && isNullableUnion) {
             throw new ArgumentException("A type cannot be both an array type and a nullable union type", nameof(isNullableUnion));
@@ -206,6 +209,17 @@ public record CppType : IPerlangType
             wrapInSharedPtr: false,
             isNullableUnion: true,
             elementType: this
+        );
+    }
+
+    public CppType MakeMultipleTypesUnionType(CppType other)
+    {
+        return new CppType(
+            $"std::variant<{PossiblyWrappedTypeName()}, {other.PossiblyWrappedTypeName()}>",
+            perlangTypeName: PerlangTypeName != null && other.PerlangTypeName != null ? $"{PerlangTypeName} | {other.PerlangTypeName}" : null,
+            typeKeyword: TypeKeyword != null && other.TypeKeyword != null ? $"{TypeKeyword} | {other.TypeKeyword}" : null,
+            wrapInSharedPtr: false,
+            unionMemberTypes: [this, other]
         );
     }
 

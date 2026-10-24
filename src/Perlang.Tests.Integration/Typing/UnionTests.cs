@@ -1,6 +1,4 @@
-using System;
 using AwesomeAssertions;
-using Perlang.Compiler;
 using Xunit;
 using static Perlang.Tests.Integration.EvalHelper;
 
@@ -9,87 +7,53 @@ namespace Perlang.Tests.Integration.Typing;
 public class UnionTests
 {
     [Fact]
-    public void is_char_returns_true_for_char_union_variable_with_char_value()
+    public void method_returning_char_and_string_union_can_return_char()
     {
         string source = """
-            var c: char | null = 'x';
+            fun f(): char | string
+            {
+                return 'a';
+            }
 
-            if (c is char v) {
-                print(v);
+            if (f() is char c) {
+                print c;
             }
             """;
 
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("x");
+            .Be("a");
     }
 
     [Fact]
-    public void is_char_returns_false_for_null_value()
+    public void method_returning_char_and_string_union_can_return_string()
     {
         string source = """
-            var c: char | null = null;
-
-            if (c is char v) {
-                print(v);
+            fun f(): char | string
+            {
+                return "this is a string";
             }
-            """;
 
-        var output = EvalReturningOutputString(source);
-
-        // Nothing is expected to be printed because the 'is' comparison is expected to evaluate to false
-        output.Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void is_char_can_specify_variable_with_expected_value_for_char_union_variable_with_char_value()
-    {
-        string source = """
-            var c: char | null = 'x';
-
-            if (c is char v) {
-                print("not null");
+            if (f() is string s) {
+                print s;
             }
             """;
 
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("not null");
+            .Be("this is a string");
     }
 
     [Fact]
-    public void is_char_can_specify_variable_for_false_scenario()
+    public void method_returning_char_and_string_union_cannot_return_null()
     {
         string source = """
-            var c: char | null = null;
-
-            if (c is char) {
-                print("null");
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        // Nothing is expected to be printed because the 'is' comparison is expected to evaluate to false
-        output.Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void is_char_can_not_use_specified_variable_in_else_branch()
-    {
-        string source = """
-            var c: char | null = 'x';
-
-            if (c is char v) {
-                print(v);
-            }
-            else {
-                // Expected to be a compilation error, since 'v' is not in scope here
-                print(v);
+            fun f(): char | string
+            {
+                // This is expected to generate a compilation error
+                return null;
             }
             """;
 
@@ -98,188 +62,116 @@ public class UnionTests
         result.Errors.Should()
             .ContainSingle()
             .Which
-            .Message.Should()
-            .Match("Undefined identifier 'v'");
+            .Message.Should().Be("Function returning 'char | string' cannot return null");
     }
 
     [Fact]
-    public void null_comparison_returns_false_for_char_union_variable_with_char_value()
+    public void method_with_char_and_string_union_parameter_can_be_called_with_char_argument()
     {
         string source = """
-            var c: char | null = 'x';
-
-            if (c == null) {
-                print("null");
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        // Nothing is expected to be printed because c is non-null
-        output.Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void null_comparison_returns_true_for_null_value()
-    {
-        string source = """
-            var c: char | null = null;
-
-            if (c == null) {
-                print("null");
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        output.Should()
-            .Be("null");
-    }
-
-    [Fact]
-    public void is_char_returns_false_for_char_union_variable_assigned_to_null_after_initialization()
-    {
-        string source = """
-            var c: char | null = 'x';
-
-            c = null;
-
-            if (c is char v) {
-                print(v);
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        // Expected to be empty since the 'is' check is expected to have evaluated to false in this case.
-        output.Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void function_with_nullable_union_return_type_can_return_non_null()
-    {
-        string source = """
-            fun f(): char | null
+            fun f(p: char | string): void
             {
-                return 'x';
-            }
-
-            var c = f();
-
-            if (c is char v) {
-                print(v);
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        output.Should()
-            .Be("x");
-    }
-
-    [Fact]
-    public void function_with_nullable_union_return_type_can_return_null()
-    {
-        string source = """
-            fun f(): char | null
-            {
-                return null;
-            }
-
-            var c = f();
-
-            if (c is char v) {
-                print(v);
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        // Expected to be empty since the method returned 'null'
-        output.Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void function_with_nullable_union_return_type_can_return_char_literal()
-    {
-        string source = """
-            fun f(): char | null
-            {
-                return 'x';
-            }
-
-            // TODO: 'print' currently does not support std::optional values
-            var c = f();
-            if (c is char) {
-                print "char";
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        output.Should()
-            .Be("char");
-    }
-
-    [Fact]
-    public void function_with_nullable_union_return_type_can_be_called_before_defined()
-    {
-        string source = """
-            // This (calling the 'f' method before it's defined) is a forward reference. The type is expected to be
-            // resolved correctly for this scenario as well.
-            var c = f();
-
-            if (c is char v) {
-                print(v);
-            }
-
-            fun f(): char | null
-            {
-                return 'x';
-            }
-            """;
-
-        var output = EvalReturningOutputString(source);
-
-        output.Should()
-            .Be("x");
-    }
-
-    [Fact]
-    public void function_with_nullable_union_parameter_can_receive_non_null_parameter()
-    {
-        string source = """
-            fun f(c: char | null): void
-            {
-                if (c is char d) {
-                    print(d);
+                if (p is char c) {
+                    print c;
                 }
             }
 
-            f('x');
+            f('a');
             """;
 
         var output = EvalReturningOutputString(source);
 
         output.Should()
-            .Be("x");
+            .Be("a");
     }
 
     [Fact]
-    public void setting_non_union_variable_to_null_emits_expected_error()
+    public void method_with_char_and_string_union_parameter_can_be_called_with_string_argument()
+    {
+        string source = """"
+            fun f(p: char | string): void
+            {
+                if (p is string s) {
+                    print s;
+                }
+            }
+
+            f("this is a string");
+            """";
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("this is a string");
+    }
+
+    [Fact]
+    public void method_with_char_and_string_union_parameter_cannot_be_called_with_null_argument()
     {
         string source = """
-            // Expected to fail since 'char' is not nullable
-            var c: char = null;
+            fun f(p: char | string): void
+            {
+            }
+
+            // This is expected to generate a compilation error
+            f(null);
             """;
 
-        Action action = () => EvalReturningOutput(source);
+        var result = EvalWithValidationErrorCatch(source);
 
-        // Relying on the raw C++ compilation error is admittedly rough, but better than nothing for now.
-        action.Should().Throw<PerlangCompilerException>()
-            .WithMessage("*cannot initialize a variable of type 'char16_t' with an rvalue of type 'std::nullptr_t'*");
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Be("Cannot pass null argument as parameter 'p: char | string' to f()");
+    }
+
+    [Fact]
+    public void char_and_string_union_field_can_be_assigned_char_literal()
+    {
+        string source = """
+            var v: char | string = 'a';
+
+            if (v is char c) {
+                print c;
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("a");
+    }
+
+    [Fact]
+    public void char_and_string_union_field_can_be_assigned_string()
+    {
+        string source = """
+            var v: char | string = "this is a string";
+
+            if (v is string s) {
+                print s;
+            }
+            """;
+
+        var output = EvalReturningOutputString(source);
+
+        output.Should()
+            .Be("this is a string");
+    }
+
+    [Fact]
+    public void char_and_string_union_cannot_be_assigned_null()
+    {
+        string source = """
+            // This is expected to generate a compilation error
+            var v: char | string = null;
+            """;
+
+        var result = EvalWithValidationErrorCatch(source);
+
+        result.Errors.Should()
+            .ContainSingle()
+            .Which
+            .Message.Should().Be("Cannot assign null to char | string variable");
     }
 }

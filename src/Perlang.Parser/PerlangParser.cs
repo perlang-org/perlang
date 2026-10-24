@@ -1680,11 +1680,14 @@ public class PerlangParser
 
     private static TypeReference MakeTypeReference(IToken? typeSpecifier, IToken? unionTypeSpecifier, bool isArray)
     {
-        if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
+        if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER && unionTypeSpecifier.Lexeme == "error") {
             return new TypeReference(typeSpecifier, UnionTypeType.Error, unionTypeSpecifier, isArray);
         }
+        else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == IDENTIFIER) {
+            return new TypeReference(typeSpecifier, UnionTypeType.MultipleTypes, unionTypeSpecifier, isArray);
+        }
         else if (unionTypeSpecifier != null && unionTypeSpecifier.Type == PERLANG_NULL) {
-            return new TypeReference(typeSpecifier, UnionTypeType.Null, unionErrorTypeSpecifier: null, isArray);
+            return new TypeReference(typeSpecifier, UnionTypeType.Null, unionTypeSpecifier: null, isArray);
         }
         else {
             return new TypeReference(typeSpecifier, isArray);

@@ -62,13 +62,15 @@ public class TypeReference : ITypeReference
     }
 
     private readonly bool isArray;
-    private readonly IToken? unionErrorTypeSpecifier;
+    private readonly IToken? unionTypeSpecifier;
 
     public bool IsArray => CppType?.IsArray ?? isArray;
 
     public UnionTypeType UnionTypeType { get; }
 
-    public bool IsUnionType => unionErrorTypeSpecifier != null || UnionSuccessTypeCppType != null;
+    public bool IsUnionType => UnionTypeType == UnionTypeType.Error || UnionSuccessTypeCppType != null;
+
+    public IToken? UnionTypeSpecifier => unionTypeSpecifier;
 
     public CppType? UnionSuccessTypeCppType { get; private set; }
 
@@ -116,18 +118,18 @@ public class TypeReference : ITypeReference
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TypeReference"/> class, for a union type of the form
-    /// <c>T | error</c> or <c>T | null</c>. For the former, the <paramref name="unionErrorTypeSpecifier"/> token
-    /// holds the error type (typically the identifier <c>error</c>); for the latter it is <c>null</c>.
+    /// <c>T | error</c>, <c>T | U</c> or <c>T | null</c>. For the first two, the <paramref name="unionTypeSpecifier"/>
+    /// token holds the type after the <c>|</c>; for the latter it is <c>null</c>.
     /// </summary>
     /// <param name="typeSpecifier">The success type specifier token (e.g. <c>bool</c>).</param>
     /// <param name="unionTypeType">The type of union type this type reference represents.</param>
-    /// <param name="unionErrorTypeSpecifier">The error type specifier token (e.g. <c>error</c>).</param>
+    /// <param name="unionTypeSpecifier">The type specifier token after the <c>|</c> (e.g. <c>error</c>).</param>
     /// <param name="isArray">Whether the success type is an array or not.</param>
-    public TypeReference(IToken? typeSpecifier, UnionTypeType unionTypeType, IToken? unionErrorTypeSpecifier, bool isArray = false)
+    public TypeReference(IToken? typeSpecifier, UnionTypeType unionTypeType, IToken? unionTypeSpecifier, bool isArray = false)
     {
         TypeSpecifier = typeSpecifier;
         UnionTypeType = unionTypeType;
-        this.unionErrorTypeSpecifier = unionErrorTypeSpecifier;
+        this.unionTypeSpecifier = unionTypeSpecifier;
         this.isArray = isArray;
     }
 

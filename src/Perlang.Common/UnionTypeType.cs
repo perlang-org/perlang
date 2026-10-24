@@ -4,5 +4,6 @@ public enum UnionTypeType
 {
     None,
     Error,
-    Null
+    Null,
+    MultipleTypes
 }

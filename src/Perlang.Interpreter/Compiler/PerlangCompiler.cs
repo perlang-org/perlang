@@ -2381,21 +2381,35 @@ public class PerlangCompiler : Expr.IVisitor<object?>, Stmt.IVisitor<object>, IT
         // The operand is evaluated once, into a temporary, since it is needed both for the type check and for the
         // binding. `auto&&` avoids copying it, and the init-statement keeps it from leaking into the enclosing scope.
         string tmpName = $"__perlang_is_{isExprCounter++}";
+        CppType operandCppType = isExpr.Operand.TypeReference.CppType!;
+        string bindingValue;
 
         result.Append(Indent(indentationLevel));
-        result.AppendLine($"if (auto&& {tmpName} = {isExpr.Operand.Accept(this)}; {tmpName}.has_value()) {{");
+
+        if (operandCppType.IsMultipleTypesUnion)
+        {
+            int index = operandCppType.UnionMemberTypes.IndexOf(isExpr.CheckedTypeReference.CppType!);
+
+            result.AppendLine($"if (auto&& {tmpName} = {isExpr.Operand.Accept(this)}; {tmpName}.index() == {index}) {{");
+            bindingValue = $"std::get<{index}>({tmpName})";
+        }
+        else
+        {
+            result.AppendLine($"if (auto&& {tmpName} = {isExpr.Operand.Accept(this)}; {tmpName}.has_value()) {{");
+
+            // Note the dereference rather than value(); the latter throws std::bad_optional_access, and has_value()
+            // has already been checked at this point.
+            bindingValue = $"*{tmpName}";
+        }
 
         indentationLevel++;
 
         if (isExpr.Binding != null)
         {
-            // Note the dereference rather than value(); the latter throws std::bad_optional_access, and has_value()
-            // has already been checked at this point.
-            //
             // [[maybe_unused]] is needed because the Perlang code is free to ignore the binding, which could otherwise
             // trigger the -Wunused-variable compiler check.
             result.Append(Indent(indentationLevel));
-            result.AppendLine($"[[maybe_unused]] {isExpr.CheckedTypeReference.PossiblyWrappedCppType} {isExpr.Binding.Lexeme} = *{tmpName};");
+            result.AppendLine($"[[maybe_unused]] {isExpr.CheckedTypeReference.PossiblyWrappedCppType} {isExpr.Binding.Lexeme} = {bindingValue};");
         }
 
         if (stmt.ThenBranch is Stmt.Block thenBlock)
